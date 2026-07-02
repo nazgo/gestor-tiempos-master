@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>🏆 Resultado Mejor Tiempo</h2>
+
+{% if best %}
+<div class="card border-success">
+    <div class="card-body">
+        <h4>{{ best.nombre_nadador }}</h4>
+        <p><strong>Prueba:</strong> {{ best.estilo }} {{ best.distancia }}m</p>
+        <p class="display-4 fw-bold text-success">{{ best.tiempo }}</p>
+        <p><strong>Fecha:</strong> {{ best.fecha }}</p>
+        <p><strong>Categoría:</strong> {{ best.categoria_master or '—' }}</p>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    No se encontraron registros con los filtros seleccionados.
+</div>
+{% endif %}
+
+<a href="/season_best" class="btn btn-primary mt-3">Nueva Búsqueda</a>
+
+ <div class="text-center mt-4">
+            <a href="/" class="btn btn-secondary">← Volver al Inicio</a>
+        </div>
+    </div> 
+{% endblock %}

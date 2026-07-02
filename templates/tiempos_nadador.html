@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Tiempos de {{ nadador.nombre }} {{ nadador.apellido }}</h2>
+<p><strong>Categoría:</strong> {{ nadador.categoria_master }}</p>
+
+<a href="/agregar?nadador_id={{ nadador.id }}" class="btn btn-success mb-3">
+    <i class="fas fa-plus"></i> Agregar Tiempo
+</a>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Estilo</th>
+            <th>Distancia</th>
+            <th>Tiempo</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in tiempos %}
+        <tr>
+            <td>{{ t.estilo }}</td>
+            <td>{{ t.distancia }}m</td>
+            <td><strong>{{ t.tiempo }}</strong></td>
+            <td>{{ t.fecha }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="/nadadores" class="btn btn-secondary">← Volver a Nadadores</a>
+{% endblock %}

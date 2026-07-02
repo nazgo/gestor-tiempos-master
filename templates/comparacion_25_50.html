@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h2 class="display-5 fw-bold text-primary">⚖️ Comparativa de Tiempos</h2>
+    <p class="lead">25 metros vs 50 metros</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <form method="POST" action="/comparacion_25_50_resultado">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Seleccione un nadador</label>
+                        <select name="nadador_id" class="form-select form-select-lg" required>
+                            <option value="">-- Seleccione un nadador --</option>
+                            {% for n in nadadores %}
+                            <option value="{{ n.id }}">{{ n.nombre }} {{ n.apellido }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        ⚖️ Comparar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <a href="/" class="btn btn-secondary">← Volver al Inicio</a>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>📈 Evolución de {{ nadador.nombre }} {{ nadador.apellido }}</h2>
+<p><strong>Categoría:</strong> {{ nadador.categoria_master }}</p>
+
+<div class="row g-4">
+    <!-- Gráfico General -->
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5>Evolución General de Tiempos</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="generalChart" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="col-lg-4">
+        <div class="card shadow h-100">
+            <div class="card-body">
+                <h5>Resumen</h5>
+                <p><strong>Total tiempos:</strong> {{ tiempos|length }}</p>
+                <p><strong>Mejor tiempo:</strong> {{ tiempos[0].tiempo if tiempos else '—' }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla -->
+<h5 class="mt-5">Historial Completo</h5>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Prueba</th>
+            <th>Tiempo</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in tiempos %}
+        <tr>
+            <td>{{ t.fecha }}</td>
+            <td>{{ t.estilo }} {{ t.distancia }}m</td>
+            <td><strong>{{ t.tiempo }}</strong></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    const tiempos = {{ tiempos|tojson }};
+    
+    // Gráfico General
+    new Chart(document.getElementById('generalChart'), {
+        type: 'line',
+        data: {
+            labels: tiempos.map(t => t.fecha),
+            datasets: [{
+                label: 'Tiempo (segundos)',
+                data: tiempos.map(t => t.tiempo_segundos),
+                borderColor: '#0d6efd',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { reverse: true } }
+        }
+    });
+</script>
+{% endblock %}

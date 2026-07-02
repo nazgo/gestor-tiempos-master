@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold text-primary">Sistema de Gestión de Tiempos</h1>
+    <p class="lead text-muted">Club Natación Ñuñoa Master - Natación Competitiva</p>
+</div>
+
+<div class="row g-4">
+    <!-- Fila 1 -->
+<div class="col-md-3 col-sm-6">
+    <a href="/nadadores" class="text-decoration-none">
+        <div class="card h-100 shadow-sm hover-card">
+            <div class="card-body text-center p-4">
+                <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                    <i class="fas fa-users fa-3x text-success"></i>
+                </div>
+                <h5 class="text-success">Gestión de Nadadores</h5>
+                <p class="text-muted small">Agrega / Ver un Nadador</p>
+            </div>
+        </div>
+    </a>
+</div>
+
+    <div class="col-md-3 col-sm-6">
+        <a href="/season_best" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="fas fa-trophy fa-3x text-warning"></i>
+                    </div>
+                    <h5 class="text-warning">Season Best</h5>
+                    <p class="text-muted small">Ver los mejores tiempos</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+        <a href="/estadisticas" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="fas fa-chart-bar fa-3x text-info"></i>
+                    </div>
+                    <h5 class="text-info">Estadísticas del Club</h5>
+                    <p class="text-muted small">Resumen y métricas generales</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+  <div class="col-md-3 col-sm-6">
+        <a href="/listar" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="fas fa-search fa-3x text-secondary"></i>
+                    </div>
+                    <h5 class="text-secondary">Tiempos Registrados</h5>
+                    <p class="text-muted small">Ver todos los Tiempos Registrados</p>
+                </div>
+            </div>
+        </a>
+    </div>    
+
+
+    <!-- Fila 2 -->
+    <div class="col-md-3 col-sm-6">
+        <a href="#" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="fas fa-flag fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="text-primary">En Construcción</h5>
+                    <p class="text-muted small">En Construcción</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+        <a href="/nadadores" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="fas fa-chart-line fa-3x text-success"></i>
+                    </div>
+                    <h5 class="text-success">Progreso del Nadador</h5>
+                    <p class="text-muted small">Evolución y Estadísticas Personales</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+        <a href="/comparacion_25_50" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="fas fa-balance-scale fa-3x text-info"></i>
+                    </div>
+                    <h5 class="text-info">Comparativa 25 vs 50</h5>
+                    <p class="text-muted small">Comparar piscinas</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+        <a href="/calendario" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="fas fa-calendar-alt fa-3x text-warning"></i>
+                    </div>
+                    <h5 class="text-warning">Próximas Competencias</h5>
+                    <p class="text-muted small">Calendario Circuito FCHMN</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<style>
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+</style>
+{% endblock %}

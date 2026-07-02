@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4>➕ Agregar Nuevo Nadador</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Nombre</label>
+                            <input type="text" name="nombre" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Apellido</label>
+                            <input type="text" name="apellido" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Fecha de Nacimiento</label>
+                            <input type="date" name="fecha_nacimiento" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>RUT (opcional)</label>
+                            <input type="text" name="rut" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Género</label>
+                        <select name="genero" class="form-select">
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Guardar Nadador</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

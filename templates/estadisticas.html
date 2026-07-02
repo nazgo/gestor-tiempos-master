@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h2 class="display-5 fw-bold text-primary"><i class="fas fa-chart-bar"></i> Estadísticas del Club</h2>
+    <p class="lead">Ñuñoa Master - Resumen General</p>
+</div>
+
+<!-- Tarjetas Resumen -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card text-center h-100 shadow-sm border-0">
+            <div class="card-body">
+                <i class="fas fa-stopwatch fa-3x text-primary mb-3"></i>
+                <h2 class="text-primary">{{ stats.general.total_tiempos }}</h2>
+                <p class="text-muted mb-0">Tiempos Registrados</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center h-100 shadow-sm border-0">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x text-success mb-3"></i>
+                <h2 class="text-success">{{ stats.general.total_nadadores }}</h2>
+                <p class="text-muted mb-0">Total de Nadadores</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center h-100 shadow-sm border-0">
+            <div class="card-body">
+                <i class="fas fa-user-check fa-3x text-info mb-3"></i>
+                <h2 class="text-info">{{ stats.general.total_nadadores }}</h2>
+                <p class="text-muted mb-0">Nadadores Activos en {{ año_actual }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center h-100 shadow-sm border-0">
+            <div class="card-body">
+                <i class="fas fa-calendar-alt fa-3x text-warning mb-3"></i>
+                <h2 class="text-warning">{{ stats.temporadas }}</h2>
+                <p class="text-muted mb-0">Temporadas</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Nadadores Más Activos -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-fire"></i> Nadadores Más Activos en {{ año_actual }}
+            </h5>
+        </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nadador</th>
+                            <th class="text-end">Tiempos Registrados</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for n in stats.mas_activos %}
+                        <tr>
+                            <td>{{ n.nombre_nadador }}</td>
+                            <td class="text-end fw-bold">{{ n.total_tiempos }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mejores Tiempos -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="fas fa-trophy"></i> Mejores Tiempos en 50 metros
+            </h5>
+        </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nadador</th>
+                            <th>Estilo</th>
+                            <th>Tiempo</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in stats.por_prueba[:8] %}  <!-- Limitar a 8 -->
+                        <tr>
+                            <td><strong>{{ p.nombre_nadador or '—' }}</strong></td>
+                            <td>{{ p.estilo }}</td>
+                            <td><span class="badge bg-success">{{ p.tiempo }}</span></td>
+                            <td>{{ p.fecha or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-5">
+    <a href="/" class="btn btn-secondary">← Volver al Inicio</a>
+</div>
+
+{% for p in por_prueba %}
+<tr>
+    <td>{{ p.nombre_nadador }}</td>
+    <td>{{ p.estilo }}</td>
+    <td>{{ p.tiempo or 'NO TIME' }}</td>
+    <td>{{ p.fecha }}</td>
+</tr>
+{% endfor %}
+
+{% endblock %}

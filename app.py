@@ -1,0 +1,346 @@
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
+from functools import wraps
+from datetime import datetime
+from gestor_tiempos_nadadores_master import GestorTiemposMaster
+from gestor_usuarios import GestorUsuarios
+from gestor_nadadores import GestorNadadores
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+
+app = Flask(__name__)
+app.secret_key = 'clave_super_secreta_master_nadadores_2026'
+
+# Instancias
+gestor_tiempos = GestorTiemposMaster("nadadores_master_competitivos.db")
+gestor_usuarios = GestorUsuarios()
+gestor_nadadores = GestorNadadores()
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Debes iniciar sesión', 'danger')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('rol') != 'admin':
+            flash('No tienes permisos de administrador', 'danger')
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def editor_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('rol') not in ['admin', 'editor']:
+            flash('No tienes permisos para editar', 'danger')
+            return redirect(request.referrer or url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        usuario = gestor_usuarios.verificar_login(username, password)
+        if usuario:
+            session['user_id'] = usuario['id']
+            session['username'] = usuario['username']
+            session['rol'] = usuario['rol']
+            flash(f'Bienvenido, {usuario["username"]}', 'success')
+            return redirect(url_for('index'))
+        flash('Usuario o contraseña incorrectos', 'danger')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('Sesión cerrada', 'info')
+    return redirect(url_for('login'))
+
+@app.route('/')
+@login_required
+def index():
+    return render_template('index.html')
+
+# ==================== ADMINISTRACIÓN ====================
+@app.route('/admin/usuarios')
+@admin_required
+def admin_usuarios():
+    usuarios = gestor_usuarios.listar_usuarios()
+    return render_template('admin_usuarios.html', usuarios=usuarios)
+
+@app.route('/admin/crear_usuario', methods=['POST'])
+@admin_required
+def crear_usuario():
+    username = request.form['username']
+    password = request.form['password']
+    rol = request.form['rol']
+    nombre = request.form.get('nombre', '')
+    try:
+        gestor_usuarios.crear_usuario(username, password, rol, nombre)
+        flash('Usuario creado correctamente', 'success')
+    except Exception as e:
+        flash(f'Error al crear usuario: {e}', 'danger')
+    return redirect(url_for('admin_usuarios'))
+
+@app.route('/admin/cambiar_rol/<int:user_id>', methods=['POST'])
+@admin_required
+def cambiar_rol(user_id):
+    nuevo_rol = request.form['rol']
+    gestor_usuarios.cambiar_rol(user_id, nuevo_rol)
+    flash('Rol actualizado', 'success')
+    return redirect(url_for('admin_usuarios'))
+
+@app.route('/admin/cambiar_password/<int:user_id>', methods=['POST'])
+@admin_required
+def cambiar_password(user_id):
+    new_pass = request.form['new_password']
+    gestor_usuarios.cambiar_password(user_id, new_pass)
+    flash('Contraseña actualizada correctamente', 'success')
+    return redirect(url_for('admin_usuarios'))
+
+@app.route('/admin/eliminar_usuario/<int:user_id>', methods=['POST'])
+@admin_required
+def eliminar_usuario(user_id):
+    if gestor_usuarios.eliminar_usuario(user_id):
+        flash('Usuario eliminado correctamente', 'success')
+    else:
+        flash('No se puede eliminar el usuario administrador principal', 'danger')
+    return redirect(url_for('admin_usuarios'))
+
+# ==================== OTRAS RUTAS (agregar según necesites) ====================
+@app.route('/agregar', methods=['GET', 'POST'])
+@login_required
+def agregar():
+    if request.method == 'POST':
+        try:
+            print("DEBUG FORM:", dict(request.form))  # Debug
+            
+            nombre = request.form['nombre'].strip()
+            estilo = request.form['estilo']
+            distancia = int(request.form['distancia'])
+            piscina = request.form.get('piscina', '25 metros')
+            tiempo = request.form['tiempo'].strip()
+            fecha_str = request.form.get('fecha')
+
+            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else None
+
+            gestor_tiempos.agregar_tiempo(nombre, estilo, distancia, tiempo, fecha, piscina)
+            flash('✅ Tiempo registrado correctamente', 'success')
+            return redirect(url_for('nadadores'))
+        except Exception as e:
+            flash(f'❌ Error: {str(e)}', 'danger')
+
+    return render_template('agregar.html', 
+                         estilos=gestor_tiempos.ESTILOS, 
+                         distancias=gestor_tiempos.DISTANCIAS)
+
+@app.route('/season_best', methods=['GET', 'POST'])
+@login_required
+def season_best():
+    if request.method == 'POST':
+        nombre = request.form.get('nombre', '').strip()
+        estilo = request.form.get('estilo')
+        distancia = request.form.get('distancia')
+        categoria = request.form.get('categoria')
+        year = request.form.get('year')
+
+        # Lógica de búsqueda avanzada
+        best = gestor_tiempos.obtener_season_best_avanzado(nombre, estilo, distancia, categoria, year)
+        
+        return render_template('season_best.html', best=best, nombre=nombre, estilo=estilo, distancia=distancia, categoria=categoria)
+    
+    return render_template('season_best_form.html', estilos=gestor_tiempos.ESTILOS, distancias=gestor_tiempos.DISTANCIAS)
+
+
+# ==================== GESTIÓN DE NADADORES ====================
+@app.route('/nadadores')
+@login_required
+def nadadores():
+    nadadores = gestor_nadadores.listar_nadadores()
+    return render_template('nadadores.html', nadadores=nadadores)
+
+@app.route('/nadadores/agregar', methods=['GET', 'POST'])
+@login_required
+@editor_required
+def agregar_nadador():
+    if request.method == 'POST':
+        try:
+            nombre = request.form['nombre'].strip()
+            apellido = request.form['apellido'].strip()
+            fecha_nac_str = request.form['fecha_nacimiento']
+            rut = request.form.get('rut', '').strip()
+            genero = request.form.get('genero')
+
+            fecha_nac = datetime.strptime(fecha_nac_str, '%Y-%m-%d').date()
+            
+            gestor_nadadores.agregar_nadador(nombre, apellido, fecha_nac, rut, genero)
+            flash('✅ Nadador agregado correctamente', 'success')
+            return redirect(url_for('nadadores'))
+        except Exception as e:
+            flash(f'❌ Error: {str(e)}', 'danger')
+    
+    return render_template('agregar_nadador.html')
+
+@app.route('/nadador/<int:nadador_id>/editar', methods=['GET', 'POST'])
+@login_required
+@editor_required
+def editar_nadador(nadador_id):
+    nadador = gestor_nadadores.obtener_nadador(nadador_id)
+    if not nadador:
+        flash('Nadador no encontrado', 'danger')
+        return redirect(url_for('nadadores'))
+
+    if request.method == 'POST':
+        try:
+            nombre = request.form['nombre'].strip()
+            apellido = request.form['apellido'].strip()
+            fecha_nac = datetime.strptime(request.form['fecha_nacimiento'], '%Y-%m-%d').date()
+            rut = request.form.get('rut', '').strip()
+            genero = request.form.get('genero')
+
+            gestor_nadadores.actualizar_nadador(nadador_id, nombre, apellido, fecha_nac, rut, genero)
+            flash('✅ Nadador actualizado correctamente', 'success')
+            return redirect(url_for('nadadores'))
+        except Exception as e:
+            flash(f'❌ Error al actualizar: {str(e)}', 'danger')
+
+    return render_template('editar_nadador.html', nadador=nadador)
+
+
+@app.route('/nadador/<int:nadador_id>/eliminar', methods=['POST'])
+@login_required
+@editor_required
+def eliminar_nadador(nadador_id):
+    # Lógica de eliminación
+    flash('✅ Nadador eliminado', 'success')
+    return redirect(url_for('nadadores'))
+
+@app.route('/listar')
+@login_required
+def listar_tiempos():
+    filtro_nombre = request.args.get('filtro', '')
+    tiempos = gestor_tiempos.obtener_todos_los_tiempos(filtro_nombre)
+    return render_template('listar_tiempos.html', tiempos=tiempos, filtro=filtro_nombre)
+
+
+@app.route('/nadador/<int:nadador_id>/tiempos')
+@login_required
+def tiempos_nadador(nadador_id):
+    nadador = gestor_nadadores.obtener_nadador(nadador_id)
+    if not nadador:
+        flash('Nadador no encontrado', 'danger')
+        return redirect(url_for('nadadores'))
+    
+    # Filtrar tiempos de este nadador
+    tiempos = [t for t in gestor_tiempos.obtener_todos_los_tiempos() if t['nombre_nadador'].lower() == (nadador['nombre'] + ' ' + nadador['apellido']).lower()]
+    
+    return render_template('tiempos_nadador.html', nadador=nadador, tiempos=tiempos)
+
+# ==================== GESTIÓN DE TIEMPOS ====================
+@app.route('/tiempo/<int:tiempo_id>/editar', methods=['GET', 'POST'])
+@login_required
+@editor_required
+def editar_tiempo(tiempo_id):
+    tiempo = gestor_tiempos.obtener_tiempo_por_id(tiempo_id)
+    if not tiempo:
+        flash('Tiempo no encontrado', 'danger')
+        return redirect(url_for('listar_tiempos'))
+
+    if request.method == 'POST':
+        try:
+            nombre = request.form['nombre']
+            estilo = request.form['estilo']
+            distancia = int(request.form['distancia'])
+            piscina = request.form.get('piscina', '25 metros')
+            tiempo_str = request.form['tiempo']
+            fecha = datetime.strptime(request.form['fecha'], '%Y-%m-%d').date()
+
+            gestor_tiempos.actualizar_tiempo(tiempo_id, nombre, estilo, distancia, piscina, tiempo_str, fecha)
+            flash('✅ Tiempo actualizado correctamente', 'success')
+            return redirect(url_for('listar_tiempos'))
+        except Exception as e:
+            flash(f'❌ Error: {str(e)}', 'danger')
+
+    return render_template('editar_tiempo.html', tiempo=tiempo, estilos=gestor_tiempos.ESTILOS, distancias=gestor_tiempos.DISTANCIAS)
+
+
+@app.route('/tiempo/<int:tiempo_id>/eliminar', methods=['POST'])
+@login_required
+@editor_required
+def eliminar_tiempo(tiempo_id):
+    gestor_tiempos.eliminar_tiempo(tiempo_id)
+    flash('✅ Tiempo eliminado correctamente', 'success')
+    return redirect(url_for('listar_tiempos'))
+
+@app.route('/estadisticas')
+@login_required
+def estadisticas_club():
+    stats = gestor_tiempos.obtener_estadisticas_club()
+    return render_template('estadisticas.html', 
+                         stats=stats, 
+                         año_actual=datetime.now().year)
+
+
+@app.route('/nadador/<int:nadador_id>/progreso')
+@login_required
+def progreso_nadador(nadador_id):
+    nadador = gestor_nadadores.obtener_nadador(nadador_id)
+    if not nadador:
+        flash('Nadador no encontrado', 'danger')
+        return redirect(url_for('nadadores'))
+    
+    nombre_completo = f"{nadador['nombre']} {nadador['apellido']}"
+    tiempos = gestor_tiempos.obtener_tiempos_nadador(nombre_completo)
+    
+    return render_template('progreso_nadador.html', nadador=nadador, tiempos=tiempos)
+
+
+@app.route('/comparacion_25_50')
+@login_required
+def comparacion_25_50():
+    nadadores = gestor_nadadores.listar_nadadores()
+    return render_template('comparacion_25_50.html', nadadores=nadadores)
+
+@app.route('/comparacion_25_50_resultado', methods=['POST'])
+@login_required
+def comparacion_resultado():
+    nadador_id = request.form.get('nadador_id')
+    if not nadador_id:
+        flash('Debe seleccionar un nadador', 'danger')
+        return redirect(url_for('comparacion_25_50'))
+    
+    comparacion = gestor_tiempos.comparacion_nadador_25_50(nadador_id)
+    nadador = gestor_nadadores.obtener_nadador(nadador_id)
+    
+    return render_template('comparacion_resultado.html', nadador=nadador, comparacion=comparacion)
+
+@app.route('/calendario')
+@login_required
+def calendario_competencias():
+    competencias = gestor_tiempos.listar_competencias()
+    return render_template('calendario.html', competencias=competencias)
+
+@app.route('/calendario/actualizar_estado', methods=['POST'])
+@login_required
+@editor_required
+def actualizar_estado():
+    competencia_id = request.form.get('id')
+    estado = request.form.get('estado')
+    gestor_tiempos.actualizar_estado_competencia(competencia_id, estado)
+    flash('Estado actualizado correctamente', 'success')
+    return redirect(url_for('calendario_competencias'))
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+
+

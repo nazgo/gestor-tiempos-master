@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>👥 Nadadores Registrados</h2>
+    <a href="/nadadores/agregar" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nuevo Nadador
+    </a>
+</div>
+
+<div class="card shadow">
+    <div class="table-responsive">
+        <table class="table table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Nombre Completo</th>
+            <th>RUT</th>
+            <th>Fecha Nac.</th>
+            <th>Categoría Master</th>
+            <th class="text-center">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for n in nadadores %}
+      <tr>
+    <td><strong>{{ n.nombre }} {{ n.apellido }}</strong></td>
+    <td>{{ n.rut or '—' }}</td>
+    <td>{{ n.fecha_nacimiento }}</td>
+    <td><span class="badge bg-info">{{ n.categoria_master }}</span></td>
+    <td class="text-center">
+<a href="/nadador/{{ n.id }}/progreso" class="btn btn-info btn-sm">
+    📈 Progreso
+</a>
+    <a href="/agregar?nadador_id={{ n.id }}" class="btn btn-success btn-sm me-1" title="Agregar Tiempo">
+        <i class="fas fa-plus"></i>
+    </a>
+    <a href="/nadador/{{ n.id }}/tiempos" class="btn btn-primary btn-sm me-1" title="Ver Tiempos">
+        <i class="fas fa-clock"></i>
+    </a>
+    <a href="/nadador/{{ n.id }}/editar" class="btn btn-warning btn-sm me-1" title="Editar Nadador">
+        <i class="fas fa-edit"></i>
+    </a>
+    <form method="POST" action="/nadador/{{ n.id }}/eliminar" class="d-inline" 
+          onsubmit="return confirm('¿Eliminar este nadador y todos sus tiempos?')">
+        <button type="submit" class="btn btn-danger btn-sm" title="Eliminar Nadador">
+            <i class="fas fa-trash"></i>
+        </button>
+    </form>
+</td>
+</tr>
+        {% endfor %}
+    </tbody>
+</table>
+    </div>
+</div>
+
+{% endblock %}
