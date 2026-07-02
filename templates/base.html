@@ -15,6 +15,20 @@
         height: 55px;
         border-radius: 8px;
     }
+
+       .watermark {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.08;
+    z-index: -1;
+    pointer-events: none;
+}
+.watermark img {
+    width: 600px;
+    height: auto;
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -44,6 +58,10 @@
         </div>
     </nav>
 
+    <div class="watermark">
+        <img src="/static/logo.png" alt="Natación Ñuñoa">
+    </div>
+    
     <div class="container mt-3 pt-3">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
