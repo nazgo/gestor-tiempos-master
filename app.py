@@ -363,9 +363,12 @@ def importar_tiempos():
 @login_required
 def exportar_pdf():
     tiempos = gestor_tiempos.obtener_todos_los_tiempos()
-    # Usa pdf skill or reportlab
-    flash('Exportar a PDF en desarrollo', 'info')
-    return redirect(url_for('listar_tiempos'))
+    pdf_path = gestor_tiempos.exportar_a_pdf(tiempos)
+    return send_file(pdf_path, as_attachment=True, download_name='tiempos.pdf')
+
+
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
