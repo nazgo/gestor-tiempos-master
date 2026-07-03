@@ -402,16 +402,7 @@ def mejores_tiempos():
     top_tiempos = gestor_tiempos.obtener_top_5_por_categoria_estilo()
     return render_template('mejores_tiempos.html', top_tiempos=top_tiempos)
 
-@app.route('/calendario/actualizar_status', methods=['POST'])
-@login_required
-@editor_required
-def actualizar_status():
-    competencia_id = request.form.get('id')
-    # Toggle entre REALIZADO y NO REALIZADO
-    nuevo_estado = 'NO REALIZADO' if request.form.get('estado') == 'REALIZADO' else 'REALIZADO'
-    gestor_tiempos.actualizar_estado_competencia(competencia_id, nuevo_estado)
-    flash('Estado actualizado', 'success')
-    return redirect(url_for('calendario_competencias'))
+
 
 
 if __name__ == '__main__':
