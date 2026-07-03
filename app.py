@@ -372,7 +372,25 @@ def exportar_pdf():
     pdf_path = gestor_tiempos.exportar_a_pdf(tiempos)
     return send_file(pdf_path, as_attachment=True, download_name='tiempos.pdf')
 
+@app.route('/descargar_plantilla')
+@login_required
+def descargar_plantilla():
+    from flask import send_file
+    import csv
+    import io
 
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['nombre', 'genero', 'estilo', 'distancia', 'piscina', 'tiempo', 'fecha'])
+    writer.writerow(['Carlos Gomez', 'Masculino', 'Mariposa', '50', '25 metros', '00:37.02', '2026-04-02'])
+    
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='plantilla_tiempos.csv'
+    )
 
 
 
