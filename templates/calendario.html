@@ -26,18 +26,19 @@
         </thead>
         <tbody>
             <!-- MARZO -->
-<tr>
-                <td rowspan="3"><strong class="text-primary">MARZO</strong></td>
-                <td>14/MAR</td>
-				<td>
-				    <span onclick="cambiarEstatus(this)" class="badge {{ 'bg-success' if c.estado == 'REALIZADO' else 'bg-primary' }}" style="cursor: pointer;">
-				        {{ c.estado }}
-				    </span>
-				</td>
-                <td>Santiago</td>
-                <td>FCHMN</td>
-                <td>II Copa Cordillera de los Andes (Chile)</td>
-                <td>50 metros (cubierta)</td>
+{% for competencia in competencias %}
+            <tr>
+                <td>{{ competencia.mes }}</td>
+                <td>{{ competencia.fecha }}</td>
+                <td>
+                    <span onclick="cambiarEstatus(this)" class="badge {{ 'bg-success' if competencia.estado == 'REALIZADO' else 'bg-primary' }}" style="cursor: pointer;">
+                        {{ competencia.estado }}
+                    </span>
+                </td>
+                <td>{{ competencia.lugar }}</td>
+                <td>{{ competencia.organiza }}</td>
+                <td>{{ competencia.nombre_torneo }}</td>
+                <td>{{ competencia.tipo_piscina }}</td>
             </tr>
                 <td>28/MAR</td>
                 <td>
