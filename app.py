@@ -407,8 +407,9 @@ def mejores_tiempos():
 @editor_required
 def actualizar_status():
     competencia_id = request.form.get('id')
-    # Cambia el estado
-    # (lógica de toggle)
+    # Toggle entre REALIZADO y NO REALIZADO
+    nuevo_estado = 'NO REALIZADO' if request.form.get('estado') == 'REALIZADO' else 'REALIZADO'
+    gestor_tiempos.actualizar_estado_competencia(competencia_id, nuevo_estado)
     flash('Estado actualizado', 'success')
     return redirect(url_for('calendario_competencias'))
 
