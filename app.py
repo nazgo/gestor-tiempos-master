@@ -402,6 +402,42 @@ def mejores_tiempos():
     top_tiempos = gestor_tiempos.obtener_top_5_por_categoria_estilo()
     return render_template('mejores_tiempos.html', top_tiempos=top_tiempos)
 
+@app.route('/insert_competencias')
+@login_required
+def insert_competencias():
+    competencias = [
+        ('MARZO', '14/MAR', 'REALIZADO', 'Santiago', 'FCHMN', 'II COPA CORDILLERA DE LOS ANDES (etapa Chile)', '50 metros (cubierta)'),
+        ('MARZO', '28/MAR', 'REALIZADO', 'Mendoza', 'TyC MASTER ARGENTINA', 'II COPA CORDILLERA DE LOS ANDES (etapa Argentina)', '25 metros (cubierta)'),
+        ('MARZO', '28/MAR', 'REALIZADO', 'Santiago', 'Stadio Italiano', 'XXII COPA ITALIA MASTER', '50 metros (abierta)'),
+        ('ABRIL', '13-17/ABR', 'REALIZADO', 'Recife-BRA', 'CONSA DA', 'XIV CAMPEONATO SUDAMERICANO MASTER', '25 metros (abierta)'),
+        ('MAYO', '16/MAY', 'REALIZADO', 'Santiago', 'Peñalolén Master', 'XIII COPA PEÑALOLÉN MASTER', '25 metros (cubierta)'),
+        ('MAYO', '31/MAY', 'REALIZADO', 'Santiago', 'Smart Swim Team', 'VII COPA SMART SWIM', '50 metros (cubierta)'),
+        ('JUNIO', '20/JUN', 'REALIZADO', 'Santiago', 'Santiago Deporte', 'VI COPA SANTIAGO DEPORTE', '50 metros (cubierta)'),
+        ('JULIO', '04/JUL', 'NO REALIZADO', 'Santiago', 'Master San Bernardo', 'X COPA MASTER SAN BERNARDO', '25 metros (cubierta)'),
+        ('JULIO', '18/JUL', 'NO REALIZADO', 'Santiago', 'Ñuñoa Master', 'III COPA ÑUÑOA MASTER', '50 metros (cubierta)'),
+        ('AGOSTO', '08/AGO', 'NO REALIZADO', 'Talca', 'FCHMN', 'IV COPA DEL MAULE', '25 metros (cubierta)'),
+        ('AGOSTO', '22/AGO', 'NO REALIZADO', 'Santiago', 'LQBLO', 'VI COPA MASTER LQBLO', '50 metros (cubierta)'),
+        ('SEPTIEMBRE', '05/SEP', 'NO REALIZADO', 'Temuco', 'Master del Ñielol', 'VII COPA ARAUCANIA DE NATACION MASTER', '25 metros (cubierta)'),
+        ('OCTUBRE', '03-04/OCT', 'NO REALIZADO', 'Santiago', 'Estadio Español', 'XVI COPA ESPAÑA MASTER', '25 metros (cubierta)'),
+        ('OCTUBRE', '17/OCT', 'NO REALIZADO', 'por definir', 'Aguas Abiertas Chile', '9ª VERSION AGUAS ABIERTAS', 'por definir'),
+        ('OCTUBRE', '21-27/OCT', 'NO REALIZADO', 'Buenos Aires-ARG', 'UANA', 'CAMPEONATO PANAMERICANO MASTER', '50 metros (cubierta)'),
+        ('OCTUBRE', '24/OCT', 'NO REALIZADO', 'Santiago', 'Master Providencia', 'XIV COPA 4ESTILOS MASTER PROVIDENCIA', '25 metros (cubierta)'),
+        ('NOVIEMBRE', '07/NOV', 'NO REALIZADO', 'Santiago', 'Universidad Católica Master', 'V COPA UC MASTER', '50 metros (cubierta)'),
+        ('DICIEMBRE', '4-6/DIC', 'NO REALIZADO', 'Arica', 'Mantarrayas de Arica', 'NATACION SIN FRONTERAS', '50 metros (abierta)'),
+        ('DICIEMBRE', '12/DIC', 'NO REALIZADO', 'Santiago', 'Natación Recoleta', 'XII COPA NATACION RECOLETA', '25 metros (abierta)'),
+        ('ENERO 2027', '06/09 ENE', 'NO REALIZADO', 'por definir', 'FCHMN', 'XXI CTO. NACIONAL DE NATACION MASTER', 'por definir')
+    ]
+    cursor = gestor_tiempos.conn.cursor()
+    cursor.executemany('''
+        INSERT INTO competencias (mes, fecha, estado, lugar, organiza, nombre_torneo, tipo_piscina) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', competencias)
+    gestor_tiempos.conn.commit()
+    flash('✅ Datos del calendario insertados correctamente', 'success')
+    return redirect(url_for('calendario_competencias'))
+
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
