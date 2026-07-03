@@ -26,20 +26,23 @@
         </thead>
         <tbody>
             <!-- MARZO -->
-{% for competencia in competencias %}
             <tr>
-                <td>{{ competencia.mes }}</td>
-                <td>{{ competencia.fecha }}</td>
+                <td rowspan="3"><strong class="text-primary">MARZO</strong></td>
+                <td>14/MAR</td>
                 <td>
-                    <span onclick="cambiarEstatus(this)" class="badge {{ 'bg-success' if competencia.estado == 'REALIZADO' else 'bg-primary' }}" style="cursor: pointer;">
-                        {{ competencia.estado }}
-                    </span>
+                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
+                        <input type="hidden" name="id" value="1">
+                        <input type="hidden" name="estado" value="REALIZADO">
+                        <span class="badge bg-success">REALIZADO</span>
+                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                    </form>
                 </td>
-                <td>{{ competencia.lugar }}</td>
-                <td>{{ competencia.organiza }}</td>
-                <td>{{ competencia.nombre_torneo }}</td>
-                <td>{{ competencia.tipo_piscina }}</td>
+                <td>Santiago</td>
+                <td>FCHMN</td>
+                <td>II COPA CORDILLERA DE LOS ANDES (etapa Chile)</td>
+                <td>50 metros (cubierta)</td>
             </tr>
+            <tr>
                 <td>28/MAR</td>
                 <td>
                     <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
