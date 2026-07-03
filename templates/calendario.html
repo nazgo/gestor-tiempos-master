@@ -30,10 +30,11 @@
                 <td rowspan="3"><strong class="text-primary">MARZO</strong></td>
                 <td>14/MAR</td>
                 <td>
-                    <form method="POST" action="/calendario/actualizar_status" class="d-inline" onsubmit="return confirm('¿Cambiar estado?')">
-                        <input type="hidden" name="id" value="1">
-                        <button type="submit" class="btn btn-sm {{ 'btn-success' if true else 'btn-primary' }}">REALIZADO</button>
-                    </form>
+				<form method="POST" action="/calendario/actualizar_status" class="d-inline" onsubmit="return confirm('¿Cambiar estado?')">
+				    <input type="hidden" name="id" value="{{ c.id }}">
+				    <input type="hidden" name="estado" value="{{ c.estado }}">
+				    <button type="submit" class="btn btn-sm {{ 'btn-success' if c.estado == 'REALIZADO' else 'btn-primary' }}">{{ c.estado }}</button>
+				</form>
                 </td>
                 <td>Santiago</td>
                 <td>FCHMN</td>
