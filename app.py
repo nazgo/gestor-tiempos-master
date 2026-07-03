@@ -339,6 +339,12 @@ def actualizar_estado():
     flash('Estado actualizado correctamente', 'success')
     return redirect(url_for('calendario_competencias'))
 
+@app.route('/import_export')
+@login_required
+def import_export():
+    return render_template('import_export.html')
+    
+
 @app.route('/importar', methods=['GET', 'POST'])
 @login_required
 @editor_required
