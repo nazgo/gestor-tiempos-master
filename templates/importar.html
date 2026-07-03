@@ -1,24 +1,86 @@
-{% extends 'base.html' %}
-
+{% extends "base.html" %}
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4>📥 Importar Tiempos Masivos (CSV)</h4>
+    <div class="col-xl-8 col-lg-9">
+        <div class="card shadow-lg border-0">
+            
+            <!-- Header elegante -->
+            <div class="card-header text-white text-center py-4" 
+                 style="background: linear-gradient(90deg, #6f42c1, #5a32a3);">
+                <i class="fas fa-file-import fa-3x mb-3 opacity-75"></i>
+                <h2 class="mb-1">Importar Tiempos desde CSV</h2>
+                <p class="mb-0 opacity-90">Carga masiva de tiempos de manera rápida y eficiente</p>
             </div>
-            <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <input type="file" name="file" class="form-control" accept=".csv" required>
+
+            <div class="card-body p-5">
+
+                <!-- Alerta informativa -->
+                <div class="alert alert-primary border-0 mb-4">
+                    <div class="d-flex">
+                        <i class="fas fa-info-circle fa-2x me-3"></i>
+                        <div>
+                            <strong>Formato requerido:</strong><br>
+                            El archivo debe contener las columnas: 
+                            <strong>Nadador, Género, Estilo, Distancia (m), Piscina (m), Categoría Edad, Tiempo, Fecha</strong>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-success w-100">Importar CSV</button>
+                </div>
+
+                <!-- Formulario de subida -->
+                <form method="POST" enctype="multipart/form-data" class="mb-5">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold fs-5">Seleccionar archivo CSV</label>
+                        <input type="file" name="archivo" class="form-control form-control-lg" 
+                               accept=".csv" required>
+                        <small class="text-muted d-block mt-2">
+                            Solo archivos con extensión .csv • Recomendado máximo 500 registros
+                        </small>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <button type="submit" class="btn btn-success btn-lg px-5 py-3">
+                            <i class="fas fa-upload me-2"></i>
+                            Importar Tiempos Ahora
+                        </button>
+                        <a href="/" class="btn btn-outline-secondary btn-lg px-5 py-3">
+                            Cancelar
+                        </a>
+                    </div>
                 </form>
-                <hr>
-                <p class="small text-muted">
-                    Formato CSV: nombre,estilo,distancia,tiempo,fecha<br>
-                    Ejemplo: Carlos Gomez,Mariposa,50,00:37.02,2026-04-02
-                </p>
+
+                <hr class="my-5">
+
+                <!-- Sección de ayuda / plantilla -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3"><i class="fas fa-download text-primary"></i> Descargar Plantilla</h5>
+                        <p class="text-muted small">
+                            Recomendamos descargar primero la plantilla para asegurar el formato correcto.
+                        </p>
+                        <a href="/exportar" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-download"></i> Descargar Plantilla CSV
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5 class="mb-3"><i class="fas fa-lightbulb text-warning"></i> Consejos importantes</h5>
+                        <ul class="list-unstyled small text-muted">
+                            <li class="mb-2">• Usa el formato exacto de tiempo: <strong>MM:SS.cc</strong></li>
+                            <li class="mb-2">• La fecha debe estar en formato <strong>YYYY-MM-DD</strong></li>
+                            <li class="mb-2">• Los nombres de columnas deben coincidir exactamente</li>
+                            <li>• Puedes importar cientos de tiempos en pocos segundos</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer bg-light py-3 text-center">
+                <small class="text-muted">
+                    <i class="fas fa-shield-alt"></i> 
+                    Los tiempos importados se validarán automáticamente
+                </small>
             </div>
         </div>
     </div>
