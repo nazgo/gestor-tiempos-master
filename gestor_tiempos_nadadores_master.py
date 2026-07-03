@@ -505,6 +505,11 @@ class GestorTiemposMaster:
         return [dict(row) for row in cursor.fetchall()]
 
 
+    def actualizar_estado_competencia(self, competencia_id, estado):
+        """Actualiza el estado de una competencia."""
+        self.conn.execute('UPDATE competencias SET estado = ? WHERE id = ?', (estado, competencia_id))
+        self.conn.commit()
+
 # =============================================================================
 #                    INTERFAZ DE LÍNEA DE COMANDOS (CLI)
 # =============================================================================
