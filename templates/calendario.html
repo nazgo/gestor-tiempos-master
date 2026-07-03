@@ -26,23 +26,20 @@
         </thead>
         <tbody>
             <!-- MARZO -->
-            <tr>
-                <td rowspan="3"><strong class="text-primary">MARZO</strong></td>
+<tr>
+                <td><strong>MARZO</strong></td>
                 <td>14/MAR</td>
                 <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
+                    <form method="POST" action="/calendario/actualizar_status" class="d-inline" onsubmit="return confirm('¿Cambiar estado?')">
                         <input type="hidden" name="id" value="1">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm {{ 'btn-success' if true else 'btn-primary' }}">REALIZADO</button>
                     </form>
                 </td>
                 <td>Santiago</td>
                 <td>FCHMN</td>
-                <td>II Copa Cordillera de los Andes (CHI)</td>
+                <td>II Copa Cordillera de los Andes (Chile)</td>
                 <td>50 metros (cubierta)</td>
             </tr>
-            <tr>
                 <td>28/MAR</td>
                 <td>
                     <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
