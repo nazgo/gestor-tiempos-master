@@ -485,6 +485,26 @@ class GestorTiemposMaster:
         return pdf_path
 
 
+    def obtener_top_5_por_categoria_estilo(self):
+        """Obtiene los 5 mejores tiempos por categoría, género y estilo."""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT 
+                n.categoria_master,
+                n.genero,
+                t.estilo,
+                t.distancia,
+                t.tiempo,
+                t.fecha,
+                t.nombre_nadador
+            FROM tiempos t
+            JOIN nadadores n ON LOWER(t.nombre_nadador) = LOWER(n.nombre || ' ' || n.apellido)
+            ORDER BY t.tiempo_segundos ASC
+            LIMIT 50
+        ''')
+        return [dict(row) for row in cursor.fetchall()]
+
+
 # =============================================================================
 #                    INTERFAZ DE LÍNEA DE COMANDOS (CLI)
 # =============================================================================
