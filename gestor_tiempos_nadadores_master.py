@@ -19,7 +19,8 @@ class GestorTiemposMaster:
         self.db_path = db_path
         self.conn = sqlite3.connect(db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
-        self.crear_tabla()
+        if not os.path.exists(self.db_path):
+    		self.crear_tabla()
 
     def crear_tabla(self) -> None:
         """Crea la tabla principal y los índices optimizados para consultas frecuentes."""
