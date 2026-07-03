@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>🏆 Top 5 Mejores Tiempos por Categoría, Género y Estilo</h2>
+
+<table class="table table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Categoría</th>
+            <th>Género</th>
+            <th>Estilo</th>
+            <th>Distancia</th>
+            <th>Tiempo</th>
+            <th>Fecha</th>
+            <th>Nadador</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in top_tiempos %}
+        <tr>
+            <td>{{ t.categoria_master }}</td>
+            <td>{{ t.genero }}</td>
+            <td>{{ t.estilo }}</td>
+            <td>{{ t.distancia }}m</td>
+            <td><strong>{{ t.tiempo }}</strong></td>
+            <td>{{ t.fecha }}</td>
+            <td>{{ t.nombre_nadador }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="/estadisticas" class="btn btn-secondary">← Volver a Estadísticas</a>
+{% endblock %}
