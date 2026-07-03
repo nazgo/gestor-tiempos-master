@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h2>📤 Importar / Exportar Tiempos</h2>
+</div>
+
+<div class="row g-4 justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow h-100">
+            <div class="card-body text-center p-5">
+                <i class="fas fa-file-import fa-4x text-primary mb-4"></i>
+                <h4>Importar CSV</h4>
+                <p class="text-muted">Carga masiva de tiempos desde un archivo CSV</p>
+                <a href="/importar" class="btn btn-primary btn-lg w-100">Ir a Importar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card shadow h-100">
+            <div class="card-body text-center p-5">
+                <i class="fas fa-file-export fa-4x text-success mb-4"></i>
+                <h4>Exportar a PDF</h4>
+                <p class="text-muted">Descarga todos los tiempos en formato PDF</p>
+                <a href="/exportar_pdf" class="btn btn-success btn-lg w-100">Exportar PDF</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
