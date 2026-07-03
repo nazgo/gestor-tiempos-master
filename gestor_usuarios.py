@@ -54,16 +54,7 @@ class GestorUsuarios:
         password_hash = generate_password_hash(new_password)
         self.conn.execute('UPDATE usuarios SET password_hash = ? WHERE id = ?', (password_hash, user_id))
         self.conn.commit()
-
-    def eliminar_nadador(self, nadador_id):
-        """Elimina un nadador y sus tiempos asociados."""
-        cursor = self.conn.cursor()
-        # Elimina primero los tiempos
-        cursor.execute('DELETE FROM tiempos WHERE LOWER(nombre_nadador) = LOWER((SELECT nombre || " " || apellido FROM nadadores WHERE id = ?))', (nadador_id,))
-        # Elimina el nadador
-        cursor.execute('DELETE FROM nadadores WHERE id = ?', (nadador_id,))
-        self.conn.commit()
-
+   
     def eliminar_usuario(self, user_id):
         if user_id == 1:  # Proteger admin principal
             return False
