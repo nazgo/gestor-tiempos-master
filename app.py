@@ -392,6 +392,11 @@ def descargar_plantilla():
         download_name='plantilla_tiempos.csv'
     )
 
+@app.route('/mejores_tiempos')
+@login_required
+def mejores_tiempos():
+    top_tiempos = gestor_tiempos.obtener_top_5_por_categoria_estilo()
+    return render_template('mejores_tiempos.html', top_tiempos=top_tiempos)
 
 
 if __name__ == '__main__':
