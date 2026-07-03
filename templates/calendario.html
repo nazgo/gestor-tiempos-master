@@ -17,7 +17,7 @@
             <tr>
                 <th style="width: 10%;">MES</th>
                 <th style="width: 12%;">FECHA</th>
-                <th style="width: 10%;">ETAPAS</th>
+                <th style="width: 10%;">STATUS</th>
                 <th>LUGAR</th>
                 <th>ORGANIZA</th>
                 <th>NOMBRE TORNEO</th>
@@ -129,12 +129,14 @@
                 <td><strong class="text-primary">JUNIO</strong></td>
                 <td>20/JUN</td>
                 <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="7">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
+<td>
+    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
+        <input type="hidden" name="id" value="1">
+        <input type="hidden" name="estado" value="REALIZADO">
+        <span class="badge {{ 'bg-success' if c.estado == 'REALIZADO' else 'bg-warning' }}">{{ c.estado }}</span>
+        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
+    </form>
+</td>
                 </td>
                 <td>Santiago</td>
                 <td>Santiago Deporte</td>
