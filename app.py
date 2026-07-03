@@ -220,9 +220,13 @@ def editar_nadador(nadador_id):
 @login_required
 @editor_required
 def eliminar_nadador(nadador_id):
-    # Lógica de eliminación
-    flash('✅ Nadador eliminado', 'success')
+    try:
+        gestor_nadadores.eliminar_nadador(nadador_id)
+        flash('✅ Nadador eliminado correctamente', 'success')
+    except Exception as e:
+        flash(f'❌ Error al eliminar: {str(e)}', 'danger')
     return redirect(url_for('nadadores'))
+
 
 @app.route('/listar')
 @login_required
