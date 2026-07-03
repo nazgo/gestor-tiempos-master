@@ -339,6 +339,27 @@ def actualizar_estado():
     flash('Estado actualizado correctamente', 'success')
     return redirect(url_for('calendario_competencias'))
 
+@app.route('/importar', methods=['GET', 'POST'])
+@login_required
+@editor_required
+def importar_tiempos():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No se seleccionó archivo', 'danger')
+            return redirect(url_for('importar_tiempos'))
+        file = request.files['file']
+        if file.filename == '':
+            flash('No se seleccionó archivo', 'danger')
+            return redirect(url_for('importar_tiempos'))
+        if file and file.filename.endswith('.csv'):
+            gestor_tiempos.importar_csv(file)
+            flash('✅ Tiempos importados correctamente', 'success')
+            return redirect(url_for('listar_tiempos'))
+        else:
+            flash('Solo se permiten archivos CSV', 'danger')
+    return render_template('importar.html')
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
