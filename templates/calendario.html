@@ -29,14 +29,11 @@
 <tr>
                 <td rowspan="3"><strong class="text-primary">MARZO</strong></td>
                 <td>14/MAR</td>
-                <td>
-				<form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="2">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
+				<td>
+				    <span onclick="cambiarEstatus(this)" class="badge {{ 'bg-success' if c.estado == 'REALIZADO' else 'bg-primary' }}" style="cursor: pointer;">
+				        {{ c.estado }}
+				    </span>
+				</td>
                 <td>Santiago</td>
                 <td>FCHMN</td>
                 <td>II Copa Cordillera de los Andes (Chile)</td>
@@ -365,5 +362,21 @@
             <a href="/" class="btn btn-secondary">← Volver al Inicio</a>
         </div>
 
+
+<script>
+function cambiarEstatus(element) {
+    if (confirm('¿Cambiar el estatus de esta competencia?')) {
+        if (element.classList.contains('bg-success')) {
+            element.classList.remove('bg-success');
+            element.classList.add('bg-primary');
+            element.textContent = 'NO REALIZADO';
+        } else {
+            element.classList.remove('bg-primary');
+            element.classList.add('bg-success');
+            element.textContent = 'REALIZADO';
+        }
+    }
+}
+</script>
 
 {% endblock %}
