@@ -359,7 +359,13 @@ def importar_tiempos():
             flash('Solo se permiten archivos CSV', 'danger')
     return render_template('importar.html')
 
-
+@app.route('/exportar_pdf')
+@login_required
+def exportar_pdf():
+    tiempos = gestor_tiempos.obtener_todos_los_tiempos()
+    # Usa pdf skill or reportlab
+    flash('Exportar a PDF en desarrollo', 'info')
+    return redirect(url_for('listar_tiempos'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
