@@ -117,6 +117,25 @@
     </a>
 </div>
 
+    <!-- Temporadas -->
+<div class="mt-5">
+    <h4 class="mb-3">Registros por Temporada</h4>
+    <div class="row g-3">
+        {% for t in temporadas %}
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-info">{{ t.año }}</h4>
+                    <p class="display-6 fw-bold text-info mb-0">{{ t.cantidad }}</p>
+                    <small class="text-muted">tiempos</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
 <div class="text-center mt-5">
     <a href="/" class="btn btn-secondary">← Volver al Inicio</a>
 </div>
