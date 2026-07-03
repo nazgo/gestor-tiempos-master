@@ -2,13 +2,13 @@
 
 {% block content %}
 <div class="text-center mb-5">
-  <div class="d-flex align-items-center justify-content-center gap-4">
-    <img src="/static/fchmn_logo.png" alt="FCHMN" style="height: 100px;">
-	<div> 
-    		<h2 class="display-5 fw-bold text-primary">Circuito de Natación Masters de Chile 2026</h2>
-    		<p class="text-muted">Federación Chilena Master de Natación</p>
+    <div class="d-flex align-items-center justify-content-center gap-4">
+        <img src="/static/logo.png" alt="FCHMN" style="height: 90px;">
+        <div>
+            <h2 class="display-5 fw-bold text-primary mb-1">El Circuito de Natación de los Masters de Chile 2026</h2>
+            <p class="text-muted">(actualizado 20/Junio 2026)</p>
         </div>
-  </div>
+    </div>
 </div>
 
 <div class="table-responsive">
@@ -17,7 +17,7 @@
             <tr>
                 <th style="width: 10%;">MES</th>
                 <th style="width: 12%;">FECHA</th>
-                <th style="width: 10%;">STATUS</th>
+                <th style="width: 15%;">ESTATUS</th>
                 <th>LUGAR</th>
                 <th>ORGANIZA</th>
                 <th>NOMBRE TORNEO</th>
@@ -34,7 +34,7 @@
                         <input type="hidden" name="id" value="1">
                         <input type="hidden" name="estado" value="REALIZADO">
                         <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -49,7 +49,7 @@
                         <input type="hidden" name="id" value="2">
                         <input type="hidden" name="estado" value="REALIZADO">
                         <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Mendoza</td>
@@ -64,7 +64,7 @@
                         <input type="hidden" name="id" value="3">
                         <input type="hidden" name="estado" value="REALIZADO">
                         <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -82,7 +82,7 @@
                         <input type="hidden" name="id" value="4">
                         <input type="hidden" name="estado" value="REALIZADO">
                         <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Recife-BRA</td>
@@ -100,7 +100,7 @@
                         <input type="hidden" name="id" value="5">
                         <input type="hidden" name="estado" value="REALIZADO">
                         <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -115,7 +115,7 @@
                         <input type="hidden" name="id" value="6">
                         <input type="hidden" name="estado" value="REALIZADO">
                         <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -129,14 +129,12 @@
                 <td><strong class="text-primary">JUNIO</strong></td>
                 <td>20/JUN</td>
                 <td>
-<td>
-    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-        <input type="hidden" name="id" value="1">
-        <input type="hidden" name="estado" value="REALIZADO">
-        <span class="badge {{ 'bg-success' if c.estado == 'REALIZADO' else 'bg-warning' }}">{{ c.estado }}</span>
-        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
-    </form>
-</td>
+                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
+                        <input type="hidden" name="id" value="7">
+                        <input type="hidden" name="estado" value="REALIZADO">
+                        <span class="badge bg-success">REALIZADO</span>
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
+                    </form>
                 </td>
                 <td>Santiago</td>
                 <td>Santiago Deporte</td>
@@ -153,7 +151,7 @@
                         <input type="hidden" name="id" value="8">
                         <input type="hidden" name="estado" value="1">
                         <span class="badge bg-primary">1</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -168,7 +166,7 @@
                         <input type="hidden" name="id" value="9">
                         <input type="hidden" name="estado" value="1">
                         <span class="badge bg-primary">1</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -186,7 +184,7 @@
                         <input type="hidden" name="id" value="10">
                         <input type="hidden" name="estado" value="1">
                         <span class="badge bg-primary">1</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Talca</td>
@@ -201,7 +199,7 @@
                         <input type="hidden" name="id" value="11">
                         <input type="hidden" name="estado" value="1">
                         <span class="badge bg-primary">1</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -219,7 +217,7 @@
                         <input type="hidden" name="id" value="12">
                         <input type="hidden" name="estado" value="1">
                         <span class="badge bg-primary">1</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Temuco</td>
@@ -237,7 +235,7 @@
                         <input type="hidden" name="id" value="13">
                         <input type="hidden" name="estado" value="2">
                         <span class="badge bg-primary">2</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -252,7 +250,7 @@
                         <input type="hidden" name="id" value="14">
                         <input type="hidden" name="estado" value="1">
                         <span class="badge bg-primary">1</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>por definir</td>
@@ -267,7 +265,7 @@
                         <input type="hidden" name="id" value="15">
                         <input type="hidden" name="estado" value="7">
                         <span class="badge bg-primary">7</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Buenos Aires-ARG</td>
@@ -282,7 +280,7 @@
                         <input type="hidden" name="id" value="16">
                         <input type="hidden" name="estado" value="1">
                         <span class="badge bg-primary">1</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -300,7 +298,7 @@
                         <input type="hidden" name="id" value="17">
                         <input type="hidden" name="estado" value="2">
                         <span class="badge bg-primary">2</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -318,7 +316,7 @@
                         <input type="hidden" name="id" value="18">
                         <input type="hidden" name="estado" value="3">
                         <span class="badge bg-primary">3</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Arica</td>
@@ -333,7 +331,7 @@
                         <input type="hidden" name="id" value="19">
                         <input type="hidden" name="estado" value="1">
                         <span class="badge bg-primary">1</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -351,7 +349,7 @@
                         <input type="hidden" name="id" value="20">
                         <input type="hidden" name="estado" value="4">
                         <span class="badge bg-primary">4</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>
                     </form>
                 </td>
                 <td>por definir</td>
