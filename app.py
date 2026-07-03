@@ -402,18 +402,7 @@ def mejores_tiempos():
     top_tiempos = gestor_tiempos.obtener_top_5_por_categoria_estilo()
     return render_template('mejores_tiempos.html', top_tiempos=top_tiempos)
 
-@app.route('/reset_db', methods=['POST'])
-@login_required
-@editor_required
-def reset_db():
-    try:
-        import os
-        if os.path.exists('nadadores_master_competitivos.db'):
-            os.remove('nadadores_master_competitivos.db')
-        flash('✅ Base de datos reseteada correctamente', 'success')
-    except Exception as e:
-        flash(f'❌ Error: {str(e)}', 'danger')
-    return redirect(url_for('nadadores'))
+
 
 
 if __name__ == '__main__':
