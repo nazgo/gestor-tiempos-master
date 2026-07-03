@@ -431,20 +431,23 @@ class GestorTiemposMaster:
         self.conn.commit()
 
     def importar_csv(self, file):
-        """Importa tiempos desde un archivo CSV."""
+        """Importa tiempos desde un archivo CSV con género y piscina."""
         import csv
         from io import StringIO
         stream = StringIO(file.stream.read().decode("UTF8"), newline=None)
         csv_input = csv.reader(stream)
         next(csv_input)  # Skip header
         for row in csv_input:
-            if len(row) >= 5:
+            if len(row) >= 7:
                 nombre = row[0]
-                estilo = row[1]
-                distancia = int(row[2])
-                tiempo = row[3]
-                fecha = datetime.strptime(row[4], '%Y-%m-%d').date() if len(row) > 4 else date.today()
-                self.agregar_tiempo(nombre, estilo, distancia, tiempo, fecha)
+                genero = row[1]
+                estilo = row[2]
+                distancia = int(row[3])
+                piscina = row[4]
+                tiempo = row[5]
+                fecha_str = row[6]
+                fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else date.today()
+                self.agregar_tiempo(nombre, estilo, distancia, tiempo, fecha, piscina)
 
     def exportar_a_pdf(self, tiempos):
         """Exporta los tiempos a un PDF bonito."""
