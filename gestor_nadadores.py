@@ -88,3 +88,12 @@ class GestorNadadores:
             WHERE id = ?
         ''', (nombre, apellido, fecha_nacimiento, rut, genero, categoria, nadador_id))
         self.conn.commit()
+
+    def eliminar_nadador(self, nadador_id):
+        """Elimina un nadador y sus tiempos asociados."""
+        cursor = self.conn.cursor()
+        # Elimina primero los tiempos
+        cursor.execute('DELETE FROM tiempos WHERE LOWER(nombre_nadador) = LOWER((SELECT nombre || " " || apellido FROM nadadores WHERE id = ? LIMIT 1))', (nadador_id,))
+        # Elimina el nadador
+        cursor.execute('DELETE FROM nadadores WHERE id = ?', (nadador_id,))
+        self.conn.commit()
