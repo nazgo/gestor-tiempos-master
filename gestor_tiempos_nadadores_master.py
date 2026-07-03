@@ -446,7 +446,40 @@ class GestorTiemposMaster:
                 fecha = datetime.strptime(row[4], '%Y-%m-%d').date() if len(row) > 4 else date.today()
                 self.agregar_tiempo(nombre, estilo, distancia, tiempo, fecha)
 
+    def exportar_a_pdf(self, tiempos):
+        """Exporta los tiempos a un PDF bonito."""
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+        from reportlab.lib.styles import getSampleStyleSheet
+        import os
 
+        pdf_path = "tiempos_export.pdf"
+        doc = SimpleDocTemplate(pdf_path, pagesize=letter)
+        styles = getSampleStyleSheet()
+
+        data = [['Nadador', 'Prueba', 'Tiempo', 'Fecha']]
+        for t in tiempos:
+            data.append([
+                t['nombre_nadador'],
+                f"{t['estilo']} {t['distancia']}m",
+                t['tiempo'],
+                t['fecha']
+            ])
+
+        table = Table(data)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+
+        doc.build([Paragraph("Reporte de Tiempos - Natación Ñuñoa Master", styles['Title']), table])
+        return pdf_path
 
 
 # =============================================================================
