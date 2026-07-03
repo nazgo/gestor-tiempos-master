@@ -7,6 +7,7 @@ Sistema de Gestión de Tiempos para Nadadores Master de Nivel Competitivo
 import sqlite3
 import csv
 import re
+import os
 from datetime import datetime, date
 from typing import Optional, List, Dict, Any
 
