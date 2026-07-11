@@ -8,6 +8,11 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'clave_super_secreta_master_nadadores_2026')
 
+# Importa los gestores
+from gestor_tiempos_nadadores_master import GestorTiemposMaster
+from gestor_usuarios import GestorUsuarios
+from gestor_nadadores import GestorNadadores
+
 # Instancias
 gestor_tiempos = GestorTiemposMaster()
 gestor_usuarios = GestorUsuarios()
