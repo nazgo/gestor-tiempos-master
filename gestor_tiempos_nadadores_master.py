@@ -11,23 +11,46 @@ import os
 from datetime import datetime, date
 from typing import Optional, List, Dict, Any
 
+try:
+    import psycopg2
+    POSTGRES_AVAILABLE = True
+except ImportError:
+    POSTGRES_AVAILABLE = False
+
 
 class GestorTiemposMaster:
     ESTILOS = ['Mariposa', 'Espalda', 'Pecho', 'Crol', 'Combinado']
-    DISTANCIAS = [50, 100, 200, 400, 800, 1500]
+    DISTANCIAS = [25, 50, 100, 200, 400, 800, 1500]
 
     def __init__(self, db_path: str = "nadadores_master_competitivos.db"):
         self.db_path = db_path
-        self.conn = sqlite3.connect(db_path, check_same_thread=False)
-        self.conn.row_factory = sqlite3.Row
+        self.conn = None
+        self.connect()
         self.crear_tabla()
 
+    def connect(self):
+        """Conecta a PostgreSQL (Neon) o SQLite local."""
+        db_url = os.environ.get('DATABASE_URL')
+        if db_url and db_url.startswith('postgres') and POSTGRES_AVAILABLE:
+            print("🔗 Conectando a PostgreSQL (Neon)...")
+            self.conn = psycopg2.connect(db_url)
+            self.conn.autocommit = True
+        else:
+            print("🔗 Usando SQLite local...")
+            self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            self.conn.row_factory = sqlite3.Row
+
     def crear_tabla(self) -> None:
-        """Crea la tabla principal y los índices optimizados para consultas frecuentes."""
+        """Crea las tablas si no existen."""
+        if not self.conn:
+            return
+
         cursor = self.conn.cursor()
+
+        # Tabla tiempos
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS tiempos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 nombre_nadador TEXT NOT NULL,
                 estilo TEXT NOT NULL,
                 distancia INTEGER NOT NULL,
@@ -38,17 +61,15 @@ class GestorTiemposMaster:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
-        cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_nombre_estilo_dist
-            ON tiempos(nombre_nadador, estilo, distancia)
-        ''')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_fecha ON tiempos(fecha)')
-        self.conn.commit()
 
-        # Tabla de Competencias
+        # Índices
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_nombre_estilo_dist ON tiempos(nombre_nadador, estilo, distancia)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_fecha ON tiempos(fecha)')
+
+        # Tabla competencias
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS competencias (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 mes TEXT,
                 fecha TEXT,
                 etapas TEXT,
@@ -59,7 +80,10 @@ class GestorTiemposMaster:
                 estado TEXT DEFAULT '1'
             )
         ''')
-        self.conn.commit()
+
+        if hasattr(self.conn, 'commit'):
+            self.conn.commit()
+
 
     @staticmethod
     def _validar_tiempo(tiempo_str: str) -> bool:
@@ -514,251 +538,9 @@ class GestorTiemposMaster:
         cursor.execute('DELETE FROM nadadores WHERE id = ?', (nadador_id,))
         self.conn.commit()
 
-
-
-# =============================================================================
-#                    INTERFAZ DE LÍNEA DE COMANDOS (CLI)
-# =============================================================================
-# Esta sección es temporal. En una migración a web/GUI, reemplazar por
-# controladores o vistas que llamen a los métodos de GestorTiemposMaster.
-
-def mostrar_menu_principal() -> None:
-    """Muestra el menú principal con formato limpio y profesional."""
-    print("\n" + "═" * 68)
-    print("🏊  SISTEMA DE GESTIÓN DE TIEMPOS - NADADORES MASTER COMPETITIVOS")
-    print("═" * 68)
-    print("  1. ➕  Agregar nuevo tiempo de entrenamiento o competencia")
-    print("  2. 🏆  Consultar Season Best (mejor tiempo de la temporada)")
-    print("  3. 📋  Listar todos los tiempos registrados")
-    print("  4. 📤  Exportar todos los datos a CSV (compatible con Excel)")
-    print("  5. 📊  Ver estadísticas rápidas de un nadador")
-    print("  6. ❌  Salir del sistema")
-    print("═" * 68)
-
-
-def seleccionar_opcion_lista(opciones: List[Any], prompt: str) -> Any:
-    """
-    Helper reutilizable para seleccionar elementos de una lista numerada.
-    Usado para estilos y distancias.
-    """
-    print(f"\n{prompt}")
-    for idx, opcion in enumerate(opciones, 1):
-        print(f"   {idx}. {opcion}")
-    
-    while True:
-        try:
-            eleccion = int(input("\n   Seleccione una opción (número): ").strip())
-            if 1 <= eleccion <= len(opciones):
-                return opciones[eleccion - 1]
-            print("   ⚠️  Número fuera de rango. Intente nuevamente.")
-        except ValueError:
-            print("   ⚠️  Entrada inválida. Por favor ingrese un número.")
-
-
-def solicitar_tiempo_valido() -> str:
-    """
-    Solicita el tiempo al usuario con validación en tiempo real.
-    Rechaza cualquier formato que no cumpla MM:SS.cc con dos dígitos en centésimas.
-    """
-    print("\n   Formato requerido: MM:SS.cc  (ejemplos: 00:58.72, 01:15.30, 02:45.00)")
-    while True:
-        tiempo_input = input("   Ingrese el tiempo: ").strip()
-        if GestorTiemposMaster._validar_tiempo(tiempo_input):
-            return tiempo_input
-        print("   ❌ Formato inválido. Asegúrese de usar dos dígitos para segundos y centésimas.")
-        print("      Ejemplo correcto: 01:23.45   |   Incorrecto: 1:23.4 o 01:23.5")
-
-
-def main() -> None:
-    """
-    Función principal que ejecuta la interfaz CLI.
-    Orquesta las llamadas a la clase GestorTiemposMaster.
-    """
-    print("\n🚀 Iniciando Sistema de Gestión de Tiempos Master...")
-    gestor = GestorTiemposMaster("nadadores_master_competitivos.db")
-    print("✅ Base de datos SQLite lista y operativa.\n")
-
-    try:
-        while True:
-            mostrar_menu_principal()
-            opcion = input("Seleccione una opción (1-6): ").strip()
-
-            # ──────────────────────────────────────────────────────────────
-            # 1. AGREGAR NUEVO TIEMPO
-            # ──────────────────────────────────────────────────────────────
-            if opcion == "1":
-                print("\n" + "─" * 50)
-                print("➕  AGREGAR NUEVO REGISTRO DE TIEMPO")
-                print("─" * 50)
-                
-                nombre = input("   Nombre completo del nadador: ").strip()
-                if not nombre:
-                    print("   ❌ El nombre no puede estar vacío.")
-                    continue
-
-                estilo = seleccionar_opcion_lista(
-                    gestor.ESTILOS, 
-                    "Seleccione el estilo de nado:"
-                )
-                distancia = seleccionar_opcion_lista(
-                    gestor.DISTANCIAS, 
-                    "Seleccione la distancia (en metros):"
-                )
-                tiempo = solicitar_tiempo_valido()
-
-                # Fecha opcional
-                fecha_input = input(
-                    "   Fecha de la prueba (YYYY-MM-DD) o Enter para usar hoy: "
-                ).strip()
-                
-                if fecha_input:
-                    try:
-                        fecha = datetime.strptime(fecha_input, "%Y-%m-%d").date()
-                    except ValueError:
-                        print("   ⚠️  Formato de fecha inválido. Usando fecha actual.")
-                        fecha = date.today()
-                else:
-                    fecha = date.today()
-
-                try:
-                    nuevo_id = gestor.agregar_tiempo(nombre, estilo, distancia, tiempo, fecha)
-                    print(f"\n   ✅ ¡Registro exitoso! ID asignado: {nuevo_id}")
-                    print(f"      {nombre.title()} | {estilo} {distancia}m | {tiempo} | {fecha}")
-                except ValueError as err:
-                    print(f"   ❌ Error de validación: {err}")
-
-            # ──────────────────────────────────────────────────────────────
-            # 2. CONSULTAR SEASON BEST
-            # ──────────────────────────────────────────────────────────────
-            elif opcion == "2":
-                print("\n" + "─" * 50)
-                print("🏆  CONSULTAR SEASON BEST (MEJOR TIEMPO DE LA TEMPORADA)")
-                print("─" * 50)
-                
-                nombre = input("   Nombre del nadador (puede ser parcial): ").strip()
-                if not nombre:
-                    print("   ❌ Debe ingresar al menos parte del nombre.")
-                    continue
-
-                estilo = seleccionar_opcion_lista(
-                    gestor.ESTILOS, 
-                    "Seleccione el estilo de la prueba:"
-                )
-                distancia = seleccionar_opcion_lista(
-                    gestor.DISTANCIAS, 
-                    "Seleccione la distancia de la prueba:"
-                )
-                
-                year_input = input(
-                    f"   Año de la temporada (Enter = año actual {datetime.now().year}): "
-                ).strip()
-                year = int(year_input) if year_input.isdigit() else None
-
-                best = gestor.obtener_season_best(nombre, estilo, distancia, year)
-                
-                if best:
-                    temporada = best['fecha'][:4]
-                    print(f"\n   🏆 SEASON BEST - {best['nombre_nadador']}")
-                    print(f"      Prueba: {best['estilo']} {best['distancia']}m")
-                    print(f"      ⏱️  Tiempo: {best['tiempo']}   ({best['tiempo_segundos']:.2f} segundos)")
-                    print(f"      📅 Fecha del récord: {best['fecha']}")
-                    print(f"      📆 Temporada: {temporada}")
-                else:
-                    temporada_str = year or datetime.now().year
-                    print(f"\n   ⚠️  No se encontraron tiempos para '{nombre}' en {estilo} {distancia}m durante {temporada_str}.")
-
-            # ──────────────────────────────────────────────────────────────
-            # 3. LISTAR TIEMPOS
-            # ──────────────────────────────────────────────────────────────
-            elif opcion == "3":
-                print("\n" + "─" * 50)
-                print("📋  LISTADO DE TIEMPOS REGISTRADOS")
-                print("─" * 50)
-                
-                filtro = input("   Filtrar por nombre (Enter = mostrar todos): ").strip() or None
-                tiempos = gestor.obtener_todos_los_tiempos(filtro)
-
-                if not tiempos:
-                    print("   ℹ️  No hay registros que coincidan con el criterio.")
-                    continue
-
-                print(f"\n   Total de registros encontrados: {len(tiempos)}")
-                print("   " + "─" * 85)
-                print(f"   {'ID':<4} │ {'Nadador':<22} │ {'Prueba':<18} │ {'Tiempo':<9} │ {'Fecha':<11}")
-                print("   " + "─" * 85)
-                
-                for t in tiempos:
-                    prueba_str = f"{t['estilo']} {t['distancia']}m"
-                    print(
-                        f"   {t['id']:<4} │ {t['nombre_nadador']:<22} │ {prueba_str:<18} │ "
-                        f"{t['tiempo']:<9} │ {t['fecha']:<11}"
-                    )
-                print("   " + "─" * 85)
-
-            # ──────────────────────────────────────────────────────────────
-            # 4. EXPORTAR A CSV
-            # ──────────────────────────────────────────────────────────────
-            elif opcion == "4":
-                print("\n" + "─" * 50)
-                print("📤  EXPORTAR DATOS A ARCHIVO CSV")
-                print("─" * 50)
-                
-                try:
-                    ruta_archivo = gestor.exportar_a_csv()
-                    print(f"\n   ✅ Exportación completada exitosamente.")
-                    print(f"   📁 Archivo generado: {ruta_archivo}")
-                    print("   ℹ️  El archivo usa codificación UTF-8 con BOM para correcta visualización en Excel.")
-                except ValueError as err:
-                    print(f"   ❌ {err}")
-                except Exception as err:
-                    print(f"   ❌ Error inesperado durante la exportación: {err}")
-
-            # ──────────────────────────────────────────────────────────────
-            # 5. ESTADÍSTICAS RÁPIDAS (BONUS)
-            # ──────────────────────────────────────────────────────────────
-            elif opcion == "5":
-                print("\n" + "─" * 50)
-                print("📊  ESTADÍSTICAS RÁPIDAS DEL NADADOR")
-                print("─" * 50)
-                
-                nombre = input("   Nombre del nadador: ").strip()
-                if not nombre:
-                    print("   ❌ Nombre requerido.")
-                    continue
-                
-                stats = gestor.obtener_estadisticas_nadador(nombre)
-                if stats["total_registros"] == 0:
-                    print(f"   ℹ️  No hay registros para '{nombre}'.")
-                    continue
-                
-                print(f"\n   Nadador: {nombre.title()}")
-                print(f"   Total de registros: {stats['total_registros']}")
-                print(f"   Pruebas únicas registradas: {stats['pruebas_unicas']}")
-                print(f"   Mejor tiempo general: {stats['mejor_tiempo_general']:.2f} segundos")
-                print(f"   Primera marca: {stats['primera_fecha']}")
-                print(f"   Última marca: {stats['ultima_fecha']}")
-
-            # ──────────────────────────────────────────────────────────────
-            # 6. SALIR
-            # ──────────────────────────────────────────────────────────────
-            elif opcion == "6":
-                print("\n👋  ¡Gracias por usar el Sistema de Gestión de Tiempos Master!")
-                print("   Que tengas una gran temporada competitiva.\n")
-                break
-
-            else:
-                print("   ⚠️  Opción inválida. Por favor seleccione un número del 1 al 6.")
-
-    except KeyboardInterrupt:
-        print("\n\n⚠️  Programa interrumpido por el usuario (Ctrl+C).")
-    except Exception as err:
-        print(f"\n❌ Error inesperado en la aplicación: {err}")
-        import traceback
-        traceback.print_exc()
-    finally:
-        gestor.cerrar_conexion()
-        print("✅ Conexión a base de datos cerrada correctamente.")
-
+	def cerrar_conexion(self):
+	        if self.conn:
+	            self.conn.close()
 
 if __name__ == "__main__":
     main()
