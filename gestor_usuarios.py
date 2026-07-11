@@ -1,35 +1,61 @@
 import sqlite3
+import os
 from werkzeug.security import generate_password_hash, check_password_hash
+
+try:
+    import psycopg2
+    POSTGRES_AVAILABLE = True
+except ImportError:
+    POSTGRES_AVAILABLE = False
+
 
 class GestorUsuarios:
     def __init__(self, db_path="nadadores_master_competitivos.db"):
-        self.conn = sqlite3.connect(db_path, check_same_thread=False)
-        self.conn.row_factory = sqlite3.Row
+        self.db_path = db_path
+        self.conn = None
+        self.connect()
         self.crear_tabla()
 
+    def connect(self):
+        """Conecta a PostgreSQL (Neon) o SQLite local."""
+        db_url = os.environ.get('DATABASE_URL')
+        if db_url and db_url.startswith('postgres') and POSTGRES_AVAILABLE:
+            print("🔗 Conectando a PostgreSQL (Neon) para usuarios...")
+            self.conn = psycopg2.connect(db_url)
+            self.conn.autocommit = True
+        else:
+            print("🔗 Usando SQLite local para usuarios...")
+            self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            self.conn.row_factory = sqlite3.Row
+
     def crear_tabla(self):
-        self.conn.execute('''
+        """Crea la tabla de usuarios si no existe."""
+        cursor = self.conn.cursor()
+        cursor.execute('''
             CREATE TABLE IF NOT EXISTS usuarios (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 username TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 rol TEXT NOT NULL DEFAULT 'viewer',
                 nombre TEXT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
         # Usuario admin por defecto
         if not self.obtener_usuario("admin"):
             self.crear_usuario("admin", "admin123", "admin", "Administrador")
-        self.conn.commit()
+        if hasattr(self.conn, 'commit'):
+            self.conn.commit()
 
     def crear_usuario(self, username, password, rol="viewer", nombre=""):
         password_hash = generate_password_hash(password)
-        self.conn.execute('''
+        cursor = self.conn.cursor()
+        cursor.execute('''
             INSERT INTO usuarios (username, password_hash, rol, nombre)
-            VALUES (?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s)
         ''', (username, password_hash, rol, nombre))
-        self.conn.commit()
+        if hasattr(self.conn, 'commit'):
+            self.conn.commit()
 
     def verificar_login(self, username, password):
         usuario = self.obtener_usuario(username)
@@ -38,26 +64,35 @@ class GestorUsuarios:
         return None
 
     def obtener_usuario(self, username):
-        cursor = self.conn.execute('SELECT * FROM usuarios WHERE username = ?', (username,))
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT * FROM usuarios WHERE username = %s', (username,))
         row = cursor.fetchone()
         return dict(row) if row else None
 
     def listar_usuarios(self):
-        cursor = self.conn.execute('SELECT id, username, rol, nombre, created_at FROM usuarios')
-        return [dict(row) for row in cursor.fetchall()]
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT id, username, rol, nombre, created_at FROM usuarios')
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
 
     def cambiar_rol(self, user_id, nuevo_rol):
-        self.conn.execute('UPDATE usuarios SET rol = ? WHERE id = ?', (nuevo_rol, user_id))
-        self.conn.commit()
+        cursor = self.conn.cursor()
+        cursor.execute('UPDATE usuarios SET rol = %s WHERE id = %s', (nuevo_rol, user_id))
+        if hasattr(self.conn, 'commit'):
+            self.conn.commit()
 
     def cambiar_password(self, user_id, new_password):
         password_hash = generate_password_hash(new_password)
-        self.conn.execute('UPDATE usuarios SET password_hash = ? WHERE id = ?', (password_hash, user_id))
-        self.conn.commit()
+        cursor = self.conn.cursor()
+        cursor.execute('UPDATE usuarios SET password_hash = %s WHERE id = %s', (password_hash, user_id))
+        if hasattr(self.conn, 'commit'):
+            self.conn.commit()
    
     def eliminar_usuario(self, user_id):
         if user_id == 1:  # Proteger admin principal
             return False
-        self.conn.execute('DELETE FROM usuarios WHERE id = ?', (user_id,))
-        self.conn.commit()
+        cursor = self.conn.cursor()
+        cursor.execute('DELETE FROM usuarios WHERE id = %s', (user_id,))
+        if hasattr(self.conn, 'commit'):
+            self.conn.commit()
         return True
