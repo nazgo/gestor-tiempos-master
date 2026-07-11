@@ -4,10 +4,9 @@
 Sistema de Gestión de Tiempos para Nadadores Master de Nivel Competitivo
 """
 
-import sqlite3
+import os
 import csv
 import re
-import os
 from datetime import datetime, date
 from typing import Optional, List, Dict, Any
 
@@ -20,34 +19,29 @@ except ImportError:
 
 class GestorTiemposMaster:
     ESTILOS = ['Mariposa', 'Espalda', 'Pecho', 'Crol', 'Combinado']
-    DISTANCIAS = [25, 50, 100, 200, 400, 800, 1500]
+    DISTANCIAS = [50, 100, 200, 400, 800, 1500]
 
-    def __init__(self, db_path: str = "nadadores_master_competitivos.db"):
-        self.db_path = db_path
+    def __init__(self):
         self.conn = None
         self.connect()
         self.crear_tabla()
 
     def connect(self):
-        """Conecta a PostgreSQL (Neon) o SQLite local."""
+        """Conecta a PostgreSQL (Neon)."""
         db_url = os.environ.get('DATABASE_URL')
         if db_url and db_url.startswith('postgres') and POSTGRES_AVAILABLE:
-            print("🔗 Conectando a PostgreSQL (Neon)...")
+            print("🔗 Conectando a Neon PostgreSQL...")
             self.conn = psycopg2.connect(db_url)
             self.conn.autocommit = True
         else:
-            print("🔗 Usando SQLite local...")
-            self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            print("⚠️  No se encontró DATABASE_URL. Usando SQLite local (temporal).")
+            import sqlite3
+            self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
             self.conn.row_factory = sqlite3.Row
 
     def crear_tabla(self) -> None:
         """Crea las tablas si no existen."""
-        if not self.conn:
-            return
-
         cursor = self.conn.cursor()
-
-        # Tabla tiempos
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS tiempos (
                 id SERIAL PRIMARY KEY,
@@ -61,28 +55,17 @@ class GestorTiemposMaster:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
-
-        # Índices
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_nombre_estilo_dist ON tiempos(nombre_nadador, estilo, distancia)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_fecha ON tiempos(fecha)')
-
-        # Tabla competencias
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS competencias (
-                id SERIAL PRIMARY KEY,
-                mes TEXT,
-                fecha TEXT,
-                etapas TEXT,
-                lugar TEXT,
-                organiza TEXT,
-                nombre_torneo TEXT,
-                tipo_piscina TEXT,
-                estado TEXT DEFAULT '1'
-            )
+            CREATE INDEX IF NOT EXISTS idx_nombre_estilo_dist ON tiempos(nombre_nadador, estilo, distancia)
         ''')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_fecha ON tiempos(fecha)')
+        self.conn.commit()
 
-        if hasattr(self.conn, 'commit'):
-            self.conn.commit()
+    # ... (agrega aquí todos tus métodos: agregar_tiempo, obtener_todos_los_tiempos, etc.)
+
+    def cerrar_conexion(self):
+        if self.conn:
+            self.conn.close()
 
 
     @staticmethod
