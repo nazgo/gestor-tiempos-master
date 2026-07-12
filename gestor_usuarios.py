@@ -21,17 +21,21 @@ class GestorUsuarios:
         db_url = os.environ.get('DATABASE_URL')
         print("DEBUG - DATABASE_URL:", bool(db_url))
         
-        # Forzar PostgreSQL si la URL existe
         if db_url and 'postgresql' in db_url:
             try:
-                import psycopg2
-                print("🔗 Conectando a Neon PostgreSQL...")
-                self.conn = psycopg2.connect(db_url)
+                import psycopg
+                print("🔗 Conectando a Neon PostgreSQL con psycopg...")
+                self.conn = psycopg.connect(db_url)
                 self.conn.autocommit = True
                 print("✅ Conexión PostgreSQL exitosa!")
                 return
             except Exception as e:
                 print("❌ Error conectando a PostgreSQL:", e)
+        
+        print("⚠️  Usando SQLite local.")
+        import sqlite3
+        self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
+        self.conn.row_factory = sqlite3.Row
         
         # Fallback a SQLite
         print("⚠️  Usando SQLite local.")
