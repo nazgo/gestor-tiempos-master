@@ -270,6 +270,11 @@ def season_best():
                          estilos=gestor_tiempos.ESTILOS, 
                          distancias=gestor_tiempos.DISTANCIAS)
 
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    gestor_tiempos.cerrar_conexion()
+    gestor_nadadores.cerrar_conexion()
+    gestor_usuarios.cerrar_conexion()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
