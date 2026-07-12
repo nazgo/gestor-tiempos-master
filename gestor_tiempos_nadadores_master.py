@@ -29,17 +29,25 @@ class GestorTiemposMaster:
     def connect(self):
         """Conecta a PostgreSQL (Neon) o SQLite."""
         db_url = os.environ.get('DATABASE_URL')
-        print("DEBUG - DATABASE_URL:", "SÍ" if db_url else "NO")
+        print("DEBUG - DATABASE_URL:", bool(db_url))
         
-        if db_url and ('postgresql' in db_url or 'postgres' in db_url) and POSTGRES_AVAILABLE:
-            print("🔗 Conectando a Neon PostgreSQL...")
-            self.conn = psycopg2.connect(db_url)
-            self.conn.autocommit = True
-        else:
-            print("⚠️  Usando SQLite local.")
-            import sqlite3
-            self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
-            self.conn.row_factory = sqlite3.Row
+        # Forzar PostgreSQL si la URL existe
+        if db_url and 'postgresql' in db_url:
+            try:
+                import psycopg2
+                print("🔗 Conectando a Neon PostgreSQL...")
+                self.conn = psycopg2.connect(db_url)
+                self.conn.autocommit = True
+                print("✅ Conexión PostgreSQL exitosa!")
+                return
+            except Exception as e:
+                print("❌ Error conectando a PostgreSQL:", e)
+        
+        # Fallback a SQLite
+        print("⚠️  Usando SQLite local.")
+        import sqlite3
+        self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
+        self.conn.row_factory = sqlite3.Row
 
     def crear_tabla(self) -> None:
         """Crea las tablas si no existen."""
