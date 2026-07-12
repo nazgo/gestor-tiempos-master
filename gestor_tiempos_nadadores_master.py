@@ -521,9 +521,65 @@ class GestorTiemposMaster:
         cursor.execute('DELETE FROM nadadores WHERE id = ?', (nadador_id,))
         self.conn.commit()
 
-	def cerrar_conexion(self):
-	        if self.conn:
-	            self.conn.close()
+    def cerrar_conexion(self):
+        """Cierra la conexión a la base de datos de forma segura."""
+        if self.conn:
+            self.conn.close()
+
+    def obtener_tiempo_por_id(self, tiempo_id):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT * FROM tiempos WHERE id = %s', (tiempo_id,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+    def actualizar_tiempo(self, tiempo_id, nombre, estilo, distancia, piscina, tiempo, fecha):
+        """Actualiza un tiempo existente."""
+        tiempo_segundos = self._convertir_a_segundos(tiempo)
+        self.conn.execute('''
+            UPDATE tiempos 
+            SET nombre_nadador = %s, estilo = %s, distancia = %s, piscina = %s, 
+                tiempo = %s, tiempo_segundos = %s, fecha = %s
+            WHERE id = %s
+        ''', (nombre, estilo, distancia, piscina, tiempo, tiempo_segundos, fecha, tiempo_id))
+        if hasattr(self.conn, 'commit'):
+            self.conn.commit()
+
+    def eliminar_tiempo(self, tiempo_id):
+        self.conn.execute('DELETE FROM tiempos WHERE id = %s', (tiempo_id,))
+        if hasattr(self.conn, 'commit'):
+            self.conn.commit()
+
+    def obtener_season_best_avanzado(self, nombre=None, estilo=None, distancia=None, categoria=None, year=None):
+        if year is None:
+            year = datetime.now().year
+
+        query = '''
+            SELECT t.*, n.categoria_master 
+            FROM tiempos t
+            LEFT JOIN nadadores n ON LOWER(t.nombre_nadador) = LOWER(n.nombre || ' ' || n.apellido)
+            WHERE strftime('%Y', t.fecha) = %s
+        '''
+        params = [str(year)]
+
+        if nombre:
+            query += " AND LOWER(t.nombre_nadador) LIKE LOWER(%s)"
+            params.append(f"%{nombre}%")
+        if estilo:
+            query += " AND t.estilo = %s"
+            params.append(estilo)
+        if distancia:
+            query += " AND t.distancia = %s"
+            params.append(int(distancia))
+        if categoria:
+            query += " AND n.categoria_master = %s"
+            params.append(categoria)
+
+        query += " ORDER BY t.tiempo_segundos ASC LIMIT 1"
+
+        cursor = self.conn.cursor()
+        cursor.execute(query, params)
+        row = cursor.fetchone()
+        return dict(row) if row else None)
 
 if __name__ == "__main__":
     main()
