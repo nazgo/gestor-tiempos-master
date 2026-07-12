@@ -512,7 +512,7 @@ def obtener_top_5_por_categoria_estilo(self):
         ''')
         return [dict(row) for row in cursor.fetchall()]
 
-    def eliminar_nadador(self, nadador_id):
+def eliminar_nadador(self, nadador_id):
         """Elimina un nadador y sus tiempos asociados."""
         cursor = self.conn.cursor()
         # Elimina primero los tiempos
