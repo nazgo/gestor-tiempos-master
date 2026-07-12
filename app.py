@@ -272,18 +272,12 @@ def season_best():
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    try:
-        gestor_tiempos.cerrar_conexion()
-    except:
-        pass
-    try:
-        gestor_nadadores.cerrar_conexion()
-    except:
-        pass
-    try:
-        gestor_usuarios.cerrar_conexion()
-    except:
-        pass
+    for gestor in [gestor_tiempos, gestor_nadadores, gestor_usuarios]:
+        try:
+            if hasattr(gestor, 'cerrar_conexion'):
+                gestor.cerrar_conexion()
+        except:
+            pass
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
