@@ -1,26 +1,62 @@
 from datetime import datetime, date
 import sqlite3
+import os
+
+try:
+    import psycopg2
+    POSTGRES_AVAILABLE = True
+except ImportError:
+    POSTGRES_AVAILABLE = False
+
 
 class GestorNadadores:
     def __init__(self, db_path="nadadores_master_competitivos.db"):
-        self.conn = sqlite3.connect(db_path, check_same_thread=False)
-        self.conn.row_factory = sqlite3.Row
+        self.db_path = db_path
+        self.conn = None
+        self.connect()
         self.crear_tabla()
 
+    def connect(self):
+        """Conecta a PostgreSQL o SQLite local."""
+        db_url = os.environ.get('DATABASE_URL')
+        if db_url and db_url.startswith('postgres') and POSTGRES_AVAILABLE:
+            print("🔗 Conectando a PostgreSQL (Neon) para nadadores...")
+            self.conn = psycopg2.connect(db_url)
+            self.conn.autocommit = True
+        else:
+            print("🔗 Usando SQLite local para nadadores...")
+            self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            self.conn.row_factory = sqlite3.Row
+
+    def _execute(self, query: str, params=None, commit=True):
+        """Helper para manejar SQLite y PostgreSQL."""
+        cursor = self.conn.cursor()
+        if params is not None:
+            if hasattr(self.conn, 'autocommit'):  # PostgreSQL
+                query = query.replace('?', '%s')
+            else:  # SQLite
+                query = query.replace('%s', '?')
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        
+        if commit and hasattr(self.conn, 'commit'):
+            self.conn.commit()
+        return cursor
+
     def crear_tabla(self):
-        self.conn.execute('''
+        self._execute('''
             CREATE TABLE IF NOT EXISTS nadadores (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 nombre TEXT NOT NULL,
                 apellido TEXT NOT NULL,
                 fecha_nacimiento DATE NOT NULL,
                 rut TEXT UNIQUE,
                 genero TEXT,
                 categoria_master TEXT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        ''')
-        self.conn.commit()
+        ''', commit=False)
 
     def calcular_categoria_master(self, fecha_nac):
         """Calcula categoría Master según edad al 31 de diciembre del año actual"""
@@ -65,35 +101,41 @@ class GestorNadadores:
 
     def agregar_nadador(self, nombre, apellido, fecha_nacimiento, rut=None, genero=None):
         categoria = self.calcular_categoria_master(fecha_nacimiento)
-        self.conn.execute('''
+        self._execute('''
             INSERT INTO nadadores (nombre, apellido, fecha_nacimiento, rut, genero, categoria_master)
             VALUES (?, ?, ?, ?, ?, ?)
         ''', (nombre, apellido, fecha_nacimiento, rut, genero, categoria))
-        self.conn.commit()
 
     def listar_nadadores(self):
-        cursor = self.conn.execute('SELECT * FROM nadadores ORDER BY apellido, nombre')
+        cursor = self._execute('SELECT * FROM nadadores ORDER BY apellido, nombre', commit=False)
         return [dict(row) for row in cursor.fetchall()]
 
     def obtener_nadador(self, nadador_id):
-        cursor = self.conn.execute('SELECT * FROM nadadores WHERE id = ?', (nadador_id,))
+        cursor = self._execute('SELECT * FROM nadadores WHERE id = ?', (nadador_id,), commit=False)
         row = cursor.fetchone()
         return dict(row) if row else None
 
     def actualizar_nadador(self, nadador_id, nombre, apellido, fecha_nacimiento, rut=None, genero=None):
         categoria = self.calcular_categoria_master(fecha_nacimiento)
-        self.conn.execute('''
+        self._execute('''
             UPDATE nadadores 
             SET nombre = ?, apellido = ?, fecha_nacimiento = ?, rut = ?, genero = ?, categoria_master = ?
             WHERE id = ?
         ''', (nombre, apellido, fecha_nacimiento, rut, genero, categoria, nadador_id))
-        self.conn.commit()
 
     def eliminar_nadador(self, nadador_id):
         """Elimina un nadador y sus tiempos asociados."""
-        cursor = self.conn.cursor()
         # Elimina primero los tiempos
-        cursor.execute('DELETE FROM tiempos WHERE LOWER(nombre_nadador) = LOWER((SELECT nombre || " " || apellido FROM nadadores WHERE id = ? LIMIT 1))', (nadador_id,))
+        self._execute('''
+            DELETE FROM tiempos 
+            WHERE LOWER(nombre_nadador) = LOWER(
+                (SELECT nombre || ' ' || apellido FROM nadadores WHERE id = ? LIMIT 1)
+            )
+        ''', (nadador_id,))
+        
         # Elimina el nadador
-        cursor.execute('DELETE FROM nadadores WHERE id = ?', (nadador_id,))
-        self.conn.commit()
+        self._execute('DELETE FROM nadadores WHERE id = ?', (nadador_id,))
+
+    def cerrar_conexion(self):
+        if self.conn:
+            self.conn.close()
