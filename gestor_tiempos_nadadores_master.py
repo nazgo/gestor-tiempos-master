@@ -61,12 +61,6 @@ class GestorTiemposMaster:
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_fecha ON tiempos(fecha)')
         self.conn.commit()
 
-    # ... (agrega aquí todos tus métodos: agregar_tiempo, obtener_todos_los_tiempos, etc.)
-
-    def cerrar_conexion(self):
-        if self.conn:
-            self.conn.close()
-
 
     @staticmethod
     def _validar_tiempo(tiempo_str: str) -> bool:
@@ -254,7 +248,7 @@ class GestorTiemposMaster:
             "ultima_fecha": max(t['fecha'] for t in tiempos)
         }
 
-    def cerrar_conexion(self) -> None:
+def cerrar_conexion(self) -> None:
         """Cierra la conexión a la base de datos de forma segura."""
         if self.conn:
             self.conn.close()
@@ -493,33 +487,33 @@ class GestorTiemposMaster:
         return pdf_path
 
 
-def obtener_top_5_por_categoria_estilo(self):
-        """Obtiene los 5 mejores tiempos por categoría, género y estilo."""
-        cursor = self.conn.cursor()
-        cursor.execute('''
-            SELECT 
-                n.categoria_master,
-                n.genero,
-                t.estilo,
-                t.distancia,
-                t.tiempo,
-                t.fecha,
-                t.nombre_nadador
-            FROM tiempos t
-            JOIN nadadores n ON LOWER(t.nombre_nadador) = LOWER(n.nombre || ' ' || n.apellido)
-            ORDER BY t.tiempo_segundos ASC
-            LIMIT 50
-        ''')
-        return [dict(row) for row in cursor.fetchall()]
+	def obtener_top_5_por_categoria_estilo(self):
+	        """Obtiene los 5 mejores tiempos por categoría, género y estilo."""
+	        cursor = self.conn.cursor()
+	        cursor.execute('''
+	            SELECT 
+	                n.categoria_master,
+	                n.genero,
+	                t.estilo,
+	                t.distancia,
+	                t.tiempo,
+	                t.fecha,
+	                t.nombre_nadador
+	            FROM tiempos t
+	            JOIN nadadores n ON LOWER(t.nombre_nadador) = LOWER(n.nombre || ' ' || n.apellido)
+	            ORDER BY t.tiempo_segundos ASC
+	            LIMIT 50
+	        ''')
+	        return [dict(row) for row in cursor.fetchall()]
 
-def eliminar_nadador(self, nadador_id):
-        """Elimina un nadador y sus tiempos asociados."""
-        cursor = self.conn.cursor()
-        # Elimina primero los tiempos
-        cursor.execute('DELETE FROM tiempos WHERE LOWER(nombre_nadador) = LOWER((SELECT nombre || " " || apellido FROM nadadores WHERE id = ? LIMIT 1))', (nadador_id,))
-        # Elimina el nadador
-        cursor.execute('DELETE FROM nadadores WHERE id = ?', (nadador_id,))
-        self.conn.commit()
+	def eliminar_nadador(self, nadador_id):
+	        """Elimina un nadador y sus tiempos asociados."""
+	        cursor = self.conn.cursor()
+	        # Elimina primero los tiempos
+	        cursor.execute('DELETE FROM tiempos WHERE LOWER(nombre_nadador) = LOWER((SELECT nombre || " " || apellido FROM nadadores WHERE id = ? LIMIT 1))', (nadador_id,))
+	        # Elimina el nadador
+	        cursor.execute('DELETE FROM nadadores WHERE id = ?', (nadador_id,))
+	        self.conn.commit()
 
     def cerrar_conexion(self):
         """Cierra la conexión a la base de datos de forma segura."""
@@ -581,5 +575,3 @@ def eliminar_nadador(self, nadador_id):
         row = cursor.fetchone()
         return dict(row) if row else None
 
-if __name__ == "__main__":
-    main()
