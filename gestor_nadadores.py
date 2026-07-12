@@ -1,9 +1,8 @@
 from datetime import datetime, date
-import sqlite3
 import os
 
 try:
-    import psycopg2
+    import psycopg
     POSTGRES_AVAILABLE = True
 except ImportError:
     POSTGRES_AVAILABLE = False
@@ -17,33 +16,26 @@ class GestorNadadores:
         self.crear_tabla()
 
     def connect(self):
-        """Conecta a PostgreSQL (Neon) o SQLite."""
+        """Conecta a PostgreSQL o SQLite."""
         db_url = os.environ.get('DATABASE_URL')
-        print("DEBUG - DATABASE_URL:", bool(db_url))
+        print("DEBUG nadadores - DATABASE_URL:", bool(db_url))
         
-        if db_url and 'postgresql' in db_url:
+        if db_url and 'postgresql' in db_url and POSTGRES_AVAILABLE:
             try:
-                import psycopg
-                print("🔗 Conectando a Neon PostgreSQL con psycopg...")
+                print("🔗 Conectando a Neon PostgreSQL para nadadores...")
                 self.conn = psycopg.connect(db_url)
                 self.conn.autocommit = True
                 print("✅ Conexión PostgreSQL exitosa!")
                 return
             except Exception as e:
-                print("❌ Error conectando a PostgreSQL:", e)
+                print("❌ Error PostgreSQL nadadores:", e)
         
-        print("⚠️  Usando SQLite local.")
+        print("🔗 Usando SQLite local para nadadores...")
         import sqlite3
-        self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
-        self.conn.row_factory = sqlite3.Row
-        
-        # Fallback a SQLite
-        print("⚠️  Usando SQLite local.")
-        import sqlite3
-        self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
+        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
 
-def _execute(self, query, params=None, commit=True):
+    def _execute(self, query, params=None, commit=True):
         cursor = self.conn.cursor()
         if params:
             if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
@@ -71,7 +63,6 @@ def _execute(self, query, params=None, commit=True):
         ''', commit=False)
 
     def calcular_categoria_master(self, fecha_nac):
-        """Calcula categoría Master según edad al 31 de diciembre del año actual"""
         if not fecha_nac:
             return "Sin categoría"
         ano_actual = datetime.now().year
@@ -121,7 +112,7 @@ def _execute(self, query, params=None, commit=True):
     def listar_nadadores(self):
         cursor = self._execute('SELECT * FROM nadadores ORDER BY apellido, nombre', commit=False)
         rows = cursor.fetchall()
-        return [dict(row) if hasattr(row, '_asdict') else dict(row) for row in rows]
+        return [dict(row) if not isinstance(row, dict) else row for row in rows]
 
     def obtener_nadador(self, nadador_id):
         cursor = self._execute('SELECT * FROM nadadores WHERE id = ?', (nadador_id,), commit=False)
@@ -137,16 +128,12 @@ def _execute(self, query, params=None, commit=True):
         ''', (nombre, apellido, fecha_nacimiento, rut, genero, categoria, nadador_id))
 
     def eliminar_nadador(self, nadador_id):
-        """Elimina un nadador y sus tiempos asociados."""
-        # Elimina primero los tiempos
         self._execute('''
             DELETE FROM tiempos 
             WHERE LOWER(nombre_nadador) = LOWER(
                 (SELECT nombre || ' ' || apellido FROM nadadores WHERE id = ? LIMIT 1)
             )
         ''', (nadador_id,))
-        
-        # Elimina el nadador
         self._execute('DELETE FROM nadadores WHERE id = ?', (nadador_id,))
 
     def cerrar_conexion(self):
