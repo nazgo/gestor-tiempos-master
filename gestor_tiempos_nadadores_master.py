@@ -275,7 +275,6 @@ class GestorTiemposMaster:
 
     def obtener_estadisticas_club(self):
         """Obtiene estadísticas generales del club."""
-        cursor = self.conn.cursor()
         año_actual = datetime.now().year
 
         # Total general
@@ -284,19 +283,20 @@ class GestorTiemposMaster:
                    COUNT(DISTINCT nombre_nadador) as total_nadadores 
             FROM tiempos
         ''', commit=False)
-        general = dict(cursor.fetchone()) if cursor.fetchone() else {}
+        row = cursor.fetchone()
+        general = dict(row) if row else {}
 
         # Nadadores activos este año
         cursor = self._execute('''
             SELECT COUNT(DISTINCT nombre_nadador) as activos_este_año
             FROM tiempos 
-            WHERE strftime('%Y', fecha) = %s
-        ''', (str(año_actual),), commit=False)
-        activos_row = cursor.fetchone()
-        activos = dict(activos_row)['activos_este_año'] if activos_row else 0
+            WHERE EXTRACT(YEAR FROM fecha) = %s
+        ''', (año_actual,), commit=False)
+        row = cursor.fetchone()
+        activos = dict(row)['activos_este_año'] if row else 0
 
         # Temporadas
-        cursor = self._execute("SELECT DISTINCT strftime('%Y', fecha) as ano FROM tiempos WHERE fecha IS NOT NULL", commit=False)
+        cursor = self._execute("SELECT DISTINCT EXTRACT(YEAR FROM fecha) as ano FROM tiempos WHERE fecha IS NOT NULL", commit=False)
         años = cursor.fetchall()
         temporadas = len(años)
 
@@ -304,12 +304,15 @@ class GestorTiemposMaster:
         cursor = self._execute('''
             SELECT nombre_nadador, COUNT(*) as total_tiempos
             FROM tiempos 
-            WHERE strftime('%Y', fecha) = %s
+            WHERE EXTRACT(YEAR FROM fecha) = %s
             GROUP BY nombre_nadador 
             ORDER BY total_tiempos DESC 
             LIMIT 10
-        ''', (str(año_actual),), commit=False)
-        mas_activos = [dict(row) if hasattr(row, '_asdict') else dict(row) for row in cursor.fetchall()]
+        ''', (año_actual,), commit=False)
+        mas_activos = []
+        for row in cursor.fetchall():
+            if row:
+                mas_activos.append(dict(row._asdict()) if hasattr(row, '_asdict') else dict(row))
 
         # Mejores tiempos
         cursor = self._execute('''
@@ -318,7 +321,10 @@ class GestorTiemposMaster:
             ORDER BY tiempo_segundos ASC
             LIMIT 10
         ''', commit=False)
-        por_prueba = [dict(row) if hasattr(row, '_asdict') else dict(row) for row in cursor.fetchall()]
+        por_prueba = []
+        for row in cursor.fetchall():
+            if row:
+                por_prueba.append(dict(row._asdict()) if hasattr(row, '_asdict') else dict(row))
     
         return {
             'general': general,
