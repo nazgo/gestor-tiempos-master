@@ -397,6 +397,13 @@ class GestorTiemposMaster:
     def __del__(self):
         self.cerrar_conexion()
 
+    def listar_competencias(self):
+        cursor = self._execute('SELECT * FROM competencias ORDER BY mes, fecha', commit=False)
+        return [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
+
+    def actualizar_estado_competencia(self, competencia_id, estado):
+        self._execute('UPDATE competencias SET estado = ? WHERE id = ?', (estado, competencia_id))
+
 
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
