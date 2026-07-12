@@ -110,9 +110,27 @@ class GestorNadadores:
         ''', (nombre, apellido, fecha_nacimiento, rut, genero, categoria))
 
     def listar_nadadores(self):
+        """Lista todos los nadadores con conversión segura para PostgreSQL y SQLite."""
         cursor = self._execute('SELECT * FROM nadadores ORDER BY apellido, nombre', commit=False)
         rows = cursor.fetchall()
-        return [dict(row) if not isinstance(row, dict) else row for row in rows]
+        result = []
+        for row in rows:
+            if row is None:
+                continue
+            try:
+                if hasattr(row, '_asdict'):  # psycopg
+                    result.append(dict(row._asdict()))
+                elif hasattr(row, 'keys'):   # sqlite3.Row
+                    result.append(dict(row))
+                else:  # fallback
+                    result.append(dict(zip([desc[0] for desc in cursor.description], row)))
+            except Exception:
+                # Último recurso
+                try:
+                    result.append(dict(row))
+                except:
+                    result.append({})
+        return result
 
     def obtener_nadador(self, nadador_id):
         cursor = self._execute('SELECT * FROM nadadores WHERE id = ?', (nadador_id,), commit=False)
