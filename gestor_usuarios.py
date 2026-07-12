@@ -7,12 +7,6 @@ try:
 except ImportError:
     POSTGRES_AVAILABLE = False
 
-try:
-    import sqlite3
-    SQLITE_AVAILABLE = True
-except ImportError:
-    SQLITE_AVAILABLE = False
-
 
 class GestorUsuarios:
     def __init__(self, db_path="nadadores_master_competitivos.db"):
@@ -22,7 +16,6 @@ class GestorUsuarios:
         self.crear_tabla()
 
     def connect(self):
-        """Conecta a PostgreSQL o SQLite."""
         db_url = os.environ.get('DATABASE_URL')
         print("DEBUG usuarios - DATABASE_URL:", bool(db_url))
         
@@ -34,17 +27,16 @@ class GestorUsuarios:
                 print("✅ Conexión PostgreSQL exitosa!")
                 return
             except Exception as e:
-                print("❌ Error PostgreSQL:", e)
+                print("❌ Error PostgreSQL usuarios:", e)
         
         print("🔗 Usando SQLite local para usuarios...")
+        import sqlite3
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
 
     def _execute(self, query, params=None, commit=True):
-        """Ejecuta consultas compatible con psycopg y sqlite3."""
         cursor = self.conn.cursor()
         if params:
-            # Convertir ? a %s para PostgreSQL
             if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
                 query = query.replace('?', '%s')
             cursor.execute(query, params)
@@ -56,7 +48,6 @@ class GestorUsuarios:
         return cursor
 
     def crear_tabla(self):
-        """Crea la tabla de usuarios si no existe."""
         self._execute('''
             CREATE TABLE IF NOT EXISTS usuarios (
                 id SERIAL PRIMARY KEY,
@@ -81,7 +72,9 @@ class GestorUsuarios:
     def obtener_usuario(self, username):
         cursor = self._execute('SELECT * FROM usuarios WHERE username = ?', (username,), commit=False)
         row = cursor.fetchone()
-        return dict(row) if row else None
+        if row:
+            return dict(row) if hasattr(row, '_asdict') else dict(row)
+        return None
 
     def verificar_login(self, username, password):
         usuario = self.obtener_usuario(username)
@@ -92,7 +85,11 @@ class GestorUsuarios:
     def listar_usuarios(self):
         cursor = self._execute('SELECT id, username, rol, nombre, created_at FROM usuarios', commit=False)
         rows = cursor.fetchall()
-        return [dict(row) for row in rows]
+        result = []
+        for row in rows:
+            if row:
+                result.append(dict(row) if hasattr(row, '_asdict') else dict(row))
+        return result
 
     def cambiar_rol(self, user_id, nuevo_rol):
         self._execute('UPDATE usuarios SET rol = ? WHERE id = ?', (nuevo_rol, user_id))
