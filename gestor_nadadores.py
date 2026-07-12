@@ -43,14 +43,11 @@ class GestorNadadores:
         self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
 
-    def _execute(self, query: str, params=None, commit=True):
-        """Helper para manejar SQLite y PostgreSQL."""
+def _execute(self, query, params=None, commit=True):
         cursor = self.conn.cursor()
-        if params is not None:
-            if hasattr(self.conn, 'autocommit'):  # PostgreSQL
+        if params:
+            if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
                 query = query.replace('?', '%s')
-            else:  # SQLite
-                query = query.replace('%s', '?')
             cursor.execute(query, params)
         else:
             cursor.execute(query)
@@ -123,7 +120,8 @@ class GestorNadadores:
 
     def listar_nadadores(self):
         cursor = self._execute('SELECT * FROM nadadores ORDER BY apellido, nombre', commit=False)
-        return [dict(row) for row in cursor.fetchall()]
+        rows = cursor.fetchall()
+        return [dict(row) if hasattr(row, '_asdict') else dict(row) for row in rows]
 
     def obtener_nadador(self, nadador_id):
         cursor = self._execute('SELECT * FROM nadadores WHERE id = ?', (nadador_id,), commit=False)
