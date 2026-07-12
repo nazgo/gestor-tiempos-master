@@ -114,3 +114,10 @@ class GestorUsuarios:
             return False
         self._execute('DELETE FROM usuarios WHERE id = ?', (user_id,))
         return True
+        
+    def cerrar_conexion(self):
+        if self.conn:
+            try:
+                self.conn.close()
+            except:
+                pass
