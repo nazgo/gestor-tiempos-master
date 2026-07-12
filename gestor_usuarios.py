@@ -17,18 +17,17 @@ class GestorUsuarios:
         self.crear_tabla()
 
     def connect(self):
-        """Conecta a PostgreSQL (Neon) o SQLite."""
+        """Conecta a PostgreSQL (Neon) o SQLite local."""
         db_url = os.environ.get('DATABASE_URL')
-        print("DEBUG connect() - DATABASE_URL:", "SÍ" if db_url else "NO")
+        print("DEBUG usuarios - DATABASE_URL:", "SÍ" if db_url else "NO")
         
         if db_url and db_url.startswith('postgresql') and POSTGRES_AVAILABLE:
-            print("🔗 Conectando a Neon PostgreSQL...")
+            print("🔗 Conectando a PostgreSQL (Neon) para usuarios...")
             self.conn = psycopg2.connect(db_url)
             self.conn.autocommit = True
         else:
-            print("⚠️  No se encontró DATABASE_URL válida. Usando SQLite local.")
-            import sqlite3
-            self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
+            print("🔗 Usando SQLite local para usuarios...")
+            self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
             self.conn.row_factory = sqlite3.Row
 
     def _execute(self, query: str, params=None, commit=True):
