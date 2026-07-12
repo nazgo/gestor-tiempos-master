@@ -66,7 +66,7 @@ class GestorTiemposMaster:
         if self.conn:
             self.conn.close()
 
-    # ====================== MÉTODOS ESTÁTICOS ======================
+    # ====================== MÉTODOS ESTÁTICOS =======================
     @staticmethod
     def _validar_tiempo(tiempo_str: str) -> bool:
         if not isinstance(tiempo_str, str):
