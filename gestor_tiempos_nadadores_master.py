@@ -80,6 +80,20 @@ class GestorTiemposMaster:
         if self.conn:
             self.conn.close()
 
+    def _execute(self, query, params=None, commit=True):
+        """Ejecuta consultas compatible con psycopg y sqlite3."""
+        cursor = self.conn.cursor()
+        if params:
+            if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
+                query = query.replace('?', '%s')
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        
+        if commit and hasattr(self.conn, 'commit'):
+            self.conn.commit()
+        return cursor
+
     # ====================== MÉTODOS ESTÁTICOS =======================
     @staticmethod
     def _validar_tiempo(tiempo_str: str) -> bool:
@@ -401,20 +415,6 @@ class GestorTiemposMaster:
 
     def __del__(self):
         self.cerrar_conexion()
-
-def _execute(self, query, params=None, commit=True):
-        """Ejecuta consultas compatible con psycopg y sqlite3."""
-        cursor = self.conn.cursor()
-        if params:
-            if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
-                query = query.replace('?', '%s')
-            cursor.execute(query, params)
-        else:
-            cursor.execute(query)
-        
-        if commit and hasattr(self.conn, 'commit'):
-            self.conn.commit()
-        return cursor
 
 
 
