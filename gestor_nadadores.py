@@ -156,4 +156,7 @@ class GestorNadadores:
 
     def cerrar_conexion(self):
         if self.conn:
-            self.conn.close()
+            try:
+                self.conn.close()
+            except:
+                pass
