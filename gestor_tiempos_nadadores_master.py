@@ -493,7 +493,7 @@ class GestorTiemposMaster:
         return pdf_path
 
 
-    def obtener_top_5_por_categoria_estilo(self):
+def obtener_top_5_por_categoria_estilo(self):
         """Obtiene los 5 mejores tiempos por categoría, género y estilo."""
         cursor = self.conn.cursor()
         cursor.execute('''
