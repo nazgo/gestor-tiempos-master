@@ -264,42 +264,47 @@ class GestorTiemposMaster:
         cursor = self.conn.cursor()
         año_actual = datetime.now().year
 
-        cursor.execute('''
+        # Total general
+        cursor = self._execute('''
             SELECT COUNT(*) as total_tiempos, 
                    COUNT(DISTINCT nombre_nadador) as total_nadadores 
             FROM tiempos
-        ''')
-        general = dict(cursor.fetchone())
+        ''', commit=False)
+        general = dict(cursor.fetchone()) if cursor.fetchone() else {}
 
-        cursor.execute('''
+        # Nadadores activos este año
+        cursor = self._execute('''
             SELECT COUNT(DISTINCT nombre_nadador) as activos_este_año
             FROM tiempos 
-            WHERE strftime('%Y', fecha) = ?
-        ''', (str(año_actual),))
+            WHERE strftime('%Y', fecha) = %s
+        ''', (str(año_actual),), commit=False)
         activos_row = cursor.fetchone()
         activos = dict(activos_row)['activos_este_año'] if activos_row else 0
 
-        cursor.execute("SELECT DISTINCT strftime('%Y', fecha) as ano FROM tiempos WHERE fecha IS NOT NULL")
+        # Temporadas
+        cursor = self._execute("SELECT DISTINCT strftime('%Y', fecha) as ano FROM tiempos WHERE fecha IS NOT NULL", commit=False)
         años = cursor.fetchall()
         temporadas = len(años)
 
-        cursor.execute('''
+        # Nadadores más activos
+        cursor = self._execute('''
             SELECT nombre_nadador, COUNT(*) as total_tiempos
             FROM tiempos 
-            WHERE strftime('%Y', fecha) = ?
+            WHERE strftime('%Y', fecha) = %s
             GROUP BY nombre_nadador 
             ORDER BY total_tiempos DESC 
             LIMIT 10
-        ''', (str(año_actual),))
-        mas_activos = [dict(row) for row in cursor.fetchall()]
+        ''', (str(año_actual),), commit=False)
+        mas_activos = [dict(row) if hasattr(row, '_asdict') else dict(row) for row in cursor.fetchall()]
 
-        cursor.execute('''
+        # Mejores tiempos
+        cursor = self._execute('''
             SELECT nombre_nadador, estilo, distancia, tiempo, fecha
             FROM tiempos
             ORDER BY tiempo_segundos ASC
             LIMIT 10
-        ''')
-        por_prueba = [dict(row) for row in cursor.fetchall()]
+        ''', commit=False)
+        por_prueba = [dict(row) if hasattr(row, '_asdict') else dict(row) for row in cursor.fetchall()]
     
         return {
             'general': general,
