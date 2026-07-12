@@ -11,7 +11,7 @@ from datetime import datetime, date
 from typing import Optional, List, Dict, Any
 
 try:
-    import psycopg2
+    import psycopg
     POSTGRES_AVAILABLE = True
 except ImportError:
     POSTGRES_AVAILABLE = False
@@ -42,16 +42,37 @@ class GestorTiemposMaster:
             except Exception as e:
                 print("❌ Error conectando a PostgreSQL:", e)
         
-        print("⚠️  Usando SQLite local.")
+        print("⚠️ Usando SQLite local.")
         import sqlite3
         self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
+
+    def _execute(self, query, params=None, commit=True):
+        """Ejecuta consultas compatible con psycopg y sqlite3."""
+        cursor = self.conn.cursor()
+        if params:
+            if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
+                query = query.replace('?', '%s')
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
         
-        # Fallback a SQLite
-        print("⚠️  Usando SQLite local.")
-        import sqlite3
-        self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
-        self.conn.row_factory = sqlite3.Row
+        if commit and hasattr(self.conn, 'commit'):
+            self.conn.commit()
+        return cursor
+
+    def _row_to_dict(self, row, cursor=None):
+        """Convierte fila a diccionario de forma segura (psycopg + sqlite)."""
+        if not row:
+            return None
+        if hasattr(row, '_asdict'):
+            return dict(row._asdict())
+        elif hasattr(row, 'keys'):
+            return dict(row)
+        elif cursor and hasattr(cursor, 'description'):
+            return dict(zip([desc[0] for desc in cursor.description], row))
+        else:
+            return dict(row) if hasattr(row, '__iter__') else {}
 
     def crear_tabla(self) -> None:
         """Crea las tablas si no existen."""
@@ -76,25 +97,10 @@ class GestorTiemposMaster:
         self.conn.commit()
 
     def cerrar_conexion(self) -> None:
-        """Cierra la conexión a la base de datos de forma segura."""
         if self.conn:
             self.conn.close()
 
-    def _execute(self, query, params=None, commit=True):
-        """Ejecuta consultas compatible con psycopg y sqlite3."""
-        cursor = self.conn.cursor()
-        if params:
-            if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
-                query = query.replace('?', '%s')
-            cursor.execute(query, params)
-        else:
-            cursor.execute(query)
-        
-        if commit and hasattr(self.conn, 'commit'):
-            self.conn.commit()
-        return cursor
-
-    # ====================== MÉTODOS ESTÁTICOS =======================
+    # ====================== MÉTODOS ESTÁTICOS ======================
     @staticmethod
     def _validar_tiempo(tiempo_str: str) -> bool:
         if not isinstance(tiempo_str, str):
@@ -123,83 +129,60 @@ class GestorTiemposMaster:
 
     # ====================== CRUD BÁSICO ======================
     def agregar_tiempo(self, nombre, estilo, distancia, tiempo, fecha=None, piscina="25 metros"):
-        """Agrega un nuevo registro de tiempo."""
         nombre = nombre.strip()
         if not nombre:
             raise ValueError("El nombre del nadador no puede estar vacío.")
-
         if estilo not in self.ESTILOS:
             raise ValueError(f"Estilo inválido. Opciones: {', '.join(self.ESTILOS)}")
-
         if distancia not in self.DISTANCIAS:
             raise ValueError(f"Distancia inválida. Opciones: {self.DISTANCIAS}")
-
         if not self._validar_tiempo(tiempo):
             raise ValueError("Formato de tiempo inválido. Debe ser MM:SS.cc (ej: 01:23.45)")
-
         if fecha is None:
             fecha = date.today()
 
         tiempo_segundos = self._convertir_a_segundos(tiempo)
-
         cursor = self.conn.cursor()
         cursor.execute('''
             INSERT INTO tiempos 
             (nombre_nadador, estilo, distancia, piscina, tiempo, tiempo_segundos, fecha)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            nombre.title(),
-            estilo,
-            distancia,
-            piscina,
-            tiempo,
-            tiempo_segundos,
-            fecha.isoformat()
-        ))
+        ''', (nombre.title(), estilo, distancia, piscina, tiempo, tiempo_segundos, fecha.isoformat()))
         self.conn.commit()
         return cursor.lastrowid
 
     def obtener_tiempo_por_id(self, tiempo_id):
-        cursor = self.conn.cursor()
-        cursor.execute('SELECT * FROM tiempos WHERE id = ?', (tiempo_id,))
+        cursor = self._execute('SELECT * FROM tiempos WHERE id = ?', (tiempo_id,), commit=False)
         row = cursor.fetchone()
-        return dict(row) if row else None
+        return self._row_to_dict(row, cursor)
 
     def actualizar_tiempo(self, tiempo_id, nombre, estilo, distancia, piscina, tiempo, fecha):
-        """Actualiza un tiempo existente."""
         tiempo_segundos = self._convertir_a_segundos(tiempo)
-        cursor = self.conn.cursor()
-        cursor.execute('''
+        self._execute('''
             UPDATE tiempos 
             SET nombre_nadador = ?, estilo = ?, distancia = ?, piscina = ?, 
                 tiempo = ?, tiempo_segundos = ?, fecha = ?
             WHERE id = ?
         ''', (nombre, estilo, distancia, piscina, tiempo, tiempo_segundos, fecha, tiempo_id))
-        self.conn.commit()
 
     def eliminar_tiempo(self, tiempo_id):
-        cursor = self.conn.cursor()
-        cursor.execute('DELETE FROM tiempos WHERE id = ?', (tiempo_id,))
-        self.conn.commit()
+        self._execute('DELETE FROM tiempos WHERE id = ?', (tiempo_id,))
 
     # ====================== CONSULTAS AVANZADAS ======================
     def obtener_season_best(self, nombre: str, estilo: str, distancia: int, year: Optional[int] = None):
         if year is None:
             year = datetime.now().year
-
-        cursor = self.conn.cursor()
-        cursor.execute('''
+        cursor = self._execute('''
             SELECT * FROM tiempos
             WHERE LOWER(nombre_nadador) LIKE LOWER(?)
               AND estilo = ?
               AND distancia = ?
-              AND strftime('%Y', fecha) = ?
+              AND EXTRACT(YEAR FROM fecha) = ?
             ORDER BY tiempo_segundos ASC
             LIMIT 1
-        ''', (f"%{nombre.strip()}%", estilo, distancia, str(year)))
-        
+        ''', (f"%{nombre.strip()}%", estilo, distancia, year), commit=False)
         row = cursor.fetchone()
-        return dict(row) if row else None
+        return self._row_to_dict(row, cursor)
 
     def obtener_season_best_avanzado(self, nombre=None, estilo=None, distancia=None, categoria=None, year=None):
         if year is None:
@@ -209,9 +192,9 @@ class GestorTiemposMaster:
             SELECT t.*, n.categoria_master 
             FROM tiempos t
             LEFT JOIN nadadores n ON LOWER(t.nombre_nadador) = LOWER(n.nombre || ' ' || n.apellido)
-            WHERE strftime('%Y', t.fecha) = ?
+            WHERE EXTRACT(YEAR FROM t.fecha) = ?
         '''
-        params = [str(year)]
+        params = [year]
 
         if nombre:
             query += " AND LOWER(t.nombre_nadador) LIKE LOWER(?)"
@@ -228,43 +211,38 @@ class GestorTiemposMaster:
 
         query += " ORDER BY t.tiempo_segundos ASC LIMIT 1"
 
-        cursor = self.conn.cursor()
-        cursor.execute(query, params)
+        cursor = self._execute(query, params, commit=False)
         row = cursor.fetchone()
-        return dict(row) if row else None
+        return self._row_to_dict(row, cursor)
 
     def obtener_todos_los_tiempos(self, nombre_filtro: Optional[str] = None) -> List[Dict[str, Any]]:
-        cursor = self.conn.cursor()
-        
         if nombre_filtro:
-            cursor.execute('''
+            cursor = self._execute('''
                 SELECT * FROM tiempos 
                 WHERE LOWER(nombre_nadador) LIKE LOWER(?)
                 ORDER BY fecha DESC, tiempo_segundos ASC
-            ''', (f"%{nombre_filtro.strip()}%",))
+            ''', (f"%{nombre_filtro.strip()}%",), commit=False)
         else:
-            cursor.execute('''
+            cursor = self._execute('''
                 SELECT * FROM tiempos 
                 ORDER BY fecha DESC, nombre_nadador, estilo, distancia
-            ''')
+            ''', commit=False)
         
-        return [dict(row) for row in cursor.fetchall()]
+        return [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
 
     def obtener_tiempos_nadador(self, nombre_completo):
-        cursor = self.conn.cursor()
-        cursor.execute('''
+        cursor = self._execute('''
             SELECT * FROM tiempos 
             WHERE LOWER(nombre_nadador) = LOWER(?)
             ORDER BY fecha ASC, tiempo_segundos ASC
-        ''', (nombre_completo,))
-        return [dict(row) for row in cursor.fetchall()]
+        ''', (nombre_completo,), commit=False)
+        return [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
 
     # ====================== ESTADÍSTICAS ======================
     def obtener_estadisticas_nadador(self, nombre: str) -> Dict[str, Any]:
         tiempos = self.obtener_todos_los_tiempos(nombre)
         if not tiempos:
             return {"total_registros": 0}
-        
         return {
             "total_registros": len(tiempos),
             "pruebas_unicas": len(set(f"{t['estilo']}_{t['distancia']}" for t in tiempos)),
@@ -274,7 +252,6 @@ class GestorTiemposMaster:
         }
 
     def obtener_estadisticas_club(self):
-        """Obtiene estadísticas generales del club."""
         año_actual = datetime.now().year
 
         # Total general
@@ -284,35 +261,32 @@ class GestorTiemposMaster:
             FROM tiempos
         ''', commit=False)
         row = cursor.fetchone()
-        general = dict(row) if row else {}
+        general = self._row_to_dict(row, cursor) or {}
 
-        # Nadadores activos este año
+        # Activos este año
         cursor = self._execute('''
             SELECT COUNT(DISTINCT nombre_nadador) as activos_este_año
             FROM tiempos 
-            WHERE EXTRACT(YEAR FROM fecha) = %s
+            WHERE EXTRACT(YEAR FROM fecha) = ?
         ''', (año_actual,), commit=False)
         row = cursor.fetchone()
-        activos = dict(row)['activos_este_año'] if row else 0
+        activos = self._row_to_dict(row, cursor)['activos_este_año'] if row else 0
 
         # Temporadas
         cursor = self._execute("SELECT DISTINCT EXTRACT(YEAR FROM fecha) as ano FROM tiempos WHERE fecha IS NOT NULL", commit=False)
         años = cursor.fetchall()
         temporadas = len(años)
 
-        # Nadadores más activos
+        # Más activos
         cursor = self._execute('''
             SELECT nombre_nadador, COUNT(*) as total_tiempos
             FROM tiempos 
-            WHERE EXTRACT(YEAR FROM fecha) = %s
+            WHERE EXTRACT(YEAR FROM fecha) = ?
             GROUP BY nombre_nadador 
             ORDER BY total_tiempos DESC 
             LIMIT 10
         ''', (año_actual,), commit=False)
-        mas_activos = []
-        for row in cursor.fetchall():
-            if row:
-                mas_activos.append(dict(row._asdict()) if hasattr(row, '_asdict') else dict(row))
+        mas_activos = [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
 
         # Mejores tiempos
         cursor = self._execute('''
@@ -321,11 +295,8 @@ class GestorTiemposMaster:
             ORDER BY tiempo_segundos ASC
             LIMIT 10
         ''', commit=False)
-        por_prueba = []
-        for row in cursor.fetchall():
-            if row:
-                por_prueba.append(dict(row._asdict()) if hasattr(row, '_asdict') else dict(row))
-    
+        por_prueba = [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
+
         return {
             'general': general,
             'activos_este_año': activos,
@@ -335,9 +306,7 @@ class GestorTiemposMaster:
         }
 
     def obtener_top_5_por_categoria_estilo(self):
-        """Obtiene los mejores tiempos por categoría."""
-        cursor = self.conn.cursor()
-        cursor.execute('''
+        cursor = self._execute('''
             SELECT 
                 n.categoria_master,
                 n.genero,
@@ -350,10 +319,10 @@ class GestorTiemposMaster:
             LEFT JOIN nadadores n ON LOWER(t.nombre_nadador) = LOWER(n.nombre || ' ' || n.apellido)
             ORDER BY t.tiempo_segundos ASC
             LIMIT 50
-        ''')
-        return [dict(row) for row in cursor.fetchall()]
+        ''', commit=False)
+        return [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
 
-    # ====================== OTRAS FUNCIONALIDADES ======================
+    # ====================== EXPORTACIONES ======================
     def exportar_a_csv(self, filepath: Optional[str] = None) -> str:
         if filepath is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -368,7 +337,6 @@ class GestorTiemposMaster:
                          'Tiempo (MM:SS.cc)', 'Tiempo (segundos)', 'Fecha', 'Fecha Creación']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
-
             for reg in registros:
                 writer.writerow({
                     'ID': reg['id'],
@@ -380,11 +348,9 @@ class GestorTiemposMaster:
                     'Fecha': reg['fecha'],
                     'Fecha Creación': reg.get('created_at')
                 })
-
         return filepath
 
     def exportar_a_pdf(self, tiempos):
-        """Exporta los tiempos a un PDF."""
         from reportlab.lib import colors
         from reportlab.lib.pagesizes import letter
         from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
@@ -417,14 +383,10 @@ class GestorTiemposMaster:
         doc.build([Paragraph("Reporte de Tiempos - Natación Ñuñoa Master", styles['Title']), table])
         return pdf_path
 
-    # ... (puedes agregar aquí los demás métodos como importar_csv, comparaciones, etc.)
-
     def __del__(self):
         self.cerrar_conexion()
 
 
-
-# ====================== EJECUCIÓN DIRECTA ======================
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
     print("Gestor de Tiempos Master inicializado correctamente.")
