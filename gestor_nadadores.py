@@ -159,4 +159,4 @@ class GestorNadadores:
             try:
                 self.conn.close()
             except:
-                pass
+                pass  # Ignorar si ya estaba cerrada
