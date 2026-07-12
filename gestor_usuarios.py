@@ -1,12 +1,17 @@
-import sqlite3
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
 try:
-    import psycopg2
+    import psycopg
     POSTGRES_AVAILABLE = True
 except ImportError:
     POSTGRES_AVAILABLE = False
+
+try:
+    import sqlite3
+    SQLITE_AVAILABLE = True
+except ImportError:
+    SQLITE_AVAILABLE = False
 
 
 class GestorUsuarios:
@@ -17,41 +22,31 @@ class GestorUsuarios:
         self.crear_tabla()
 
     def connect(self):
-        """Conecta a PostgreSQL (Neon) o SQLite."""
+        """Conecta a PostgreSQL o SQLite."""
         db_url = os.environ.get('DATABASE_URL')
-        print("DEBUG - DATABASE_URL:", bool(db_url))
+        print("DEBUG usuarios - DATABASE_URL:", bool(db_url))
         
-        if db_url and 'postgresql' in db_url:
+        if db_url and 'postgresql' in db_url and POSTGRES_AVAILABLE:
             try:
-                import psycopg
-                print("🔗 Conectando a Neon PostgreSQL con psycopg...")
+                print("🔗 Conectando a Neon PostgreSQL para usuarios...")
                 self.conn = psycopg.connect(db_url)
                 self.conn.autocommit = True
                 print("✅ Conexión PostgreSQL exitosa!")
                 return
             except Exception as e:
-                print("❌ Error conectando a PostgreSQL:", e)
+                print("❌ Error PostgreSQL:", e)
         
-        print("⚠️  Usando SQLite local.")
-        import sqlite3
-        self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
-        self.conn.row_factory = sqlite3.Row
-        
-        # Fallback a SQLite
-        print("⚠️  Usando SQLite local.")
-        import sqlite3
-        self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
+        print("🔗 Usando SQLite local para usuarios...")
+        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
 
-    def _execute(self, query: str, params=None, commit=True):
-        """Método helper para manejar diferencias entre SQLite y PostgreSQL."""
+    def _execute(self, query, params=None, commit=True):
+        """Ejecuta consultas compatible con psycopg y sqlite3."""
         cursor = self.conn.cursor()
-        if params is not None:
-            # Convertir placeholders según el motor
-            if hasattr(self.conn, 'autocommit'):  # PostgreSQL
+        if params:
+            # Convertir ? a %s para PostgreSQL
+            if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
                 query = query.replace('?', '%s')
-            else:  # SQLite
-                query = query.replace('%s', '?')
             cursor.execute(query, params)
         else:
             cursor.execute(query)
@@ -73,7 +68,6 @@ class GestorUsuarios:
             )
         ''', commit=False)
 
-        # Usuario admin por defecto
         if not self.obtener_usuario("admin"):
             self.crear_usuario("admin", "admin123", "admin", "Administrador")
 
@@ -84,21 +78,19 @@ class GestorUsuarios:
             VALUES (?, ?, ?, ?)
         ''', (username, password_hash, rol, nombre))
 
+    def obtener_usuario(self, username):
+        cursor = self._execute('SELECT * FROM usuarios WHERE username = ?', (username,), commit=False)
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
     def verificar_login(self, username, password):
         usuario = self.obtener_usuario(username)
         if usuario and check_password_hash(usuario['password_hash'], password):
             return dict(usuario)
         return None
 
-    def obtener_usuario(self, username):
-        cursor = self.conn.cursor()
-        cursor.execute('SELECT * FROM usuarios WHERE username = ?', (username,))
-        row = cursor.fetchone()
-        return dict(row) if row else None
-
     def listar_usuarios(self):
-        cursor = self.conn.cursor()
-        cursor.execute('SELECT id, username, rol, nombre, created_at FROM usuarios')
+        cursor = self._execute('SELECT id, username, rol, nombre, created_at FROM usuarios', commit=False)
         rows = cursor.fetchall()
         return [dict(row) for row in rows]
 
@@ -110,12 +102,7 @@ class GestorUsuarios:
         self._execute('UPDATE usuarios SET password_hash = ? WHERE id = ?', (password_hash, user_id))
 
     def eliminar_usuario(self, user_id):
-        if user_id == 1:  # Proteger admin principal
+        if user_id == 1:
             return False
         self._execute('DELETE FROM usuarios WHERE id = ?', (user_id,))
         return True
-
-    def cerrar_conexion(self):
-        """Cierra la conexión (útil para limpieza)."""
-        if self.conn:
-            self.conn.close()
