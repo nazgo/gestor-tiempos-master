@@ -579,7 +579,7 @@ def obtener_top_5_por_categoria_estilo(self):
         cursor = self.conn.cursor()
         cursor.execute(query, params)
         row = cursor.fetchone()
-        return dict(row) if row else None)
+        return dict(row) if row else None
 
 if __name__ == "__main__":
     main()
