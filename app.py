@@ -3,6 +3,7 @@ from functools import wraps
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -10,13 +11,13 @@ app.secret_key = os.environ.get('SECRET_KEY', 'clave_super_secreta_master_nadado
 
 # Importa los gestores
 from gestor_tiempos_nadadores_master import GestorTiemposMaster
-from gestor_usuarios import GestorUsuarios
 from gestor_nadadores import GestorNadadores
+# from gestor_usuarios import GestorUsuarios  # Descomenta cuando tengas este archivo
 
 # Instancias
 gestor_tiempos = GestorTiemposMaster()
-gestor_usuarios = GestorUsuarios()
 gestor_nadadores = GestorNadadores()
+# gestor_usuarios = GestorUsuarios()  # Descomenta cuando esté listo
 
 def login_required(f):
     @wraps(f)
@@ -45,21 +46,19 @@ def editor_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
 # ==================== RUTAS ====================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # TODO: Implementar login real cuando tengas GestorUsuarios
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        usuario = gestor_usuarios.verificar_login(username, password)
-        if usuario:
-            session['user_id'] = usuario['id']
-            session['username'] = usuario['username']
-            session['rol'] = usuario['rol']
-            flash(f'Bienvenido, {usuario["username"]}', 'success')
-            return redirect(url_for('index'))
-        flash('Usuario o contraseña incorrectos', 'danger')
+        flash('Sistema de login en desarrollo. Usa modo demo por ahora.', 'info')
+        session['user_id'] = 1
+        session['username'] = 'admin'
+        session['rol'] = 'admin'
+        return redirect(url_for('index'))
     return render_template('login.html')
+
 
 @app.route('/logout')
 def logout():
@@ -67,108 +66,20 @@ def logout():
     flash('Sesión cerrada', 'info')
     return redirect(url_for('login'))
 
+
 @app.route('/')
 @login_required
 def index():
     return render_template('index.html')
-
-# ==================== ADMINISTRACIÓN ====================
-@app.route('/admin/usuarios')
-@admin_required
-def admin_usuarios():
-    usuarios = gestor_usuarios.listar_usuarios()
-    return render_template('admin_usuarios.html', usuarios=usuarios)
-
-@app.route('/admin/crear_usuario', methods=['POST'])
-@admin_required
-def crear_usuario():
-    username = request.form['username']
-    password = request.form['password']
-    rol = request.form['rol']
-    nombre = request.form.get('nombre', '')
-    try:
-        gestor_usuarios.crear_usuario(username, password, rol, nombre)
-        flash('Usuario creado correctamente', 'success')
-    except Exception as e:
-        flash(f'Error al crear usuario: {e}', 'danger')
-    return redirect(url_for('admin_usuarios'))
-
-@app.route('/admin/cambiar_rol/<int:user_id>', methods=['POST'])
-@admin_required
-def cambiar_rol(user_id):
-    nuevo_rol = request.form['rol']
-    gestor_usuarios.cambiar_rol(user_id, nuevo_rol)
-    flash('Rol actualizado', 'success')
-    return redirect(url_for('admin_usuarios'))
-
-@app.route('/admin/cambiar_password/<int:user_id>', methods=['POST'])
-@admin_required
-def cambiar_password(user_id):
-    new_pass = request.form['new_password']
-    gestor_usuarios.cambiar_password(user_id, new_pass)
-    flash('Contraseña actualizada correctamente', 'success')
-    return redirect(url_for('admin_usuarios'))
-
-@app.route('/admin/eliminar_usuario/<int:user_id>', methods=['POST'])
-@admin_required
-def eliminar_usuario(user_id):
-    if gestor_usuarios.eliminar_usuario(user_id):
-        flash('Usuario eliminado correctamente', 'success')
-    else:
-        flash('No se puede eliminar el usuario administrador principal', 'danger')
-    return redirect(url_for('admin_usuarios'))
-
-# ==================== OTRAS RUTAS (agregar según necesites) ====================
-@app.route('/agregar', methods=['GET', 'POST'])
-@login_required
-def agregar():
-    if request.method == 'POST':
-        try:
-            print("DEBUG FORM:", dict(request.form))  # Debug
-            
-            nombre = request.form['nombre'].strip()
-            estilo = request.form['estilo']
-            distancia = int(request.form['distancia'])
-            piscina = request.form.get('piscina', '25 metros')
-            tiempo = request.form['tiempo'].strip()
-            fecha_str = request.form.get('fecha')
-
-            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else None
-
-            gestor_tiempos.agregar_tiempo(nombre, estilo, distancia, tiempo, fecha, piscina)
-            flash('✅ Tiempo registrado correctamente', 'success')
-            return redirect(url_for('nadadores'))
-        except Exception as e:
-            flash(f'❌ Error: {str(e)}', 'danger')
-
-    return render_template('agregar.html', 
-                         estilos=gestor_tiempos.ESTILOS, 
-                         distancias=gestor_tiempos.DISTANCIAS)
-
-@app.route('/season_best', methods=['GET', 'POST'])
-@login_required
-def season_best():
-    if request.method == 'POST':
-        nombre = request.form.get('nombre', '').strip()
-        estilo = request.form.get('estilo')
-        distancia = request.form.get('distancia')
-        categoria = request.form.get('categoria')
-        year = request.form.get('year')
-
-        # Lógica de búsqueda avanzada
-        best = gestor_tiempos.obtener_season_best_avanzado(nombre, estilo, distancia, categoria, year)
-        
-        return render_template('season_best.html', best=best, nombre=nombre, estilo=estilo, distancia=distancia, categoria=categoria)
-    
-    return render_template('season_best_form.html', estilos=gestor_tiempos.ESTILOS, distancias=gestor_tiempos.DISTANCIAS)
 
 
 # ==================== GESTIÓN DE NADADORES ====================
 @app.route('/nadadores')
 @login_required
 def nadadores():
-    nadadores = gestor_nadadores.listar_nadadores()
-    return render_template('nadadores.html', nadadores=nadadores)
+    nadadores_list = gestor_nadadores.listar_nadadores()
+    return render_template('nadadores.html', nadadores=nadadores_list)
+
 
 @app.route('/nadadores/agregar', methods=['GET', 'POST'])
 @login_required
@@ -192,6 +103,7 @@ def agregar_nadador():
     
     return render_template('agregar_nadador.html')
 
+
 @app.route('/nadador/<int:nadador_id>/editar', methods=['GET', 'POST'])
 @login_required
 @editor_required
@@ -213,7 +125,7 @@ def editar_nadador(nadador_id):
             flash('✅ Nadador actualizado correctamente', 'success')
             return redirect(url_for('nadadores'))
         except Exception as e:
-            flash(f'❌ Error al actualizar: {str(e)}', 'danger')
+            flash(f'❌ Error: {str(e)}', 'danger')
 
     return render_template('editar_nadador.html', nadador=nadador)
 
@@ -226,8 +138,34 @@ def eliminar_nadador(nadador_id):
         gestor_nadadores.eliminar_nadador(nadador_id)
         flash('✅ Nadador eliminado correctamente', 'success')
     except Exception as e:
-        flash(f'❌ Error al eliminar: {str(e)}', 'danger')
+        flash(f'❌ Error: {str(e)}', 'danger')
     return redirect(url_for('nadadores'))
+
+
+# ==================== GESTIÓN DE TIEMPOS ====================
+@app.route('/agregar', methods=['GET', 'POST'])
+@login_required
+def agregar():
+    if request.method == 'POST':
+        try:
+            nombre = request.form['nombre'].strip()
+            estilo = request.form['estilo']
+            distancia = int(request.form['distancia'])
+            piscina = request.form.get('piscina', '25 metros')
+            tiempo = request.form['tiempo'].strip()
+            fecha_str = request.form.get('fecha')
+
+            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else None
+
+            gestor_tiempos.agregar_tiempo(nombre, estilo, distancia, tiempo, fecha, piscina)
+            flash('✅ Tiempo registrado correctamente', 'success')
+            return redirect(url_for('listar_tiempos'))
+        except Exception as e:
+            flash(f'❌ Error: {str(e)}', 'danger')
+
+    return render_template('agregar.html', 
+                         estilos=gestor_tiempos.ESTILOS, 
+                         distancias=gestor_tiempos.DISTANCIAS)
 
 
 @app.route('/listar')
@@ -238,20 +176,6 @@ def listar_tiempos():
     return render_template('listar_tiempos.html', tiempos=tiempos, filtro=filtro_nombre)
 
 
-@app.route('/nadador/<int:nadador_id>/tiempos')
-@login_required
-def tiempos_nadador(nadador_id):
-    nadador = gestor_nadadores.obtener_nadador(nadador_id)
-    if not nadador:
-        flash('Nadador no encontrado', 'danger')
-        return redirect(url_for('nadadores'))
-    
-    # Filtrar tiempos de este nadador
-    tiempos = [t for t in gestor_tiempos.obtener_todos_los_tiempos() if t['nombre_nadador'].lower() == (nadador['nombre'] + ' ' + nadador['apellido']).lower()]
-    
-    return render_template('tiempos_nadador.html', nadador=nadador, tiempos=tiempos)
-
-# ==================== GESTIÓN DE TIEMPOS ====================
 @app.route('/tiempo/<int:tiempo_id>/editar', methods=['GET', 'POST'])
 @login_required
 @editor_required
@@ -276,16 +200,22 @@ def editar_tiempo(tiempo_id):
         except Exception as e:
             flash(f'❌ Error: {str(e)}', 'danger')
 
-    return render_template('editar_tiempo.html', tiempo=tiempo, estilos=gestor_tiempos.ESTILOS, distancias=gestor_tiempos.DISTANCIAS)
+    return render_template('editar_tiempo.html', tiempo=tiempo, 
+                         estilos=gestor_tiempos.ESTILOS, 
+                         distancias=gestor_tiempos.DISTANCIAS)
 
 
 @app.route('/tiempo/<int:tiempo_id>/eliminar', methods=['POST'])
 @login_required
 @editor_required
 def eliminar_tiempo(tiempo_id):
-    gestor_tiempos.eliminar_tiempo(tiempo_id)
-    flash('✅ Tiempo eliminado correctamente', 'success')
+    try:
+        gestor_tiempos.eliminar_tiempo(tiempo_id)
+        flash('✅ Tiempo eliminado correctamente', 'success')
+    except Exception as e:
+        flash(f'❌ Error: {str(e)}', 'danger')
     return redirect(url_for('listar_tiempos'))
+
 
 @app.route('/estadisticas')
 @login_required
@@ -296,81 +226,6 @@ def estadisticas_club():
                          año_actual=datetime.now().year)
 
 
-@app.route('/nadador/<int:nadador_id>/progreso')
-@login_required
-def progreso_nadador(nadador_id):
-    nadador = gestor_nadadores.obtener_nadador(nadador_id)
-    if not nadador:
-        flash('Nadador no encontrado', 'danger')
-        return redirect(url_for('nadadores'))
-    
-    nombre_completo = f"{nadador['nombre']} {nadador['apellido']}"
-    tiempos = gestor_tiempos.obtener_tiempos_nadador(nombre_completo)
-    
-    return render_template('progreso_nadador.html', nadador=nadador, tiempos=tiempos)
-
-
-@app.route('/comparacion_25_50')
-@login_required
-def comparacion_25_50():
-    nadadores = gestor_nadadores.listar_nadadores()
-    return render_template('comparacion_25_50.html', nadadores=nadadores)
-
-@app.route('/comparacion_25_50_resultado', methods=['POST'])
-@login_required
-def comparacion_resultado():
-    nadador_id = request.form.get('nadador_id')
-    if not nadador_id:
-        flash('Debe seleccionar un nadador', 'danger')
-        return redirect(url_for('comparacion_25_50'))
-    
-    comparacion = gestor_tiempos.comparacion_nadador_25_50(nadador_id)
-    nadador = gestor_nadadores.obtener_nadador(nadador_id)
-    
-    return render_template('comparacion_resultado.html', nadador=nadador, comparacion=comparacion)
-
-@app.route('/calendario')
-@login_required
-def calendario_competencias():
-    competencias = gestor_tiempos.listar_competencias()
-    return render_template('calendario.html', competencias=competencias)
-
-@app.route('/calendario/actualizar_estado', methods=['POST'])
-@login_required
-@editor_required
-def actualizar_estado():
-    competencia_id = request.form.get('id')
-    estado = request.form.get('estado')
-    gestor_tiempos.actualizar_estado_competencia(competencia_id, estado)
-    flash('Estado actualizado correctamente', 'success')
-    return redirect(url_for('calendario_competencias'))
-
-@app.route('/import_export')
-@login_required
-def import_export():
-    return render_template('import_export.html')
-    
-
-@app.route('/importar', methods=['GET', 'POST'])
-@login_required
-@editor_required
-def importar_tiempos():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No se seleccionó archivo', 'danger')
-            return redirect(url_for('importar_tiempos'))
-        file = request.files['file']
-        if file.filename == '':
-            flash('No se seleccionó archivo', 'danger')
-            return redirect(url_for('importar_tiempos'))
-        if file and file.filename.endswith('.csv'):
-            gestor_tiempos.importar_csv(file)
-            flash('✅ Tiempos importados correctamente', 'success')
-            return redirect(url_for('listar_tiempos'))
-        else:
-            flash('Solo se permiten archivos CSV', 'danger')
-    return render_template('importar.html')
-
 @app.route('/exportar_pdf')
 @login_required
 def exportar_pdf():
@@ -378,31 +233,32 @@ def exportar_pdf():
     pdf_path = gestor_tiempos.exportar_a_pdf(tiempos)
     return send_file(pdf_path, as_attachment=True, download_name='tiempos.pdf')
 
-@app.route('/descargar_plantilla')
-@login_required
-def descargar_plantilla():
-    from flask import send_file
-    import csv
-    import io
-
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow(['nombre', 'genero', 'estilo', 'distancia', 'piscina', 'tiempo', 'fecha'])
-    writer.writerow(['Carlos Gomez', 'Masculino', 'Mariposa', '50', '25 metros', '00:37.02', '2026-04-02'])
-    
-    output.seek(0)
-    return send_file(
-        io.BytesIO(output.getvalue().encode('utf-8')),
-        mimetype='text/csv',
-        as_attachment=True,
-        download_name='plantilla_tiempos.csv'
-    )
 
 @app.route('/mejores_tiempos')
 @login_required
 def mejores_tiempos():
     top_tiempos = gestor_tiempos.obtener_top_5_por_categoria_estilo()
     return render_template('mejores_tiempos.html', top_tiempos=top_tiempos)
+
+
+# ==================== OTRAS RUTAS (puedes ir agregando) ====================
+@app.route('/season_best', methods=['GET', 'POST'])
+@login_required
+def season_best():
+    if request.method == 'POST':
+        nombre = request.form.get('nombre', '').strip()
+        estilo = request.form.get('estilo')
+        distancia = request.form.get('distancia')
+        categoria = request.form.get('categoria')
+        year = request.form.get('year')
+
+        best = gestor_tiempos.obtener_season_best_avanzado(nombre, estilo, distancia, categoria, year)
+        return render_template('season_best.html', best=best, nombre=nombre, 
+                             estilo=estilo, distancia=distancia, categoria=categoria)
+    
+    return render_template('season_best_form.html', 
+                         estilos=gestor_tiempos.ESTILOS, 
+                         distancias=gestor_tiempos.DISTANCIAS)
 
 
 if __name__ == '__main__':
