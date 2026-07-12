@@ -73,7 +73,13 @@ class GestorUsuarios:
         cursor = self._execute('SELECT * FROM usuarios WHERE username = ?', (username,), commit=False)
         row = cursor.fetchone()
         if row:
-            return dict(row) if hasattr(row, '_asdict') else dict(row)
+            # Manejo seguro para psycopg y sqlite
+            if hasattr(row, '_asdict'):
+                return dict(row._asdict())
+            elif hasattr(row, 'keys'):
+                return dict(row)
+            else:
+                return dict(zip([desc[0] for desc in cursor.description], row))
         return None
 
     def verificar_login(self, username, password):
