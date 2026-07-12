@@ -9,15 +9,25 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'clave_super_secreta_master_nadadores_2026')
 
+# ==================== DEBUG DE VARIABLES ====================
+print("=== DEBUG ENVIRONMENT VARIABLES ===")
+print("DATABASE_URL existe?", bool(os.environ.get('DATABASE_URL')))
+db_url = os.environ.get('DATABASE_URL')
+print("Valor de DATABASE_URL:", db_url[:80] + "..." if db_url else "NO ENCONTRADA")
+if db_url:
+    print("Empieza con 'postgresql'?", db_url.startswith('postgresql'))
+print("==================================")
+# =======================================================
+
 # Importa los gestores
 from gestor_tiempos_nadadores_master import GestorTiemposMaster
 from gestor_nadadores import GestorNadadores
-# from gestor_usuarios import GestorUsuarios  # Descomenta cuando tengas este archivo
+from gestor_usuarios import GestorUsuarios
 
 # Instancias
 gestor_tiempos = GestorTiemposMaster()
 gestor_nadadores = GestorNadadores()
-# gestor_usuarios = GestorUsuarios()  # Descomenta cuando esté listo
+gestor_usuarios = GestorUsuarios()
 
 def login_required(f):
     @wraps(f)
