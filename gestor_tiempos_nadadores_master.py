@@ -47,27 +47,27 @@ class GestorTiemposMaster:
         self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
 
-def _execute(self, query, params=None, commit=True):
-
-    try:
-        self.conn.cursor()
-    except Exception:
-        print("Reconectando a PostgreSQL...")
-        self.connect()
-
-    cursor = self.conn.cursor()
-
-    if params:
-        if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
-            query = query.replace('?', '%s')
-        cursor.execute(query, params)
-    else:
-        cursor.execute(query)
-
-    if commit:
-        self.conn.commit()
-
-    return cursor
+    def _execute(self, query, params=None, commit=True):
+    
+        try:
+            self.conn.cursor()
+        except Exception:
+            print("Reconectando a PostgreSQL...")
+            self.connect()
+    
+        cursor = self.conn.cursor()
+    
+        if params:
+            if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
+                query = query.replace('?', '%s')
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+    
+        if commit:
+            self.conn.commit()
+    
+        return cursor
 
     def _row_to_dict(self, row, cursor=None):
         """Convierte fila a diccionario de forma segura (psycopg + sqlite)."""
