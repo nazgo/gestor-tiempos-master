@@ -70,17 +70,17 @@ class GestorUsuarios:
         ''', (username, password_hash, rol, nombre))
 
     def obtener_usuario(self, username):
-        cursor = self._execute('SELECT * FROM usuarios WHERE username = ?', (username,), commit=False)
-        row = cursor.fetchone()
-        if row:
-            # Manejo seguro para psycopg y sqlite
-            if hasattr(row, '_asdict'):
+            cursor = self._execute('SELECT * FROM usuarios WHERE username = ?', (username,), commit=False)
+            row = cursor.fetchone()
+            if not row:
+                return None
+            # Conversión segura
+            if hasattr(row, '_asdict'):  # psycopg
                 return dict(row._asdict())
-            elif hasattr(row, 'keys'):
+            elif hasattr(row, 'keys'):   # sqlite Row
                 return dict(row)
-            else:
+            else:  # fallback
                 return dict(zip([desc[0] for desc in cursor.description], row))
-        return None
 
     def verificar_login(self, username, password):
         usuario = self.obtener_usuario(username)
@@ -89,13 +89,18 @@ class GestorUsuarios:
         return None
 
     def listar_usuarios(self):
-        cursor = self._execute('SELECT id, username, rol, nombre, created_at FROM usuarios', commit=False)
-        rows = cursor.fetchall()
-        result = []
-        for row in rows:
-            if row:
-                result.append(dict(row) if hasattr(row, '_asdict') else dict(row))
-        return result
+            cursor = self._execute('SELECT id, username, rol, nombre, created_at FROM usuarios', commit=False)
+            rows = cursor.fetchall()
+            result = []
+            for row in rows:
+                if row:
+                    if hasattr(row, '_asdict'):
+                        result.append(dict(row._asdict()))
+                    elif hasattr(row, 'keys'):
+                        result.append(dict(row))
+                    else:
+                        result.append(dict(zip([desc[0] for desc in cursor.description], row)))
+            return result
 
     def cambiar_rol(self, user_id, nuevo_rol):
         self._execute('UPDATE usuarios SET rol = ? WHERE id = ?', (nuevo_rol, user_id))
