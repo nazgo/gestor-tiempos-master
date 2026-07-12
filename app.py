@@ -235,6 +235,80 @@ def estadisticas_club():
                          stats=stats, 
                          año_actual=datetime.now().year)
 
+@app.route('/nadador/<int:nadador_id>/progreso')
+@login_required
+def progreso_nadador(nadador_id):
+    nadador = gestor_nadadores.obtener_nadador(nadador_id)
+    if not nadador:
+        flash('Nadador no encontrado', 'danger')
+        return redirect(url_for('nadadores'))
+    
+    nombre_completo = f"{nadador['nombre']} {nadador['apellido']}"
+    tiempos = gestor_tiempos.obtener_tiempos_nadador(nombre_completo)
+    
+    return render_template('progreso_nadador.html', nadador=nadador, tiempos=tiempos)
+
+@app.route('/comparacion_25_50')
+@login_required
+def comparacion_25_50():
+    nadadores = gestor_nadadores.listar_nadadores()
+    return render_template('comparacion_25_50.html', nadadores=nadadores)
+
+@app.route('/comparacion_25_50_resultado', methods=['POST'])
+@login_required
+def comparacion_resultado():
+    nadador_id = request.form.get('nadador_id')
+    if not nadador_id:
+        flash('Debe seleccionar un nadador', 'danger')
+        return redirect(url_for('comparacion_25_50'))
+    
+    comparacion = gestor_tiempos.comparacion_nadador_25_50(nadador_id)
+    nadador = gestor_nadadores.obtener_nadador(nadador_id)
+    
+    return render_template('comparacion_resultado.html', nadador=nadador, comparacion=comparacion)
+
+@app.route('/calendario')
+@login_required
+def calendario_competencias():
+    competencias = gestor_tiempos.listar_competencias()
+    return render_template('calendario.html', competencias=competencias)
+
+@app.route('/calendario/actualizar_estado', methods=['POST'])
+@login_required
+@editor_required
+def actualizar_estado():
+    competencia_id = request.form.get('id')
+    estado = request.form.get('estado')
+    gestor_tiempos.actualizar_estado_competencia(competencia_id, estado)
+    flash('Estado actualizado correctamente', 'success')
+    return redirect(url_for('calendario_competencias'))
+
+
+@app.route('/import_export')
+@login_required
+def import_export():
+    return render_template('import_export.html')
+    
+
+@app.route('/importar', methods=['GET', 'POST'])
+@login_required
+@editor_required
+def importar_tiempos():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No se seleccionó archivo', 'danger')
+            return redirect(url_for('importar_tiempos'))
+        file = request.files['file']
+        if file.filename == '':
+            flash('No se seleccionó archivo', 'danger')
+            return redirect(url_for('importar_tiempos'))
+        if file and file.filename.endswith('.csv'):
+            gestor_tiempos.importar_csv(file)
+            flash('✅ Tiempos importados correctamente', 'success')
+            return redirect(url_for('listar_tiempos'))
+        else:
+            flash('Solo se permiten archivos CSV', 'danger')
+    return render_template('importar.html')
 
 @app.route('/exportar_pdf')
 @login_required
@@ -243,6 +317,25 @@ def exportar_pdf():
     pdf_path = gestor_tiempos.exportar_a_pdf(tiempos)
     return send_file(pdf_path, as_attachment=True, download_name='tiempos.pdf')
 
+@app.route('/descargar_plantilla')
+@login_required
+def descargar_plantilla():
+    from flask import send_file
+    import csv
+    import io
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['nombre', 'genero', 'estilo', 'distancia', 'piscina', 'tiempo', 'fecha'])
+    writer.writerow(['Carlos Gomez', 'Masculino', 'Mariposa', '50', '25 metros', '00:37.02', '2026-04-02'])
+    
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='plantilla_tiempos.csv'
+    )
 
 @app.route('/mejores_tiempos')
 @login_required
