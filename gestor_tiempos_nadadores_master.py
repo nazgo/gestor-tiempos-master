@@ -96,9 +96,12 @@ class GestorTiemposMaster:
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_fecha ON tiempos(fecha)')
         self.conn.commit()
 
-    def cerrar_conexion(self) -> None:
+    def cerrar_conexion(self):
         if self.conn:
-            self.conn.close()
+            try:
+                self.conn.close()
+            except:
+                pass
 
     # ====================== MÉTODOS ESTÁTICOS ======================
     @staticmethod
