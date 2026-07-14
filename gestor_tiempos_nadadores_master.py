@@ -27,7 +27,6 @@ class GestorTiemposMaster:
         self.crear_tabla()
 
     def connect(self):
-        """Conecta a PostgreSQL (Neon) o SQLite."""
         db_url = os.environ.get('DATABASE_URL')
         print("DEBUG - DATABASE_URL:", bool(db_url))
         
@@ -47,30 +46,28 @@ class GestorTiemposMaster:
         self.conn = sqlite3.connect("nadadores_master_competitivos.db", check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
 
-    def _execute(self, query, params=None, commit=True):
-    
-        try:
-            self.conn.cursor()
-        except Exception:
-            print("Reconectando a PostgreSQL...")
+    def ensure_connection(self):
+        """Asegura que la conexión esté abierta."""
+        if not self.conn or getattr(self.conn, 'closed', True):
+            print("🔄 Reconectando a la base de datos...")
             self.connect()
-    
+        return self.conn
+
+    def _execute(self, query, params=None, commit=True):
+        self.ensure_connection()
         cursor = self.conn.cursor()
-    
         if params:
             if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
                 query = query.replace('?', '%s')
             cursor.execute(query, params)
         else:
             cursor.execute(query)
-    
-        if commit:
+        
+        if commit and hasattr(self.conn, 'commit'):
             self.conn.commit()
-    
         return cursor
 
     def _row_to_dict(self, row, cursor=None):
-        """Convierte fila a diccionario de forma segura (psycopg + sqlite)."""
         if not row:
             return None
         if hasattr(row, '_asdict'):
@@ -83,7 +80,6 @@ class GestorTiemposMaster:
             return dict(row) if hasattr(row, '__iter__') else {}
 
     def crear_tabla(self) -> None:
-        """Crea las tablas si no existen."""
         cursor = self.conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS tiempos (
@@ -109,7 +105,7 @@ class GestorTiemposMaster:
             try:
                 self.conn.close()
             except:
-                pass  # Ignorar si ya estaba cerrada
+                pass
 
     # ====================== MÉTODOS ESTÁTICOS ======================
     @staticmethod
@@ -153,14 +149,11 @@ class GestorTiemposMaster:
             fecha = date.today()
 
         tiempo_segundos = self._convertir_a_segundos(tiempo)
-        cursor = self.conn.cursor()
-        cursor.execute('''
+        self._execute('''
             INSERT INTO tiempos 
             (nombre_nadador, estilo, distancia, piscina, tiempo, tiempo_segundos, fecha)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (nombre.title(), estilo, distancia, piscina, tiempo, tiempo_segundos, fecha.isoformat()))
-        self.conn.commit()
-        return cursor.lastrowid
 
     def obtener_tiempo_por_id(self, tiempo_id):
         cursor = self._execute('SELECT * FROM tiempos WHERE id = ?', (tiempo_id,), commit=False)
@@ -265,7 +258,6 @@ class GestorTiemposMaster:
     def obtener_estadisticas_club(self):
         año_actual = datetime.now().year
 
-        # Total general
         cursor = self._execute('''
             SELECT COUNT(*) as total_tiempos, 
                    COUNT(DISTINCT nombre_nadador) as total_nadadores 
@@ -274,7 +266,6 @@ class GestorTiemposMaster:
         row = cursor.fetchone()
         general = self._row_to_dict(row, cursor) or {}
 
-        # Activos este año
         cursor = self._execute('''
             SELECT COUNT(DISTINCT nombre_nadador) as activos_este_año
             FROM tiempos 
@@ -283,12 +274,10 @@ class GestorTiemposMaster:
         row = cursor.fetchone()
         activos = self._row_to_dict(row, cursor)['activos_este_año'] if row else 0
 
-        # Temporadas
         cursor = self._execute("SELECT DISTINCT EXTRACT(YEAR FROM fecha) as ano FROM tiempos WHERE fecha IS NOT NULL", commit=False)
         años = cursor.fetchall()
         temporadas = len(años)
 
-        # Más activos
         cursor = self._execute('''
             SELECT nombre_nadador, COUNT(*) as total_tiempos
             FROM tiempos 
@@ -299,7 +288,6 @@ class GestorTiemposMaster:
         ''', (año_actual,), commit=False)
         mas_activos = [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
 
-        # Mejores tiempos
         cursor = self._execute('''
             SELECT nombre_nadador, estilo, distancia, tiempo, fecha
             FROM tiempos
@@ -396,13 +384,6 @@ class GestorTiemposMaster:
 
     def __del__(self):
         self.cerrar_conexion()
-
-    def listar_competencias(self):
-        cursor = self._execute('SELECT * FROM competencias ORDER BY mes, fecha', commit=False)
-        return [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
-
-    def actualizar_estado_competencia(self, competencia_id, estado):
-        self._execute('UPDATE competencias SET estado = ? WHERE id = ?', (estado, competencia_id))
 
 
 if __name__ == "__main__":
