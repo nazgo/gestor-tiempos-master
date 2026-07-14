@@ -339,8 +339,9 @@ def calendario_competencias():
 def actualizar_estado():
     competencia_id = request.form.get('id')
     estado = request.form.get('estado')
-    gestor_tiempos.actualizar_estado_competencia(competencia_id, estado)
-    flash('Estado actualizado correctamente', 'success')
+    if competencia_id and estado:
+        gestor_tiempos.actualizar_estado_competencia(competencia_id, estado)
+        flash('Estado actualizado correctamente', 'success')
     return redirect(url_for('calendario_competencias'))
 
 
