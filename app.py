@@ -314,6 +314,19 @@ def comparacion_resultado():
     
     return render_template('comparacion_resultado.html', nadador=nadador, comparacion=comparacion)
 
+@app.route('/nadador/<int:nadador_id>/tiempos')
+@login_required
+def tiempos_nadador(nadador_id):
+    nadador = gestor_nadadores.obtener_nadador(nadador_id)
+    if not nadador:
+        flash('Nadador no encontrado', 'danger')
+        return redirect(url_for('nadadores'))
+    
+    nombre_completo = f"{nadador.get('nombre', '')} {nadador.get('apellido', '')}".strip()
+    tiempos = gestor_tiempos.obtener_tiempos_nadador(nombre_completo)
+    
+    return render_template('tiempos_nadador.html', nadador=nadador, tiempos=tiempos)
+
 @app.route('/calendario')
 @login_required
 def calendario_competencias():
