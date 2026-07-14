@@ -106,13 +106,20 @@ def eliminar_usuario(user_id):
 # ==================== RUTAS ====================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # TODO: Implementar login real cuando tengas GestorUsuarios
     if request.method == 'POST':
-        flash('Sistema de login en desarrollo. Usa modo demo por ahora.', 'info')
-        session['user_id'] = 1
-        session['username'] = 'admin'
-        session['rol'] = 'admin'
-        return redirect(url_for('index'))
+        username = request.form['username']
+        password = request.form['password']
+        
+        usuario = gestor_usuarios.verificar_login(username, password)
+        if usuario:
+            session['user_id'] = usuario['id']
+            session['username'] = usuario['username']
+            session['rol'] = usuario['rol']
+            flash(f'Bienvenido, {usuario["username"]}', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('Usuario o contraseña incorrectos', 'danger')
+    
     return render_template('login.html')
 
 
