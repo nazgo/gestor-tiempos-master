@@ -144,7 +144,14 @@ class GestorNadadores:
     def obtener_nadador(self, nadador_id):
         cursor = self._execute('SELECT * FROM nadadores WHERE id = ?', (nadador_id,), commit=False)
         row = cursor.fetchone()
-        return dict(row) if row else None
+        if row:
+            if hasattr(row, '_asdict'):  # psycopg
+                return dict(row._asdict())
+            elif hasattr(row, 'keys'):   # sqlite
+                return dict(row)
+            else:
+                return dict(zip([desc[0] for desc in cursor.description], row))
+        return None
 
     def actualizar_nadador(self, nadador_id, nombre, apellido, fecha_nacimiento, rut=None, genero=None):
         categoria = self.calcular_categoria_master(fecha_nacimiento)
