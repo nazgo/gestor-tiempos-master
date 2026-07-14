@@ -56,6 +56,52 @@ def editor_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# ==================== ADMINISTRACIÓN ====================
+@app.route('/admin/usuarios')
+@admin_required
+def admin_usuarios():
+    usuarios = gestor_usuarios.listar_usuarios()
+    return render_template('admin_usuarios.html', usuarios=usuarios)
+
+@app.route('/admin/crear_usuario', methods=['POST'])
+@admin_required
+def crear_usuario():
+    username = request.form['username']
+    password = request.form['password']
+    rol = request.form['rol']
+    nombre = request.form.get('nombre', '')
+    try:
+        gestor_usuarios.crear_usuario(username, password, rol, nombre)
+        flash('Usuario creado correctamente', 'success')
+    except Exception as e:
+        flash(f'Error al crear usuario: {e}', 'danger')
+    return redirect(url_for('admin_usuarios'))
+
+@app.route('/admin/cambiar_rol/<int:user_id>', methods=['POST'])
+@admin_required
+def cambiar_rol(user_id):
+    nuevo_rol = request.form['rol']
+    gestor_usuarios.cambiar_rol(user_id, nuevo_rol)
+    flash('Rol actualizado', 'success')
+    return redirect(url_for('admin_usuarios'))
+
+@app.route('/admin/cambiar_password/<int:user_id>', methods=['POST'])
+@admin_required
+def cambiar_password(user_id):
+    new_pass = request.form['new_password']
+    gestor_usuarios.cambiar_password(user_id, new_pass)
+    flash('Contraseña actualizada correctamente', 'success')
+    return redirect(url_for('admin_usuarios'))
+
+@app.route('/admin/eliminar_usuario/<int:user_id>', methods=['POST'])
+@admin_required
+def eliminar_usuario(user_id):
+    if gestor_usuarios.eliminar_usuario(user_id):
+        flash('Usuario eliminado correctamente', 'success')
+    else:
+        flash('No se puede eliminar el usuario administrador principal', 'danger')
+    return redirect(url_for('admin_usuarios'))
+
 
 # ==================== RUTAS ====================
 @app.route('/login', methods=['GET', 'POST'])
