@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <div class="text-center mb-5">
   <div class="d-flex align-items-center justify-content-center gap-4">
     <img src="/static/fchmn_logo.png" alt="FCHMN" style="height: 100px;">
-	<div> 
-    		<h2 class="display-5 fw-bold text-primary">Circuito de Natación Masters de Chile 2026</h2>
-    		<p class="text-muted">Federación Chilena Master de Natación</p>
-        </div>
+    <div>
+      <h2 class="display-5 fw-bold text-primary">Circuito de Natación Masters de Chile 2026</h2>
+      <p class="text-muted">Federación Chilena Master de Natación</p>
+    </div>
   </div>
 </div>
 
@@ -17,7 +16,7 @@
             <tr>
                 <th style="width: 10%;">MES</th>
                 <th style="width: 12%;">FECHA</th>
-                <th style="width: 10%;">STATUS</th>
+                <th style="width: 15%;">STATUS</th>
                 <th>LUGAR</th>
                 <th>ORGANIZA</th>
                 <th>NOMBRE TORNEO</th>
@@ -30,11 +29,10 @@
                 <td rowspan="3"><strong class="text-primary">MARZO</strong></td>
                 <td>14/MAR</td>
                 <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
+                    <form method="POST" action="{{ url_for('actualizar_estado') }}" class="d-inline">
                         <input type="hidden" name="id" value="1">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" name="estado" value="REALIZADO" class="btn btn-sm btn-success">REALIZADO</button>
+                        <button type="submit" name="estado" value="NO REALIZADO" class="btn btn-sm btn-warning">NO REALIZADO</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -45,11 +43,10 @@
             <tr>
                 <td>28/MAR</td>
                 <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
+                    <form method="POST" action="{{ url_for('actualizar_estado') }}" class="d-inline">
                         <input type="hidden" name="id" value="2">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" name="estado" value="REALIZADO" class="btn btn-sm btn-success">REALIZADO</button>
+                        <button type="submit" name="estado" value="NO REALIZADO" class="btn btn-sm btn-warning">NO REALIZADO</button>
                     </form>
                 </td>
                 <td>Mendoza</td>
@@ -60,11 +57,10 @@
             <tr>
                 <td>28/MAR</td>
                 <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
+                    <form method="POST" action="{{ url_for('actualizar_estado') }}" class="d-inline">
                         <input type="hidden" name="id" value="3">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
+                        <button type="submit" name="estado" value="REALIZADO" class="btn btn-sm btn-success">REALIZADO</button>
+                        <button type="submit" name="estado" value="NO REALIZADO" class="btn btn-sm btn-warning">NO REALIZADO</button>
                     </form>
                 </td>
                 <td>Santiago</td>
@@ -367,20 +363,6 @@
         </div>
 
 
-<script>
-function cambiarEstatus(element) {
-    if (confirm('¿Cambiar el estatus de esta competencia?')) {
-        if (element.classList.contains('bg-success')) {
-            element.classList.remove('bg-success');
-            element.classList.add('bg-primary');
-            element.textContent = 'NO REALIZADO';
-        } else {
-            element.classList.remove('bg-primary');
-            element.classList.add('bg-success');
-            element.textContent = 'REALIZADO';
-        }
-    }
-}
-</script>
+
 
 {% endblock %}
