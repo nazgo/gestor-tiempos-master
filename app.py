@@ -410,14 +410,14 @@ def season_best():
                          estilos=gestor_tiempos.ESTILOS, 
                          distancias=gestor_tiempos.DISTANCIAS)
 
-#@app.teardown_appcontext
-#def shutdown_session(exception=None):
-#    for gestor in [gestor_tiempos, gestor_nadadores, gestor_usuarios]:
-#        try:
-#            if hasattr(gestor, 'cerrar_conexion'):
-#                gestor.cerrar_conexion()
-#        except:
-#            pass
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    for gestor in [gestor_tiempos, gestor_nadadores, gestor_usuarios]:
+        try:
+            if hasattr(gestor, 'cerrar_conexion'):
+                gestor.cerrar_conexion()
+        except:
+            pass
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
