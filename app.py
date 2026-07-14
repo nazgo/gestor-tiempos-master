@@ -296,16 +296,10 @@ def progreso_nadador(nadador_id):
         flash('Nadador no encontrado', 'danger')
         return redirect(url_for('nadadores'))
     
-    nombre_completo = f"{nadador['nombre']} {nadador['apellido']}"
+    nombre_completo = f"{nadador.get('nombre', '')} {nadador.get('apellido', '')}".strip()
     tiempos = gestor_tiempos.obtener_tiempos_nadador(nombre_completo)
     
     return render_template('progreso_nadador.html', nadador=nadador, tiempos=tiempos)
-
-@app.route('/comparacion_25_50')
-@login_required
-def comparacion_25_50():
-    nadadores = gestor_nadadores.listar_nadadores()
-    return render_template('comparacion_25_50.html', nadadores=nadadores)
 
 @app.route('/comparacion_25_50_resultado', methods=['POST'])
 @login_required
