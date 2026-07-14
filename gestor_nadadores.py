@@ -16,7 +16,6 @@ class GestorNadadores:
         self.crear_tabla()
 
     def connect(self):
-        """Conecta a PostgreSQL o SQLite."""
         db_url = os.environ.get('DATABASE_URL')
         print("DEBUG nadadores - DATABASE_URL:", bool(db_url))
         
@@ -35,27 +34,37 @@ class GestorNadadores:
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
 
-    def _execute(self, query, params=None, commit=True):
-    
-        try:
-            self.conn.cursor()
-        except Exception:
-            print("Reconectando a PostgreSQL...")
+    def ensure_connection(self):
+        if not self.conn or getattr(self.conn, 'closed', True):
+            print("🔄 Reconectando a la base de datos...")
             self.connect()
-    
+        return self.conn
+
+    def _execute(self, query, params=None, commit=True):
+        self.ensure_connection()
         cursor = self.conn.cursor()
-    
         if params:
             if 'postgresql' in str(os.environ.get('DATABASE_URL', '')):
                 query = query.replace('?', '%s')
             cursor.execute(query, params)
         else:
             cursor.execute(query)
-    
-        if commit:
+        
+        if commit and hasattr(self.conn, 'commit'):
             self.conn.commit()
-    
         return cursor
+
+    def _row_to_dict(self, row, cursor=None):
+        if not row:
+            return None
+        if hasattr(row, '_asdict'):
+            return dict(row._asdict())
+        elif hasattr(row, 'keys'):
+            return dict(row)
+        elif cursor and hasattr(cursor, 'description'):
+            return dict(zip([desc[0] for desc in cursor.description], row))
+        else:
+            return dict(row) if hasattr(row, '__iter__') else {}
 
     def crear_tabla(self):
         self._execute('''
@@ -119,40 +128,18 @@ class GestorNadadores:
         ''', (nombre, apellido, fecha_nacimiento, rut, genero, categoria))
 
     def listar_nadadores(self):
-        """Lista todos los nadadores con conversión segura para PostgreSQL y SQLite."""
-        self.ensure_connection()
         cursor = self._execute('SELECT * FROM nadadores ORDER BY apellido, nombre', commit=False)
         rows = cursor.fetchall()
         result = []
         for row in rows:
-            if row is None:
-                continue
-            try:
-                if hasattr(row, '_asdict'):  # psycopg
-                    result.append(dict(row._asdict()))
-                elif hasattr(row, 'keys'):   # sqlite3.Row
-                    result.append(dict(row))
-                else:  # fallback
-                    result.append(dict(zip([desc[0] for desc in cursor.description], row)))
-            except Exception:
-                # Último recurso
-                try:
-                    result.append(dict(row))
-                except:
-                    result.append({})
+            if row:
+                result.append(self._row_to_dict(row, cursor))
         return result
 
     def obtener_nadador(self, nadador_id):
         cursor = self._execute('SELECT * FROM nadadores WHERE id = ?', (nadador_id,), commit=False)
         row = cursor.fetchone()
-        if row:
-            if hasattr(row, '_asdict'):  # psycopg
-                return dict(row._asdict())
-            elif hasattr(row, 'keys'):   # sqlite
-                return dict(row)
-            else:
-                return dict(zip([desc[0] for desc in cursor.description], row))
-        return None
+        return self._row_to_dict(row, cursor)
 
     def actualizar_nadador(self, nadador_id, nombre, apellido, fecha_nacimiento, rut=None, genero=None):
         categoria = self.calcular_categoria_master(fecha_nacimiento)
@@ -176,11 +163,4 @@ class GestorNadadores:
             try:
                 self.conn.close()
             except:
-                pass  # Ignorar si ya estaba cerrada
-
-    def ensure_connection(self):
-        """Asegura que la conexión esté abierta antes de usarla."""
-        if not self.conn or getattr(self.conn, 'closed', True):
-            print("🔄 Reconectando a la base de datos...")
-            self.connect()
-        return self.conn
+                pass
