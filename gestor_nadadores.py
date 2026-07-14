@@ -120,6 +120,7 @@ class GestorNadadores:
 
     def listar_nadadores(self):
         """Lista todos los nadadores con conversión segura para PostgreSQL y SQLite."""
+        self.ensure_connection()
         cursor = self._execute('SELECT * FROM nadadores ORDER BY apellido, nombre', commit=False)
         rows = cursor.fetchall()
         result = []
@@ -176,3 +177,10 @@ class GestorNadadores:
                 self.conn.close()
             except:
                 pass  # Ignorar si ya estaba cerrada
+
+    def ensure_connection(self):
+        """Asegura que la conexión esté abierta antes de usarla."""
+        if not self.conn or getattr(self.conn, 'closed', True):
+            print("🔄 Reconectando a la base de datos...")
+            self.connect()
+        return self.conn
