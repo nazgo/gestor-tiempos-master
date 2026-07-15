@@ -310,7 +310,7 @@ def comparacion_25_50():
 @app.route('/comparacion_25_50_resultado', methods=['POST'])
 @login_required
 def comparacion_resultado():
-    nadador_id = request.form.get('nadador_id')
+    nadador_id = request.form.get("nadador_id", type=int)
     if not nadador_id:
         flash('Debe seleccionar un nadador', 'danger')
         return redirect(url_for('comparacion_25_50'))
