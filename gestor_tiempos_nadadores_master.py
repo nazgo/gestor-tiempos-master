@@ -142,6 +142,26 @@ class GestorTiemposMaster:
     
         print("📅 Cargando competencias iniciales...")
 
+        competencias = [
+        ]
+
+        for competencia in competencias:
+        self._execute("""
+            INSERT INTO competencias
+            (
+                fecha,
+                mes,
+                lugar,
+                organiza,
+                nombre,
+                tipo_piscina,
+                estado
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, competencia)
+    
+    print(f"✅ Se cargaron {len(competencias)} competencias.")
+
     # ====================== MÉTODOS ESTÁTICOS ======================
     @staticmethod
     def _validar_tiempo(tiempo_str: str) -> bool:
