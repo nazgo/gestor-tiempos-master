@@ -1,112 +1,157 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="text-center mb-5">
-  <div class="d-flex align-items-center justify-content-center gap-4">
-    <img src="/static/fchmn_logo.png" alt="FCHMN" style="height: 100px;">
-	<div> 
-    		<h2 class="display-5 fw-bold text-primary">Circuito de Natación Masters de Chile 2026</h2>
-    		<p class="text-muted">Federación Chilena Master de Natación</p>
+<div class="container-fluid py-4">
+
+    <div class="text-center mb-5">
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-4">
+            <img
+                src="{{ url_for('static', filename='fchmn_logo.png') }}"
+                alt="FCHMN"
+                style="height: 100px;"
+            >
+
+            <div>
+                <h2 class="display-5 fw-bold text-primary mb-1">
+                    Circuito de Natación Masters de Chile 2026
+                </h2>
+                <p class="text-muted mb-0">
+                    Federación Chilena Master de Natación
+                </p>
+            </div>
         </div>
-  </div>
-</div>
+    </div>
 
-<div class="table-responsive">
-    <table class="table table-hover table-bordered border-dark align-middle">
-        <thead class="table-primary">
-            <tr>
-                <th style="width: 10%;">MES</th>
-                <th style="width: 12%;">FECHA</th>
-                <th style="width: 10%;">STATUS</th>
-                <th>LUGAR</th>
-                <th>ORGANIZA</th>
-                <th>NOMBRE TORNEO</th>
-                <th style="width: 18%;">TIPO PISCINA</th>
-            </tr>
-        </thead>
-        <tbody>
-
-{% for competencia in competencias %}
-
-<tr>
-
-<td>{{ competencia.mes }}</td>
-
-<td>{{ competencia.fecha }}</td>
-
-<td>
-
-<form method="POST"
-      action="{{ url_for('actualizar_estado') }}">
-
-<input type="hidden"
-       name="id"
-       value="{{ competencia.id }}">
-
-{% if competencia.estado=="REALIZADO" %}
-
-<button
-class="btn btn-success btn-sm"
-name="estado"
-value="NO REALIZADO">
-
-REALIZADO
-
-</button>
-
-{% else %}
-
-<button
-class="btn btn-primary btn-sm"
-name="estado"
-value="REALIZADO">
-
-NO REALIZADO
-
-</button>
-
-{% endif %}
-
-</form>
-
-</td>
-
-<td>{{ competencia.lugar }}</td>
-
-<td>{{ competencia.organiza }}</td>
-
-<td>{{ competencia.nombre }}</td>
-
-<td>{{ competencia.tipo_piscina }}</td>
-
-</tr>
-
-{% endfor %}
-
-</tbody>
-    </table>
-</div>
-
-
-<div class="text-center mt-4">
-            <a href="/" class="btn btn-secondary">← Volver al Inicio</a>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div>
+            <h4 class="mb-1">Calendario de competencias</h4>
+            <p class="text-muted mb-0">
+                Administra fechas, estados y datos de cada torneo.
+            </p>
         </div>
 
+        <a
+            href="{{ url_for('nueva_competencia') }}"
+            class="btn btn-primary"
+        >
+            + Nueva competencia
+        </a>
+    </div>
 
-<script>
-function cambiarEstatus(element) {
-    if (confirm('¿Cambiar el estatus de esta competencia?')) {
-        if (element.classList.contains('bg-success')) {
-            element.classList.remove('bg-success');
-            element.classList.add('bg-primary');
-            element.textContent = 'NO REALIZADO';
-        } else {
-            element.classList.remove('bg-primary');
-            element.classList.add('bg-success');
-            element.textContent = 'REALIZADO';
-        }
-    }
-}
-</script>
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered border-dark align-middle">
+            <thead class="table-primary">
+                <tr>
+                    <th style="width: 9%;">MES</th>
+                    <th style="width: 11%;">FECHA</th>
+                    <th style="width: 13%;">ESTADO</th>
+                    <th>LUGAR</th>
+                    <th>ORGANIZA</th>
+                    <th>NOMBRE TORNEO</th>
+                    <th style="width: 16%;">TIPO PISCINA</th>
+                    <th style="width: 15%;">ACCIONES</th>
+                </tr>
+            </thead>
 
+            <tbody>
+                {% for competencia in competencias %}
+                <tr>
+                    <td>
+                        <strong class="text-primary">
+                            {{ competencia.mes }}
+                        </strong>
+                    </td>
+
+                    <td class="text-nowrap">
+                        {% if competencia.fecha and competencia.fecha.strftime is defined %}
+                            {{ competencia.fecha.strftime('%d/%m/%Y') }}
+                        {% else %}
+                            {{ competencia.fecha }}
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <form
+                            method="POST"
+                            action="{{ url_for('actualizar_estado') }}"
+                            class="d-inline"
+                            onsubmit="return confirm('¿Cambiar el estado de esta competencia?');"
+                        >
+                            <input
+                                type="hidden"
+                                name="id"
+                                value="{{ competencia.id }}"
+                            >
+
+                            {% if competencia.estado == 'REALIZADO' %}
+                                <button
+                                    type="submit"
+                                    name="estado"
+                                    value="NO REALIZADO"
+                                    class="btn btn-success btn-sm"
+                                    title="Cambiar a NO REALIZADO"
+                                >
+                                    REALIZADO
+                                </button>
+                            {% else %}
+                                <button
+                                    type="submit"
+                                    name="estado"
+                                    value="REALIZADO"
+                                    class="btn btn-primary btn-sm"
+                                    title="Cambiar a REALIZADO"
+                                >
+                                    NO REALIZADO
+                                </button>
+                            {% endif %}
+                        </form>
+                    </td>
+
+                    <td>{{ competencia.lugar or '' }}</td>
+                    <td>{{ competencia.organiza or '' }}</td>
+                    <td>{{ competencia.nombre or '' }}</td>
+                    <td>{{ competencia.tipo_piscina or '' }}</td>
+
+                    <td class="text-nowrap">
+                        <a
+                            href="{{ url_for('editar_competencia', competencia_id=competencia.id) }}"
+                            class="btn btn-warning btn-sm"
+                        >
+                            Editar
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('eliminar_competencia', competencia_id=competencia.id) }}"
+                            class="d-inline"
+                            onsubmit="return confirm('¿Eliminar definitivamente esta competencia?');"
+                        >
+                            <button
+                                type="submit"
+                                class="btn btn-danger btn-sm"
+                            >
+                                Eliminar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        No hay competencias registradas.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+            ← Volver al inicio
+        </a>
+    </div>
+
+</div>
 {% endblock %}
