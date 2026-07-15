@@ -342,6 +342,8 @@ def actualizar_estado():
     if competencia_id and estado:
         gestor_tiempos.actualizar_estado_competencia(competencia_id, estado)
         flash('Estado actualizado correctamente', 'success')
+    else:
+        flash('Error al actualizar estado', 'danger')
     return redirect(url_for('calendario_competencias'))
 
 
