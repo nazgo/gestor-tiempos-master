@@ -146,21 +146,21 @@ class GestorTiemposMaster:
         ]
 
         for competencia in competencias:
-        self._execute("""
-            INSERT INTO competencias
-            (
-                fecha,
-                mes,
-                lugar,
-                organiza,
-                nombre,
-                tipo_piscina,
-                estado
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, competencia)
+            self._execute("""
+                INSERT INTO competencias
+                (
+                    fecha,
+                    mes,
+                    lugar,
+                    organiza,
+                    nombre,
+                    tipo_piscina,
+                    estado
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, competencia)
     
-    print(f"✅ Se cargaron {len(competencias)} competencias.")
+        print(f"✅ Se cargaron {len(competencias)} competencias.")
 
     # ====================== MÉTODOS ESTÁTICOS ======================
     @staticmethod
