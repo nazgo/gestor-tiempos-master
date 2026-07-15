@@ -99,7 +99,7 @@ class GestorTiemposMaster:
         ''')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_fecha ON tiempos(fecha)')
 
-        self._execute("""
+        cursor._execute('''
         CREATE TABLE IF NOT EXISTS competencias (
             id SERIAL PRIMARY KEY,
             fecha DATE NOT NULL,
@@ -110,7 +110,7 @@ class GestorTiemposMaster:
             tipo_piscina VARCHAR(50),
             estado VARCHAR(20) DEFAULT 'NO REALIZADO'
         )
-        """)
+        ''')
 
     def cerrar_conexion(self):
         if self.conn:
