@@ -301,6 +301,12 @@ def progreso_nadador(nadador_id):
     
     return render_template('progreso_nadador.html', nadador=nadador, tiempos=tiempos)
 
+@app.route('/comparacion_25_50')
+@login_required
+def comparacion_25_50():
+    nadadores = gestor_nadadores.listar_nadadores()
+    return render_template('comparacion_25_50.html', nadadores=nadadores)
+
 @app.route('/comparacion_25_50_resultado', methods=['POST'])
 @login_required
 def comparacion_resultado():
