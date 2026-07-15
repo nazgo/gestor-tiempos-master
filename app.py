@@ -346,11 +346,146 @@ def calendario_competencias():
 def actualizar_estado():
     competencia_id = request.form.get('id')
     estado = request.form.get('estado')
-    if competencia_id and estado:
-        gestor_tiempos.actualizar_estado_competencia(competencia_id, estado)
-        flash('Estado actualizado correctamente', 'success')
-    else:
-        flash('Error al actualizar estado', 'danger')
+
+    if not competencia_id or estado not in (
+        'REALIZADO',
+        'NO REALIZADO'
+    ):
+        flash('Datos inválidos para actualizar el estado.', 'danger')
+        return redirect(url_for('calendario_competencias'))
+
+    try:
+        gestor_tiempos.actualizar_estado_competencia(
+            competencia_id,
+            estado
+        )
+
+        flash('Estado actualizado correctamente.', 'success')
+
+    except Exception as e:
+        print("Error actualizando estado:", e)
+        flash('No fue posible actualizar el estado.', 'danger')
+
+    return redirect(url_for('calendario_competencias'))
+
+@app.route('/competencias/nueva', methods=['GET', 'POST'])
+@login_required
+@editor_required
+def nueva_competencia():
+    if request.method == 'POST':
+        fecha = request.form.get('fecha', '').strip()
+        lugar = request.form.get('lugar', '').strip()
+        organiza = request.form.get('organiza', '').strip()
+        nombre = request.form.get('nombre', '').strip()
+        tipo_piscina = request.form.get('tipo_piscina', '').strip()
+        estado = request.form.get('estado', 'NO REALIZADO').strip()
+
+        if not fecha or not lugar or not nombre:
+            flash(
+                'Fecha, lugar y nombre del torneo son obligatorios.',
+                'danger'
+            )
+            return render_template(
+                'competencia_form.html',
+                competencia=request.form,
+                titulo='Nueva competencia'
+            )
+
+        try:
+            gestor_tiempos.agregar_competencia(
+                fecha=fecha,
+                lugar=lugar,
+                organiza=organiza,
+                nombre=nombre,
+                tipo_piscina=tipo_piscina,
+                estado=estado
+            )
+
+            flash('Competencia creada correctamente.', 'success')
+            return redirect(url_for('calendario_competencias'))
+
+        except Exception as e:
+            print("Error creando competencia:", e)
+            flash('No fue posible crear la competencia.', 'danger')
+
+    return render_template(
+        'competencia_form.html',
+        competencia=None,
+        titulo='Nueva competencia'
+    )
+
+@app.route(
+    '/competencias/<int:competencia_id>/editar',
+    methods=['GET', 'POST']
+)
+@login_required
+@editor_required
+def editar_competencia(competencia_id):
+    competencia = gestor_tiempos.obtener_competencia(competencia_id)
+
+    if not competencia:
+        flash('Competencia no encontrada.', 'danger')
+        return redirect(url_for('calendario_competencias'))
+
+    if request.method == 'POST':
+        fecha = request.form.get('fecha', '').strip()
+        lugar = request.form.get('lugar', '').strip()
+        organiza = request.form.get('organiza', '').strip()
+        nombre = request.form.get('nombre', '').strip()
+        tipo_piscina = request.form.get('tipo_piscina', '').strip()
+        estado = request.form.get('estado', 'NO REALIZADO').strip()
+
+        if not fecha or not lugar or not nombre:
+            flash(
+                'Fecha, lugar y nombre del torneo son obligatorios.',
+                'danger'
+            )
+        else:
+            try:
+                gestor_tiempos.editar_competencia(
+                    competencia_id=competencia_id,
+                    fecha=fecha,
+                    lugar=lugar,
+                    organiza=organiza,
+                    nombre=nombre,
+                    tipo_piscina=tipo_piscina,
+                    estado=estado
+                )
+
+                flash('Competencia actualizada correctamente.', 'success')
+                return redirect(url_for('calendario_competencias'))
+
+            except Exception as e:
+                print("Error editando competencia:", e)
+                flash('No fue posible editar la competencia.', 'danger')
+
+    return render_template(
+        'competencia_form.html',
+        competencia=competencia,
+        titulo='Editar competencia'
+    )
+
+@app.route(
+    '/competencias/<int:competencia_id>/eliminar',
+    methods=['POST']
+)
+@login_required
+@editor_required
+def eliminar_competencia(competencia_id):
+    competencia = gestor_tiempos.obtener_competencia(competencia_id)
+
+    if not competencia:
+        flash('Competencia no encontrada.', 'danger')
+        return redirect(url_for('calendario_competencias'))
+
+    try:
+        gestor_tiempos.eliminar_competencia(competencia_id)
+        flash('Competencia eliminada correctamente.', 'success')
+
+    except Exception as e:
+        print("Error eliminando competencia:", e)
+        flash('No fue posible eliminar la competencia.', 'danger')
+
     return redirect(url_for('calendario_competencias'))
 
 
