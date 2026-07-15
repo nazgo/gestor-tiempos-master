@@ -25,339 +25,65 @@
             </tr>
         </thead>
         <tbody>
-            <!-- MARZO -->
-            <tr>
-                <td rowspan="3"><strong class="text-primary">MARZO</strong></td>
-                <td>14/MAR</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="1">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>FCHMN</td>
-                <td>II Copa Cordillera de los Andes (CHI)</td>
-                <td>50 metros (cubierta)</td>
-            </tr>
-            <tr>
-                <td>28/MAR</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="2">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Mendoza</td>
-                <td>TyC MASTER ARGENTINA</td>
-                <td>II Copa Cordillera de los Andes (ARG)</td>
-                <td>25 metros (cubierta)</td>
-            </tr>
-            <tr>
-                <td>28/MAR</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="3">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>Stadio Italiano</td>
-                <td>XXII Copa Italia Master</td>
-                <td>50 metros (abierta)</td>
-            </tr>
 
-            <!-- ABRIL -->
-            <tr>
-                <td><strong class="text-primary">ABRIL</strong></td>
-                <td>13-17/ABR</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="4">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Recife-BRA</td>
-                <td>CONSA DA</td>
-                <td>XIV Campeonato Sudamericano Master</td>
-                <td>25 metros (abierta)</td>
-            </tr>
+{% for competencia in competencias %}
 
-            <!-- MAYO -->
-            <tr>
-                <td rowspan="2"><strong class="text-primary">MAYO</strong></td>
-                <td>16/MAY</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="5">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>Peñalolén Master</td>
-                <td>XIII Copa Peñalolen Master</td>
-                <td>25 metros (cubierta)</td>
-            </tr>
-            <tr>
-                <td>31/MAY</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="6">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>Smart Swim Team</td>
-                <td>VII Copa Smart Swim</td>
-                <td>50 metros (cubierta)</td>
-            </tr>
+<tr>
 
-            <!-- JUNIO -->
-            <tr>
-                <td><strong class="text-primary">JUNIO</strong></td>
-                <td>20/JUN</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="7">
-                        <input type="hidden" name="estado" value="REALIZADO">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>Santiago Deporte</td>
-                <td>VI Copa Santiago Deportes</td>
-                <td>50 metros (cubierta)</td>
-            </tr>
+<td>{{ competencia.mes }}</td>
 
-            <!-- JULIO -->
-            <tr>
-                <td rowspan="2"><strong class="text-primary">JULIO</strong></td>
-                <td>04/JUL</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="8">
-                        <input type="hidden" name="estado" value="1">
-                        <span class="badge bg-success">REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>Master San Bernardo</td>
-                <td>X Copa Master San Bernardo</td>
-                <td>25 metros (cubierta)</td>
-            </tr>
-            <tr>
-                <td>18/JUL</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="9">
-                        <input type="hidden" name="estado" value="1">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>Ñuñoa Master</td>
-                <td>III Copa Ñuñoa Master</td>
-                <td>50 metros (cubierta)</td>
-            </tr>
+<td>{{ competencia.fecha }}</td>
 
-            <!-- AGOSTO -->
-            <tr>
-                <td rowspan="2"><strong class="text-primary">AGOSTO</strong></td>
-                <td>08/AGO</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="10">
-                        <input type="hidden" name="estado" value="1">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Talca</td>
-                <td>FCHMN</td>
-                <td>IV Copa del Maule</td>
-                <td>25 metros (cubierta)</td>
-            </tr>
-            <tr>
-                <td>22/AGO</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="11">
-                        <input type="hidden" name="estado" value="1">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>LQBLO</td>
-                <td>VI Copa Master LQBLO</td>
-                <td>50 metros (cubierta)</td>
-            </tr>
+<td>
 
-            <!-- SEPTIEMBRE -->
-            <tr>
-                <td><strong class="text-primary">SEPTIEMBRE</strong></td>
-                <td>05/SEP</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="12">
-                        <input type="hidden" name="estado" value="1">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Temuco</td>
-                <td>Master del Ñielol</td>
-                <td>VII Copa Araucania de Natación Master</td>
-                <td>25 metros (cubierta)</td>
-            </tr>
+<form method="POST"
+      action="{{ url_for('actualizar_estado_competencia') }}">
 
-            <!-- OCTUBRE -->
-            <tr>
-                <td rowspan="4"><strong class="text-primary">OCTUBRE</strong></td>
-                <td>03-04/OCT</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="13">
-                        <input type="hidden" name="estado" value="2">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>Estadio Español</td>
-                <td>XVI Copa España Master</td>
-                <td>25 metros (cubierta)</td>
-            </tr>
-            <tr>
-                <td>17/OCT</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="14">
-                        <input type="hidden" name="estado" value="1">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>por definir</td>
-                <td>Aguas Abiertas Chile</td>
-                <td>9ª Versión Aguas Abiertas</td>
-                <td>por definir</td>
-            </tr>
-            <tr>
-                <td>21-27/OCT</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="15">
-                        <input type="hidden" name="estado" value="7">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>BA-Argentina</td>
-                <td>UANA</td>
-                <td>Campeonato Panamericano Master</td>
-                <td>50 metros (cubierta)</td>
-            </tr>
-            <tr>
-                <td>24/OCT</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="16">
-                        <input type="hidden" name="estado" value="1">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>Master Providencia</td>
-                <td>XIV Copa 4 Estilos Master Providencia</td>
-                <td>25 metros (cubierta)</td>
-            </tr>
+<input type="hidden"
+       name="id"
+       value="{{ competencia.id }}">
 
-            <!-- NOVIEMBRE -->
-            <tr>
-                <td><strong class="text-primary">NOVIEMBRE</strong></td>
-                <td>07/NOV</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="17">
-                        <input type="hidden" name="estado" value="2">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>U. Católica Master</td>
-                <td>V Copa UC Master</td>
-                <td>50 metros (cubierta)</td>
-            </tr>
+{% if competencia.estado=="REALIZADO" %}
 
-            <!-- DICIEMBRE -->
-            <tr>
-                <td rowspan="2"><strong class="text-primary">DICIEMBRE</strong></td>
-                <td>4-6/DIC</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="18">
-                        <input type="hidden" name="estado" value="3">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Arica</td>
-                <td>Mantarrayas de Arica</td>
-                <td>Natación Sin Fronteras</td>
-                <td>50 metros (abierta)</td>
-            </tr>
-            <tr>
-                <td>12/DIC</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="19">
-                        <input type="hidden" name="estado" value="1">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>Santiago</td>
-                <td>Natación Recoleta</td>
-                <td>XII Copa Natación Recoleta</td>
-                <td>25 metros (abierta)</td>
-            </tr>
+<button
+class="btn btn-success btn-sm"
+name="estado"
+value="NO REALIZADO">
 
-            <!-- ENERO 2027 -->
-            <tr>
-                <td><strong class="text-primary">ENERO 2027</strong></td>
-                <td>06/09 ENE</td>
-                <td>
-                    <form method="POST" action="/calendario/actualizar_estado" class="d-inline">
-                        <input type="hidden" name="id" value="20">
-                        <input type="hidden" name="estado" value="4">
-                        <span class="badge bg-primary">NO REALIZADO</span>
-                        <!-- <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cambiar</button>-->
-                    </form>
-                </td>
-                <td>por definir</td>
-                <td>FCHMN</td>
-                <td>XXI Cto. Nacional de Natación Master</td>
-                <td>por definir</td>
-            </tr>
-        </tbody>
+REALIZADO
+
+</button>
+
+{% else %}
+
+<button
+class="btn btn-primary btn-sm"
+name="estado"
+value="REALIZADO">
+
+NO REALIZADO
+
+</button>
+
+{% endif %}
+
+</form>
+
+</td>
+
+<td>{{ competencia.lugar }}</td>
+
+<td>{{ competencia.organiza }}</td>
+
+<td>{{ competencia.nombre }}</td>
+
+<td>{{ competencia.tipo_piscina }}</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
     </table>
 </div>
 
