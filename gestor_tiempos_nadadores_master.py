@@ -726,6 +726,79 @@ class GestorTiemposMaster:
             WHERE id = ?
         """, (estado, competencia_id))
 
+    def comparacion_nadador_25_50(self, nadador_id):
+        """
+        Compara los mejores tiempos de un nadador en piscinas de 25 y 50 metros.
+        Devuelve una lista agrupada por estilo y distancia.
+        """
+    
+        cursor = self._execute("""
+            SELECT
+                estilo,
+                distancia,
+                piscina,
+                MIN(tiempo_segundos) AS mejor_tiempo_segundos
+            FROM tiempos
+            WHERE nombre_nadador = (
+                SELECT nombre || ' ' || apellido
+                FROM nadadores
+                WHERE id = ?
+            )
+            AND piscina IN ('25 metros', '50 metros')
+            GROUP BY estilo, distancia, piscina
+            ORDER BY distancia, estilo, piscina
+        """, (nadador_id,), commit=False)
+    
+        filas = cursor.fetchall()
+        columnas = [col[0] for col in cursor.description]
+    
+        registros = [
+            dict(zip(columnas, fila))
+            for fila in filas
+        ]
+    
+        comparacion = {}
+    
+        for registro in registros:
+            clave = (
+                registro["estilo"],
+                registro["distancia"]
+            )
+    
+            if clave not in comparacion:
+                comparacion[clave] = {
+                    "estilo": registro["estilo"],
+                    "distancia": registro["distancia"],
+                    "tiempo_25": None,
+                    "tiempo_50": None,
+                    "diferencia_segundos": None
+                }
+    
+            piscina = str(registro["piscina"]).lower()
+            tiempo = registro["mejor_tiempo_segundos"]
+    
+            if "25" in piscina:
+                comparacion[clave]["tiempo_25"] = tiempo
+    
+            elif "50" in piscina:
+                comparacion[clave]["tiempo_50"] = tiempo
+    
+        resultado = []
+    
+        for item in comparacion.values():
+            tiempo_25 = item["tiempo_25"]
+            tiempo_50 = item["tiempo_50"]
+    
+            if tiempo_25 is not None and tiempo_50 is not None:
+                item["diferencia_segundos"] = round(
+                    float(tiempo_50) - float(tiempo_25),
+                    2
+                )
+    
+            resultado.append(item)
+    
+        return resultado
+
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
     print("Gestor de Tiempos Master inicializado correctamente.")
