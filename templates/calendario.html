@@ -113,20 +113,16 @@
                     <td>{{ competencia.tipo_piscina or '' }}</td>
 
                     <td class="text-nowrap">
-                        <a
-                            href="{{ url_for('editar_competencia', competencia_id=competencia.id) }}"
-                            class="btn btn-warning btn-sm"
-                        >
-                            Editar
+                        <a href="{{ url_for('editar_competencia', competencia_id=competencia.id) }}" class="btn btn-warning btn-sm me-1" title="Editar Competencia">
+                            <i class="fas fa-edit"></i>
                         </a>
-
                         <form
                             method="POST"
                             action="{{ url_for('eliminar_competencia', competencia_id=competencia.id) }}"
                             class="d-inline"
                             onsubmit="return confirm('¿Eliminar definitivamente esta competencia?');"
                         >
-                            <button type="submit" class="btn btn-danger btn-sm" title="Eliminar Nadador">
+                            <button type="submit" class="btn btn-danger btn-sm" title="Eliminar Competencia">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
