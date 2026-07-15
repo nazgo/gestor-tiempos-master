@@ -81,7 +81,7 @@ class GestorTiemposMaster:
 
     def crear_tabla(self) -> None:
         cursor = self.conn.cursor()
-        cursor.execute('''
+        self.execute('''
             CREATE TABLE IF NOT EXISTS tiempos (
                 id SERIAL PRIMARY KEY,
                 nombre_nadador TEXT NOT NULL,
@@ -94,12 +94,12 @@ class GestorTiemposMaster:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
-        cursor.execute('''
+        self.execute('''
             CREATE INDEX IF NOT EXISTS idx_nombre_estilo_dist ON tiempos(nombre_nadador, estilo, distancia)
         ''')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_fecha ON tiempos(fecha)')
+        self.execute('CREATE INDEX IF NOT EXISTS idx_fecha ON tiempos(fecha)')
 
-        cursor.execute("""
+        self.execute("""
         CREATE TABLE IF NOT EXISTS competencias (
             id SERIAL PRIMARY KEY,
             fecha DATE NOT NULL,
@@ -111,6 +111,10 @@ class GestorTiemposMaster:
             estado VARCHAR(20) DEFAULT 'NO REALIZADO'
         )
         """)
+
+        self.inicializar_competencias()
+    
+        self.conn.commit()
 
     def cerrar_conexion(self):
         if self.conn:
