@@ -603,6 +603,129 @@ class GestorTiemposMaster:
             WHERE id = ?
         """, (estado, id_competencia))
 
+
+    def _obtener_mes_competencia(self, fecha):
+        """Devuelve el nombre del mes en español."""
+        if isinstance(fecha, str):
+            fecha = datetime.strptime(fecha, "%Y-%m-%d").date()
+    
+        meses = [
+            "ENERO", "FEBRERO", "MARZO", "ABRIL",
+            "MAYO", "JUNIO", "JULIO", "AGOSTO",
+            "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"
+        ]
+    
+        return meses[fecha.month - 1]
+    
+    
+    def agregar_competencia(
+        self,
+        fecha,
+        lugar,
+        organiza,
+        nombre,
+        tipo_piscina,
+        estado="NO REALIZADO"
+    ):
+        mes = self._obtener_mes_competencia(fecha)
+    
+        self._execute("""
+            INSERT INTO competencias (
+                fecha,
+                mes,
+                lugar,
+                organiza,
+                nombre,
+                tipo_piscina,
+                estado
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            fecha,
+            mes,
+            lugar,
+            organiza,
+            nombre,
+            tipo_piscina,
+            estado
+        ))
+    
+    
+    def obtener_competencia(self, competencia_id):
+        cursor = self._execute("""
+            SELECT *
+            FROM competencias
+            WHERE id = ?
+        """, (competencia_id,), commit=False)
+    
+        row = cursor.fetchone()
+    
+        if not row:
+            return None
+    
+        if hasattr(row, "_asdict"):
+            return dict(row._asdict())
+    
+        if hasattr(row, "keys"):
+            return dict(row)
+    
+        columnas = [columna[0] for columna in cursor.description]
+        return dict(zip(columnas, row))
+    
+    
+    def editar_competencia(
+        self,
+        competencia_id,
+        fecha,
+        lugar,
+        organiza,
+        nombre,
+        tipo_piscina,
+        estado
+    ):
+        mes = self._obtener_mes_competencia(fecha)
+    
+        self._execute("""
+            UPDATE competencias
+            SET fecha = ?,
+                mes = ?,
+                lugar = ?,
+                organiza = ?,
+                nombre = ?,
+                tipo_piscina = ?,
+                estado = ?
+            WHERE id = ?
+        """, (
+            fecha,
+            mes,
+            lugar,
+            organiza,
+            nombre,
+            tipo_piscina,
+            estado,
+            competencia_id
+        ))
+    
+    
+    def eliminar_competencia(self, competencia_id):
+        self._execute("""
+            DELETE FROM competencias
+            WHERE id = ?
+        """, (competencia_id,))
+    
+    
+    def actualizar_estado_competencia(self, competencia_id, estado):
+        estados_validos = ("REALIZADO", "NO REALIZADO")
+    
+        if estado not in estados_validos:
+            raise ValueError("Estado de competencia no válido")
+    
+        self._execute("""
+            UPDATE competencias
+            SET estado = ?
+            WHERE id = ?
+        """, (estado, competencia_id))
+
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
     print("Gestor de Tiempos Master inicializado correctamente.")
