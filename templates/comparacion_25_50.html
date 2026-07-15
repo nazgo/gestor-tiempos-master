@@ -9,31 +9,53 @@
 
 <div class="card shadow mb-5">
     <div class="card-body p-4">
-        <form method="POST" class="row g-3 justify-content-center">
+
+        <form
+            method="POST"
+            action="{{ url_for('comparacion_resultado') }}"
+            class="row g-3 justify-content-center"
+        >
+
             <div class="col-md-6">
-                <label class="form-label fw-semibold">Seleccione un nadador</label>
-                <select name="nadador_id" class="form-select form-select-lg" required>
-                
-                    <option value="">-- Seleccione un nadador --</option>
-                
+                <label
+                    for="nadador_id"
+                    class="form-label fw-semibold"
+                >
+                    Seleccione un nadador
+                </label>
+
+                <select
+                    id="nadador_id"
+                    name="nadador_id"
+                    class="form-select form-select-lg"
+                    required
+                >
+                    <option value="">
+                        -- Seleccione un nadador --
+                    </option>
+
                     {% for n in nadadores %}
-                
-                        <option
-                            value="{{ n.id }}"
-                            {% if nadador and n.id == nadador.id %}selected{% endif %}
-                        >
+                        <option value="{{ n.id }}">
                             {{ n.nombre }} {{ n.apellido }}
                         </option>
-                
+                    {% else %}
+                        <option value="" disabled>
+                            No hay nadadores registrados
+                        </option>
                     {% endfor %}
-                
                 </select>
             </div>
+
             <div class="col-md-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary btn-lg w-100">
-                    <i class="fas fa-balance-scale"></i> Comparar
+                <button
+                    type="submit"
+                    class="btn btn-primary btn-lg w-100"
+                >
+                    <i class="fas fa-balance-scale"></i>
+                    Comparar
                 </button>
             </div>
+
         </form>
     </div>
 </div>
