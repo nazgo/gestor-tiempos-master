@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">{{ titulo }}</h3>
+        </div>
+
+        <div class="card-body">
+            <form method="POST">
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label for="fecha" class="form-label">
+                            Fecha
+                        </label>
+
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="fecha"
+                            name="fecha"
+                            required
+                            value="{% if competencia %}{% if competencia.fecha.strftime is defined %}{{ competencia.fecha.strftime('%Y-%m-%d') }}{% else %}{{ competencia.fecha }}{% endif %}{% endif %}"
+                        >
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="lugar" class="form-label">
+                            Lugar
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="lugar"
+                            name="lugar"
+                            required
+                            value="{{ competencia.lugar if competencia else '' }}"
+                        >
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="estado" class="form-label">
+                            Estado
+                        </label>
+
+                        <select
+                            class="form-select"
+                            id="estado"
+                            name="estado"
+                        >
+                            <option
+                                value="NO REALIZADO"
+                                {% if not competencia or competencia.estado == 'NO REALIZADO' %}
+                                    selected
+                                {% endif %}
+                            >
+                                NO REALIZADO
+                            </option>
+
+                            <option
+                                value="REALIZADO"
+                                {% if competencia and competencia.estado == 'REALIZADO' %}
+                                    selected
+                                {% endif %}
+                            >
+                                REALIZADO
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="organiza" class="form-label">
+                            Organiza
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="organiza"
+                            name="organiza"
+                            value="{{ competencia.organiza if competencia else '' }}"
+                        >
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="tipo_piscina" class="form-label">
+                            Tipo de piscina
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="tipo_piscina"
+                            name="tipo_piscina"
+                            placeholder="Ejemplo: 25 metros (cubierta)"
+                            value="{{ competencia.tipo_piscina if competencia else '' }}"
+                        >
+                    </div>
+
+                    <div class="col-12">
+                        <label for="nombre" class="form-label">
+                            Nombre del torneo
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nombre"
+                            name="nombre"
+                            required
+                            value="{{ competencia.nombre if competencia else '' }}"
+                        >
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Guardar
+                    </button>
+
+                    <a
+                        href="{{ url_for('calendario_competencias') }}"
+                        class="btn btn-secondary"
+                    >
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
