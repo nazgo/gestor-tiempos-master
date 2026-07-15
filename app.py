@@ -301,24 +301,35 @@ def progreso_nadador(nadador_id):
     
     return render_template('progreso_nadador.html', nadador=nadador, tiempos=tiempos)
 
-@app.route('/comparacion_25_50')
+@app.route('/comparacion_25_50', methods=['GET', 'POST'])
 @login_required
 def comparacion_25_50():
     nadadores = gestor_nadadores.listar_nadadores()
-    return render_template('comparacion_25_50.html', nadadores=nadadores)
 
-@app.route('/comparacion_25_50_resultado', methods=['POST'])
-@login_required
-def comparacion_resultado():
-    nadador_id = request.form.get("nadador_id", type=int)
-    if not nadador_id:
-        flash('Debe seleccionar un nadador', 'danger')
-        return redirect(url_for('comparacion_25_50'))
-    
-    comparacion = gestor_tiempos.comparacion_nadador_25_50(nadador_id)
-    nadador = gestor_nadadores.obtener_nadador(nadador_id)
-    
-    return render_template('comparacion_resultado.html', nadador=nadador, comparacion=comparacion)
+    nadador = None
+    comparacion = []
+
+    if request.method == 'POST':
+        nadador_id = request.form.get('nadador_id', type=int)
+
+        if not nadador_id:
+            flash('Debe seleccionar un nadador', 'danger')
+        else:
+            nadador = gestor_nadadores.obtener_nadador(nadador_id)
+
+            if not nadador:
+                flash('Nadador no encontrado', 'danger')
+            else:
+                comparacion = gestor_tiempos.comparacion_nadador_25_50(
+                    nadador_id
+                )
+
+    return render_template(
+        'comparacion_25_50.html',
+        nadadores=nadadores,
+        nadador=nadador,
+        comparacion=comparacion
+    )
 
 @app.route('/nadador/<int:nadador_id>/tiempos')
 @login_required
