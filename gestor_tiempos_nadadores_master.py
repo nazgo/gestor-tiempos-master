@@ -120,18 +120,17 @@ class GestorTiemposMaster:
                 pass
 
     def inicializar_competencias(self):
-
-    cursor = self._execute(
-        "SELECT COUNT(*) FROM competencias",
-        commit=False
-    )
-
-    total = cursor.fetchone()[0]
-
-    if total > 0:
-        return
-
-    print("📅 Cargando competencias iniciales...")
+        cursor = self._execute(
+            "SELECT COUNT(*) FROM competencias",
+            commit=False
+        )
+    
+        total = cursor.fetchone()[0]
+    
+        if total > 0:
+            return
+    
+        print("📅 Cargando competencias iniciales...")
 
     # ====================== MÉTODOS ESTÁTICOS ======================
     @staticmethod
