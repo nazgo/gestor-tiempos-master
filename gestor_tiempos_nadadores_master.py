@@ -148,6 +148,12 @@ class GestorTiemposMaster:
             DEFAULT 'NO REALIZADO'
         """)
 
+        self._execute("""
+            ALTER TABLE competencias
+            ALTER COLUMN mes TYPE VARCHAR(20)
+            USING mes::VARCHAR
+        """)
+
         self.inicializar_competencias()
     
         self.conn.commit()
