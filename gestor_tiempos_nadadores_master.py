@@ -399,13 +399,39 @@ class GestorTiemposMaster:
 
 
     def listar_competencias(self):
-        """Lista todas las competencias."""
-        cursor = self._execute('SELECT * FROM competencias ORDER BY mes, fecha', commit=False)
-        return [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
+    
+        cursor = self._execute("""
+            SELECT *
+            FROM competencias
+            ORDER BY fecha
+        """, commit=False)
+    
+        rows = cursor.fetchall()
+    
+        competencias = []
+    
+        for row in rows:
+    
+            if hasattr(row, "_asdict"):
+                competencias.append(dict(row._asdict()))
+    
+            elif hasattr(row, "keys"):
+                competencias.append(dict(row))
+    
+            else:
+                competencias.append(
+                    dict(zip([d[0] for d in cursor.description], row))
+                )
+    
+        return competencias
 
-    def actualizar_estado_competencia(self, competencia_id, estado):
-        """Actualiza el estado de una competencia."""
-        self._execute('UPDATE competencias SET estado = ? WHERE id = ?', (estado, competencia_id))
+    def actualizar_estado_competencia(self, id_competencia, estado):
+    
+        self._execute("""
+            UPDATE competencias
+            SET estado = ?
+            WHERE id = ?
+        """, (estado, id_competencia))
 
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
