@@ -331,10 +331,10 @@ def tiempos_nadador(nadador_id):
 @login_required
 def calendario_competencias():
     competencias = gestor_tiempos.listar_competencias()
-return render_template(
-    "calendario.html",
-    competencias=competencias
-)
+    return render_template(
+        'calendario.html',
+        competencias=competencias
+    )
 
 @app.route('/calendario/actualizar_estado', methods=['POST'])
 @login_required
