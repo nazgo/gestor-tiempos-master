@@ -112,6 +112,42 @@ class GestorTiemposMaster:
         )
         """)
 
+        self._execute("""
+            ALTER TABLE competencias
+            ADD COLUMN IF NOT EXISTS fecha DATE
+        """)
+        
+        self._execute("""
+            ALTER TABLE competencias
+            ADD COLUMN IF NOT EXISTS mes VARCHAR(20)
+        """)
+        
+        self._execute("""
+            ALTER TABLE competencias
+            ADD COLUMN IF NOT EXISTS lugar VARCHAR(100)
+        """)
+        
+        self._execute("""
+            ALTER TABLE competencias
+            ADD COLUMN IF NOT EXISTS organiza VARCHAR(100)
+        """)
+        
+        self._execute("""
+            ALTER TABLE competencias
+            ADD COLUMN IF NOT EXISTS nombre VARCHAR(200)
+        """)
+        
+        self._execute("""
+            ALTER TABLE competencias
+            ADD COLUMN IF NOT EXISTS tipo_piscina VARCHAR(50)
+        """)
+        
+        self._execute("""
+            ALTER TABLE competencias
+            ADD COLUMN IF NOT EXISTS estado VARCHAR(20)
+            DEFAULT 'NO REALIZADO'
+        """)
+
         self.inicializar_competencias()
     
         self.conn.commit()
