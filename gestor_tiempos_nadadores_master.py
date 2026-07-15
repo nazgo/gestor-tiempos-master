@@ -143,6 +143,87 @@ class GestorTiemposMaster:
         print("📅 Cargando competencias iniciales...")
 
         competencias = [
+        
+            ("2026-03-14", "MARZO", "Santiago", "FCHMN",
+             "II Copa Cordillera de los Andes (CHI)",
+             "50 metros (cubierta)", "REALIZADO"),
+        
+            ("2026-03-28", "MARZO", "Mendoza", "TyC MASTER ARGENTINA",
+             "II Copa Cordillera de los Andes (ARG)",
+             "25 metros (cubierta)", "REALIZADO"),
+        
+            ("2026-03-28", "MARZO", "Santiago", "Stadio Italiano",
+             "XXII Copa Italia Master",
+             "50 metros (abierta)", "REALIZADO"),
+        
+            ("2026-04-13", "ABRIL", "Recife-BRA", "CONSA DA",
+             "XIV Campeonato Sudamericano Master",
+             "25 metros (abierta)", "REALIZADO"),
+        
+            ("2026-05-16", "MAYO", "Santiago", "Peñalolén Master",
+             "XIII Copa Peñalolen Master",
+             "25 metros (cubierta)", "REALIZADO"),
+        
+            ("2026-05-31", "MAYO", "Santiago", "Smart Swim Team",
+             "VII Copa Smart Swim",
+             "50 metros (cubierta)", "REALIZADO"),
+        
+            ("2026-06-20", "JUNIO", "Santiago", "Santiago Deporte",
+             "VI Copa Santiago Deportes",
+             "50 metros (cubierta)", "REALIZADO"),
+        
+            ("2026-07-04", "JULIO", "Santiago", "Master San Bernardo",
+             "X Copa Master San Bernardo",
+             "25 metros (cubierta)", "REALIZADO"),
+        
+            ("2026-07-18", "JULIO", "Santiago", "Ñuñoa Master",
+             "III Copa Ñuñoa Master",
+             "50 metros (cubierta)", "NO REALIZADO"),
+        
+            ("2026-08-08", "AGOSTO", "Talca", "FCHMN",
+             "IV Copa del Maule",
+             "25 metros (cubierta)", "NO REALIZADO"),
+        
+            ("2026-08-22", "AGOSTO", "Santiago", "LQBLO",
+             "VI Copa Master LQBLO",
+             "50 metros (cubierta)", "NO REALIZADO"),
+        
+            ("2026-09-05", "SEPTIEMBRE", "Temuco", "Master del Ñielol",
+             "VII Copa Araucania de Natación Master",
+             "25 metros (cubierta)", "NO REALIZADO"),
+        
+            ("2026-10-03", "OCTUBRE", "Santiago", "Estadio Español",
+             "XVI Copa España Master",
+             "25 metros (cubierta)", "NO REALIZADO"),
+        
+            ("2026-10-17", "OCTUBRE", "Por definir", "Aguas Abiertas Chile",
+             "9ª Versión Aguas Abiertas",
+             "Por definir", "NO REALIZADO"),
+        
+            ("2026-10-21", "OCTUBRE", "Buenos Aires - Argentina", "UANA",
+             "Campeonato Panamericano Master",
+             "50 metros (cubierta)", "NO REALIZADO"),
+        
+            ("2026-10-24", "OCTUBRE", "Santiago", "Master Providencia",
+             "XIV Copa 4 Estilos Master Providencia",
+             "25 metros (cubierta)", "NO REALIZADO"),
+        
+            ("2026-11-07", "NOVIEMBRE", "Santiago", "U. Católica Master",
+             "V Copa UC Master",
+             "50 metros (cubierta)", "NO REALIZADO"),
+        
+            ("2026-12-04", "DICIEMBRE", "Arica", "Mantarrayas de Arica",
+             "Natación Sin Fronteras",
+             "50 metros (abierta)", "NO REALIZADO"),
+        
+            ("2026-12-12", "DICIEMBRE", "Santiago", "Natación Recoleta",
+             "XII Copa Natación Recoleta",
+             "25 metros (abierta)", "NO REALIZADO"),
+        
+            ("2027-01-06", "ENERO", "Por definir", "FCHMN",
+             "XXI Cto. Nacional de Natación Master",
+             "Por definir", "NO REALIZADO")
+        
         ]
 
         for competencia in competencias:
