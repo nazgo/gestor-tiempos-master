@@ -1,35 +1,86 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <div class="text-center mb-5">
-    <h2 class="display-5 fw-bold text-primary">⚖️ Comparativa de Tiempos</h2>
-    <p class="lead">25 metros vs 50 metros</p>
+    <h1 class="display-5 fw-bold text-primary">
+        <i class="fas fa-balance-scale"></i> Comparativa de Tiempos
+    </h1>
+    <p class="lead text-muted">25 metros vs 50 metros</p>
 </div>
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card shadow">
-            <div class="card-body p-4">
-                <form method="POST" action="/comparacion_25_50_resultado">
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Seleccione un nadador</label>
-                        <select name="nadador_id" class="form-select form-select-lg" required>
-                            <option value="">-- Seleccione un nadador --</option>
-                            {% for n in nadadores %}
-                            <option value="{{ n.id }}">{{ n.nombre }} {{ n.apellido }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-lg w-100">
-                        ⚖️ Comparar
-                    </button>
-                </form>
+<div class="card shadow mb-5">
+    <div class="card-body p-4">
+        <form method="POST" class="row g-3 justify-content-center">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Seleccione un nadador</label>
+                <select name="nadador" class="form-select form-select-lg" required>
+                    <option value="">-- Seleccione un nadador --</option>
+                    {% for n in nadadores %}
+                        <option value="{{ n }}" {% if n == nadador %}selected{% endif %}>{{ n }}</option>
+                    {% endfor %}
+                </select>
             </div>
-        </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <i class="fas fa-balance-scale"></i> Comparar
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<div class="text-center mt-4">
-    <a href="/" class="btn btn-secondary">← Volver al Inicio</a>
+{% if comparativas %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            Comparativa 25m vs 50m para <strong>{{ nadador }}</strong>
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Estilo</th>
+                        <th>Distancia</th>
+                        <th class="text-center">Tiempo 25m</th>
+                        <th class="text-center">Tiempo 50m</th>
+                        <th class="text-center">Diferencia</th>
+                        <th class="text-center">% Mejora</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in comparativas %}
+                    {% set diff = c.seg_25 - c.seg_50 %}
+                    {% set porcentaje = (diff / c.seg_25 * 100) if c.seg_25 > 0 else 0 %}
+                    <tr>
+                        <td><strong>{{ c.estilo }}</strong></td>
+                        <td>{{ c.distancia }}m</td>
+                        <td class="text-center"><strong>{{ c.tiempo_25 }}</strong></td>
+                        <td class="text-center"><strong>{{ c.tiempo_50 }}</strong></td>
+                        <td class="text-center">
+                            {% if diff > 0 %}
+                                <span class="text-success">−{{ diff|round(2) }} seg</span>
+                            {% else %}
+                                <span class="text-danger">+{{ (-diff)|round(2) }} seg</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <span class="badge {% if porcentaje > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ porcentaje|round(1) }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+{% elif nadador %}
+<div class="alert alert-warning text-center py-5">
+    <i class="fas fa-balance-scale fa-3x mb-3"></i>
+    <h5>No hay datos suficientes para comparar</h5>
+    <p>Este nadador necesita tiempos en ambas piscinas (25m y 50m) para la misma prueba.</p>
+</div>
+{% endif %}
 {% endblock %}
