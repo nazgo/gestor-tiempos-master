@@ -330,9 +330,13 @@ def tiempos_nadador(nadador_id):
 @app.route('/calendario')
 @login_required
 def calendario_competencias():
+
     competencias = gestor_tiempos.listar_competencias()
+
+    print(competencias)   # <-- solo para depuración
+
     return render_template(
-        'calendario.html',
+        "calendario.html",
         competencias=competencias
     )
 
