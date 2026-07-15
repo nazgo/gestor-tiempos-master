@@ -60,16 +60,20 @@
     </div>
 </div>
 
-{% if comparativas %}
+{% if comparacion %}
 <div class="card shadow">
     <div class="card-header bg-primary text-white">
         <h5 class="mb-0">
-            Comparativa 25m vs 50m para <strong>{{ nadador }}</strong>
+            Comparativa 25m vs 50m para
+            <strong>
+                {{ nadador.nombre }} {{ nadador.apellido }}
+            </strong>
         </h5>
     </div>
+
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle">
+            <table class="table table-striped table-hover align-middle mb-0">
                 <thead class="table-dark">
                     <tr>
                         <th>Estilo</th>
@@ -77,29 +81,88 @@
                         <th class="text-center">Tiempo 25m</th>
                         <th class="text-center">Tiempo 50m</th>
                         <th class="text-center">Diferencia</th>
-                        <th class="text-center">% Mejora</th>
+                        <th class="text-center">% Diferencia</th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    {% for c in comparativas %}
-                    {% set diff = c.seg_25 - c.seg_50 %}
-                    {% set porcentaje = (diff / c.seg_25 * 100) if c.seg_25 > 0 else 0 %}
+                    {% for c in comparacion %}
                     <tr>
-                        <td><strong>{{ c.estilo }}</strong></td>
-                        <td>{{ c.distancia }}m</td>
-                        <td class="text-center"><strong>{{ c.tiempo_25 }}</strong></td>
-                        <td class="text-center"><strong>{{ c.tiempo_50 }}</strong></td>
+                        <td>
+                            <strong>{{ c.estilo }}</strong>
+                        </td>
+
+                        <td>
+                            {{ c.distancia }}m
+                        </td>
+
                         <td class="text-center">
-                            {% if diff > 0 %}
-                                <span class="text-success">−{{ diff|round(2) }} seg</span>
+                            {% if c.tiempo_25 is not none %}
+                                <strong>{{ c.tiempo_25|round(2) }} seg</strong>
                             {% else %}
-                                <span class="text-danger">+{{ (-diff)|round(2) }} seg</span>
+                                <span class="text-muted">Sin registro</span>
                             {% endif %}
                         </td>
+
                         <td class="text-center">
-                            <span class="badge {% if porcentaje > 0 %}bg-success{% else %}bg-danger{% endif %}">
-                                {{ porcentaje|round(1) }}%
-                            </span>
+                            {% if c.tiempo_50 is not none %}
+                                <strong>{{ c.tiempo_50|round(2) }} seg</strong>
+                            {% else %}
+                                <span class="text-muted">Sin registro</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center">
+                            {% if c.diferencia_segundos is not none %}
+
+                                {% if c.diferencia_segundos > 0 %}
+                                    <span class="text-danger">
+                                        +{{ c.diferencia_segundos|round(2) }} seg
+                                    </span>
+
+                                {% elif c.diferencia_segundos < 0 %}
+                                    <span class="text-success">
+                                        {{ c.diferencia_segundos|round(2) }} seg
+                                    </span>
+
+                                {% else %}
+                                    <span class="text-muted">
+                                        0.00 seg
+                                    </span>
+                                {% endif %}
+
+                            {% else %}
+                                <span class="text-muted">
+                                    No comparable
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center">
+                            {% if c.tiempo_25 is not none
+                                  and c.tiempo_50 is not none
+                                  and c.tiempo_25 > 0 %}
+
+                                {% set porcentaje =
+                                    ((c.tiempo_50 - c.tiempo_25)
+                                    / c.tiempo_25) * 100
+                                %}
+
+                                <span class="badge
+                                    {% if porcentaje <= 0 %}
+                                        bg-success
+                                    {% else %}
+                                        bg-danger
+                                    {% endif %}
+                                ">
+                                    {{ porcentaje|round(1) }}%
+                                </span>
+
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    N/D
+                                </span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -108,11 +171,17 @@
         </div>
     </div>
 </div>
+
 {% elif nadador %}
 <div class="alert alert-warning text-center py-5">
     <i class="fas fa-balance-scale fa-3x mb-3"></i>
+
     <h5>No hay datos suficientes para comparar</h5>
-    <p>Este nadador necesita tiempos en ambas piscinas (25m y 50m) para la misma prueba.</p>
+
+    <p class="mb-0">
+        {{ nadador.nombre }} {{ nadador.apellido }}
+        necesita tiempos en piscinas de 25m y 50m para la misma prueba.
+    </p>
 </div>
 {% endif %}
 {% endblock %}
