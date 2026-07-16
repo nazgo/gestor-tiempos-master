@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-primary">
+            <i class="fas fa-clipboard-check"></i>
+            Asistencia a Competencias
+        </h2>
+
+        <p class="text-muted">
+            Registro de participación de nadadores por competencia
+        </p>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            <div class="table-responsive tabla-asistencia">
+                <table class="table table-bordered table-hover align-middle mb-0">
+
+                    <thead>
+                        <tr>
+                            <th class="columna-nadador">
+                                NADADOR(A)
+                            </th>
+
+                            {% for competencia in competencias %}
+                            <th class="columna-competencia">
+                                <div class="nombre-competencia">
+                                    {{ competencia.nombre }}
+                                </div>
+
+                                <small>
+                                    {% if competencia.fecha.strftime is defined %}
+                                        {{ competencia.fecha.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        {{ competencia.fecha }}
+                                    {% endif %}
+                                </small>
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for nadador in nadadores %}
+                        <tr>
+
+                            <td class="columna-nadador fw-semibold">
+                                {{ nadador.apellido }}
+                                {{ nadador.nombre }}
+                            </td>
+
+                            {% for competencia in competencias %}
+
+                                {% set clave = (
+                                    nadador.id,
+                                    competencia.id
+                                ) %}
+
+                                {% set estado =
+                                    asistencias.get(
+                                        clave,
+                                        'SIN_REGISTRO'
+                                    )
+                                %}
+
+                                <td class="text-center celda-asistencia">
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('actualizar_asistencia') }}"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="nadador_id"
+                                            value="{{ nadador.id }}"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="competencia_id"
+                                            value="{{ competencia.id }}"
+                                        >
+
+                                        <select
+                                            name="estado"
+                                            class="form-select form-select-sm selector-asistencia
+                                                {% if estado == 'PRESENTE' %}
+                                                    estado-presente
+                                                {% elif estado == 'AUSENTE' %}
+                                                    estado-ausente
+                                                {% elif estado == 'NO_APLICA' %}
+                                                    estado-no-aplica
+                                                {% endif %}
+                                            "
+                                            onchange="this.form.submit()"
+                                        >
+                                            <option
+                                                value="SIN_REGISTRO"
+                                                {% if estado == 'SIN_REGISTRO' %}
+                                                    selected
+                                                {% endif %}
+                                            >
+                                                ·
+                                            </option>
+
+                                            <option
+                                                value="PRESENTE"
+                                                {% if estado == 'PRESENTE' %}
+                                                    selected
+                                                {% endif %}
+                                            >
+                                                ✓
+                                            </option>
+
+                                            <option
+                                                value="AUSENTE"
+                                                {% if estado == 'AUSENTE' %}
+                                                    selected
+                                                {% endif %}
+                                            >
+                                                X
+                                            </option>
+
+                                            <option
+                                                value="NO_APLICA"
+                                                {% if estado == 'NO_APLICA' %}
+                                                    selected
+                                                {% endif %}
+                                            >
+                                                -
+                                            </option>
+                                        </select>
+                                    </form>
+
+                                </td>
+                            {% endfor %}
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td
+                                colspan="{{ competencias|length + 1 }}"
+                                class="text-center text-muted py-5"
+                            >
+                                No hay nadadores registrados.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="mt-3 d-flex flex-wrap justify-content-center gap-4">
+        <span>
+            <strong class="leyenda-presente">✓</strong>
+            Participó
+        </span>
+
+        <span>
+            <strong class="leyenda-ausente">X</strong>
+            No participó
+        </span>
+
+        <span>
+            <strong>-</strong>
+            No pertenecía / no aplicaba
+        </span>
+
+        <span>
+            <strong>·</strong>
+            Sin registrar
+        </span>
+    </div>
+
+    <div class="text-center mt-4">
+        <a
+            href="{{ url_for('index') }}"
+            class="btn btn-secondary"
+        >
+            ← Volver al Inicio
+        </a>
+    </div>
+
+</div>
+
+<style>
+    .tabla-asistencia {
+        max-height: 72vh;
+    }
+
+    .tabla-asistencia table {
+        min-width: 1400px;
+    }
+
+    .tabla-asistencia thead th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: #25a9c5;
+        color: white;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .columna-nadador {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        min-width: 220px;
+        background: #d9eaf7 !important;
+    }
+
+    thead .columna-nadador {
+        z-index: 5;
+        background: #25a9c5 !important;
+    }
+
+    .columna-competencia {
+        min-width: 150px;
+        max-width: 170px;
+        font-size: 0.78rem;
+    }
+
+    .nombre-competencia {
+        white-space: normal;
+        line-height: 1.15;
+        margin-bottom: 5px;
+    }
+
+    .celda-asistencia {
+        min-width: 70px;
+        padding: 4px !important;
+    }
+
+    .selector-asistencia {
+        border: 0;
+        font-weight: 800;
+        text-align: center;
+        text-align-last: center;
+        background-image: none;
+        padding: 5px;
+        cursor: pointer;
+    }
+
+    .estado-presente {
+        color: #1769ff;
+        background-color: #edf4ff;
+    }
+
+    .estado-ausente {
+        color: red;
+        background-color: #fff1f1;
+    }
+
+    .estado-no-aplica {
+        color: #333;
+        background-color: #f2f2f2;
+    }
+
+    .leyenda-presente {
+        color: #1769ff;
+    }
+
+    .leyenda-ausente {
+        color: red;
+    }
+
+    tbody tr:nth-child(even) td {
+        background-color: #e4f0f8;
+    }
+
+    tbody tr:nth-child(even) .columna-nadador {
+        background-color: #cfe3f2 !important;
+    }
+</style>
+
+{% endblock %}
