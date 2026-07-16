@@ -209,6 +209,10 @@ def eliminar_nadador(nadador_id):
 @app.route('/agregar', methods=['GET', 'POST'])
 @login_required
 def agregar():
+
+    competencias = gestor_tiempos.listar_competencias()
+    nadadores = gestor_nadadores.listar_nadadores()
+
     if request.method == 'POST':
         try:
             nombre = request.form['nombre'].strip()
@@ -218,17 +222,74 @@ def agregar():
             tiempo = request.form['tiempo'].strip()
             fecha_str = request.form.get('fecha')
 
-            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else None
+            competencia_id = request.form.get(
+                'competencia_id',
+                type=int
+            )
 
-            gestor_tiempos.agregar_tiempo(nombre, estilo, distancia, tiempo, fecha, piscina)
-            flash('✅ Tiempo registrado correctamente', 'success')
+            fecha = (
+                datetime.strptime(fecha_str, '%Y-%m-%d').date()
+                if fecha_str
+                else None
+            )
+
+            # Buscar el nadador por nombre completo
+            nadador_id = None
+
+            for nadador in nadadores:
+                nombre_completo = (
+                    f"{nadador['nombre']} {nadador['apellido']}"
+                ).strip()
+
+                if nombre_completo.lower() == nombre.lower():
+                    nadador_id = nadador['id']
+                    break
+
+            if not nadador_id:
+                flash('❌ Nadador no encontrado', 'danger')
+
+                return render_template(
+                    'agregar.html',
+                    estilos=gestor_tiempos.ESTILOS,
+                    distancias=gestor_tiempos.DISTANCIAS,
+                    competencias=competencias,
+                    nadadores=nadadores
+                )
+
+            gestor_tiempos.agregar_tiempo(
+                nombre,
+                estilo,
+                distancia,
+                tiempo,
+                fecha,
+                piscina,
+                competencia_id
+            )
+
+            if competencia_id:
+                gestor_tiempos.marcar_asistencia_desde_tiempo(
+                    nadador_id,
+                    competencia_id
+                )
+
+            flash(
+                '✅ Tiempo registrado correctamente',
+                'success'
+            )
+
             return redirect(url_for('listar_tiempos'))
+
         except Exception as e:
+            print("Error registrando tiempo:", e)
             flash(f'❌ Error: {str(e)}', 'danger')
 
-    return render_template('agregar.html', 
-                         estilos=gestor_tiempos.ESTILOS, 
-                         distancias=gestor_tiempos.DISTANCIAS)
+    return render_template(
+        'agregar.html',
+        estilos=gestor_tiempos.ESTILOS,
+        distancias=gestor_tiempos.DISTANCIAS,
+        competencias=competencias,
+        nadadores=nadadores
+    )
 
 
 @app.route('/listar')
