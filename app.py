@@ -663,6 +663,64 @@ def mejores_tiempos():
     return render_template('mejores_tiempos.html', top_tiempos=top_tiempos)
 
 
+@app.route('/asistencias')
+@login_required
+def tabla_asistencias():
+    datos = gestor_tiempos.obtener_tabla_asistencia()
+
+    return render_template(
+        'asistencias.html',
+        nadadores=datos['nadadores'],
+        competencias=datos['competencias'],
+        asistencias=datos['asistencias']
+    )
+
+
+@app.route('/asistencias/actualizar', methods=['POST'])
+@login_required
+@editor_required
+def actualizar_asistencia():
+    nadador_id = request.form.get(
+        'nadador_id',
+        type=int
+    )
+
+    competencia_id = request.form.get(
+        'competencia_id',
+        type=int
+    )
+
+    estado = request.form.get(
+        'estado',
+        ''
+    ).strip()
+
+    if not nadador_id or not competencia_id:
+        flash('Datos de asistencia incompletos.', 'danger')
+        return redirect(url_for('tabla_asistencias'))
+
+    try:
+        gestor_tiempos.actualizar_asistencia(
+            nadador_id,
+            competencia_id,
+            estado
+        )
+
+        flash(
+            'Asistencia actualizada correctamente.',
+            'success'
+        )
+
+    except Exception as e:
+        print("Error actualizando asistencia:", e)
+        flash(
+            'No fue posible actualizar la asistencia.',
+            'danger'
+        )
+
+    return redirect(url_for('tabla_asistencias'))
+
+
 # ==================== OTRAS RUTAS (puedes ir agregando) ====================
 @app.route('/season_best', methods=['GET', 'POST'])
 @login_required
