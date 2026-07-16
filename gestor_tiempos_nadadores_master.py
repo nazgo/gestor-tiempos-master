@@ -94,6 +94,12 @@ class GestorTiemposMaster:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+
+        self._execute("""
+            ALTER TABLE tiempos
+            ADD COLUMN IF NOT EXISTS competencia_id INTEGER
+        """)
+        
         self._execute('''
             CREATE INDEX IF NOT EXISTS idx_nombre_estilo_dist ON tiempos(nombre_nadador, estilo, distancia)
         ''')
@@ -329,7 +335,7 @@ class GestorTiemposMaster:
         return (mm * 60) + ss + (cc / 100.0)
 
     # ====================== CRUD BÁSICO ======================
-    def agregar_tiempo(self, nombre, estilo, distancia, tiempo, fecha=None, piscina="25 metros"):
+    def agregar_tiempo(self, nombre, estilo, distancia, tiempo, fecha=None, piscina="25 metros", competencia_id=None ):
         nombre = nombre.strip()
         if not nombre:
             raise ValueError("El nombre del nadador no puede estar vacío.")
@@ -345,9 +351,34 @@ class GestorTiemposMaster:
         tiempo_segundos = self._convertir_a_segundos(tiempo)
         self._execute('''
             INSERT INTO tiempos 
-            (nombre_nadador, estilo, distancia, piscina, tiempo, tiempo_segundos, fecha)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (nombre.title(), estilo, distancia, piscina, tiempo, tiempo_segundos, fecha.isoformat()))
+            (nombre_nadador, estilo, distancia, piscina, tiempo, tiempo_segundos, fecha, competencia_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (nombre.title(), estilo, distancia, piscina, tiempo, tiempo_segundos, fecha.isoformat(), competencia_id))
+
+    def marcar_asistencia_desde_tiempo(
+        self,
+        nadador_id,
+        competencia_id
+    ):
+        if not nadador_id or not competencia_id:
+            return
+    
+        self._execute("""
+            INSERT INTO asistencia_competencias (
+                nadador_id,
+                competencia_id,
+                estado,
+                updated_at
+            )
+            VALUES (?, ?, 'PRESENTE', CURRENT_TIMESTAMP)
+            ON CONFLICT (nadador_id, competencia_id)
+            DO UPDATE SET
+                estado = 'PRESENTE',
+                updated_at = CURRENT_TIMESTAMP
+        """, (
+            nadador_id,
+            competencia_id
+        ))
 
     def obtener_tiempo_por_id(self, tiempo_id):
         cursor = self._execute('SELECT * FROM tiempos WHERE id = ?', (tiempo_id,), commit=False)
