@@ -299,7 +299,7 @@ def progreso_nadador1(nadador_id):
     nombre_completo = f"{nadador.get('nombre', '')} {nadador.get('apellido', '')}".strip()
     tiempos = gestor_tiempos.obtener_tiempos_nadador(nombre_completo)
     
-    return render_template('progreso_nadador.html', nadador=nadador, tiempos=tiempos)
+    return render_template('progreso_nadador1.html', nadador=nadador, tiempos=tiempos)
 
 @app.route('/progreso_nadador', methods=['GET', 'POST'])
 @login_required
