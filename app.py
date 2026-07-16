@@ -301,6 +301,103 @@ def progreso_nadador(nadador_id):
     
     return render_template('progreso_nadador.html', nadador=nadador, tiempos=tiempos)
 
+@app.route('/progreso_nadador', methods=['GET', 'POST'])
+@login_required
+def progreso_nadador():
+    nadadores = gestor_nadadores.listar_nadadores()
+
+    estilos = [
+        'Crol',
+        'Espalda',
+        'Pecho',
+        'Mariposa',
+        'Combinado'
+    ]
+
+    distancias = [25, 50, 100, 200, 400, 800, 1500]
+
+    filtros = {
+        'nadador_id': None,
+        'estilo': '',
+        'distancia': '',
+        'piscina': '50 metros'
+    }
+
+    nadador = None
+    historial = []
+    etiquetas = []
+    tiempos_grafico = []
+    consulta_realizada = False
+
+    if request.method == 'POST':
+        consulta_realizada = True
+
+        filtros['nadador_id'] = request.form.get(
+            'nadador_id',
+            type=int
+        )
+        filtros['estilo'] = request.form.get(
+            'estilo',
+            ''
+        ).strip()
+        filtros['distancia'] = request.form.get(
+            'distancia',
+            type=int
+        )
+        filtros['piscina'] = request.form.get(
+            'piscina',
+            '50 metros'
+        ).strip()
+
+        if (
+            not filtros['nadador_id']
+            or not filtros['estilo']
+            or not filtros['distancia']
+        ):
+            flash(
+                'Debe completar todos los filtros.',
+                'danger'
+            )
+        else:
+            nadador = gestor_nadadores.obtener_nadador(
+                filtros['nadador_id']
+            )
+
+            if not nadador:
+                flash('Nadador no encontrado.', 'danger')
+            else:
+                historial = gestor_tiempos.obtener_progreso_nadador(
+                    filtros['nadador_id'],
+                    filtros['estilo'],
+                    filtros['distancia'],
+                    filtros['piscina']
+                )
+
+                etiquetas = [
+                    registro['fecha'].strftime('%d %b %Y')
+                    if hasattr(registro['fecha'], 'strftime')
+                    else str(registro['fecha'])
+                    for registro in historial
+                ]
+
+                tiempos_grafico = [
+                    float(registro['tiempo_segundos'])
+                    for registro in historial
+                ]
+
+    return render_template(
+        'progreso_nadador.html',
+        nadadores=nadadores,
+        estilos=estilos,
+        distancias=distancias,
+        filtros=filtros,
+        nadador=nadador,
+        historial=historial,
+        etiquetas=etiquetas,
+        tiempos_grafico=tiempos_grafico,
+        consulta_realizada=consulta_realizada
+    )
+
 @app.route('/comparacion_25_50', methods=['GET', 'POST'])
 @login_required
 def comparacion_25_50():
