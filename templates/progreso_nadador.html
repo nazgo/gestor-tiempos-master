@@ -1,80 +1,310 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>📈 Evolución de {{ nadador.nombre }} {{ nadador.apellido }}</h2>
-<p><strong>Categoría:</strong> {{ nadador.categoria_master }}</p>
+<div class="progreso-page">
+    <div class="container py-4">
 
-<div class="row g-4">
-    <!-- Gráfico General -->
-    <div class="col-lg-8">
-        <div class="card shadow">
-            <div class="card-header">
-                <h5>Evolución General de Tiempos</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="generalChart" height="80"></canvas>
+        <div class="text-center mb-4">
+            <h1 class="progreso-title">
+                <i class="fas fa-chart-line"></i>
+                Progreso del Nadador
+            </h1>
+            <p class="text-muted mb-0">
+                Evolución de sus marcas a lo largo del tiempo
+            </p>
+        </div>
+
+        <div class="card progreso-filtros shadow-sm mb-4">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('progreso_nadador') }}">
+                    <div class="row g-3 align-items-end">
+
+                        <div class="col-lg-5 col-md-6">
+                            <label for="nadador_id" class="form-label">Nadador</label>
+                            <select
+                                id="nadador_id"
+                                name="nadador_id"
+                                class="form-select"
+                                required
+                            >
+                                <option value="">Seleccione un nadador</option>
+
+                                {% for n in nadadores %}
+                                    <option
+                                        value="{{ n.id }}"
+                                        {% if filtros.nadador_id == n.id %}selected{% endif %}
+                                    >
+                                        {{ n.nombre }} {{ n.apellido }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <label for="estilo" class="form-label">Estilo</label>
+                            <select
+                                id="estilo"
+                                name="estilo"
+                                class="form-select"
+                                required
+                            >
+                                <option value="">Estilo</option>
+
+                                {% for estilo in estilos %}
+                                    <option
+                                        value="{{ estilo }}"
+                                        {% if filtros.estilo == estilo %}selected{% endif %}
+                                    >
+                                        {{ estilo }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-lg-2 col-md-6">
+                            <label for="distancia" class="form-label">Distancia</label>
+                            <select
+                                id="distancia"
+                                name="distancia"
+                                class="form-select"
+                                required
+                            >
+                                <option value="">Dist.</option>
+
+                                {% for distancia in distancias %}
+                                    <option
+                                        value="{{ distancia }}"
+                                        {% if filtros.distancia == distancia %}selected{% endif %}
+                                    >
+                                        {{ distancia }}m
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-lg-2 col-md-6">
+                            <label for="piscina" class="form-label">Piscina</label>
+                            <select
+                                id="piscina"
+                                name="piscina"
+                                class="form-select"
+                                required
+                            >
+                                <option value="25 metros"
+                                    {% if filtros.piscina == '25 metros' %}selected{% endif %}
+                                >
+                                    25m
+                                </option>
+
+                                <option value="50 metros"
+                                    {% if filtros.piscina == '50 metros' %}selected{% endif %}
+                                >
+                                    50m
+                                </option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-primary px-5">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Ver Evolución
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
 
-    <!-- Resumen -->
-    <div class="col-lg-4">
-        <div class="card shadow h-100">
-            <div class="card-body">
-                <h5>Resumen</h5>
-                <p><strong>Total tiempos:</strong> {{ tiempos|length }}</p>
-                <p><strong>Mejor tiempo:</strong> {{ tiempos[0].tiempo if tiempos else '—' }}</p>
+        {% if historial %}
+            <div class="card shadow-sm progreso-resultados">
+                <div class="card-header bg-primary text-white">
+                    <strong>
+                        Evolución de {{ nadador.nombre }} {{ nadador.apellido }}
+                        — {{ filtros.estilo }} {{ filtros.distancia }}m
+                        ({{ '25m' if filtros.piscina == '25 metros' else '50m' }})
+                    </strong>
+                </div>
+
+                <div class="card-body">
+                    <div class="grafico-contenedor">
+                        <canvas id="graficoProgreso"></canvas>
+                    </div>
+
+                    <h5 class="mt-4 mb-3">Historial detallado</h5>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tiempo</th>
+                                    <th class="text-end">Diferencia con anterior</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for registro in historial %}
+                                    <tr>
+                                        <td>
+                                            {% if registro.fecha.strftime is defined %}
+                                                {{ registro.fecha.strftime('%Y-%m-%d') }}
+                                            {% else %}
+                                                {{ registro.fecha }}
+                                            {% endif %}
+                                        </td>
+
+                                        <td>
+                                            <strong>{{ registro.tiempo }}</strong>
+                                        </td>
+
+                                        <td class="text-end">
+                                            {% if registro.diferencia is none %}
+                                                <span class="text-muted">Primer registro</span>
+
+                                            {% elif registro.diferencia < 0 %}
+                                                <span class="text-success">
+                                                    {{ registro.diferencia|round(2) }} seg
+                                                </span>
+
+                                            {% elif registro.diferencia > 0 %}
+                                                <span class="text-danger">
+                                                    +{{ registro.diferencia|round(2) }} seg
+                                                </span>
+
+                                            {% else %}
+                                                <span class="text-muted">0.00 seg</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+
+        {% elif consulta_realizada %}
+            <div class="alert alert-warning text-center py-4">
+                <i class="fas fa-chart-line fa-2x mb-3"></i>
+                <h5>No hay registros para esta selección</h5>
+                <p class="mb-0">
+                    Selecciona otra combinación de estilo, distancia o piscina.
+                </p>
+            </div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary px-4">
+                ← Volver al Inicio
+            </a>
         </div>
+
     </div>
 </div>
 
-<!-- Tabla -->
-<h5 class="mt-5">Historial Completo</h5>
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th>Fecha</th>
-            <th>Prueba</th>
-            <th>Tiempo</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for t in tiempos %}
-        <tr>
-            <td>{{ t.fecha }}</td>
-            <td>{{ t.estilo }} {{ t.distancia }}m</td>
-            <td><strong>{{ t.tiempo }}</strong></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
+{% if historial %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const tiempos = {{ tiempos|tojson }};
-    
-    // Gráfico General
-    new Chart(document.getElementById('generalChart'), {
-        type: 'line',
+    const etiquetas = {{ etiquetas|tojson }};
+    const tiempos = {{ tiempos_grafico|tojson }};
+
+    const contexto = document
+        .getElementById("graficoProgreso")
+        .getContext("2d");
+
+    new Chart(contexto, {
+        type: "line",
         data: {
-            labels: tiempos.map(t => t.fecha),
+            labels: etiquetas,
             datasets: [{
-                label: 'Tiempo (segundos)',
-                data: tiempos.map(t => t.tiempo_segundos),
-                borderColor: '#0d6efd',
-                tension: 0.4,
-                fill: true
+                label: "Tiempo (segundos)",
+                data: tiempos,
+                borderColor: "#6f42d9",
+                backgroundColor: "rgba(111, 66, 217, 0.10)",
+                pointBackgroundColor: "#ffffff",
+                pointBorderColor: "#6f42d9",
+                pointBorderWidth: 3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                borderWidth: 3,
+                tension: 0.35,
+                fill: false
             }]
         },
         options: {
             responsive: true,
-            scales: { y: { reverse: true } }
+            maintainAspectRatio: false,
+            interaction: {
+                mode: "index",
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y.toFixed(2) + " segundos";
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    reverse: true,
+                    title: {
+                        display: true,
+                        text: "Tiempo (segundos)"
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return Number(value).toFixed(1);
+                        }
+                    }
+                }
+            }
         }
-    }); 
+    });
 </script>
+{% endif %}
 
-<div class="text-center mt-4">
-            <a href="{{ url_for('nadadores') }}" class="btn btn-secondary">← Volver atrás</a>
-</div>
+<style>
+    .progreso-page {
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at center, rgba(111, 66, 217, 0.06), transparent 45%),
+            #f6f3ff;
+    }
 
+    .progreso-title {
+        color: #1769f6;
+        font-weight: 800;
+        font-size: clamp(2rem, 4vw, 3rem);
+    }
+
+    .progreso-filtros,
+    .progreso-resultados {
+        border: 0;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .progreso-filtros .form-label {
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+    }
+
+    .grafico-contenedor {
+        position: relative;
+        height: 320px;
+    }
+
+    @media (max-width: 768px) {
+        .grafico-contenedor {
+            height: 280px;
+        }
+    }
+</style>
 {% endblock %}
