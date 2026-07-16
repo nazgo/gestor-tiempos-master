@@ -100,6 +100,18 @@ class GestorTiemposMaster:
         self._execute('CREATE INDEX IF NOT EXISTS idx_fecha ON tiempos(fecha)')
 
         self._execute("""
+            CREATE TABLE IF NOT EXISTS asistencia_competencias (
+                id SERIAL PRIMARY KEY,
+                nadador_id INTEGER NOT NULL,
+                competencia_id INTEGER NOT NULL,
+                estado VARCHAR(20) DEFAULT 'SIN_REGISTRO',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (nadador_id, competencia_id)
+            )
+        """)
+
+        self._execute("""
         CREATE TABLE IF NOT EXISTS competencias (
             id SERIAL PRIMARY KEY,
             fecha DATE NOT NULL,
