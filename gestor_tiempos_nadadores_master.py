@@ -859,6 +859,7 @@ def obtener_progreso_nadador(
         tiempo_anterior = tiempo_actual
 
     return historial
+    
 
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
