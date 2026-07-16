@@ -799,6 +799,67 @@ class GestorTiemposMaster:
     
         return resultado
 
+def obtener_progreso_nadador(
+    self,
+    nadador_id,
+    estilo,
+    distancia,
+    piscina
+):
+    cursor = self._execute("""
+        SELECT
+            t.fecha,
+            t.tiempo,
+            t.tiempo_segundos
+        FROM tiempos t
+        WHERE LOWER(t.nombre_nadador) = LOWER(
+            (
+                SELECT nombre || ' ' || apellido
+                FROM nadadores
+                WHERE id = ?
+                LIMIT 1
+            )
+        )
+        AND LOWER(t.estilo) = LOWER(?)
+        AND t.distancia = ?
+        AND LOWER(t.piscina) = LOWER(?)
+        ORDER BY t.fecha ASC, t.id ASC
+    """, (
+        nadador_id,
+        estilo,
+        distancia,
+        piscina
+    ), commit=False)
+
+    filas = cursor.fetchall()
+    columnas = [columna[0] for columna in cursor.description]
+
+    historial = []
+    tiempo_anterior = None
+
+    for fila in filas:
+        if hasattr(fila, '_asdict'):
+            registro = dict(fila._asdict())
+        elif hasattr(fila, 'keys'):
+            registro = dict(fila)
+        else:
+            registro = dict(zip(columnas, fila))
+
+        tiempo_actual = float(registro['tiempo_segundos'])
+
+        if tiempo_anterior is None:
+            registro['diferencia'] = None
+        else:
+            registro['diferencia'] = round(
+                tiempo_actual - tiempo_anterior,
+                2
+            )
+
+        historial.append(registro)
+        tiempo_anterior = tiempo_actual
+
+    return historial
+
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
     print("Gestor de Tiempos Master inicializado correctamente.")
