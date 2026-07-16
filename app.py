@@ -290,7 +290,7 @@ def estadisticas_club():
 
 @app.route('/nadador/<int:nadador_id>/progreso')
 @login_required
-def progreso_nadador(nadador_id):
+def progreso_nadador1(nadador_id):
     nadador = gestor_nadadores.obtener_nadador(nadador_id)
     if not nadador:
         flash('Nadador no encontrado', 'danger')
