@@ -607,6 +607,145 @@ class GestorTiemposMaster:
     
         return competencias
 
+    def obtener_tabla_asistencia(self):
+        """
+        Devuelve nadadores, competencias y los estados registrados
+        para construir la matriz de asistencia.
+        """
+    
+        cursor_nadadores = self._execute("""
+            SELECT
+                id,
+                nombre,
+                apellido
+            FROM nadadores
+            ORDER BY apellido, nombre
+        """, commit=False)
+    
+        filas_nadadores = cursor_nadadores.fetchall()
+        columnas_nadadores = [
+            columna[0]
+            for columna in cursor_nadadores.description
+        ]
+    
+        nadadores = []
+    
+        for fila in filas_nadadores:
+            if hasattr(fila, "_asdict"):
+                nadadores.append(dict(fila._asdict()))
+            elif hasattr(fila, "keys"):
+                nadadores.append(dict(fila))
+            else:
+                nadadores.append(
+                    dict(zip(columnas_nadadores, fila))
+                )
+    
+        cursor_competencias = self._execute("""
+            SELECT
+                id,
+                fecha,
+                nombre
+            FROM competencias
+            ORDER BY fecha, id
+        """, commit=False)
+    
+        filas_competencias = cursor_competencias.fetchall()
+        columnas_competencias = [
+            columna[0]
+            for columna in cursor_competencias.description
+        ]
+    
+        competencias = []
+    
+        for fila in filas_competencias:
+            if hasattr(fila, "_asdict"):
+                competencias.append(dict(fila._asdict()))
+            elif hasattr(fila, "keys"):
+                competencias.append(dict(fila))
+            else:
+                competencias.append(
+                    dict(zip(columnas_competencias, fila))
+                )
+    
+        cursor_asistencias = self._execute("""
+            SELECT
+                nadador_id,
+                competencia_id,
+                estado
+            FROM asistencia_competencias
+        """, commit=False)
+    
+        filas_asistencias = cursor_asistencias.fetchall()
+    
+        asistencias = {}
+    
+        for fila in filas_asistencias:
+            nadador_id = fila[0]
+            competencia_id = fila[1]
+            estado = fila[2]
+    
+            asistencias[(nadador_id, competencia_id)] = estado
+    
+        return {
+            "nadadores": nadadores,
+            "competencias": competencias,
+            "asistencias": asistencias
+        }
+
+    def actualizar_asistencia(
+        self,
+        nadador_id,
+        competencia_id,
+        estado
+    ):
+        estados_validos = {
+            "PRESENTE",
+            "AUSENTE",
+            "NO_APLICA",
+            "SIN_REGISTRO"
+        }
+    
+        if estado not in estados_validos:
+            raise ValueError("Estado de asistencia no válido")
+    
+        cursor = self._execute("""
+            SELECT id
+            FROM asistencia_competencias
+            WHERE nadador_id = ?
+              AND competencia_id = ?
+        """, (
+            nadador_id,
+            competencia_id
+        ), commit=False)
+    
+        existente = cursor.fetchone()
+    
+        if existente:
+            self._execute("""
+                UPDATE asistencia_competencias
+                SET estado = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE nadador_id = ?
+                  AND competencia_id = ?
+            """, (
+                estado,
+                nadador_id,
+                competencia_id
+            ))
+        else:
+            self._execute("""
+                INSERT INTO asistencia_competencias (
+                    nadador_id,
+                    competencia_id,
+                    estado
+                )
+                VALUES (?, ?, ?)
+            """, (
+                nadador_id,
+                competencia_id,
+                estado
+            ))
+
     def actualizar_estado_competencia(self, id_competencia, estado):
     
         self._execute("""
