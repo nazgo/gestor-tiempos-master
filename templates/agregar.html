@@ -55,6 +55,33 @@
     </select>
 </div>
 
+<div class="col-md-6">
+    <label for="competencia_id" class="form-label">
+        Competencia
+    </label>
+
+    <select
+        id="competencia_id"
+        name="competencia_id"
+        class="form-select"
+    >
+        <option value="">
+            -- Sin competencia asociada --
+        </option>
+
+        {% for competencia in competencias %}
+            <option value="{{ competencia.id }}">
+                {% if competencia.fecha.strftime is defined %}
+                    {{ competencia.fecha.strftime('%d/%m/%Y') }}
+                {% else %}
+                    {{ competencia.fecha }}
+                {% endif %}
+                - {{ competencia.nombre }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Categoría de Edad</label>
