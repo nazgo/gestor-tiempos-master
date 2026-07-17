@@ -755,180 +755,180 @@ class GestorTiemposMaster:
         doc.build([Paragraph("Reporte de Tiempos - Natación Ñuñoa Master", styles['Title']), table])
         return pdf_path
 
-def importar_csv(self, file):
-    import csv
-    import io
-    from datetime import datetime
-
-    contenido = file.read()
-
-    if isinstance(contenido, bytes):
-        try:
-            contenido = contenido.decode("utf-8-sig")
-        except UnicodeDecodeError:
-            contenido = contenido.decode("latin-1")
-
-    lector = csv.reader(
-        io.StringIO(contenido),
-        delimiter=","
-    )
-
-    importados = 0
-    omitidos = 0
-    errores = []
-
-    for numero_fila, fila in enumerate(lector, start=1):
-        try:
-            # Saltar filas vacías
-            if not fila or not any(celda.strip() for celda in fila):
-                continue
-
-            # Se esperan exactamente estas ocho columnas:
-            # nombre, genero, estilo, piscina,
-            # distancia, categoria, tiempo, fecha
-            if len(fila) < 8:
-                raise ValueError(
-                    f"Se esperaban 8 columnas, pero llegaron {len(fila)}"
-                )
-
-            nombre = fila[0].strip()
-            genero = fila[1].strip()
-            estilo = fila[2].strip()
-            piscina_csv = fila[3].strip()
-            distancia_csv = fila[4].strip()
-            categoria = fila[5].strip()
-            tiempo = fila[6].strip()
-            fecha_csv = fila[7].strip()
-
-            # Ignorar encabezado
-            if numero_fila == 1:
-                posibles_encabezados = {
-                    "nombre",
-                    "nadador",
-                    "nombre_nadador",
-                    "nombre nadador"
-                }
-
-                if nombre.lower() in posibles_encabezados:
+    def importar_csv(self, file):
+        import csv
+        import io
+        from datetime import datetime
+    
+        contenido = file.read()
+    
+        if isinstance(contenido, bytes):
+            try:
+                contenido = contenido.decode("utf-8-sig")
+            except UnicodeDecodeError:
+                contenido = contenido.decode("latin-1")
+    
+        lector = csv.reader(
+            io.StringIO(contenido),
+            delimiter=","
+        )
+    
+        importados = 0
+        omitidos = 0
+        errores = []
+    
+        for numero_fila, fila in enumerate(lector, start=1):
+            try:
+                # Saltar filas vacías
+                if not fila or not any(celda.strip() for celda in fila):
                     continue
-
-            if not nombre:
-                raise ValueError("El nombre del nadador está vacío")
-
-            if not estilo:
-                raise ValueError("El estilo está vacío")
-
-            distancia = int(distancia_csv)
-
-            # Normalizar piscina
-            piscina_normalizada = piscina_csv.lower()
-
-            if piscina_normalizada in {
-                "25",
-                "25m",
-                "25 m",
-                "25 metros"
-            }:
-                piscina = "25 metros"
-
-            elif piscina_normalizada in {
-                "50",
-                "50m",
-                "50 m",
-                "50 metros"
-            }:
-                piscina = "50 metros"
-
-            else:
-                raise ValueError(
-                    f"Piscina inválida: {piscina_csv}"
+    
+                # Se esperan exactamente estas ocho columnas:
+                # nombre, genero, estilo, piscina,
+                # distancia, categoria, tiempo, fecha
+                if len(fila) < 8:
+                    raise ValueError(
+                        f"Se esperaban 8 columnas, pero llegaron {len(fila)}"
+                    )
+    
+                nombre = fila[0].strip()
+                genero = fila[1].strip()
+                estilo = fila[2].strip()
+                piscina_csv = fila[3].strip()
+                distancia_csv = fila[4].strip()
+                categoria = fila[5].strip()
+                tiempo = fila[6].strip()
+                fecha_csv = fila[7].strip()
+    
+                # Ignorar encabezado
+                if numero_fila == 1:
+                    posibles_encabezados = {
+                        "nombre",
+                        "nadador",
+                        "nombre_nadador",
+                        "nombre nadador"
+                    }
+    
+                    if nombre.lower() in posibles_encabezados:
+                        continue
+    
+                if not nombre:
+                    raise ValueError("El nombre del nadador está vacío")
+    
+                if not estilo:
+                    raise ValueError("El estilo está vacío")
+    
+                distancia = int(distancia_csv)
+    
+                # Normalizar piscina
+                piscina_normalizada = piscina_csv.lower()
+    
+                if piscina_normalizada in {
+                    "25",
+                    "25m",
+                    "25 m",
+                    "25 metros"
+                }:
+                    piscina = "25 metros"
+    
+                elif piscina_normalizada in {
+                    "50",
+                    "50m",
+                    "50 m",
+                    "50 metros"
+                }:
+                    piscina = "50 metros"
+    
+                else:
+                    raise ValueError(
+                        f"Piscina inválida: {piscina_csv}"
+                    )
+    
+                # Omitir registros que no representan tiempos
+                if tiempo.upper() in {
+                    "DQ",
+                    "DSQ",
+                    "DNS",
+                    "DNF",
+                    "NP",
+                    "-"
+                }:
+                    omitidos += 1
+                    print(
+                        f"Fila {numero_fila} omitida: "
+                        f"{nombre} tiene resultado {tiempo}"
+                    )
+                    continue
+    
+                # Normalizar separador decimal
+                tiempo = tiempo.replace(",", ".").strip()
+    
+                # Validar y convertir el tiempo
+                tiempo_segundos = self.convertir_tiempo_a_segundos(
+                    tiempo
                 )
-
-            # Omitir registros que no representan tiempos
-            if tiempo.upper() in {
-                "DQ",
-                "DSQ",
-                "DNS",
-                "DNF",
-                "NP",
-                "-"
-            }:
-                omitidos += 1
-                print(
-                    f"Fila {numero_fila} omitida: "
-                    f"{nombre} tiene resultado {tiempo}"
-                )
-                continue
-
-            # Normalizar separador decimal
-            tiempo = tiempo.replace(",", ".").strip()
-
-            # Validar y convertir el tiempo
-            tiempo_segundos = self.convertir_tiempo_a_segundos(
-                tiempo
-            )
-
-            # El CSV usa día-mes-año
-            fecha = datetime.strptime(
-                fecha_csv,
-                "%d-%m-%Y"
-            ).date()
-
-            # Insertar directamente para evitar confusión
-            # con el orden de parámetros
-            self._execute("""
-                INSERT INTO tiempos (
-                    nombre_nadador,
+    
+                # El CSV usa día-mes-año
+                fecha = datetime.strptime(
+                    fecha_csv,
+                    "%d-%m-%Y"
+                ).date()
+    
+                # Insertar directamente para evitar confusión
+                # con el orden de parámetros
+                self._execute("""
+                    INSERT INTO tiempos (
+                        nombre_nadador,
+                        estilo,
+                        distancia,
+                        piscina,
+                        tiempo,
+                        tiempo_segundos,
+                        fecha,
+                        competencia_id
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    nombre,
                     estilo,
                     distancia,
                     piscina,
                     tiempo,
                     tiempo_segundos,
                     fecha,
-                    competencia_id
+                    None
+                ))
+    
+                importados += 1
+    
+            except Exception as e:
+                mensaje = (
+                    f"Fila {numero_fila}: {str(e)}"
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                nombre,
-                estilo,
-                distancia,
-                piscina,
-                tiempo,
-                tiempo_segundos,
-                fecha,
-                None
-            ))
-
-            importados += 1
-
-        except Exception as e:
-            mensaje = (
-                f"Fila {numero_fila}: {str(e)}"
-            )
-
-            errores.append(mensaje)
-
-            print(
-                f"Error al importar fila {numero_fila} "
-                f"{fila}: {e}"
-            )
-
-    print(
-        f"Importación terminada: "
-        f"{importados} importados, "
-        f"{omitidos} omitidos, "
-        f"{len(errores)} errores."
-    )
-
-    if importados == 0 and errores:
-        muestra_errores = "; ".join(errores[:5])
-
-        raise ValueError(
-            f"No se importó ningún tiempo. "
-            f"Primeros errores: {muestra_errores}"
+    
+                errores.append(mensaje)
+    
+                print(
+                    f"Error al importar fila {numero_fila} "
+                    f"{fila}: {e}"
+                )
+    
+        print(
+            f"Importación terminada: "
+            f"{importados} importados, "
+            f"{omitidos} omitidos, "
+            f"{len(errores)} errores."
         )
-
-    return importados
+    
+        if importados == 0 and errores:
+            muestra_errores = "; ".join(errores[:5])
+    
+            raise ValueError(
+                f"No se importó ningún tiempo. "
+                f"Primeros errores: {muestra_errores}"
+            )
+    
+        return importados
 
     def __del__(self):
         self.cerrar_conexion()
