@@ -335,18 +335,23 @@ class GestorTiemposMaster:
         return (mm * 60) + ss + (cc / 100.0)
 
     # ====================== CRUD BÁSICO ======================
-    def agregar_tiempo(self, nombre, estilo, distancia, tiempo, fecha=None, piscina="25 metros", competencia_id=None ):
+    def agregar_tiempo(self, nombre, estilo, distancia, tiempo, fecha=None, piscina="25 metros"):
         nombre = nombre.strip()
         if not nombre:
             raise ValueError("El nombre del nadador no puede estar vacío.")
         if estilo not in self.ESTILOS:
             raise ValueError(f"Estilo inválido. Opciones: {', '.join(self.ESTILOS)}")
-        if distancia not in self.DISTANCIAS:
-            raise ValueError(f"Distancia inválida. Opciones: {self.DISTANCIAS}")
+        
+        # Aceptar distancias de 25m y 50m
+        distancias_validas = [25, 50, 100, 200, 400, 800, 1500]
+        if distancia not in distancias_validas:
+            raise ValueError(f"Distancia inválida. Opciones: {distancias_validas}")
+
         if not self._validar_tiempo(tiempo):
             raise ValueError("Formato de tiempo inválido. Debe ser MM:SS.cc (ej: 01:23.45)")
+        
         if fecha is None:
-            fecha = date.today()
+            fecha = date.today())
 
         tiempo_segundos = self._convertir_a_segundos(tiempo)
         self._execute('''
