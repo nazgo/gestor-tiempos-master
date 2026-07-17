@@ -700,6 +700,33 @@ class GestorTiemposMaster:
         doc.build([Paragraph("Reporte de Tiempos - Natación Ñuñoa Master", styles['Title']), table])
         return pdf_path
 
+    def importar_csv(self, file):
+        """Importa tiempos desde un archivo CSV."""
+        import csv
+        from io import StringIO
+
+        # Leer el contenido del archivo
+        stream = StringIO(file.stream.read().decode("UTF-8"))
+        csv_input = csv.reader(stream)
+        next(csv_input)  # Saltar la cabecera
+
+        for row in csv_input:
+            if len(row) >= 7:
+                try:
+                    nombre = row[0].strip()
+                    estilo = row[2].strip()
+                    distancia = int(row[3])
+                    piscina = row[4].strip()
+                    tiempo = row[5].strip()
+                    fecha_str = row[6].strip()
+                    
+                    fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else date.today()
+                    
+                    self.agregar_tiempo(nombre, estilo, distancia, tiempo, fecha, piscina)
+                except Exception as e:
+                    print(f"Error al importar fila {row}: {e}")
+                    continue  # Continuar con las siguientes filas
+
     def __del__(self):
         self.cerrar_conexion()
 
