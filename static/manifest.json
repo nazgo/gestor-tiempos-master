@@ -1,6 +1,6 @@
 {
-  "name": "Gestor Tiempos Ñuñoa Masters",
-  "short_name": "Ñuñoa Masters",
+  "name": "Gestor Tiempos Ñuñoa Master",
+  "short_name": "Ñuñoa Master",
   "description": "Sistema de Gestión de Tiempos para Ñuñoa Master",
   "start_url": "/",
   "display": "standalone",
