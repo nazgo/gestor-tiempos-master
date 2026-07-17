@@ -34,6 +34,32 @@
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- === PWA CONFIG === -->
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<meta name="theme-color" content="#6f42c1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ñuñoa Master">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
+
+<!-- Forzar instalación -->
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/sw.js')
+            .then(reg => console.log('Service Worker OK'))
+            .catch(err => console.log('SW Error:', err));
+    }
+</script>
+
+<!-- Mejoras específicas para iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ñuñoa Master">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-180.png') }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icon-180.png') }}">
+
+    
 </head>
 <body>
     <nav class="navbar navbar-dark py-2">
