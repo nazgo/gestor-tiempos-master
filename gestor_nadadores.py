@@ -158,6 +158,247 @@ class GestorNadadores:
         ''', (nadador_id,))
         self._execute('DELETE FROM nadadores WHERE id = ?', (nadador_id,))
 
+    def importar_csv(self, file):
+        import csv
+        import io
+        from datetime import datetime
+    
+        contenido = file.read()
+    
+        if isinstance(contenido, bytes):
+            try:
+                contenido = contenido.decode("utf-8-sig")
+            except UnicodeDecodeError:
+                contenido = contenido.decode("latin-1")
+    
+        muestra = contenido[:2048]
+    
+        try:
+            dialecto = csv.Sniffer().sniff(
+                muestra,
+                delimiters=",;"
+            )
+    
+            lector = csv.reader(
+                io.StringIO(contenido),
+                dialecto
+            )
+    
+        except csv.Error:
+            lector = csv.reader(
+                io.StringIO(contenido),
+                delimiter=","
+            )
+    
+        importados = 0
+        omitidos = 0
+        errores = []
+    
+        for numero_fila, fila in enumerate(lector, start=1):
+            try:
+                # Saltar filas vacías
+                if not fila or not any(
+                    str(celda).strip()
+                    for celda in fila
+                ):
+                    continue
+    
+                # Se esperan 5 columnas:
+                # nombre, apellido, fecha_nacimiento, rut, genero
+                if len(fila) < 5:
+                    raise ValueError(
+                        f"Se esperaban 5 columnas y llegaron "
+                        f"{len(fila)}."
+                    )
+    
+                nombre = fila[0].strip()
+                apellido = fila[1].strip()
+                fecha_csv = fila[2].strip()
+                rut = fila[3].strip()
+                genero = fila[4].strip()
+    
+                # Ignorar encabezado
+                if numero_fila == 1 and nombre.lower() in {
+                    "nombre",
+                    "nombres"
+                }:
+                    continue
+    
+                if not nombre:
+                    raise ValueError(
+                        "El nombre está vacío"
+                    )
+    
+                if not apellido:
+                    raise ValueError(
+                        "El apellido está vacío"
+                    )
+    
+                # Normalizar género
+                genero_normalizado = genero.lower()
+    
+                if genero_normalizado in {
+                    "masculino",
+                    "m",
+                    "hombre"
+                }:
+                    genero = "Masculino"
+    
+                elif genero_normalizado in {
+                    "femenino",
+                    "f",
+                    "mujer"
+                }:
+                    genero = "Femenino"
+    
+                else:
+                    raise ValueError(
+                        f"Género inválido: {genero}"
+                    )
+    
+                # Convertir fecha
+                fecha_nacimiento = None
+    
+                formatos_fecha = [
+                    "%d-%m-%Y",
+                    "%d/%m/%Y",
+                    "%Y-%m-%d"
+                ]
+    
+                for formato in formatos_fecha:
+                    try:
+                        fecha_nacimiento = datetime.strptime(
+                            fecha_csv,
+                            formato
+                        ).date()
+    
+                        break
+    
+                    except ValueError:
+                        continue
+    
+                if fecha_nacimiento is None:
+                    raise ValueError(
+                        f"Fecha inválida: {fecha_csv}. "
+                        "Use DD-MM-AAAA."
+                    )
+    
+                # RUT opcional
+                rut = rut if rut else None
+    
+                # Calcular categoría automáticamente
+                categoria = self.calcular_categoria_master(
+                    fecha_nacimiento
+                )
+    
+                # Validar duplicado por RUT
+                if rut:
+                    cursor_rut = self._execute("""
+                        SELECT id
+                        FROM nadadores
+                        WHERE LOWER(TRIM(rut)) =
+                              LOWER(TRIM(?))
+                        LIMIT 1
+                    """, (
+                        rut,
+                    ), commit=False)
+    
+                    if cursor_rut.fetchone():
+                        omitidos += 1
+    
+                        print(
+                            f"Fila {numero_fila} omitida: "
+                            f"ya existe un nadador con RUT {rut}"
+                        )
+    
+                        continue
+    
+                # Validar duplicado por nombre y fecha
+                cursor_duplicado = self._execute("""
+                    SELECT id
+                    FROM nadadores
+                    WHERE LOWER(TRIM(nombre)) =
+                          LOWER(TRIM(?))
+                      AND LOWER(TRIM(apellido)) =
+                          LOWER(TRIM(?))
+                      AND fecha_nacimiento = ?
+                    LIMIT 1
+                """, (
+                    nombre,
+                    apellido,
+                    fecha_nacimiento
+                ), commit=False)
+    
+                if cursor_duplicado.fetchone():
+                    omitidos += 1
+    
+                    print(
+                        f"Fila {numero_fila} omitida: "
+                        f"{nombre} {apellido} ya existe"
+                    )
+    
+                    continue
+    
+                # Insertar nadador
+                self._execute("""
+                    INSERT INTO nadadores (
+                        nombre,
+                        apellido,
+                        fecha_nacimiento,
+                        rut,
+                        genero,
+                        categoria_master
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (
+                    nombre,
+                    apellido,
+                    fecha_nacimiento,
+                    rut,
+                    genero,
+                    categoria
+                ))
+    
+                importados += 1
+    
+            except Exception as e:
+                mensaje = (
+                    f"Fila {numero_fila}: {str(e)}"
+                )
+    
+                errores.append(mensaje)
+    
+                print(
+                    f"Error importando nadador, "
+                    f"fila {numero_fila} {fila}: {e}"
+                )
+    
+        print(
+            f"Importación de nadadores terminada: "
+            f"{importados} importados, "
+            f"{omitidos} omitidos, "
+            f"{len(errores)} errores."
+        )
+    
+        if errores:
+            print("Primeros errores:")
+    
+            for error in errores[:10]:
+                print(f"- {error}")
+    
+        if importados == 0 and errores:
+            raise ValueError(
+                "No se importó ningún nadador. "
+                "Primeros errores: "
+                + "; ".join(errores[:5])
+            )
+    
+        return {
+            "importados": importados,
+            "omitidos": omitidos,
+            "errores": errores
+        }
+
     def cerrar_conexion(self):
         if self.conn:
             try:
