@@ -318,7 +318,7 @@ class GestorTiemposMaster:
         # Acepta cualquier cosa que tenga : y .
         return ':' in tiempo_str and '.' in tiempo_str
     
-@staticmethod
+    @staticmethod
     def _convertir_a_segundos(tiempo_str: str) -> float:
         tiempo_str = tiempo_str.strip().upper()
         if tiempo_str in ['DQ', 'DNS', 'DNF']:
