@@ -1,33 +1,141 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Tiempos de {{ nadador.nombre }} {{ nadador.apellido }}</h2>
-<p><strong>Categoría:</strong> {{ nadador.categoria_master }}</p>
+<div class="container py-4">
 
-<a href="/agregar?nadador_id={{ nadador.id }}" class="btn btn-success mb-3">
-    <i class="fas fa-plus"></i> Agregar Tiempo
-</a>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1">
+                Tiempos de {{ nadador.nombre }} {{ nadador.apellido }}
+            </h2>
 
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th>Estilo</th>
-            <th>Distancia</th>
-            <th>Tiempo</th>
-            <th>Fecha</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for t in tiempos %}
-        <tr>
-            <td>{{ t.estilo }}</td>
-            <td>{{ t.distancia }}m</td>
-            <td><strong>{{ t.tiempo }}</strong></td>
-            <td>{{ t.fecha }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            <p class="text-muted mb-0">
+                <strong>Categoría:</strong>
+                {{ nadador.categoria_master }}
+            </p>
+        </div>
 
-<a href="/nadadores" class="btn btn-secondary">← Volver a Nadadores</a>
+        <a
+            href="{{ url_for('agregar', nadador_id=nadador.id) }}"
+            class="btn btn-success"
+        >
+            <i class="fas fa-plus"></i>
+            Agregar Tiempo
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Estilo</th>
+                            <th>Distancia</th>
+                            <th>Piscina</th>
+                            <th>Tiempo</th>
+                            <th>Fecha</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for t in tiempos %}
+                        <tr>
+                            <td>
+                                <strong>{{ t.estilo }}</strong>
+                            </td>
+
+                            <td>
+                                {{ t.distancia }}m
+                            </td>
+
+                            <td>
+                                {{ t.piscina or 'Sin registrar' }}
+                            </td>
+
+                            <td>
+                                <span class="badge bg-success fs-6">
+                                    {{ t.tiempo }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {% if t.fecha and t.fecha.strftime is defined %}
+                                    {{ t.fecha.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                    {{ t.fecha }}
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center text-nowrap">
+
+                                <a
+                                    href="{{ url_for(
+                                        'editar_tiempo',
+                                        tiempo_id=t.id
+                                    ) }}"
+                                    class="btn btn-warning btn-sm"
+                                >
+                                    <i class="fas fa-edit"></i>
+                                    Editar
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'eliminar_tiempo',
+                                        tiempo_id=t.id
+                                    ) }}"
+                                    class="d-inline"
+                                    onsubmit="return confirm(
+                                        '¿Eliminar definitivamente este tiempo?'
+                                    );"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="btn btn-danger btn-sm"
+                                    >
+                                        <i class="fas fa-trash"></i>
+                                        Eliminar
+                                    </button>
+                                </form>
+
+                            </td>
+                        </tr>
+
+                        {% else %}
+                        <tr>
+                            <td
+                                colspan="6"
+                                class="text-center text-muted py-5"
+                            >
+                                <i class="fas fa-stopwatch fa-2x mb-3"></i>
+
+                                <p class="mb-0">
+                                    Este nadador todavía no tiene tiempos registrados.
+                                </p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a
+            href="{{ url_for('nadadores') }}"
+            class="btn btn-secondary"
+        >
+            ← Volver a Nadadores
+        </a>
+    </div>
+
+</div>
 {% endblock %}
