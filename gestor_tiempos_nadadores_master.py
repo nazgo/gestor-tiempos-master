@@ -97,6 +97,16 @@ class GestorTiemposMaster:
 
         self._execute("""
             ALTER TABLE tiempos
+            ADD COLUMN IF NOT EXISTS genero VARCHAR(20)
+        """)
+        
+        self._execute("""
+            ALTER TABLE tiempos
+            ADD COLUMN IF NOT EXISTS categoria VARCHAR(30)
+        """)
+
+        self._execute("""
+            ALTER TABLE tiempos
             ADD COLUMN IF NOT EXISTS competencia_id INTEGER
         """)
         
@@ -768,10 +778,24 @@ class GestorTiemposMaster:
             except UnicodeDecodeError:
                 contenido = contenido.decode("latin-1")
     
-        lector = csv.reader(
-            io.StringIO(contenido),
-            delimiter=","
-        )
+        muestra = contenido[:2048]
+    
+        try:
+            dialecto = csv.Sniffer().sniff(
+                muestra,
+                delimiters=",;"
+            )
+    
+            lector = csv.reader(
+                io.StringIO(contenido),
+                dialecto
+            )
+    
+        except csv.Error:
+            lector = csv.reader(
+                io.StringIO(contenido),
+                delimiter=","
+            )
     
         importados = 0
         omitidos = 0
@@ -779,16 +803,16 @@ class GestorTiemposMaster:
     
         for numero_fila, fila in enumerate(lector, start=1):
             try:
-                # Saltar filas vacías
-                if not fila or not any(celda.strip() for celda in fila):
+                if not fila or not any(
+                    celda.strip() for celda in fila
+                ):
                     continue
     
-                # Se esperan exactamente estas ocho columnas:
-                # nombre, genero, estilo, piscina,
-                # distancia, categoria, tiempo, fecha
-                if len(fila) < 8:
+                # Ahora se esperan 9 columnas
+                if len(fila) < 9:
                     raise ValueError(
-                        f"Se esperaban 8 columnas, pero llegaron {len(fila)}"
+                        f"Se esperaban 9 columnas y llegaron {len(fila)}. "
+                        "Falta la columna Competencia."
                     )
     
                 nombre = fila[0].strip()
@@ -799,24 +823,34 @@ class GestorTiemposMaster:
                 categoria = fila[5].strip()
                 tiempo = fila[6].strip()
                 fecha_csv = fila[7].strip()
+                competencia_csv = fila[8].strip()
     
                 # Ignorar encabezado
-                if numero_fila == 1:
-                    posibles_encabezados = {
-                        "nombre",
-                        "nadador",
-                        "nombre_nadador",
-                        "nombre nadador"
-                    }
-    
-                    if nombre.lower() in posibles_encabezados:
-                        continue
+                if numero_fila == 1 and nombre.lower() in {
+                    "nombre",
+                    "nadador",
+                    "nombre_nadador",
+                    "nombre nadador"
+                }:
+                    continue
     
                 if not nombre:
-                    raise ValueError("El nombre del nadador está vacío")
+                    raise ValueError(
+                        "El nombre del nadador está vacío"
+                    )
     
-                if not estilo:
-                    raise ValueError("El estilo está vacío")
+                if genero not in {
+                    "Masculino",
+                    "Femenino"
+                }:
+                    raise ValueError(
+                        f"Género inválido: {genero}"
+                    )
+    
+                if not categoria:
+                    raise ValueError(
+                        "La categoría está vacía"
+                    )
     
                 distancia = int(distancia_csv)
     
@@ -844,7 +878,7 @@ class GestorTiemposMaster:
                         f"Piscina inválida: {piscina_csv}"
                     )
     
-                # Omitir registros que no representan tiempos
+                # Omitir descalificaciones u otros resultados no numéricos
                 if tiempo.upper() in {
                     "DQ",
                     "DSQ",
@@ -854,31 +888,111 @@ class GestorTiemposMaster:
                     "-"
                 }:
                     omitidos += 1
+    
                     print(
                         f"Fila {numero_fila} omitida: "
                         f"{nombre} tiene resultado {tiempo}"
                     )
+    
                     continue
     
-                # Normalizar separador decimal
                 tiempo = tiempo.replace(",", ".").strip()
     
-                # Validar y convertir el tiempo
-                tiempo_segundos = self.convertir_tiempo_a_segundos(
-                    tiempo
+                tiempo_segundos = (
+                    self.convertir_tiempo_a_segundos(
+                        tiempo
+                    )
                 )
     
-                # El CSV usa día-mes-año
                 fecha = datetime.strptime(
                     fecha_csv,
                     "%d-%m-%Y"
                 ).date()
     
-                # Insertar directamente para evitar confusión
-                # con el orden de parámetros
+                # Buscar la competencia por ID o nombre
+                competencia_id = None
+    
+                if competencia_csv:
+                    if competencia_csv.isdigit():
+                        cursor_competencia = self._execute("""
+                            SELECT id
+                            FROM competencias
+                            WHERE id = ?
+                        """, (
+                            int(competencia_csv),
+                        ), commit=False)
+    
+                    else:
+                        cursor_competencia = self._execute("""
+                            SELECT id
+                            FROM competencias
+                            WHERE LOWER(TRIM(nombre)) =
+                                  LOWER(TRIM(?))
+                            LIMIT 1
+                        """, (
+                            competencia_csv,
+                        ), commit=False)
+    
+                    fila_competencia = (
+                        cursor_competencia.fetchone()
+                    )
+    
+                    if not fila_competencia:
+                        raise ValueError(
+                            "Competencia no encontrada: "
+                            f"{competencia_csv}"
+                        )
+    
+                    if hasattr(fila_competencia, "_asdict"):
+                        competencia_id = (
+                            fila_competencia
+                            ._asdict()["id"]
+                        )
+    
+                    elif hasattr(fila_competencia, "keys"):
+                        competencia_id = (
+                            fila_competencia["id"]
+                        )
+    
+                    else:
+                        competencia_id = (
+                            fila_competencia[0]
+                        )
+    
+                # Buscar nadador existente
+                cursor_nadador = self._execute("""
+                    SELECT id
+                    FROM nadadores
+                    WHERE LOWER(
+                        TRIM(nombre || ' ' || apellido)
+                    ) = LOWER(TRIM(?))
+                    LIMIT 1
+                """, (
+                    nombre,
+                ), commit=False)
+    
+                fila_nadador = cursor_nadador.fetchone()
+                nadador_id = None
+    
+                if fila_nadador:
+                    if hasattr(fila_nadador, "_asdict"):
+                        nadador_id = (
+                            fila_nadador._asdict()["id"]
+                        )
+    
+                    elif hasattr(fila_nadador, "keys"):
+                        nadador_id = fila_nadador["id"]
+    
+                    else:
+                        nadador_id = fila_nadador[0]
+    
+                # Insertar todos los campos
                 self._execute("""
                     INSERT INTO tiempos (
+                        nadador_id,
                         nombre_nadador,
+                        genero,
+                        categoria,
                         estilo,
                         distancia,
                         piscina,
@@ -887,17 +1001,30 @@ class GestorTiemposMaster:
                         fecha,
                         competencia_id
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    )
                 """, (
+                    nadador_id,
                     nombre,
+                    genero,
+                    categoria,
                     estilo,
                     distancia,
                     piscina,
                     tiempo,
                     tiempo_segundos,
                     fecha,
-                    None
+                    competencia_id
                 ))
+    
+                # Si existe el nadador y la competencia,
+                # marcarlo automáticamente como presente
+                if nadador_id and competencia_id:
+                    self.marcar_asistencia_desde_tiempo(
+                        nadador_id,
+                        competencia_id
+                    )
     
                 importados += 1
     
@@ -909,8 +1036,8 @@ class GestorTiemposMaster:
                 errores.append(mensaje)
     
                 print(
-                    f"Error al importar fila {numero_fila} "
-                    f"{fila}: {e}"
+                    f"Error al importar fila "
+                    f"{numero_fila} {fila}: {e}"
                 )
     
         print(
@@ -921,11 +1048,10 @@ class GestorTiemposMaster:
         )
     
         if importados == 0 and errores:
-            muestra_errores = "; ".join(errores[:5])
-    
             raise ValueError(
-                f"No se importó ningún tiempo. "
-                f"Primeros errores: {muestra_errores}"
+                "No se importó ningún tiempo. "
+                "Primeros errores: "
+                + "; ".join(errores[:5])
             )
     
         return importados
