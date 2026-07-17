@@ -1,19 +1,19 @@
 {
-  "name": "Gestor Tiempos Masters",
-  "short_name": "GT Masters",
-  "description": "Gestión de tiempos para nadadores Master",
+  "name": "Gestor Tiempos Ñuñoa Masters",
+  "short_name": "Ñuñoa Masters",
+  "description": "Sistema de Gestión de Tiempos para Ñuñoa Master",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
   "icons": [
     {
-      "src": "/static/logo.png",
+      "src": "/static/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/static/logo.png",
+      "src": "/static/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
