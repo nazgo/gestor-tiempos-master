@@ -959,20 +959,20 @@ class GestorTiemposMaster:
                             fila_competencia[0]
                         )
     
-                # Buscar nadador existente
-                cursor_nadador = self._execute("""
-                    SELECT id
-                    FROM nadadores
-                    WHERE LOWER(
-                        TRIM(nombre || ' ' || apellido)
-                    ) = LOWER(TRIM(?))
-                    LIMIT 1
-                """, (
-                    nombre,
-                ), commit=False)
+                # Buscar nadador existente 
+                #cursor_nadador = self._execute("""
+                    #SELECT id
+                    #FROM nadadores
+                    #WHERE LOWER(
+                        #TRIM(nombre || ' ' || apellido)
+                    #) = LOWER(TRIM(?))
+                    #LIMIT 1
+                #""", (
+                    #nombre,
+                #), commit=False)
     
-                fila_nadador = cursor_nadador.fetchone()
-                nadador_id = None
+                #fila_nadador = cursor_nadador.fetchone()
+                #nadador_id = None 
     
                 if fila_nadador:
                     if hasattr(fila_nadador, "_asdict"):
@@ -989,7 +989,6 @@ class GestorTiemposMaster:
                 # Insertar todos los campos
                 self._execute("""
                     INSERT INTO tiempos (
-                        nadador_id,
                         nombre_nadador,
                         genero,
                         categoria,
@@ -1001,11 +1000,8 @@ class GestorTiemposMaster:
                         fecha,
                         competencia_id
                     )
-                    VALUES (
-                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
-                    nadador_id,
                     nombre,
                     genero,
                     categoria,
