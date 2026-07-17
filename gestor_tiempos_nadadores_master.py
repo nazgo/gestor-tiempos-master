@@ -328,7 +328,8 @@ class GestorTiemposMaster:
         return (mm * 60) + ss + (cc / 100.0)
 
     # ====================== CRUD BÁSICO ======================
-    def agregar_tiempo(self, nombre, estilo, distancia, tiempo, fecha=None, piscina="25 metros"):
+    def agregar_tiempo(self, nombre, estilo, distancia, tiempo, fecha=None, piscina="25 metros", competencia_id=None):
+        """Agrega un nuevo registro de tiempo."""
         nombre = nombre.strip()
         if not nombre:
             raise ValueError("El nombre del nadador no puede estar vacío.")
@@ -340,25 +341,24 @@ class GestorTiemposMaster:
         if distancia not in distancias_validas:
             raise ValueError(f"Distancia inválida. Opciones: {distancias_validas}")
 
-        if not self._validar_tiempo(tiempo):
-            raise ValueError("Formato de tiempo inválido. Debe ser MM:SS.cc (ej: 01:23.45)")
-        
         if fecha is None:
             fecha = date.today()
 
-        tiempo_segundos = self._convertir_a_segundos(tiempo)
+        # Manejo de tiempos especiales (DQ, DNS, DNF)
+        if str(tiempo).upper() in ['DQ', 'DNS', 'DNF']:
+            tiempo_str = str(tiempo).upper()
+            tiempo_segundos = 9999.99
+        else:
+            if not self._validar_tiempo(tiempo):
+                raise ValueError("Formato de tiempo inválido. Debe ser MM:SS.cc (ej: 01:23.45)")
+            tiempo_str = tiempo
+            tiempo_segundos = self._convertir_a_segundos(tiempo)
+
         self._execute('''
-            INSERT INTO tiempos 
+            INSERT INTO tiempos
             (nombre_nadador, estilo, distancia, piscina, tiempo, tiempo_segundos, fecha, competencia_id)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (nombre.title(), estilo, distancia, piscina, tiempo, tiempo_segundos, fecha.isoformat(), competencia_id))
-
-        if tiempo.upper() in ['DQ', 'DNS', 'DNF']:
-                tiempo_segundos = 9999.99  # Valor alto para DQ
-            else:
-                if not self._validar_tiempo(tiempo):
-                    raise ValueError("Formato de tiempo inválido. Debe ser MM:SS.cc (ej: 01:23.45)")
-                tiempo_segundos = self._convertir_a_segundos(tiempo)
+        ''', (nombre.title(), estilo, distancia, piscina, tiempo_str, tiempo_segundos, fecha.isoformat(), competencia_id))
 
     def convertir_tiempo_a_segundos(self, tiempo):
         """
