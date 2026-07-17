@@ -398,20 +398,61 @@ class GestorTiemposMaster:
         self._execute('DELETE FROM tiempos WHERE id = ?', (tiempo_id,))
 
     # ====================== CONSULTAS AVANZADAS ======================
-    def obtener_season_best(self, nombre: str, estilo: str, distancia: int, year: Optional[int] = None):
-        if year is None:
-            year = datetime.now().year
-        cursor = self._execute('''
-            SELECT * FROM tiempos
-            WHERE LOWER(nombre_nadador) LIKE LOWER(?)
-              AND estilo = ?
-              AND distancia = ?
-              AND EXTRACT(YEAR FROM fecha) = ?
-            ORDER BY tiempo_segundos ASC
-            LIMIT 1
-        ''', (f"%{nombre.strip()}%", estilo, distancia, year), commit=False)
-        row = cursor.fetchone()
-        return self._row_to_dict(row, cursor)
+    def obtener_season_best(self, nadador_id):
+        """
+        Devuelve el mejor tiempo de cada combinación:
+        estilo + distancia + piscina para un nadador.
+        """
+    
+        cursor = self._execute("""
+            SELECT DISTINCT ON (
+                LOWER(t.estilo),
+                t.distancia,
+                LOWER(t.piscina)
+            )
+                t.id,
+                t.fecha,
+                t.estilo,
+                t.distancia,
+                t.piscina,
+                t.tiempo,
+                t.tiempo_segundos
+            FROM tiempos t
+            WHERE LOWER(t.nombre_nadador) = LOWER(
+                (
+                    SELECT nombre || ' ' || apellido
+                    FROM nadadores
+                    WHERE id = ?
+                    LIMIT 1
+                )
+            )
+            ORDER BY
+                LOWER(t.estilo),
+                t.distancia,
+                LOWER(t.piscina),
+                t.tiempo_segundos ASC,
+                t.fecha ASC
+        """, (nadador_id,), commit=False)
+    
+        filas = cursor.fetchall()
+        columnas = [
+            columna[0]
+            for columna in cursor.description
+        ]
+    
+        resultado = []
+    
+        for fila in filas:
+            if hasattr(fila, "_asdict"):
+                resultado.append(dict(fila._asdict()))
+            elif hasattr(fila, "keys"):
+                resultado.append(dict(fila))
+            else:
+                resultado.append(
+                    dict(zip(columnas, fila))
+                )
+    
+        return resultado
 
     def obtener_season_best_avanzado(self, nombre=None, estilo=None, distancia=None, categoria=None, year=None):
         if year is None:
