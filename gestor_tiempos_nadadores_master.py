@@ -312,18 +312,11 @@ class GestorTiemposMaster:
     def _validar_tiempo(tiempo_str: str) -> bool:
         if not isinstance(tiempo_str, str):
             return False
+        # Acepta MM:SS.cc y también DQ o otros
+        if tiempo_str.upper() in ['DQ', 'DNS', 'DNF']:
+            return True
         patron = r'^\d{1,2}:\d{2}\.\d{2}$'
-        if not re.match(patron, tiempo_str):
-            return False
-        try:
-            mm_str, ss_cc = tiempo_str.split(':')
-            ss_str, cc_str = ss_cc.split('.')
-            mm = int(mm_str)
-            ss = int(ss_str)
-            cc = int(cc_str)
-            return 0 <= mm <= 99 and 0 <= ss <= 59 and 0 <= cc <= 99
-        except (ValueError, IndexError, AttributeError):
-            return False
+        return bool(re.match(patron, tiempo_str))
 
     @staticmethod
     def _convertir_a_segundos(tiempo_str: str) -> float:
@@ -359,6 +352,13 @@ class GestorTiemposMaster:
             (nombre_nadador, estilo, distancia, piscina, tiempo, tiempo_segundos, fecha, competencia_id)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (nombre.title(), estilo, distancia, piscina, tiempo, tiempo_segundos, fecha.isoformat(), competencia_id))
+
+        if tiempo.upper() in ['DQ', 'DNS', 'DNF']:
+                tiempo_segundos = 9999.99  # Valor alto para DQ
+            else:
+                if not self._validar_tiempo(tiempo):
+                    raise ValueError("Formato de tiempo inválido. Debe ser MM:SS.cc (ej: 01:23.45)")
+                tiempo_segundos = self._convertir_a_segundos(tiempo)
 
     def convertir_tiempo_a_segundos(self, tiempo):
         """
