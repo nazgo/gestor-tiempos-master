@@ -828,6 +828,108 @@ def actualizar_asistencia():
     return redirect(url_for('tabla_asistencias'))
 
 
+@app.route('/tiempo/<int:tiempo_id>/editar', methods=['GET', 'POST'])
+@login_required
+@editor_required
+def editar_tiempo(tiempo_id):
+    tiempo_registro = gestor_tiempos.obtener_tiempo_por_id(
+        tiempo_id
+    )
+
+    if not tiempo_registro:
+        flash('Tiempo no encontrado.', 'danger')
+        return redirect(url_for('listar_tiempos'))
+
+    competencias = gestor_tiempos.listar_competencias()
+
+    if request.method == 'POST':
+        try:
+            estilo = request.form['estilo']
+            distancia = int(request.form['distancia'])
+            tiempo = request.form['tiempo'].strip()
+            piscina = request.form.get(
+                'piscina',
+                '25 metros'
+            )
+            fecha_str = request.form.get('fecha')
+            competencia_id = request.form.get(
+                'competencia_id',
+                type=int
+            )
+
+            fecha = (
+                datetime.strptime(
+                    fecha_str,
+                    '%Y-%m-%d'
+                ).date()
+                if fecha_str
+                else None
+            )
+
+            gestor_tiempos.editar_tiempo(
+                tiempo_id=tiempo_id,
+                estilo=estilo,
+                distancia=distancia,
+                tiempo=tiempo,
+                fecha=fecha,
+                piscina=piscina,
+                competencia_id=competencia_id
+            )
+
+            flash(
+                'Tiempo actualizado correctamente.',
+                'success'
+            )
+
+            return redirect(
+                url_for('listar_tiempos')
+            )
+
+        except Exception as e:
+            print("Error editando tiempo:", e)
+            flash(
+                f'Error al editar el tiempo: {e}',
+                'danger'
+            )
+
+    return render_template(
+        'editar_tiempo.html',
+        tiempo=tiempo_registro,
+        estilos=gestor_tiempos.ESTILOS,
+        distancias=gestor_tiempos.DISTANCIAS,
+        competencias=competencias
+    )
+
+
+@app.route('/tiempo/<int:tiempo_id>/eliminar', methods=['POST'])
+@login_required
+@editor_required
+def eliminar_tiempo(tiempo_id):
+    tiempo_registro = gestor_tiempos.obtener_tiempo_por_id(
+        tiempo_id
+    )
+
+    if not tiempo_registro:
+        flash('Tiempo no encontrado.', 'danger')
+        return redirect(url_for('listar_tiempos'))
+
+    try:
+        gestor_tiempos.eliminar_tiempo(tiempo_id)
+
+        flash(
+            'Tiempo eliminado correctamente.',
+            'success'
+        )
+
+    except Exception as e:
+        print("Error eliminando tiempo:", e)
+        flash(
+            'No fue posible eliminar el tiempo.',
+            'danger'
+        )
+
+    return redirect(url_for('listar_tiempos'))
+
 # ==================== OTRAS RUTAS (puedes ir agregando) ====================
 @app.route('/season_best', methods=['GET', 'POST'])
 @login_required
