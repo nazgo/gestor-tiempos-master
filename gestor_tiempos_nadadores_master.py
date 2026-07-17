@@ -351,7 +351,7 @@ class GestorTiemposMaster:
             raise ValueError("Formato de tiempo inválido. Debe ser MM:SS.cc (ej: 01:23.45)")
         
         if fecha is None:
-            fecha = date.today())
+            fecha = date.today()
 
         tiempo_segundos = self._convertir_a_segundos(tiempo)
         self._execute('''
