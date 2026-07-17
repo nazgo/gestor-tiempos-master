@@ -355,6 +355,58 @@ class GestorTiemposMaster:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (nombre.title(), estilo, distancia, piscina, tiempo, tiempo_segundos, fecha.isoformat(), competencia_id))
 
+    def convertir_tiempo_a_segundos(self, tiempo):
+        """
+        Convierte tiempos en formato MM:SS.cc o SS.cc a segundos.
+        Ejemplos:
+        01:23.45 -> 83.45
+        59.32 -> 59.32
+        """
+        if tiempo is None:
+            raise ValueError("El tiempo no puede estar vacío")
+    
+        tiempo = str(tiempo).strip().replace(",", ".")
+    
+        try:
+            if ":" in tiempo:
+                partes = tiempo.split(":")
+    
+                if len(partes) != 2:
+                    raise ValueError(
+                        "Formato inválido. Use MM:SS.cc"
+                    )
+    
+                minutos = int(partes[0])
+                segundos = float(partes[1])
+    
+                if minutos < 0 or segundos < 0 or segundos >= 60:
+                    raise ValueError(
+                        "Minutos o segundos fuera de rango"
+                    )
+    
+                return round((minutos * 60) + segundos, 2)
+    
+            segundos = float(tiempo)
+    
+            if segundos < 0:
+                raise ValueError(
+                    "El tiempo no puede ser negativo"
+                )
+    
+            return round(segundos, 2)
+    
+        except ValueError as e:
+            if str(e) in (
+                "Formato inválido. Use MM:SS.cc",
+                "Minutos o segundos fuera de rango",
+                "El tiempo no puede ser negativo"
+            ):
+                raise
+    
+            raise ValueError(
+                "Formato de tiempo inválido. Use MM:SS.cc, por ejemplo 01:23.45"
+            )
+
     def marcar_asistencia_desde_tiempo(
         self,
         nadador_id,
