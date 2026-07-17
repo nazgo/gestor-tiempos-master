@@ -310,29 +310,37 @@ class GestorTiemposMaster:
     # ====================== MÉTODOS ESTÁTICOS ======================
     @staticmethod
     def _validar_tiempo(tiempo_str: str) -> bool:
-            if not isinstance(tiempo_str, str):
-                return False
-            tiempo_str = tiempo_str.strip().upper()
-            if tiempo_str in ['DQ', 'DNS', 'DNF']:
-                return True
-            # Acepta MM:SS.cc o M:SS.cc
-            patron = r'^\d{1,2}:\d{2}\.\d{2}$'
-            return bool(re.match(patron, tiempo_str))
+        if not tiempo_str or not isinstance(tiempo_str, str):
+            return False
+        tiempo_str = tiempo_str.strip().upper()
+        if tiempo_str in ['DQ', 'DNS', 'DNF']:
+            return True
+        # Acepta cualquier cosa que tenga : y .
+        return ':' in tiempo_str and '.' in tiempo_str
     
-    @staticmethod
+@staticmethod
     def _convertir_a_segundos(tiempo_str: str) -> float:
-            tiempo_str = tiempo_str.strip().upper()
-            if tiempo_str in ['DQ', 'DNS', 'DNF']:
-                return 9999.99
-            try:
-                mm_str, ss_cc = tiempo_str.split(':')
-                ss_str, cc_str = ss_cc.split('.')
+        tiempo_str = tiempo_str.strip().upper()
+        if tiempo_str in ['DQ', 'DNS', 'DNF']:
+            return 9999.99
+        try:
+            # Limpia y convierte
+            if ':' in tiempo_str:
+                mm_str, ss_cc = tiempo_str.split(':', 1)
+                if '.' in ss_cc:
+                    ss_str, cc_str = ss_cc.split('.')
+                else:
+                    ss_str = ss_cc
+                    cc_str = '00'
                 mm = int(mm_str)
                 ss = int(ss_str)
-                cc = int(cc_str)
+                cc = int(cc_str.ljust(2, '0')[:2])
                 return (mm * 60) + ss + (cc / 100.0)
-            except:
-                return 9999.99  # Fallback
+            else:
+                # Si no tiene :, asumir segundos.cc
+                return float(tiempo_str)
+        except:
+            return 9999.99
 
     # ====================== CRUD BÁSICO ======================
     def agregar_tiempo(self, nombre, estilo, distancia, tiempo, fecha=None, piscina="25 metros", competencia_id=None):
