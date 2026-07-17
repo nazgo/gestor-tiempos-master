@@ -319,28 +319,63 @@ class GestorTiemposMaster:
         return ':' in tiempo_str and '.' in tiempo_str
     
     @staticmethod
-    def _convertir_a_segundos(tiempo_str: str) -> float:
-        tiempo_str = tiempo_str.strip().upper()
-        if tiempo_str in ['DQ', 'DNS', 'DNF']:
-            return 9999.99
+    def convertir_tiempo_a_segundos(self, tiempo):
+        if tiempo is None:
+            raise ValueError("El tiempo no puede estar vacío")
+    
+        tiempo = str(tiempo).strip().replace(",", ".")
+    
         try:
-            # Limpia y convierte
-            if ':' in tiempo_str:
-                mm_str, ss_cc = tiempo_str.split(':', 1)
-                if '.' in ss_cc:
-                    ss_str, cc_str = ss_cc.split('.')
-                else:
-                    ss_str = ss_cc
-                    cc_str = '00'
-                mm = int(mm_str)
-                ss = int(ss_str)
-                cc = int(cc_str.ljust(2, '0')[:2])
-                return (mm * 60) + ss + (cc / 100.0)
-            else:
-                # Si no tiene :, asumir segundos.cc
-                return float(tiempo_str)
-        except:
-            return 9999.99
+            if ":" in tiempo:
+                partes = tiempo.split(":")
+    
+                if len(partes) != 2:
+                    raise ValueError(
+                        "Formato inválido. Use MM:SS.cc"
+                    )
+    
+                minutos = int(partes[0])
+                segundos = float(partes[1])
+    
+                if minutos < 0:
+                    raise ValueError(
+                        "Los minutos no pueden ser negativos"
+                    )
+    
+                if segundos < 0 or segundos >= 60:
+                    raise ValueError(
+                        "Los segundos deben estar entre 0 y 59.99"
+                    )
+    
+                return round(
+                    minutos * 60 + segundos,
+                    2
+                )
+    
+            segundos = float(tiempo)
+    
+            if segundos < 0:
+                raise ValueError(
+                    "El tiempo no puede ser negativo"
+                )
+    
+            return round(segundos, 2)
+    
+        except ValueError as e:
+            mensajes_controlados = {
+                "Formato inválido. Use MM:SS.cc",
+                "Los minutos no pueden ser negativos",
+                "Los segundos deben estar entre 0 y 59.99",
+                "El tiempo no puede ser negativo"
+            }
+    
+            if str(e) in mensajes_controlados:
+                raise
+    
+            raise ValueError(
+                "Formato de tiempo inválido. "
+                "Debe ser MM:SS.cc, por ejemplo 01:23.45"
+            )
 
     # ====================== CRUD BÁSICO ======================
     def agregar_tiempo(self, nombre, estilo, distancia, tiempo, fecha=None, piscina="25 metros", competencia_id=None):
