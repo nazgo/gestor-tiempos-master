@@ -705,10 +705,9 @@ class GestorTiemposMaster:
         import csv
         from io import StringIO
 
-        # Leer el contenido del archivo
         stream = StringIO(file.stream.read().decode("UTF-8"))
         csv_input = csv.reader(stream)
-        next(csv_input)  # Saltar la cabecera
+        next(csv_input)  # Skip header
 
         for row in csv_input:
             if len(row) >= 7:
@@ -719,13 +718,24 @@ class GestorTiemposMaster:
                     piscina = row[4].strip()
                     tiempo = row[5].strip()
                     fecha_str = row[6].strip()
+
+                    # Parseo flexible de fecha
+                    fecha = None
+                    for fmt in ('%d-%m-%Y', '%d/%m/%Y', '%Y-%m-%d', '%m/%d/%Y'):
+                        try:
+                            fecha = datetime.strptime(fecha_str, fmt).date()
+                            break
+                        except ValueError:
+                            continue
                     
-                    fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else date.today()
-                    
+                    if not fecha:
+                        fecha = date.today()
+
                     self.agregar_tiempo(nombre, estilo, distancia, tiempo, fecha, piscina)
+                    print(f"✅ Importado: {nombre} - {estilo} {distancia}m")
                 except Exception as e:
                     print(f"Error al importar fila {row}: {e}")
-                    continue  # Continuar con las siguientes filas
+                    continue
 
     def __del__(self):
         self.cerrar_conexion()
