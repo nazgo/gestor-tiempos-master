@@ -310,22 +310,29 @@ class GestorTiemposMaster:
     # ====================== MÉTODOS ESTÁTICOS ======================
     @staticmethod
     def _validar_tiempo(tiempo_str: str) -> bool:
-        if not isinstance(tiempo_str, str):
-            return False
-        # Acepta MM:SS.cc y también DQ o otros
-        if tiempo_str.upper() in ['DQ', 'DNS', 'DNF']:
-            return True
-        patron = r'^\d{1,2}:\d{2}\.\d{2}$'
-        return bool(re.match(patron, tiempo_str))
-
+            if not isinstance(tiempo_str, str):
+                return False
+            tiempo_str = tiempo_str.strip().upper()
+            if tiempo_str in ['DQ', 'DNS', 'DNF']:
+                return True
+            # Acepta MM:SS.cc o M:SS.cc
+            patron = r'^\d{1,2}:\d{2}\.\d{2}$'
+            return bool(re.match(patron, tiempo_str))
+    
     @staticmethod
     def _convertir_a_segundos(tiempo_str: str) -> float:
-        mm_str, ss_cc = tiempo_str.split(':')
-        ss_str, cc_str = ss_cc.split('.')
-        mm = int(mm_str)
-        ss = int(ss_str)
-        cc = int(cc_str)
-        return (mm * 60) + ss + (cc / 100.0)
+            tiempo_str = tiempo_str.strip().upper()
+            if tiempo_str in ['DQ', 'DNS', 'DNF']:
+                return 9999.99
+            try:
+                mm_str, ss_cc = tiempo_str.split(':')
+                ss_str, cc_str = ss_cc.split('.')
+                mm = int(mm_str)
+                ss = int(ss_str)
+                cc = int(cc_str)
+                return (mm * 60) + ss + (cc / 100.0)
+            except:
+                return 9999.99  # Fallback
 
     # ====================== CRUD BÁSICO ======================
     def agregar_tiempo(self, nombre, estilo, distancia, tiempo, fecha=None, piscina="25 metros", competencia_id=None):
