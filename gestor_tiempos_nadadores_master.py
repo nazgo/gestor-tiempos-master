@@ -772,12 +772,14 @@ class GestorTiemposMaster:
     
         contenido = file.read()
     
+        # Decodificar el archivo
         if isinstance(contenido, bytes):
             try:
                 contenido = contenido.decode("utf-8-sig")
             except UnicodeDecodeError:
                 contenido = contenido.decode("latin-1")
     
+        # Detectar automáticamente si usa coma o punto y coma
         muestra = contenido[:2048]
     
         try:
@@ -803,16 +805,20 @@ class GestorTiemposMaster:
     
         for numero_fila, fila in enumerate(lector, start=1):
             try:
+                # Ignorar filas completamente vacías
                 if not fila or not any(
-                    celda.strip() for celda in fila
+                    str(celda).strip()
+                    for celda in fila
                 ):
                     continue
     
-                # Ahora se esperan 9 columnas
-                if len(fila) < 9:
+                # Se permiten:
+                # 8 columnas: sin competencia
+                # 9 columnas: con competencia
+                if len(fila) not in (8, 9):
                     raise ValueError(
-                        f"Se esperaban 9 columnas y llegaron {len(fila)}. "
-                        "Falta la columna Competencia."
+                        f"Se esperaban 8 o 9 columnas y llegaron "
+                        f"{len(fila)}."
                     )
     
                 nombre = fila[0].strip()
@@ -823,7 +829,12 @@ class GestorTiemposMaster:
                 categoria = fila[5].strip()
                 tiempo = fila[6].strip()
                 fecha_csv = fila[7].strip()
-                competencia_csv = fila[8].strip()
+    
+                competencia_csv = (
+                    fila[8].strip()
+                    if len(fila) >= 9
+                    else ""
+                )
     
                 # Ignorar encabezado
                 if numero_fila == 1 and nombre.lower() in {
@@ -834,15 +845,26 @@ class GestorTiemposMaster:
                 }:
                     continue
     
+                # Validaciones básicas
                 if not nombre:
                     raise ValueError(
                         "El nombre del nadador está vacío"
                     )
     
-                if genero not in {
-                    "Masculino",
-                    "Femenino"
-                }:
+                if not estilo:
+                    raise ValueError(
+                        "El estilo está vacío"
+                    )
+    
+                genero_normalizado = genero.lower()
+    
+                if genero_normalizado == "masculino":
+                    genero = "Masculino"
+    
+                elif genero_normalizado == "femenino":
+                    genero = "Femenino"
+    
+                else:
                     raise ValueError(
                         f"Género inválido: {genero}"
                     )
@@ -852,10 +874,15 @@ class GestorTiemposMaster:
                         "La categoría está vacía"
                     )
     
-                distancia = int(distancia_csv)
+                try:
+                    distancia = int(distancia_csv)
+                except ValueError:
+                    raise ValueError(
+                        f"Distancia inválida: {distancia_csv}"
+                    )
     
                 # Normalizar piscina
-                piscina_normalizada = piscina_csv.lower()
+                piscina_normalizada = piscina_csv.lower().strip()
     
                 if piscina_normalizada in {
                     "25",
@@ -878,7 +905,7 @@ class GestorTiemposMaster:
                         f"Piscina inválida: {piscina_csv}"
                     )
     
-                # Omitir descalificaciones u otros resultados no numéricos
+                # Omitir resultados no válidos como tiempos
                 if tiempo.upper() in {
                     "DQ",
                     "DSQ",
@@ -896,6 +923,7 @@ class GestorTiemposMaster:
     
                     continue
     
+                # Normalizar y convertir el tiempo
                 tiempo = tiempo.replace(",", ".").strip()
     
                 tiempo_segundos = (
@@ -904,10 +932,32 @@ class GestorTiemposMaster:
                     )
                 )
     
-                fecha = datetime.strptime(
-                    fecha_csv,
-                    "%d-%m-%Y"
-                ).date()
+                # Convertir fecha
+                fecha = None
+    
+                formatos_fecha = [
+                    "%d-%m-%Y",
+                    "%d/%m/%Y",
+                    "%Y-%m-%d"
+                ]
+    
+                for formato in formatos_fecha:
+                    try:
+                        fecha = datetime.strptime(
+                            fecha_csv,
+                            formato
+                        ).date()
+    
+                        break
+    
+                    except ValueError:
+                        continue
+    
+                if fecha is None:
+                    raise ValueError(
+                        f"Fecha inválida: {fecha_csv}. "
+                        "Use DD-MM-AAAA."
+                    )
     
                 # Buscar la competencia por ID o nombre
                 competencia_id = None
@@ -918,6 +968,7 @@ class GestorTiemposMaster:
                             SELECT id
                             FROM competencias
                             WHERE id = ?
+                            LIMIT 1
                         """, (
                             int(competencia_csv),
                         ), commit=False)
@@ -950,43 +1001,48 @@ class GestorTiemposMaster:
                         )
     
                     elif hasattr(fila_competencia, "keys"):
-                        competencia_id = (
-                            fila_competencia["id"]
-                        )
+                        competencia_id = dict(
+                            fila_competencia
+                        )["id"]
     
                     else:
                         competencia_id = (
                             fila_competencia[0]
                         )
     
-                # Buscar nadador existente 
-                #cursor_nadador = self._execute("""
-                    #SELECT id
-                    #FROM nadadores
-                    #WHERE LOWER(
-                        #TRIM(nombre || ' ' || apellido)
-                    #) = LOWER(TRIM(?))
-                    #LIMIT 1
-                #""", (
-                    #nombre,
-                #), commit=False)
+                # Buscar el nadador solamente para marcar asistencia
+                cursor_nadador = self._execute("""
+                    SELECT id
+                    FROM nadadores
+                    WHERE LOWER(
+                        TRIM(nombre || ' ' || apellido)
+                    ) = LOWER(TRIM(?))
+                    LIMIT 1
+                """, (
+                    nombre,
+                ), commit=False)
     
-                #fila_nadador = cursor_nadador.fetchone()
-                #nadador_id = None 
+                fila_nadador = cursor_nadador.fetchone()
+                nadador_id = None
     
                 if fila_nadador:
                     if hasattr(fila_nadador, "_asdict"):
                         nadador_id = (
-                            fila_nadador._asdict()["id"]
+                            fila_nadador
+                            ._asdict()["id"]
                         )
     
                     elif hasattr(fila_nadador, "keys"):
-                        nadador_id = fila_nadador["id"]
+                        nadador_id = dict(
+                            fila_nadador
+                        )["id"]
     
                     else:
                         nadador_id = fila_nadador[0]
     
-                # Insertar todos los campos
+                # Insertar el tiempo
+                # La tabla tiempos no tiene nadador_id,
+                # por eso se guarda nombre_nadador.
                 self._execute("""
                     INSERT INTO tiempos (
                         nombre_nadador,
@@ -1014,12 +1070,21 @@ class GestorTiemposMaster:
                     competencia_id
                 ))
     
-                # Si existe el nadador y la competencia,
-                # marcarlo automáticamente como presente
+                # Marcar asistencia solamente cuando:
+                # 1. El nadador existe en nadadores.
+                # 2. La competencia está asociada.
                 if nadador_id and competencia_id:
                     self.marcar_asistencia_desde_tiempo(
                         nadador_id,
                         competencia_id
+                    )
+    
+                elif competencia_id and not nadador_id:
+                    print(
+                        f"Advertencia fila {numero_fila}: "
+                        f"se importó el tiempo de {nombre}, "
+                        "pero no se marcó asistencia porque "
+                        "el nadador no existe en la tabla nadadores."
                     )
     
                 importados += 1
@@ -1042,6 +1107,12 @@ class GestorTiemposMaster:
             f"{omitidos} omitidos, "
             f"{len(errores)} errores."
         )
+    
+        if errores:
+            print("Primeros errores encontrados:")
+    
+            for error in errores[:10]:
+                print(f"- {error}")
     
         if importados == 0 and errores:
             raise ValueError(
