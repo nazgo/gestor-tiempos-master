@@ -904,7 +904,7 @@ def editar_tiempo_nadador(tiempo_id):
 @app.route('/tiempo/<int:tiempo_id>/eliminar', methods=['POST'])
 @login_required
 @editor_required
-def eliminar_tiempo(tiempo_id):
+def eliminar_tiempo_nadador(tiempo_id):
     tiempo_registro = gestor_tiempos.obtener_tiempo_por_id(
         tiempo_id
     )
