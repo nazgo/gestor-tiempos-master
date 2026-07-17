@@ -1082,7 +1082,67 @@ class GestorTiemposMaster:
             tiempo_anterior = tiempo_actual
     
         return historial
+
+    def obtener_tiempo_por_id(self, tiempo_id):
+        cursor = self._execute("""
+            SELECT *
+            FROM tiempos
+            WHERE id = ?
+        """, (tiempo_id,), commit=False)
     
+        fila = cursor.fetchone()
+    
+        if not fila:
+            return None
+    
+        columnas = [col[0] for col in cursor.description]
+    
+        if hasattr(fila, "_asdict"):
+            return dict(fila._asdict())
+    
+        if hasattr(fila, "keys"):
+            return dict(fila)
+    
+        return dict(zip(columnas, fila))
+    
+    def editar_tiempo(
+        self,
+        tiempo_id,
+        estilo,
+        distancia,
+        tiempo,
+        fecha,
+        piscina,
+        competencia_id=None
+    ):
+        tiempo_segundos = self.convertir_tiempo_a_segundos(tiempo)
+    
+        self._execute("""
+            UPDATE tiempos
+            SET estilo = ?,
+                distancia = ?,
+                tiempo = ?,
+                tiempo_segundos = ?,
+                fecha = ?,
+                piscina = ?,
+                competencia_id = ?
+            WHERE id = ?
+        """, (
+            estilo,
+            distancia,
+            tiempo,
+            tiempo_segundos,
+            fecha,
+            piscina,
+            competencia_id,
+            tiempo_id
+        ))
+
+    def eliminar_tiempo(self, tiempo_id):
+        self._execute("""
+            DELETE FROM tiempos
+            WHERE id = ?
+        """, (tiempo_id,))
 
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
