@@ -701,9 +701,9 @@ class GestorTiemposMaster:
         return pdf_path
 
     def importar_csv(self, file):
-        """Importa tiempos desde un archivo CSV."""
         import csv
         from io import StringIO
+        count = 0
 
         stream = StringIO(file.stream.read().decode("UTF-8"))
         csv_input = csv.reader(stream)
@@ -719,7 +719,6 @@ class GestorTiemposMaster:
                     tiempo = row[5].strip()
                     fecha_str = row[6].strip()
 
-                    # Parseo flexible de fecha
                     fecha = None
                     for fmt in ('%d-%m-%Y', '%d/%m/%Y', '%Y-%m-%d', '%m/%d/%Y'):
                         try:
@@ -732,10 +731,11 @@ class GestorTiemposMaster:
                         fecha = date.today()
 
                     self.agregar_tiempo(nombre, estilo, distancia, tiempo, fecha, piscina)
-                    print(f"✅ Importado: {nombre} - {estilo} {distancia}m")
+                    count += 1
                 except Exception as e:
                     print(f"Error al importar fila {row}: {e}")
                     continue
+        return count
 
     def __del__(self):
         self.cerrar_conexion()
