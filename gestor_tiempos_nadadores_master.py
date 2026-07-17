@@ -343,7 +343,7 @@ class GestorTiemposMaster:
             raise ValueError(f"Estilo inválido. Opciones: {', '.join(self.ESTILOS)}")
         
         # Aceptar distancias de 25m y 50m
-        distancias_validas = [25, 50, 100, 200, 400, 800, 1500]
+        distancias_validas = [50, 100, 200, 400, 800, 1500]
         if distancia not in distancias_validas:
             raise ValueError(f"Distancia inválida. Opciones: {distancias_validas}")
 
