@@ -803,22 +803,34 @@ def importar_tiempos():
         if 'file' not in request.files:
             flash('No se seleccionó archivo', 'danger')
             return redirect(url_for('importar_tiempos'))
-        
+
         file = request.files['file']
+
         if file.filename == '':
             flash('No se seleccionó archivo', 'danger')
             return redirect(url_for('importar_tiempos'))
-        
-        if file and file.filename.endswith('.csv'):
+
+        if file and file.filename.lower().endswith('.csv'):
             try:
                 count = gestor_tiempos.importar_csv(file)
-                flash(f'✅ {count} tiempos importados correctamente', 'success')
+
+                flash(
+                    f'✅ {count} tiempos importados correctamente',
+                    'success'
+                )
+
                 return redirect(url_for('listar_tiempos'))
+
             except Exception as e:
-                flash(f'❌ Error al importar: {str(e)}', 'danger')
+                print("❌ ERROR COMPLETO AL IMPORTAR:", repr(e))
+
+                flash(
+                    f'❌ Error al importar: {str(e)}',
+                    'danger'
+                )
         else:
             flash('Solo se permiten archivos CSV', 'danger')
-    
+
     return render_template('importar.html')
 
 @app.route('/exportar_pdf')
