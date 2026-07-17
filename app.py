@@ -350,29 +350,108 @@ def listar_tiempos():
 @login_required
 @editor_required
 def editar_tiempo(tiempo_id):
-    tiempo = gestor_tiempos.obtener_tiempo_por_id(tiempo_id)
-    if not tiempo:
-        flash('Tiempo no encontrado', 'danger')
+    tiempo_registro = gestor_tiempos.obtener_tiempo_por_id(
+        tiempo_id
+    )
+
+    if not tiempo_registro:
+        flash('Tiempo no encontrado.', 'danger')
         return redirect(url_for('listar_tiempos'))
+
+    competencias = gestor_tiempos.listar_competencias()
+
+    categorias = [
+        'Juvenil',
+        'Master 18-24',
+        'Master 25-29',
+        'Master 30-34',
+        'Master 35-39',
+        'Master 40-44',
+        'Master 45-49',
+        'Master 50-54',
+        'Master 55-59',
+        'Master 60-64',
+        'Master 65-69',
+        'Master 70-74',
+        'Master 75-79',
+        'Master 80-84',
+        'Master 85-89',
+        'Master 90+'
+    ]
 
     if request.method == 'POST':
         try:
-            nombre = request.form['nombre']
             estilo = request.form['estilo']
             distancia = int(request.form['distancia'])
-            piscina = request.form.get('piscina', '25 metros')
-            tiempo_str = request.form['tiempo']
-            fecha = datetime.strptime(request.form['fecha'], '%Y-%m-%d').date()
+            tiempo = request.form['tiempo'].strip()
 
-            gestor_tiempos.actualizar_tiempo(tiempo_id, nombre, estilo, distancia, piscina, tiempo_str, fecha)
-            flash('✅ Tiempo actualizado correctamente', 'success')
-            return redirect(url_for('listar_tiempos'))
+            piscina = request.form.get(
+                'piscina',
+                '25 metros'
+            )
+
+            categoria = request.form.get(
+                'categoria',
+                ''
+            ).strip()
+
+            competencia_id = request.form.get(
+                'competencia_id',
+                type=int
+            )
+
+            fecha_str = request.form.get('fecha')
+
+            fecha = (
+                datetime.strptime(
+                    fecha_str,
+                    '%Y-%m-%d'
+                ).date()
+                if fecha_str
+                else None
+            )
+
+            if not categoria:
+                raise ValueError(
+                    'Debe seleccionar una categoría.'
+                )
+
+            gestor_tiempos.editar_tiempo(
+                tiempo_id=tiempo_id,
+                estilo=estilo,
+                distancia=distancia,
+                tiempo=tiempo,
+                fecha=fecha,
+                piscina=piscina,
+                competencia_id=competencia_id,
+                categoria=categoria
+            )
+
+            flash(
+                'Tiempo actualizado correctamente.',
+                'success'
+            )
+
+            return redirect(
+                url_for('listar_tiempos')
+            )
+
         except Exception as e:
-            flash(f'❌ Error: {str(e)}', 'danger')
+            print("Error editando tiempo:", e)
 
-    return render_template('editar_tiempo.html', tiempo=tiempo, 
-                         estilos=gestor_tiempos.ESTILOS, 
-                         distancias=gestor_tiempos.DISTANCIAS)
+            flash(
+                f'Error al editar el tiempo: {e}',
+                'danger'
+            )
+
+    return render_template(
+        'editar_tiempo.html',
+        tiempo=tiempo_registro,
+        estilos=gestor_tiempos.ESTILOS,
+        distancias=gestor_tiempos.DISTANCIAS,
+        competencias=competencias,
+        categorias=categorias
+    )
 
 
 @app.route('/tiempo/<int:tiempo_id>/eliminar', methods=['POST'])
