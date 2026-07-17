@@ -1113,7 +1113,8 @@ class GestorTiemposMaster:
         tiempo,
         fecha,
         piscina,
-        competencia_id=None
+        competencia_id=None,
+        categoria=None
     ):
         tiempo_segundos = self.convertir_tiempo_a_segundos(tiempo)
     
@@ -1125,7 +1126,8 @@ class GestorTiemposMaster:
                 tiempo_segundos = ?,
                 fecha = ?,
                 piscina = ?,
-                competencia_id = ?
+                competencia_id = ?,
+                categoria = ?
             WHERE id = ?
         """, (
             estilo,
@@ -1135,6 +1137,7 @@ class GestorTiemposMaster:
             fecha,
             piscina,
             competencia_id,
+            categoria,
             tiempo_id
         ))
 
