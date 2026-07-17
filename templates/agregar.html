@@ -84,9 +84,31 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Categoría de Edad</label>
-                            <input type="text" class="form-control" 
-                                   value="{{ nadador.categoria_master if nadador else 'Master' }}" readonly>
+                            <label for="categoria" class="form-label">
+                                Categoría de Edad
+                            </label>
+                        
+                            <select
+                                id="categoria"
+                                name="categoria"
+                                class="form-select"
+                                required
+                            >
+                                <option value="">
+                                    -- Seleccione una categoría --
+                                </option>
+                        
+                                {% for categoria in categorias %}
+                                    <option
+                                        value="{{ categoria }}"
+                                        {% if request.form.get('categoria') == categoria %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ categoria }}
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Tiempo (MM:SS.cc)</label>
