@@ -786,20 +786,49 @@ def actualizar_asistencia():
 @app.route('/season_best', methods=['GET', 'POST'])
 @login_required
 def season_best():
-    if request.method == 'POST':
-        nombre = request.form.get('nombre', '').strip()
-        estilo = request.form.get('estilo')
-        distancia = request.form.get('distancia')
-        categoria = request.form.get('categoria')
-        year = request.form.get('year')
+    nadadores = gestor_nadadores.listar_nadadores()
 
-        best = gestor_tiempos.obtener_season_best_avanzado(nombre, estilo, distancia, categoria, year)
-        return render_template('season_best.html', best=best, nombre=nombre, 
-                             estilo=estilo, distancia=distancia, categoria=categoria)
-    
-    return render_template('season_best_form.html', 
-                         estilos=gestor_tiempos.ESTILOS, 
-                         distancias=gestor_tiempos.DISTANCIAS)
+    nadador = None
+    mejores_tiempos = []
+    consulta_realizada = False
+
+    if request.method == 'POST':
+        consulta_realizada = True
+
+        nadador_id = request.form.get(
+            'nadador_id',
+            type=int
+        )
+
+        if not nadador_id:
+            flash(
+                'Debe seleccionar un nadador.',
+                'danger'
+            )
+        else:
+            nadador = gestor_nadadores.obtener_nadador(
+                nadador_id
+            )
+
+            if not nadador:
+                flash(
+                    'Nadador no encontrado.',
+                    'danger'
+                )
+            else:
+                mejores_tiempos = (
+                    gestor_tiempos.obtener_season_best(
+                        nadador_id
+                    )
+                )
+
+    return render_template(
+        'season_best.html',
+        nadadores=nadadores,
+        nadador=nadador,
+        mejores_tiempos=mejores_tiempos,
+        consulta_realizada=consulta_realizada
+    )
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
