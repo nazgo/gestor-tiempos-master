@@ -831,7 +831,7 @@ def actualizar_asistencia():
 @app.route('/tiempo/<int:tiempo_id>/editar', methods=['GET', 'POST'])
 @login_required
 @editor_required
-def editar_tiempo(tiempo_id):
+def editar_tiempo_nadador(tiempo_id):
     tiempo_registro = gestor_tiempos.obtener_tiempo_por_id(
         tiempo_id
     )
