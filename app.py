@@ -213,12 +213,40 @@ def agregar():
     competencias = gestor_tiempos.listar_competencias()
     nadadores = gestor_nadadores.listar_nadadores()
 
+    categorias = [
+        'Juvenil',
+        'Master 18-24',
+        'Master 25-29',
+        'Master 30-34',
+        'Master 35-39',
+        'Master 40-44',
+        'Master 45-49',
+        'Master 50-54',
+        'Master 55-59',
+        'Master 60-64',
+        'Master 65-69',
+        'Master 70-74',
+        'Master 75-79',
+        'Master 80-84',
+        'Master 85-89',
+        'Master 90+'
+    ]
+
     if request.method == 'POST':
         try:
             nombre = request.form['nombre'].strip()
             estilo = request.form['estilo']
             distancia = int(request.form['distancia'])
-            piscina = request.form.get('piscina', '25 metros')
+            piscina = request.form.get(
+                'piscina',
+                '25 metros'
+            )
+
+            categoria = request.form.get(
+                'categoria',
+                ''
+            ).strip()
+
             tiempo = request.form['tiempo'].strip()
             fecha_str = request.form.get('fecha')
 
@@ -227,18 +255,26 @@ def agregar():
                 type=int
             )
 
+            if not categoria:
+                raise ValueError(
+                    'Debe seleccionar una categoría'
+                )
+
             fecha = (
-                datetime.strptime(fecha_str, '%Y-%m-%d').date()
+                datetime.strptime(
+                    fecha_str,
+                    '%Y-%m-%d'
+                ).date()
                 if fecha_str
                 else None
             )
 
-            # Buscar el nadador por nombre completo
             nadador_id = None
 
             for nadador in nadadores:
                 nombre_completo = (
-                    f"{nadador['nombre']} {nadador['apellido']}"
+                    f"{nadador['nombre']} "
+                    f"{nadador['apellido']}"
                 ).strip()
 
                 if nombre_completo.lower() == nombre.lower():
@@ -246,14 +282,18 @@ def agregar():
                     break
 
             if not nadador_id:
-                flash('❌ Nadador no encontrado', 'danger')
+                flash(
+                    '❌ Nadador no encontrado',
+                    'danger'
+                )
 
                 return render_template(
                     'agregar.html',
                     estilos=gestor_tiempos.ESTILOS,
                     distancias=gestor_tiempos.DISTANCIAS,
                     competencias=competencias,
-                    nadadores=nadadores
+                    nadadores=nadadores,
+                    categorias=categorias
                 )
 
             gestor_tiempos.agregar_tiempo(
@@ -277,18 +317,24 @@ def agregar():
                 'success'
             )
 
-            return redirect(url_for('listar_tiempos'))
+            return redirect(
+                url_for('listar_tiempos')
+            )
 
         except Exception as e:
             print("Error registrando tiempo:", e)
-            flash(f'❌ Error: {str(e)}', 'danger')
+            flash(
+                f'❌ Error: {str(e)}',
+                'danger'
+            )
 
     return render_template(
         'agregar.html',
         estilos=gestor_tiempos.ESTILOS,
         distancias=gestor_tiempos.DISTANCIAS,
         competencias=competencias,
-        nadadores=nadadores
+        nadadores=nadadores,
+        categorias=categorias
     )
 
 
