@@ -171,50 +171,52 @@ class GestorNadadores:
             except UnicodeDecodeError:
                 contenido = contenido.decode("latin-1")
     
-        muestra = contenido[:2048]
-    
-        try:
-            dialecto = csv.Sniffer().sniff(
-                muestra,
-                delimiters=",;"
-            )
-    
-            lector = csv.reader(
-                io.StringIO(contenido),
-                dialecto
-            )
-    
-        except csv.Error:
-            lector = csv.reader(
-                io.StringIO(contenido),
-                delimiter=","
-            )
-    
         importados = 0
         omitidos = 0
         errores = []
     
+        # Tus datos están separados por comas.
+        # No usamos Sniffer porque estaba detectando incorrectamente
+        # el separador del archivo.
+        lector = csv.reader(
+            io.StringIO(contenido),
+            delimiter=","
+        )
+    
         for numero_fila, fila in enumerate(lector, start=1):
             try:
-                # Saltar filas vacías
-                if not fila or not any(
+                # Eliminar espacios y columnas vacías sobrantes
+                fila = [
                     str(celda).strip()
                     for celda in fila
-                ):
+                ]
+    
+                while fila and fila[-1] == "":
+                    fila.pop()
+    
+                if not fila:
                     continue
     
-                # Se esperan 5 columnas:
-                # nombre, apellido, fecha_nacimiento, rut, genero
+                # Respaldo: si todo quedó dentro de la primera celda,
+                # volver a separar esa celda por comas.
+                if len(fila) == 1 and "," in fila[0]:
+                    fila = [
+                        celda.strip()
+                        for celda in fila[0].split(",")
+                    ]
+    
                 if len(fila) < 5:
                     raise ValueError(
                         f"Se esperaban 5 columnas y llegaron "
-                        f"{len(fila)}."
+                        f"{len(fila)}: {fila}"
                     )
     
+                # Orden real del archivo:
+                # Nombre, Apellido, RUT, Fecha Nacimiento, Genero
                 nombre = fila[0].strip()
                 apellido = fila[1].strip()
-                fecha_csv = fila[2].strip()
-                rut = fila[3].strip()
+                rut = fila[2].strip()
+                fecha_csv = fila[3].strip()
                 genero = fila[4].strip()
     
                 # Ignorar encabezado
@@ -271,9 +273,7 @@ class GestorNadadores:
                             fecha_csv,
                             formato
                         ).date()
-    
                         break
-    
                     except ValueError:
                         continue
     
@@ -283,15 +283,17 @@ class GestorNadadores:
                         "Use DD-MM-AAAA."
                     )
     
-                # RUT opcional
-                rut = rut if rut else None
+                # Normalizar RUT
+                rut = rut.replace(".", "").strip()
     
-                # Calcular categoría automáticamente
+                if not rut:
+                    rut = None
+    
                 categoria = self.calcular_categoria_master(
                     fecha_nacimiento
                 )
     
-                # Validar duplicado por RUT
+                # Buscar duplicado por RUT
                 if rut:
                     cursor_rut = self._execute("""
                         SELECT id
@@ -308,12 +310,11 @@ class GestorNadadores:
     
                         print(
                             f"Fila {numero_fila} omitida: "
-                            f"ya existe un nadador con RUT {rut}"
+                            f"ya existe el RUT {rut}"
                         )
-    
                         continue
     
-                # Validar duplicado por nombre y fecha
+                # Buscar duplicado por nombre, apellido y fecha
                 cursor_duplicado = self._execute("""
                     SELECT id
                     FROM nadadores
@@ -336,10 +337,8 @@ class GestorNadadores:
                         f"Fila {numero_fila} omitida: "
                         f"{nombre} {apellido} ya existe"
                     )
-    
                     continue
     
-                # Insertar nadador
                 self._execute("""
                     INSERT INTO nadadores (
                         nombre,
