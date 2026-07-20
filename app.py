@@ -863,8 +863,68 @@ def descargar_plantilla():
 @app.route('/mejores_tiempos')
 @login_required
 def mejores_tiempos():
-    top_tiempos = gestor_tiempos.obtener_top_5_por_categoria_estilo()
-    return render_template('mejores_tiempos.html', top_tiempos=top_tiempos)
+    piscina = request.args.get(
+        'piscina',
+        '50 metros'
+    )
+
+    anio = request.args.get(
+        'anio',
+        default=2026,
+        type=int
+    )
+
+    top_tiempos = (
+        gestor_tiempos
+        .obtener_top_4_por_categoria_genero_estilo(
+            piscina=piscina,
+            anio=anio
+        )
+    )
+
+    grupos = {}
+
+    for tiempo in top_tiempos:
+        categoria = tiempo.get(
+            'categoria_master',
+            'Sin categoría'
+        )
+
+        genero = tiempo.get(
+            'genero',
+            'Sin género'
+        )
+
+        estilo = tiempo.get(
+            'estilo',
+            'Sin estilo'
+        )
+
+        distancia = tiempo.get(
+            'distancia',
+            0
+        )
+
+        grupos.setdefault(
+            categoria,
+            {}
+        ).setdefault(
+            genero,
+            {}
+        ).setdefault(
+            estilo,
+            {}
+        ).setdefault(
+            distancia,
+            []
+        ).append(tiempo)
+
+    return render_template(
+        'mejores_tiempos.html',
+        grupos=grupos,
+        piscina=piscina,
+        anio=anio
+    )
 
 
 @app.route('/asistencias')
