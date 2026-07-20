@@ -1415,8 +1415,11 @@ def agregar_competencia():
             )
 
             return redirect(
-                url_for('calendario_competencias')
-            )
+    url_for(
+        'calendario_competencias',
+        anio=fecha.year
+    )
+)
 
         except Exception as e:
             print(
