@@ -1231,38 +1231,26 @@ class GestorTiemposMaster:
     
         return competencias
 
-    def obtener_tabla_asistencia(self):
-        """
-        Devuelve nadadores, competencias y los estados registrados
-        para construir la matriz de asistencia.
-        """
-    
+    def obtener_tabla_asistencia(self, anio):
         cursor_nadadores = self._execute("""
             SELECT
                 id,
                 nombre,
                 apellido
             FROM nadadores
-            ORDER BY apellido, nombre
+            ORDER BY apellido ASC, nombre ASC
         """, commit=False)
     
         filas_nadadores = cursor_nadadores.fetchall()
-        columnas_nadadores = [
-            columna[0]
-            for columna in cursor_nadadores.description
+    
+        nadadores = [
+            self._row_to_dict(
+                fila,
+                cursor_nadadores
+            )
+            for fila in filas_nadadores
+            if fila
         ]
-    
-        nadadores = []
-    
-        for fila in filas_nadadores:
-            if hasattr(fila, "_asdict"):
-                nadadores.append(dict(fila._asdict()))
-            elif hasattr(fila, "keys"):
-                nadadores.append(dict(fila))
-            else:
-                nadadores.append(
-                    dict(zip(columnas_nadadores, fila))
-                )
     
         cursor_competencias = self._execute("""
             SELECT
@@ -1270,50 +1258,71 @@ class GestorTiemposMaster:
                 fecha,
                 nombre
             FROM competencias
-            ORDER BY fecha, id
-        """, commit=False)
+            WHERE EXTRACT(YEAR FROM fecha) = ?
+            ORDER BY fecha ASC, id ASC
+        """, (
+            anio,
+        ), commit=False)
     
-        filas_competencias = cursor_competencias.fetchall()
-        columnas_competencias = [
-            columna[0]
-            for columna in cursor_competencias.description
+        filas_competencias = (
+            cursor_competencias.fetchall()
+        )
+    
+        competencias = [
+            self._row_to_dict(
+                fila,
+                cursor_competencias
+            )
+            for fila in filas_competencias
+            if fila
         ]
     
-        competencias = []
-    
-        for fila in filas_competencias:
-            if hasattr(fila, "_asdict"):
-                competencias.append(dict(fila._asdict()))
-            elif hasattr(fila, "keys"):
-                competencias.append(dict(fila))
-            else:
-                competencias.append(
-                    dict(zip(columnas_competencias, fila))
-                )
-    
-        cursor_asistencias = self._execute("""
-            SELECT
-                nadador_id,
-                competencia_id,
-                estado
-            FROM asistencia_competencias
-        """, commit=False)
-    
-        filas_asistencias = cursor_asistencias.fetchall()
+        ids_competencias = [
+            competencia['id']
+            for competencia in competencias
+        ]
     
         asistencias = {}
     
-        for fila in filas_asistencias:
-            nadador_id = fila[0]
-            competencia_id = fila[1]
-            estado = fila[2]
+        if ids_competencias:
+            placeholders = ", ".join(
+                ["?"] * len(ids_competencias)
+            )
     
-            asistencias[(nadador_id, competencia_id)] = estado
+            cursor_asistencias = self._execute(
+                f"""
+                SELECT
+                    nadador_id,
+                    competencia_id,
+                    estado
+                FROM asistencia_competencias
+                WHERE competencia_id IN (
+                    {placeholders}
+                )
+                """,
+                tuple(ids_competencias),
+                commit=False
+            )
+    
+            for fila in cursor_asistencias.fetchall():
+                registro = self._row_to_dict(
+                    fila,
+                    cursor_asistencias
+                )
+    
+                clave = (
+                    registro['nadador_id'],
+                    registro['competencia_id']
+                )
+    
+                asistencias[clave] = (
+                    registro['estado']
+                )
     
         return {
-            "nadadores": nadadores,
-            "competencias": competencias,
-            "asistencias": asistencias
+            'nadadores': nadadores,
+            'competencias': competencias,
+            'asistencias': asistencias
         }
 
     def actualizar_asistencia(
