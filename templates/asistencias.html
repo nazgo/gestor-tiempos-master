@@ -70,72 +70,36 @@
 
                                 <td class="text-center celda-asistencia">
 
-                                    <form
-                                        method="POST"
-                                        action="{{ url_for('actualizar_asistencia') }}"
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="nadador_id"
-                                            value="{{ nadador.id }}"
-                                        >
-
-                                        <input
-                                            type="hidden"
-                                            name="competencia_id"
-                                            value="{{ competencia.id }}"
-                                        >
-
-                                        <select
-                                            name="estado"
-                                            class="form-select form-select-sm selector-asistencia
-                                                {% if estado == 'PRESENTE' %}
-                                                    estado-presente
-                                                {% elif estado == 'AUSENTE' %}
-                                                    estado-ausente
-                                                {% elif estado == 'NO_APLICA' %}
-                                                    estado-no-aplica
-                                                {% endif %}
-                                            "
-                                            onchange="this.form.submit()"
-                                        >
-                                            <option
-                                                value="SIN_REGISTRO"
-                                                {% if estado == 'SIN_REGISTRO' %}
-                                                    selected
-                                                {% endif %}
-                                            >
-                                                ·
-                                            </option>
-
-                                            <option
-                                                value="PRESENTE"
-                                                {% if estado == 'PRESENTE' %}
-                                                    selected
-                                                {% endif %}
-                                            >
-                                                ✓
-                                            </option>
-
-                                            <option
-                                                value="AUSENTE"
-                                                {% if estado == 'AUSENTE' %}
-                                                    selected
-                                                {% endif %}
-                                            >
-                                                X
-                                            </option>
-
-                                            <option
-                                                value="NO_APLICA"
-                                                {% if estado == 'NO_APLICA' %}
-                                                    selected
-                                                {% endif %}
-                                            >
-                                                -
-                                            </option>
-                                        </select>
-                                    </form>
+                                    <button
+    type="button"
+    class="btn-asistencia
+        {% if estado == 'PRESENTE' %}
+            asistencia-presente
+        {% elif estado == 'AUSENTE' %}
+            asistencia-ausente
+        {% elif estado == 'NO_APLICA' %}
+            asistencia-no-aplica
+        {% else %}
+            asistencia-sin-registro
+        {% endif %}
+    "
+    data-nadador-id="{{ nadador.id }}"
+    data-competencia-id="{{ competencia.id }}"
+    data-estado="{{ estado }}"
+    title="Haz clic para cambiar el estado"
+>
+    <span class="simbolo-asistencia">
+        {% if estado == 'PRESENTE' %}
+            ✓
+        {% elif estado == 'AUSENTE' %}
+            ✗
+        {% elif estado == 'NO_APLICA' %}
+            –
+        {% else %}
+            ·
+        {% endif %}
+    </span>
+</button>
 
                                 </td>
                             {% endfor %}
