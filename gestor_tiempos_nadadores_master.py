@@ -1510,6 +1510,32 @@ class GestorTiemposMaster:
             WHERE id = ?
         """, (estado, competencia_id))
 
+    def listar_competencias_por_anio(self, anio):
+        cursor = self._execute("""
+            SELECT
+                id,
+                fecha,
+                mes,
+                lugar,
+                organiza,
+                nombre,
+                tipo_piscina,
+                estado
+            FROM competencias
+            WHERE EXTRACT(YEAR FROM fecha) = ?
+            ORDER BY fecha ASC, id ASC
+        """, (
+            anio,
+        ), commit=False)
+    
+        filas = cursor.fetchall()
+    
+        return [
+            self._row_to_dict(fila, cursor)
+            for fila in filas
+            if fila
+        ]
+
     def comparacion_nadador_25_50(self, nadador_id):
         """
         Compara los mejores tiempos de un nadador en piscinas de 25 y 50 metros.
