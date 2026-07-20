@@ -687,95 +687,54 @@ class GestorTiemposMaster:
             'por_prueba': por_prueba
         }
 
-    def obtener_top_4_por_categoria_genero_estilo(
-        self,
-        piscina="50 metros",
-        anio=2026
-    ):
+    def obtener_top_4_por_categoria_genero_estilo(self, anio):
         cursor = self._execute("""
-            WITH ranking AS (
-                SELECT
-                    COALESCE(
-                        t.categoria,
-                        n.categoria_master,
-                        'Sin categoría'
-                    ) AS categoria_master,
+            SELECT
+                n.categoria_master,
+                n.genero,
+                t.estilo,
+                t.distancia,
+                t.tiempo,
+                t.fecha,
+                t.nombre_nadador,
+                t.tiempo_segundos
+            FROM tiempos t
+            INNER JOIN nadadores n
+                ON LOWER(TRIM(t.nombre_nadador)) =
+                   LOWER(TRIM(n.nombre || ' ' || n.apellido))
+            WHERE
+                EXTRACT(YEAR FROM t.fecha) = ?
+                AND t.distancia IN (50,100)
+                AND NOT (
+                    LOWER(t.estilo) = 'combinado'
+                    AND t.distancia = 100
+                )
+            ORDER BY
+                n.categoria_master,
+                n.genero,
+                t.estilo,
+                t.distancia,
+                t.tiempo_segundos
+        """, (anio,), commit=False)
     
-                    COALESCE(
-                        t.genero,
-                        n.genero,
-                        'Sin género'
-                    ) AS genero,
+        registros = [self._row_to_dict(r, cursor) for r in cursor.fetchall()]
     
-                    t.estilo,
-                    t.distancia,
-                    t.tiempo,
-                    t.tiempo_segundos,
-                    t.fecha,
-                    t.nombre_nadador,
+        resultado = {}
     
-                    ROW_NUMBER() OVER (
-                        PARTITION BY
-                            COALESCE(
-                                t.categoria,
-                                n.categoria_master,
-                                'Sin categoría'
-                            ),
-                            COALESCE(
-                                t.genero,
-                                n.genero,
-                                'Sin género'
-                            ),
-                            t.estilo,
-                            t.distancia
-    
-                        ORDER BY
-                            t.tiempo_segundos ASC,
-                            t.fecha ASC
-                    ) AS posicion
-    
-                FROM tiempos t
-    
-                LEFT JOIN nadadores n
-                    ON LOWER(TRIM(t.nombre_nadador)) =
-                       LOWER(TRIM(n.nombre || ' ' || n.apellido))
-    
-                WHERE LOWER(TRIM(t.piscina)) = LOWER(TRIM(?))
-                  AND EXTRACT(YEAR FROM t.fecha) = ?
+        for r in registros:
+            clave = (
+                r["categoria_master"],
+                r["genero"],
+                r["estilo"],
+                r["distancia"]
             )
     
-            SELECT
-                categoria_master,
-                genero,
-                estilo,
-                distancia,
-                tiempo,
-                fecha,
-                nombre_nadador,
-                posicion
+            resultado.setdefault(clave, [])
     
-            FROM ranking
+            if len(resultado[clave]) < 4:
+                resultado[clave].append(r)
     
-            WHERE posicion <= 4
-    
-            ORDER BY
-                categoria_master,
-                genero,
-                estilo,
-                distancia,
-                posicion
-        """, (
-            piscina,
-            anio
-        ), commit=False)
-    
-        filas = cursor.fetchall()
-    
-        return [
-            self._row_to_dict(fila, cursor)
-            for fila in filas
-            if fila
-        ]
+        return resultado
 
     # ====================== EXPORTACIONES ======================
     def exportar_a_csv(self, filepath: Optional[str] = None) -> str:
