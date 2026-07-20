@@ -629,15 +629,35 @@ def tiempos_nadador(nadador_id):
 
 @app.route('/calendario')
 @login_required
-def calendario_competencias():
+def seleccionar_anio_calendario():
+    return render_template(
+        'seleccionar_anio_calendario.html'
+    )
 
-    competencias = gestor_tiempos.listar_competencias()
 
-    print(competencias)   # <-- solo para depuración
+@app.route('/calendario/<int:anio>')
+@login_required
+def calendario_competencias(anio):
+    if anio not in (2025, 2026):
+        flash(
+            'El año seleccionado no es válido.',
+            'danger'
+        )
+
+        return redirect(
+            url_for('seleccionar_anio_calendario')
+        )
+
+    competencias = (
+        gestor_tiempos.listar_competencias_por_anio(
+            anio
+        )
+    )
 
     return render_template(
-        "calendario.html",
-        competencias=competencias
+        'calendario.html',
+        competencias=competencias,
+        anio=anio
     )
 
 @app.route('/calendario/actualizar_estado', methods=['POST'])
