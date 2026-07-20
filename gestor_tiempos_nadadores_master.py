@@ -687,22 +687,95 @@ class GestorTiemposMaster:
             'por_prueba': por_prueba
         }
 
-    def obtener_top_5_por_categoria_estilo(self):
-        cursor = self._execute('''
-            SELECT 
-                n.categoria_master,
-                n.genero,
-                t.estilo,
-                t.distancia,
-                t.tiempo,
-                t.fecha,
-                t.nombre_nadador
-            FROM tiempos t
-            LEFT JOIN nadadores n ON LOWER(t.nombre_nadador) = LOWER(n.nombre || ' ' || n.apellido)
-            ORDER BY t.tiempo_segundos ASC
-            LIMIT 50
-        ''', commit=False)
-        return [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
+    def obtener_top_4_por_categoria_genero_estilo(
+        self,
+        piscina="50 metros",
+        anio=2026
+    ):
+        cursor = self._execute("""
+            WITH ranking AS (
+                SELECT
+                    COALESCE(
+                        t.categoria,
+                        n.categoria_master,
+                        'Sin categoría'
+                    ) AS categoria_master,
+    
+                    COALESCE(
+                        t.genero,
+                        n.genero,
+                        'Sin género'
+                    ) AS genero,
+    
+                    t.estilo,
+                    t.distancia,
+                    t.tiempo,
+                    t.tiempo_segundos,
+                    t.fecha,
+                    t.nombre_nadador,
+    
+                    ROW_NUMBER() OVER (
+                        PARTITION BY
+                            COALESCE(
+                                t.categoria,
+                                n.categoria_master,
+                                'Sin categoría'
+                            ),
+                            COALESCE(
+                                t.genero,
+                                n.genero,
+                                'Sin género'
+                            ),
+                            t.estilo,
+                            t.distancia
+    
+                        ORDER BY
+                            t.tiempo_segundos ASC,
+                            t.fecha ASC
+                    ) AS posicion
+    
+                FROM tiempos t
+    
+                LEFT JOIN nadadores n
+                    ON LOWER(TRIM(t.nombre_nadador)) =
+                       LOWER(TRIM(n.nombre || ' ' || n.apellido))
+    
+                WHERE LOWER(TRIM(t.piscina)) = LOWER(TRIM(?))
+                  AND EXTRACT(YEAR FROM t.fecha) = ?
+            )
+    
+            SELECT
+                categoria_master,
+                genero,
+                estilo,
+                distancia,
+                tiempo,
+                fecha,
+                nombre_nadador,
+                posicion
+    
+            FROM ranking
+    
+            WHERE posicion <= 4
+    
+            ORDER BY
+                categoria_master,
+                genero,
+                estilo,
+                distancia,
+                posicion
+        """, (
+            piscina,
+            anio
+        ), commit=False)
+    
+        filas = cursor.fetchall()
+    
+        return [
+            self._row_to_dict(fila, cursor)
+            for fila in filas
+            if fila
+        ]
 
     # ====================== EXPORTACIONES ======================
     def exportar_a_csv(self, filepath: Optional[str] = None) -> str:
