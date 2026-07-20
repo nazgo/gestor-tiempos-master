@@ -1,34 +1,323 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>🏆 Top 5 Mejores Tiempos por Categoría, Género y Estilo</h2>
+<div class="container py-4">
 
-<table class="table table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>Categoría</th>
-            <th>Género</th>
-            <th>Estilo</th>
-            <th>Distancia</th>
-            <th>Tiempo</th>
-            <th>Fecha</th>
-            <th>Nadador</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for t in top_tiempos %}
-        <tr>
-            <td>{{ t.categoria_master }}</td>
-            <td>{{ t.genero }}</td>
-            <td>{{ t.estilo }}</td>
-            <td>{{ t.distancia }}m</td>
-            <td><strong>{{ t.tiempo }}</strong></td>
-            <td>{{ t.fecha }}</td>
-            <td>{{ t.nombre_nadador }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">
+            <i class="fas fa-trophy text-warning"></i>
+            Mejores Tiempos en
+            {% if piscina == '25 metros' %}
+                25m
+            {% else %}
+                50m
+            {% endif %}
+            — {{ anio }}
+        </h2>
 
-<a href="/estadisticas" class="btn btn-secondary">← Volver a Estadísticas</a>
+        <p class="text-muted mb-0">
+            Top 4 por categoría, género, estilo y distancia
+        </p>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form
+                method="GET"
+                class="row g-3 align-items-end"
+            >
+                <div class="col-md-5">
+                    <label
+                        for="piscina"
+                        class="form-label fw-semibold"
+                    >
+                        Piscina
+                    </label>
+
+                    <select
+                        id="piscina"
+                        name="piscina"
+                        class="form-select"
+                    >
+                        <option
+                            value="25 metros"
+                            {% if piscina == '25 metros' %}
+                                selected
+                            {% endif %}
+                        >
+                            25 metros
+                        </option>
+
+                        <option
+                            value="50 metros"
+                            {% if piscina == '50 metros' %}
+                                selected
+                            {% endif %}
+                        >
+                            50 metros
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label
+                        for="anio"
+                        class="form-label fw-semibold"
+                    >
+                        Año
+                    </label>
+
+                    <input
+                        type="number"
+                        id="anio"
+                        name="anio"
+                        class="form-control"
+                        value="{{ anio }}"
+                        min="2000"
+                        max="2100"
+                    >
+                </div>
+
+                <div class="col-md-3">
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100"
+                    >
+                        Ver clasificación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% for categoria, generos in grupos.items() %}
+
+        <section class="categoria-card mb-4">
+
+            <div class="categoria-header">
+                {{ categoria }}
+            </div>
+
+            <div class="categoria-body">
+
+                {% for genero, estilos in generos.items() %}
+
+                    <div class="genero-bloque mb-4">
+
+                        <div class="genero-titulo">
+                            {% if genero == 'Femenino' %}
+                                <i class="fas fa-venus"></i>
+                            {% elif genero == 'Masculino' %}
+                                <i class="fas fa-mars"></i>
+                            {% else %}
+                                <i class="fas fa-user"></i>
+                            {% endif %}
+
+                            {{ genero }}
+                        </div>
+
+                        <div class="row g-3">
+
+                            {% for estilo, distancias in estilos.items() %}
+                                {% for distancia, tiempos in distancias.items() %}
+
+                                    <div class="col-lg-6 col-xl-4">
+
+                                        <div class="estilo-card h-100">
+
+                                            <div class="estilo-header">
+                                                {{ estilo }}
+                                                {{ distancia }}m
+                                            </div>
+
+                                            <div class="estilo-body">
+
+                                                {% for t in tiempos %}
+
+                                                    <div class="ranking-fila">
+
+                                                        <span class="ranking-posicion">
+                                                            {{ t.posicion }}
+                                                        </span>
+
+                                                        <span class="ranking-nombre">
+                                                            {{ t.nombre_nadador }}
+                                                        </span>
+
+                                                        <span class="ranking-tiempo">
+                                                            {{ t.tiempo }}
+                                                        </span>
+
+                                                    </div>
+
+                                                {% endfor %}
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                {% endfor %}
+                            {% endfor %}
+
+                        </div>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+        </section>
+
+    {% else %}
+
+        <div class="alert alert-warning text-center py-4">
+            <h5 class="mb-2">
+                No hay tiempos disponibles
+            </h5>
+
+            <p class="mb-0">
+                No existen registros para la piscina y el año seleccionados.
+            </p>
+        </div>
+
+    {% endfor %}
+
+    <div class="text-center mt-4">
+        <a
+            href="{{ url_for('estadisticas') }}"
+            class="btn btn-secondary"
+        >
+            ← Volver a Estadísticas
+        </a>
+    </div>
+
+</div>
+
+<style>
+    body {
+        background: #f7f5ff;
+    }
+
+    .categoria-card {
+        overflow: hidden;
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .categoria-header {
+        padding: 12px 18px;
+        color: #ffffff;
+        background: linear-gradient(
+            90deg,
+            #7448d8,
+            #966df0
+        );
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .categoria-body {
+        padding: 18px;
+    }
+
+    .genero-titulo {
+        margin-bottom: 12px;
+        padding-bottom: 6px;
+        color: #35323b;
+        border-bottom: 2px solid #ece7fb;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .genero-titulo i {
+        width: 22px;
+        color: #7448d8;
+    }
+
+    .estilo-card {
+        overflow: hidden;
+        border: 1px solid #ececec;
+        border-radius: 13px;
+        background: #ffffff;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .estilo-header {
+        padding: 10px 14px;
+        background: #f5f6f8;
+        color: #29272d;
+        border-bottom: 1px solid #dedede;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .estilo-body {
+        padding: 10px 14px 14px;
+    }
+
+    .ranking-fila {
+        display: grid;
+        grid-template-columns: 25px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        min-height: 36px;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .ranking-fila:last-child {
+        border-bottom: 0;
+    }
+
+    .ranking-posicion {
+        display: inline-flex;
+        width: 22px;
+        height: 22px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        background: #727b84;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .ranking-nombre {
+        overflow: hidden;
+        color: #34323a;
+        font-size: 0.91rem;
+        font-weight: 650;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ranking-tiempo {
+        display: inline-block;
+        min-width: 82px;
+        padding: 5px 9px;
+        color: #ffffff;
+        background: #168b57;
+        border-radius: 6px;
+        text-align: center;
+        font-size: 0.88rem;
+        font-weight: 800;
+    }
+
+    @media (max-width: 768px) {
+        .categoria-body {
+            padding: 12px;
+        }
+
+        .ranking-nombre {
+            font-size: 0.84rem;
+        }
+
+        .ranking-tiempo {
+            min-width: 75px;
+            font-size: 0.82rem;
+        }
+    }
+</style>
+
 {% endblock %}
