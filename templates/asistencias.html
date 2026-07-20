@@ -2,15 +2,15 @@
 
 {% block content %}
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-3">
 
-    <div class="text-center mb-4">
-        <h2 class="fw-bold text-primary">
+    <div class="text-center mb-3">
+        <h2 class="fw-bold text-primary mb-1">
             <i class="fas fa-clipboard-check"></i>
             Asistencia a Competencias
         </h2>
 
-        <p class="text-muted">
+        <p class="text-muted small mb-0">
             Registro de participación de nadadores por competencia
         </p>
     </div>
@@ -19,20 +19,17 @@
         <div class="card-body p-0">
 
             <div class="table-responsive tabla-asistencia">
-                <table class="table table-bordered table-hover align-middle mb-0">
+                <table class="table table-bordered table-hover table-sm align-middle mb-0 table-asistencias">
 
                     <thead>
                         <tr>
-                            <th class="columna-nadador">
-                                NADADOR(A)
-                            </th>
+                            <th class="columna-nadador">NADADOR(A)</th>
 
                             {% for competencia in competencias %}
                             <th class="columna-competencia">
                                 <div class="nombre-competencia">
                                     {{ competencia.nombre }}
                                 </div>
-
                                 <small>
                                     {% if competencia.fecha.strftime is defined %}
                                         {{ competencia.fecha.strftime('%d/%m/%Y') }}
@@ -48,74 +45,55 @@
                     <tbody>
                         {% for nadador in nadadores %}
                         <tr>
-
                             <td class="columna-nadador fw-semibold">
-                                {{ nadador.apellido }}
-                                {{ nadador.nombre }}
+                                {{ nadador.apellido }} {{ nadador.nombre }}
                             </td>
 
                             {% for competencia in competencias %}
-
-                                {% set clave = (
-                                    nadador.id,
-                                    competencia.id
-                                ) %}
-
-                                {% set estado =
-                                    asistencias.get(
-                                        clave,
-                                        'SIN_REGISTRO'
-                                    )
-                                %}
+                                {% set clave = (nadador.id, competencia.id) %}
+                                {% set estado = asistencias.get(clave, 'SIN_REGISTRO') %}
 
                                 <td class="text-center celda-asistencia">
-
                                     <button
-    type="button"
-    class="btn-asistencia
-        {% if estado == 'PRESENTE' %}
-            asistencia-presente
-        {% elif estado == 'AUSENTE' %}
-            asistencia-ausente
-        {% elif estado == 'NO_APLICA' %}
-            asistencia-no-aplica
-        {% else %}
-            asistencia-sin-registro
-        {% endif %}
-    "
-    data-nadador-id="{{ nadador.id }}"
-    data-competencia-id="{{ competencia.id }}"
-    data-estado="{{ estado }}"
-    title="Haz clic para cambiar el estado"
->
-    <span class="simbolo-asistencia">
-        {% if estado == 'PRESENTE' %}
-            ✓
-        {% elif estado == 'AUSENTE' %}
-            ✗
-        {% elif estado == 'NO_APLICA' %}
-            –
-        {% else %}
-            ·
-        {% endif %}
-    </span>
-</button>
-
+                                        type="button"
+                                        class="btn-asistencia
+                                            {% if estado == 'PRESENTE' %}
+                                                asistencia-presente
+                                            {% elif estado == 'AUSENTE' %}
+                                                asistencia-ausente
+                                            {% elif estado == 'NO_APLICA' %}
+                                                asistencia-no-aplica
+                                            {% else %}
+                                                asistencia-sin-registro
+                                            {% endif %}"
+                                        data-nadador-id="{{ nadador.id }}"
+                                        data-competencia-id="{{ competencia.id }}"
+                                        data-estado="{{ estado }}"
+                                        title="Haz clic para cambiar el estado"
+                                        aria-label="Cambiar estado de asistencia"
+                                    >
+                                        <span class="simbolo-asistencia">
+                                            {% if estado == 'PRESENTE' %}
+                                                <i class="fas fa-check"></i>
+                                            {% elif estado == 'AUSENTE' %}
+                                                <i class="fas fa-times"></i>
+                                            {% elif estado == 'NO_APLICA' %}
+                                                <i class="fas fa-minus"></i>
+                                            {% else %}
+                                                <i class="far fa-circle"></i>
+                                            {% endif %}
+                                        </span>
+                                    </button>
                                 </td>
                             {% endfor %}
                         </tr>
 
                         {% else %}
-
                         <tr>
-                            <td
-                                colspan="{{ competencias|length + 1 }}"
-                                class="text-center text-muted py-5"
-                            >
+                            <td colspan="{{ competencias|length + 1 }}" class="text-center text-muted py-4">
                                 No hay nadadores registrados.
                             </td>
                         </tr>
-
                         {% endfor %}
                     </tbody>
 
@@ -125,33 +103,27 @@
         </div>
     </div>
 
-    <div class="mt-3 d-flex flex-wrap justify-content-center gap-4">
+    <div class="mt-3 d-flex flex-wrap justify-content-center gap-3 leyenda-asistencia">
         <span>
-            <strong class="leyenda-presente">✓</strong>
+            <strong class="leyenda-presente"><i class="fas fa-check"></i></strong>
             Participó
         </span>
-
         <span>
-            <strong class="leyenda-ausente">X</strong>
+            <strong class="leyenda-ausente"><i class="fas fa-times"></i></strong>
             No participó
         </span>
-
         <span>
-            <strong>-</strong>
-            No pertenecía / no aplicaba
+            <strong class="leyenda-no-aplica"><i class="fas fa-minus"></i></strong>
+            No aplicaba
         </span>
-
         <span>
-            <strong>·</strong>
+            <strong class="leyenda-sin-registro"><i class="far fa-circle"></i></strong>
             Sin registrar
         </span>
     </div>
 
-    <div class="text-center mt-4">
-        <a
-            href="{{ url_for('index') }}"
-            class="btn btn-secondary"
-        >
+    <div class="text-center mt-3">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm">
             ← Volver al Inicio
         </a>
     </div>
@@ -160,11 +132,24 @@
 
 <style>
     .tabla-asistencia {
-        max-height: 72vh;
+        max-height: 76vh;
     }
 
     .tabla-asistencia table {
-        min-width: 1400px;
+        min-width: 1200px;
+    }
+
+    .table-asistencias {
+        font-size: 12px;
+        line-height: 1.1;
+    }
+
+    .table-asistencias th,
+    .table-asistencias td {
+        padding: 2px 5px !important;
+        height: 28px;
+        vertical-align: middle;
+        white-space: nowrap;
     }
 
     .tabla-asistencia thead th {
@@ -172,127 +157,186 @@
         top: 0;
         z-index: 3;
         background: #25a9c5;
-        color: white;
+        color: #ffffff;
         text-align: center;
         vertical-align: middle;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        border-color: rgba(255, 255, 255, 0.2);
     }
 
     .columna-nadador {
         position: sticky;
         left: 0;
         z-index: 2;
-        min-width: 220px;
+        min-width: 190px;
+        max-width: 220px;
         background: #d9eaf7 !important;
+        font-size: 12px;
     }
 
     thead .columna-nadador {
         z-index: 5;
         background: #25a9c5 !important;
+        color: #ffffff;
     }
 
     .columna-competencia {
-        min-width: 150px;
-        max-width: 170px;
-        font-size: 0.78rem;
+        min-width: 112px;
+        max-width: 135px;
+        font-size: 10px !important;
     }
 
     .nombre-competencia {
         white-space: normal;
-        line-height: 1.15;
-        margin-bottom: 5px;
+        line-height: 1.05;
+        margin-bottom: 2px;
+        font-weight: 700;
+    }
+
+    .columna-competencia small {
+        font-size: 9px;
+        opacity: 0.9;
     }
 
     .celda-asistencia {
-        min-width: 70px;
-        padding: 4px !important;
-    }
-
-    .selector-asistencia {
-        border: 0;
-        font-weight: 800;
-        text-align: center;
-        text-align-last: center;
-        background-image: none;
-        padding: 5px;
-        cursor: pointer;
-    }
-
-    .estado-presente {
-        color: #1769ff;
-        background-color: #edf4ff;
-    }
-
-    .estado-ausente {
-        color: red;
-        background-color: #fff1f1;
-    }
-
-    .estado-no-aplica {
-        color: #333;
-        background-color: #f2f2f2;
-    }
-
-    .leyenda-presente {
-        color: #1769ff;
-    }
-
-    .leyenda-ausente {
-        color: red;
+        min-width: 34px;
+        width: 34px;
+        padding: 1px 2px !important;
     }
 
     tbody tr:nth-child(even) td {
-        background-color: #e4f0f8;
+        background-color: #eaf3f9;
     }
 
     tbody tr:nth-child(even) .columna-nadador {
-        background-color: #cfe3f2 !important;
+        background-color: #d1e5f3 !important;
+    }
+
+    tbody tr:hover td {
+        background-color: #f3f9fc;
+    }
+
+    tbody tr:hover .columna-nadador {
+        background-color: #cce3f1 !important;
     }
 
     .btn-asistencia {
-    width: 48px;
-    height: 38px;
-    border: 0;
-    border-radius: 8px;
-    font-size: 1.35rem;
-    font-weight: 800;
-    cursor: pointer;
-    transition:
-        transform 0.12s ease,
-        opacity 0.12s ease,
-        background-color 0.12s ease;
-}
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border: 0;
+        border-radius: 5px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        transition: transform 0.1s ease, opacity 0.1s ease, background-color 0.1s ease, box-shadow 0.1s ease;
+    }
 
-.btn-asistencia:hover {
-    transform: scale(1.08);
-}
+    .btn-asistencia:hover {
+        transform: scale(1.06);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
+    }
 
-.btn-asistencia:disabled {
-    cursor: wait;
-}
+    .btn-asistencia:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+    }
 
-.btn-asistencia.guardando {
-    opacity: 0.45;
-}
+    .btn-asistencia:disabled {
+        cursor: wait;
+    }
 
-.asistencia-presente {
-    color: #0d6efd;
-    background: #eaf2ff;
-}
+    .btn-asistencia.guardando {
+        opacity: 0.45;
+    }
 
-.asistencia-ausente {
-    color: #dc3545;
-    background: #fff0f1;
-}
+    .simbolo-asistencia {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
 
-.asistencia-no-aplica {
-    color: #343a40;
-    background: #e9ecef;
-}
+    .asistencia-presente {
+        color: #0b57d0;
+        background: #e8f0fe;
+    }
 
-.asistencia-sin-registro {
-    color: #8a8f94;
-    background: transparent;
-}
+    .asistencia-ausente {
+        color: #b3261e;
+        background: #fce8e6;
+    }
+
+    .asistencia-no-aplica {
+        color: #4f565d;
+        background: #eceff1;
+    }
+
+    .asistencia-sin-registro {
+        color: #8a8f94;
+        background: transparent;
+    }
+
+    .leyenda-asistencia {
+        font-size: 12px;
+        color: #495057;
+    }
+
+    .leyenda-asistencia strong {
+        display: inline-flex;
+        width: 20px;
+        height: 20px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        margin-right: 4px;
+        font-size: 11px;
+    }
+
+    .leyenda-presente {
+        color: #0b57d0;
+        background: #e8f0fe;
+    }
+
+    .leyenda-ausente {
+        color: #b3261e;
+        background: #fce8e6;
+    }
+
+    .leyenda-no-aplica {
+        color: #4f565d;
+        background: #eceff1;
+    }
+
+    .leyenda-sin-registro {
+        color: #8a8f94;
+        background: transparent;
+        border: 1px solid #ced4da;
+    }
+
+    @media (max-width: 768px) {
+        .columna-nadador {
+            min-width: 155px;
+            max-width: 180px;
+            font-size: 11px;
+        }
+
+        .columna-competencia {
+            min-width: 100px;
+            max-width: 115px;
+        }
+
+        .table-asistencias {
+            font-size: 11px;
+        }
+    }
 </style>
 
 <script>
@@ -308,19 +352,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const configuracion = {
         'SIN_REGISTRO': {
-            simbolo: '·',
+            icono: '<i class="far fa-circle"></i>',
             clase: 'asistencia-sin-registro'
         },
         'PRESENTE': {
-            simbolo: '✓',
+            icono: '<i class="fas fa-check"></i>',
             clase: 'asistencia-presente'
         },
         'AUSENTE': {
-            simbolo: '✗',
+            icono: '<i class="fas fa-times"></i>',
             clase: 'asistencia-ausente'
         },
         'NO_APLICA': {
-            simbolo: '–',
+            icono: '<i class="fas fa-minus"></i>',
             clase: 'asistencia-no-aplica'
         }
     };
@@ -375,16 +419,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     configuracion[nuevoEstado].clase
                 );
 
-                boton.querySelector(
-                    '.simbolo-asistencia'
-                ).textContent = configuracion[nuevoEstado].simbolo;
+                boton.querySelector('.simbolo-asistencia').innerHTML =
+                    configuracion[nuevoEstado].icono;
 
             } catch (error) {
                 console.error(error);
-                alert(
-                    'Error al guardar la asistencia: ' +
-                    error.message
-                );
+                alert('Error al guardar la asistencia: ' + error.message);
             } finally {
                 boton.disabled = false;
                 boton.classList.remove('guardando');
