@@ -1169,5 +1169,54 @@ def shutdown_session(exception=None):
         except:
             pass
 
+@app.route('/asistencias/actualizar_ajax', methods=['POST'])
+@login_required
+@editor_required
+def actualizar_asistencia_ajax():
+    try:
+        datos = request.get_json(silent=True) or {}
+
+        nadador_id = datos.get('nadador_id')
+        competencia_id = datos.get('competencia_id')
+        estado = str(datos.get('estado', '')).strip()
+
+        estados_validos = {
+            'PRESENTE',
+            'AUSENTE',
+            'NO_APLICA',
+            'SIN_REGISTRO'
+        }
+
+        if not nadador_id or not competencia_id:
+            return {
+                'ok': False,
+                'mensaje': 'Faltan datos de nadador o competencia'
+            }, 400
+
+        if estado not in estados_validos:
+            return {
+                'ok': False,
+                'mensaje': 'Estado no válido'
+            }, 400
+
+        gestor_tiempos.actualizar_asistencia(
+            int(nadador_id),
+            int(competencia_id),
+            estado
+        )
+
+        return {
+            'ok': True,
+            'estado': estado
+        }
+
+    except Exception as e:
+        print('Error actualizando asistencia AJAX:', e)
+
+        return {
+            'ok': False,
+            'mensaje': str(e)
+        }, 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
