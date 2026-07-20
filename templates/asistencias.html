@@ -247,6 +247,151 @@
     tbody tr:nth-child(even) .columna-nadador {
         background-color: #cfe3f2 !important;
     }
+
+    .btn-asistencia {
+    width: 48px;
+    height: 38px;
+    border: 0;
+    border-radius: 8px;
+    font-size: 1.35rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+        transform 0.12s ease,
+        opacity 0.12s ease,
+        background-color 0.12s ease;
+}
+
+.btn-asistencia:hover {
+    transform: scale(1.08);
+}
+
+.btn-asistencia:disabled {
+    cursor: wait;
+}
+
+.btn-asistencia.guardando {
+    opacity: 0.45;
+}
+
+.asistencia-presente {
+    color: #0d6efd;
+    background: #eaf2ff;
+}
+
+.asistencia-ausente {
+    color: #dc3545;
+    background: #fff0f1;
+}
+
+.asistencia-no-aplica {
+    color: #343a40;
+    background: #e9ecef;
+}
+
+.asistencia-sin-registro {
+    color: #8a8f94;
+    background: transparent;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const botones = document.querySelectorAll('.btn-asistencia');
+
+    const cicloEstados = {
+        'SIN_REGISTRO': 'PRESENTE',
+        'PRESENTE': 'AUSENTE',
+        'AUSENTE': 'NO_APLICA',
+        'NO_APLICA': 'SIN_REGISTRO'
+    };
+
+    const configuracion = {
+        'SIN_REGISTRO': {
+            simbolo: '·',
+            clase: 'asistencia-sin-registro'
+        },
+        'PRESENTE': {
+            simbolo: '✓',
+            clase: 'asistencia-presente'
+        },
+        'AUSENTE': {
+            simbolo: '✗',
+            clase: 'asistencia-ausente'
+        },
+        'NO_APLICA': {
+            simbolo: '–',
+            clase: 'asistencia-no-aplica'
+        }
+    };
+
+    botones.forEach(function (boton) {
+        boton.addEventListener('click', async function () {
+            if (boton.disabled) {
+                return;
+            }
+
+            const estadoActual = boton.dataset.estado;
+            const nuevoEstado = cicloEstados[estadoActual];
+
+            boton.disabled = true;
+            boton.classList.add('guardando');
+
+            try {
+                const respuesta = await fetch(
+                    "{{ url_for('actualizar_asistencia_ajax') }}",
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            nadador_id: boton.dataset.nadadorId,
+                            competencia_id: boton.dataset.competenciaId,
+                            estado: nuevoEstado
+                        })
+                    }
+                );
+
+                const resultado = await respuesta.json();
+
+                if (!respuesta.ok || !resultado.ok) {
+                    throw new Error(
+                        resultado.mensaje ||
+                        'No fue posible guardar el estado'
+                    );
+                }
+
+                boton.dataset.estado = nuevoEstado;
+
+                boton.classList.remove(
+                    'asistencia-sin-registro',
+                    'asistencia-presente',
+                    'asistencia-ausente',
+                    'asistencia-no-aplica'
+                );
+
+                boton.classList.add(
+                    configuracion[nuevoEstado].clase
+                );
+
+                boton.querySelector(
+                    '.simbolo-asistencia'
+                ).textContent = configuracion[nuevoEstado].simbolo;
+
+            } catch (error) {
+                console.error(error);
+                alert(
+                    'Error al guardar la asistencia: ' +
+                    error.message
+                );
+            } finally {
+                boton.disabled = false;
+                boton.classList.remove('guardando');
+            }
+        });
+    });
+});
+</script>
 
 {% endblock %}
