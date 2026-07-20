@@ -692,28 +692,68 @@ def actualizar_estado():
 @login_required
 @editor_required
 def nueva_competencia():
+
+    anio = request.args.get(
+        'anio',
+        default=2026,
+        type=int
+    )
+
+    if anio not in (2025, 2026):
+        anio = 2026
+
     if request.method == 'POST':
-        fecha = request.form.get('fecha', '').strip()
-        lugar = request.form.get('lugar', '').strip()
-        organiza = request.form.get('organiza', '').strip()
-        nombre = request.form.get('nombre', '').strip()
-        tipo_piscina = request.form.get('tipo_piscina', '').strip()
-        estado = request.form.get('estado', 'NO REALIZADO').strip()
+        fecha = request.form.get(
+            'fecha',
+            ''
+        ).strip()
+
+        lugar = request.form.get(
+            'lugar',
+            ''
+        ).strip()
+
+        organiza = request.form.get(
+            'organiza',
+            ''
+        ).strip()
+
+        nombre = request.form.get(
+            'nombre',
+            ''
+        ).strip()
+
+        tipo_piscina = request.form.get(
+            'tipo_piscina',
+            ''
+        ).strip()
+
+        estado = request.form.get(
+            'estado',
+            'NO REALIZADO'
+        ).strip()
 
         if not fecha or not lugar or not nombre:
             flash(
                 'Fecha, lugar y nombre del torneo son obligatorios.',
                 'danger'
             )
+
             return render_template(
                 'competencia_form.html',
                 competencia=request.form,
-                titulo='Nueva competencia'
+                titulo='Nueva competencia',
+                anio=anio
             )
 
         try:
+            fecha_objeto = datetime.strptime(
+                fecha,
+                '%Y-%m-%d'
+            ).date()
+
             gestor_tiempos.agregar_competencia(
-                fecha=fecha,
+                fecha=fecha_objeto,
                 lugar=lugar,
                 organiza=organiza,
                 nombre=nombre,
@@ -721,17 +761,41 @@ def nueva_competencia():
                 estado=estado
             )
 
-            flash('Competencia creada correctamente.', 'success')
-            return redirect(url_for('calendario_competencias'))
+            flash(
+                'Competencia creada correctamente.',
+                'success'
+            )
+
+            return redirect(
+                url_for(
+                    'calendario_competencias',
+                    anio=fecha_objeto.year
+                )
+            )
 
         except Exception as e:
-            print("Error creando competencia:", e)
-            flash('No fue posible crear la competencia.', 'danger')
+            print(
+                'Error creando competencia:',
+                e
+            )
+
+            flash(
+                f'No fue posible crear la competencia: {e}',
+                'danger'
+            )
+
+            return render_template(
+                'competencia_form.html',
+                competencia=request.form,
+                titulo='Nueva competencia',
+                anio=anio
+            )
 
     return render_template(
         'competencia_form.html',
         competencia=None,
-        titulo='Nueva competencia'
+        titulo='Nueva competencia',
+        anio=anio
     )
 
 @app.route(
