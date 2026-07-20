@@ -1708,6 +1708,37 @@ class GestorTiemposMaster:
             WHERE id = ?
         """, (tiempo_id,))
 
+    def agregar_competencia(
+        self,
+        fecha,
+        mes,
+        lugar,
+        organiza,
+        nombre,
+        tipo_piscina,
+        estado="NO REALIZADO"
+    ):
+        self._execute("""
+            INSERT INTO competencias (
+                fecha,
+                mes,
+                lugar,
+                organiza,
+                nombre,
+                tipo_piscina,
+                estado
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            fecha,
+            mes,
+            lugar,
+            organiza,
+            nombre,
+            tipo_piscina,
+            estado
+        ))
+
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
     print("Gestor de Tiempos Master inicializado correctamente.")
