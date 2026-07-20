@@ -929,14 +929,34 @@ def mejores_tiempos():
 
 @app.route('/asistencias')
 @login_required
-def tabla_asistencias():
-    datos = gestor_tiempos.obtener_tabla_asistencia()
+def seleccionar_anio_asistencias():
+    return render_template(
+        'seleccionar_anio_asistencias.html'
+    )
+
+
+@app.route('/asistencias/<int:anio>')
+@login_required
+def tabla_asistencias(anio):
+    if anio not in (2025, 2026):
+        flash(
+            'El año seleccionado no es válido.',
+            'danger'
+        )
+        return redirect(
+            url_for('seleccionar_anio_asistencias')
+        )
+
+    datos = gestor_tiempos.obtener_tabla_asistencia(
+        anio
+    )
 
     return render_template(
-        'asistencias.html',
+        'asistencia.html',
         nadadores=datos['nadadores'],
         competencias=datos['competencias'],
-        asistencias=datos['asistencias']
+        asistencias=datos['asistencias'],
+        anio=anio
     )
 
 
