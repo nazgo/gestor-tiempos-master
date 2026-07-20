@@ -1298,5 +1298,121 @@ def actualizar_asistencia_ajax():
             'mensaje': str(e)
         }, 500
 
+
+@app.route('/calendario/agregar', methods=['GET', 'POST'])
+@login_required
+@editor_required
+def agregar_competencia():
+    if request.method == 'POST':
+        try:
+            fecha_str = request.form.get('fecha', '').strip()
+            nombre = request.form.get('nombre', '').strip()
+            lugar = request.form.get('lugar', '').strip()
+            organiza = request.form.get('organiza', '').strip()
+            tipo_piscina = request.form.get(
+                'tipo_piscina',
+                ''
+            ).strip()
+
+            estado = request.form.get(
+                'estado',
+                'NO REALIZADO'
+            ).strip()
+
+            if not fecha_str:
+                raise ValueError(
+                    'Debe seleccionar una fecha.'
+                )
+
+            if not nombre:
+                raise ValueError(
+                    'Debe ingresar el nombre de la competencia.'
+                )
+
+            if not lugar:
+                raise ValueError(
+                    'Debe ingresar el lugar.'
+                )
+
+            if not organiza:
+                raise ValueError(
+                    'Debe ingresar quién organiza.'
+                )
+
+            if tipo_piscina not in (
+                '25 metros',
+                '50 metros'
+            ):
+                raise ValueError(
+                    'Debe seleccionar el tipo de piscina.'
+                )
+
+            estados_validos = (
+                'NO REALIZADO',
+                'REALIZADO'
+            )
+
+            if estado not in estados_validos:
+                raise ValueError(
+                    'Estado de competencia inválido.'
+                )
+
+            fecha = datetime.strptime(
+                fecha_str,
+                '%Y-%m-%d'
+            ).date()
+
+            meses = {
+                1: 'ENERO',
+                2: 'FEBRERO',
+                3: 'MARZO',
+                4: 'ABRIL',
+                5: 'MAYO',
+                6: 'JUNIO',
+                7: 'JULIO',
+                8: 'AGOSTO',
+                9: 'SEPTIEMBRE',
+                10: 'OCTUBRE',
+                11: 'NOVIEMBRE',
+                12: 'DICIEMBRE'
+            }
+
+            mes = meses[fecha.month]
+
+            gestor_tiempos.agregar_competencia(
+                fecha=fecha,
+                mes=mes,
+                lugar=lugar,
+                organiza=organiza,
+                nombre=nombre,
+                tipo_piscina=tipo_piscina,
+                estado=estado
+            )
+
+            flash(
+                'Competencia agregada correctamente.',
+                'success'
+            )
+
+            return redirect(
+                url_for('calendario_competencias')
+            )
+
+        except Exception as e:
+            print(
+                'Error agregando competencia:',
+                e
+            )
+
+            flash(
+                f'Error al agregar competencia: {e}',
+                'danger'
+            )
+
+    return render_template(
+        'agregar_competencia.html'
+    )
+    
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
