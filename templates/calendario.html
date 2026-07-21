@@ -117,7 +117,7 @@
                     <td>{{ competencia.tipo_piscina or '' }}</td>
 
                     <td class="text-nowrap">
-                        <a href="{{ url_for('editar_competencia', competencia_id=competencia.id) }}" class="btn btn-warning btn-sm me-1" title="Editar Competencia">
+                        <a href="{{ url_for('editar_competencia', competencia_id=competencia.id, anio=anio) }}" class="btn btn-warning btn-sm me-1" title="Editar Competencia">
                             <i class="fas fa-edit"></i>
                         </a>
                         <form
