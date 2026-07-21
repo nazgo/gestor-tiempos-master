@@ -1945,6 +1945,40 @@ def exportar_historial_tiempos():
         }
     )
     
+@app.route('/nadador/<int:nadador_id>/ficha')
+@login_required
+def ficha_nadador(nadador_id):
+    nadador = gestor_nadadores.obtener_nadador(
+        nadador_id
+    )
+
+    if not nadador:
+        flash(
+            'Nadador no encontrado.',
+            'danger'
+        )
+
+        return redirect(
+            url_for('nadadores')
+        )
+
+    nombre_completo = (
+        f"{nadador.get('nombre', '')} "
+        f"{nadador.get('apellido', '')}"
+    ).strip()
+
+    ficha = gestor_tiempos.obtener_ficha_nadador(
+        nombre_completo
+    )
+
+    return render_template(
+        'ficha_nadador.html',
+        nadador=nadador,
+        nombre_completo=nombre_completo,
+        ficha=ficha
+    )
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
