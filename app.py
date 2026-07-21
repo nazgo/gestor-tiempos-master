@@ -470,9 +470,17 @@ def eliminar_tiempo(tiempo_id):
 @login_required
 def estadisticas_club():
     stats = gestor_tiempos.obtener_estadisticas_club()
-    return render_template('estadisticas.html', 
-                         stats=stats, 
-                         año_actual=datetime.now().year)
+
+    registros_temporada = (
+        gestor_tiempos.obtener_registros_por_temporada()
+    )
+
+    return render_template(
+        'estadisticas.html',
+        stats=stats,
+        año_actual=datetime.now().year,
+        registros_temporada=registros_temporada
+    )
 
 @app.route('/nadador/<int:nadador_id>/progreso')
 @login_required
@@ -487,16 +495,6 @@ def progreso_nadador1(nadador_id):
     
     return render_template('progreso_nadador1.html', nadador=nadador, tiempos=tiempos)
 
-    registros_temporada = (
-    gestor_tiempos.obtener_registros_por_temporada()
-    )
-
-    return render_template(
-    'estadisticas.html',
-    stats=stats,
-    año_actual=año_actual,
-    registros_temporada=registros_temporada
-    )
 
 @app.route('/progreso_nadador', methods=['GET', 'POST'])
 @login_required
