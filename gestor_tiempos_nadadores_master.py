@@ -1997,7 +1997,8 @@ class GestorTiemposMaster:
         piscina="",
         estilo="",
         distancia=None,
-        orden="desc",
+        columna_orden="fecha",
+        direccion="desc",
         pagina=1,
         por_pagina=20
     ):
@@ -2022,7 +2023,27 @@ class GestorTiemposMaster:
         if por_pagina not in (20, 50):
             por_pagina = 20
     
-        orden_sql = "ASC" if orden == "asc" else "DESC"
+        columnas_permitidas = {
+            "fecha": "fecha",
+            "nombre": "LOWER(TRIM(nombre_nadador))",
+            "categoria": "LOWER(TRIM(categoria))",
+            "genero": "LOWER(TRIM(genero))",
+            "estilo": "LOWER(TRIM(estilo))",
+            "distancia": "distancia",
+            "piscina": "LOWER(TRIM(piscina))",
+            "tiempo": "tiempo_segundos"
+        }
+        
+        columna_sql = columnas_permitidas.get(
+            columna_orden,
+            "fecha"
+        )
+        
+        direccion_sql = (
+            "ASC"
+            if direccion == "asc"
+            else "DESC"
+        )
     
         condiciones = []
         parametros = []
@@ -2133,10 +2154,10 @@ class GestorTiemposMaster:
             FROM tiempos
             {where_sql}
             ORDER BY
-                fecha {orden_sql},
+                {columna_sql} {direccion_sql},
+                fecha DESC,
                 LOWER(TRIM(nombre_nadador)) ASC,
-                LOWER(TRIM(estilo)) ASC,
-                distancia ASC
+                id ASC
             LIMIT ?
             OFFSET ?
             """,
