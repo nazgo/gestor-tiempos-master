@@ -497,7 +497,7 @@ class GestorTiemposMaster:
             competencia_id
         ))
 
-    def obtener_tiempo_por_id(self, tiempo_id):
+    def ner_tiempo_por_id(self, tiempo_id):
         cursor = self._execute('SELECT * FROM tiempos WHERE id = ?', (tiempo_id,), commit=False)
         row = cursor.fetchone()
         return self._row_to_dict(row, cursor)
@@ -515,7 +515,7 @@ class GestorTiemposMaster:
         self._execute('DELETE FROM tiempos WHERE id = ?', (tiempo_id,))
 
     # ====================== CONSULTAS AVANZADAS ======================
-    def obtener_season_best(self, nadador_id):
+    def ner_season_best(self, nadador_id):
         """
         Devuelve el mejor tiempo de cada combinación:
         estilo + distancia + piscina para un nadador.
@@ -571,7 +571,7 @@ class GestorTiemposMaster:
     
         return resultado
 
-    def obtener_season_best_avanzado(self, nombre=None, estilo=None, distancia=None, categoria=None, year=None):
+    def ner_season_best_avanzado(self, nombre=None, estilo=None, distancia=None, categoria=None, year=None):
         if year is None:
             year = datetime.now().year
 
@@ -602,7 +602,7 @@ class GestorTiemposMaster:
         row = cursor.fetchone()
         return self._row_to_dict(row, cursor)
 
-    def obtener_todos_los_tiempos(self, nombre_filtro: Optional[str] = None) -> List[Dict[str, Any]]:
+    def ner_todos_los_tiempos(self, nombre_filtro: Optional[str] = None) -> List[Dict[str, Any]]:
         if nombre_filtro:
             cursor = self._execute('''
                 SELECT * FROM tiempos 
@@ -617,7 +617,7 @@ class GestorTiemposMaster:
         
         return [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
 
-    def obtener_tiempos_nadador(self, nombre_completo):
+    def ner_tiempos_nadador(self, nombre_completo):
         cursor = self._execute('''
             SELECT * FROM tiempos 
             WHERE LOWER(nombre_nadador) = LOWER(?)
@@ -626,8 +626,8 @@ class GestorTiemposMaster:
         return [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
 
     # ====================== ESTADÍSTICAS ======================
-    def obtener_estadisticas_nadador(self, nombre: str) -> Dict[str, Any]:
-        tiempos = self.obtener_todos_los_tiempos(nombre)
+    def ner_estadisticas_nadador(self, nombre: str) -> Dict[str, Any]:
+        tiempos = self.ner_todos_los_tiempos(nombre)
         if not tiempos:
             return {"total_registros": 0}
         return {
@@ -638,7 +638,7 @@ class GestorTiemposMaster:
             "ultima_fecha": max(t['fecha'] for t in tiempos)
         }
 
-    def obtener_estadisticas_club(self):
+    def ner_estadisticas_club(self):
         año_actual = datetime.now().year
 
         # Resumen general
@@ -732,6 +732,7 @@ class GestorTiemposMaster:
                     nombre_nadador,
                     estilo,
                     distancia,
+                    piscina,
                     tiempo,
                     tiempo_segundos,
                     fecha,
@@ -766,6 +767,7 @@ class GestorTiemposMaster:
                     nombre_nadador,
                     estilo,
                     distancia,
+                    piscina,
                     tiempo,
                     tiempo_segundos,
                     fecha,
@@ -787,6 +789,7 @@ class GestorTiemposMaster:
                 nombre_nadador,
                 estilo,
                 distancia,
+                piscina,
                 tiempo,
                 tiempo_segundos,
                 fecha,
