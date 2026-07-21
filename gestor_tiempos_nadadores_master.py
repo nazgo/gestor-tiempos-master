@@ -1961,6 +1961,32 @@ class GestorTiemposMaster:
             if fila
         ]
 
+    def obtener_todos_los_tiempos(self):
+    
+        cursor = self._execute("""
+            SELECT
+                nombre_nadador,
+                categoria,
+                genero,
+                estilo,
+                distancia,
+                piscina,
+                tiempo,
+                fecha
+            FROM tiempos
+            ORDER BY
+                fecha DESC,
+                nombre_nadador ASC,
+                estilo ASC,
+                distancia ASC
+        """, commit=False)
+    
+        return [
+            self._row_to_dict(row, cursor)
+            for row in cursor.fetchall()
+            if row
+        ]
+
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
     print("Gestor de Tiempos Master inicializado correctamente.")
