@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-primary">
+            Estado de Nadadores {{ anio }}
+        </h2>
+
+        <p class="text-muted">
+            Activos e inactivos según tiempos registrados
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-check"></i>
+                        Activos ({{ activos|length }})
+                    </h5>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nadador</th>
+                                    <th>Categoría</th>
+                                    <th class="text-end">
+                                        Tiempos
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for n in activos %}
+                                <tr>
+                                    <td>
+                                        {{ n.apellido }}
+                                        {{ n.nombre }}
+                                    </td>
+
+                                    <td>
+                                        {{ n.categoria_master or '—' }}
+                                    </td>
+
+                                    <td class="text-end fw-bold">
+                                        {{ n.total_tiempos }}
+                                    </td>
+                                </tr>
+
+                                {% else %}
+                                <tr>
+                                    <td
+                                        colspan="3"
+                                        class="text-center text-muted py-4"
+                                    >
+                                        No hay nadadores activos.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-times"></i>
+                        Inactivos ({{ inactivos|length }})
+                    </h5>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nadador</th>
+                                    <th>Categoría</th>
+                                    <th>Género</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for n in inactivos %}
+                                <tr>
+                                    <td>
+                                        {{ n.apellido }}
+                                        {{ n.nombre }}
+                                    </td>
+
+                                    <td>
+                                        {{ n.categoria_master or '—' }}
+                                    </td>
+
+                                    <td>
+                                        {{ n.genero or '—' }}
+                                    </td>
+                                </tr>
+
+                                {% else %}
+                                <tr>
+                                    <td
+                                        colspan="3"
+                                        class="text-center text-muted py-4"
+                                    >
+                                        No hay nadadores inactivos.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="text-center mt-4">
+        <a
+            href="{{ url_for('estadisticas_club') }}"
+            class="btn btn-secondary"
+        >
+            ← Volver a Estadísticas
+        </a>
+    </div>
+
+</div>
+{% endblock %}
