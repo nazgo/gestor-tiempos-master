@@ -1913,6 +1913,54 @@ class GestorTiemposMaster:
             if fila
         ]
 
+    def obtener_estado_nadadores_por_anio(self, anio):
+        cursor = self._execute("""
+            SELECT
+                n.id,
+                n.nombre,
+                n.apellido,
+                n.genero,
+                n.categoria_master,
+    
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM tiempos t
+                        WHERE LOWER(TRIM(t.nombre_nadador)) =
+                              LOWER(TRIM(n.nombre || ' ' || n.apellido))
+                          AND EXTRACT(YEAR FROM t.fecha) = ?
+                    )
+                    THEN 'ACTIVO'
+                    ELSE 'INACTIVO'
+                END AS estado,
+    
+                (
+                    SELECT COUNT(*)
+                    FROM tiempos t
+                    WHERE LOWER(TRIM(t.nombre_nadador)) =
+                          LOWER(TRIM(n.nombre || ' ' || n.apellido))
+                      AND EXTRACT(YEAR FROM t.fecha) = ?
+                ) AS total_tiempos
+    
+            FROM nadadores n
+    
+            ORDER BY
+                estado ASC,
+                n.apellido ASC,
+                n.nombre ASC
+        """, (
+            anio,
+            anio
+        ), commit=False)
+    
+        filas = cursor.fetchall()
+    
+        return [
+            self._row_to_dict(fila, cursor)
+            for fila in filas
+            if fila
+        ]
+
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
     print("Gestor de Tiempos Master inicializado correctamente.")
