@@ -109,7 +109,7 @@
                         </thead>
 
                         <tbody>
-                            {% for n in stats.mas_activos %}
+                            {% for n in stats.mas_activos[:12] %}
                             <tr>
                                 <td>
                                     {{ n.nombre_nadador }}
@@ -164,7 +164,7 @@
                         </thead>
 
                         <tbody>
-                            {% for p in stats.por_prueba[:8] %}
+                            {% for p in stats.por_prueba %}
                             <tr>
                                 <td>
                                     <strong>
