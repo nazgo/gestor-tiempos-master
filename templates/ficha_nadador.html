@@ -1,0 +1,485 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- Encabezado de la ficha -->
+    <div class="card shadow-sm border-0 ficha-header mb-4">
+        <div class="card-body p-4">
+
+            <div class="row align-items-center">
+
+                <div class="col-md-auto text-center mb-3 mb-md-0">
+                    <div class="avatar-nadador">
+                        {{ nadador.nombre[:1]|upper }}
+                        {{ nadador.apellido[:1]|upper }}
+                    </div>
+                </div>
+
+                <div class="col-md">
+
+                    <h2 class="fw-bold mb-1">
+                        {{ nombre_completo }}
+                    </h2>
+
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+
+                        <span class="badge bg-primary ficha-badge">
+                            {{ nadador.categoria_master or 'Sin categoría' }}
+                        </span>
+
+                        <span class="badge bg-light text-dark border ficha-badge">
+                            {{ nadador.genero or 'Sin género' }}
+                        </span>
+
+                        {% if nadador.rut %}
+                        <span class="badge bg-light text-dark border ficha-badge">
+                            RUT: {{ nadador.rut }}
+                        </span>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-auto mt-3 mt-md-0">
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <a
+                            href="{{ url_for(
+                                'progreso_nadador1',
+                                nadador_id=nadador.id
+                            ) }}"
+                            class="btn btn-outline-primary"
+                        >
+                            <i class="fas fa-chart-line"></i>
+                            Ver progreso
+                        </a>
+
+                        <a
+                            href="{{ url_for(
+                                'tiempos_nadador',
+                                nadador_id=nadador.id
+                            ) }}"
+                            class="btn btn-primary"
+                        >
+                            <i class="fas fa-stopwatch"></i>
+                            Todos sus tiempos
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+            <div class="card tarjeta-resumen border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-stopwatch icono-resumen text-primary"></i>
+
+                    <div class="numero-resumen text-primary">
+                        {{ ficha.resumen.total_tiempos or 0 }}
+                    </div>
+
+                    <div class="texto-resumen">
+                        Tiempos registrados
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card tarjeta-resumen border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-check icono-resumen text-success"></i>
+
+                    <div class="numero-resumen text-success">
+                        {{ ficha.resumen.total_competencias or 0 }}
+                    </div>
+
+                    <div class="texto-resumen">
+                        Competencias
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card tarjeta-resumen border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-medal icono-resumen text-warning"></i>
+
+                    <div class="numero-resumen text-warning">
+                        {{ ficha.mejores_marcas|length }}
+                    </div>
+
+                    <div class="texto-resumen">
+                        Mejores marcas
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card tarjeta-resumen border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-layer-group icono-resumen text-info"></i>
+
+                    <div class="numero-resumen text-info">
+                        {{ ficha.temporadas|length }}
+                    </div>
+
+                    <div class="texto-resumen">
+                        Temporadas
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Mejores marcas -->
+        <div class="col-xl-7">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-header encabezado-turquesa text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trophy"></i>
+                        Mejores marcas personales
+                    </h5>
+                </div>
+
+                <div class="card-body p-0">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle mb-0">
+
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Prueba</th>
+                                    <th>Piscina</th>
+                                    <th>Mejor tiempo</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for marca in ficha.mejores_marcas %}
+                                <tr>
+                                    <td>
+                                        <strong>
+                                            {{ marca.distancia }}m
+                                            {{ marca.estilo }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        {% if marca.piscina == '25 metros' %}
+                                            <span class="badge piscina-25">
+                                                25m
+                                            </span>
+                                        {% elif marca.piscina == '50 metros' %}
+                                            <span class="badge piscina-50">
+                                                50m
+                                            </span>
+                                        {% else %}
+                                            {{ marca.piscina or '—' }}
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        <span class="badge bg-success tiempo-badge">
+                                            {{ marca.tiempo }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {% if marca.fecha and marca.fecha.strftime is defined %}
+                                            {{ marca.fecha.strftime('%d/%m/%Y') }}
+                                        {% else %}
+                                            {{ marca.fecha or '—' }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                {% else %}
+                                <tr>
+                                    <td
+                                        colspan="4"
+                                        class="text-center text-muted py-5"
+                                    >
+                                        No existen marcas registradas.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Temporadas -->
+        <div class="col-xl-5">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt"></i>
+                        Registros por temporada
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    {% for temporada in ficha.temporadas %}
+
+                    <div class="temporada-fila">
+
+                        <span class="temporada-anio">
+                            {{ temporada.anio }}
+                        </span>
+
+                        <div class="progress flex-grow-1">
+                            <div
+                                class="progress-bar"
+                                role="progressbar"
+                                style="width: 100%;"
+                            >
+                                {{ temporada.total }} tiempos
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {% else %}
+
+                    <div class="text-center text-muted py-5">
+                        No existen temporadas registradas.
+                    </div>
+
+                    {% endfor %}
+
+                    <hr>
+
+                    <div class="small text-muted">
+                        <strong>Primer registro:</strong>
+                        {{ ficha.resumen.primer_registro or '—' }}
+                    </div>
+
+                    <div class="small text-muted mt-2">
+                        <strong>Último registro:</strong>
+                        {{ ficha.resumen.ultimo_registro or '—' }}
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Últimos tiempos -->
+    <div class="card shadow-sm border-0 mt-4">
+
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-history"></i>
+                Últimos tiempos registrados
+            </h5>
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-striped table-hover align-middle mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Prueba</th>
+                            <th>Piscina</th>
+                            <th>Tiempo</th>
+                            <th>Categoría</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for tiempo in ficha.ultimos_tiempos %}
+                        <tr>
+                            <td>
+                                {% if tiempo.fecha and tiempo.fecha.strftime is defined %}
+                                    {{ tiempo.fecha.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                    {{ tiempo.fecha or '—' }}
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {{ tiempo.distancia }}m
+                                {{ tiempo.estilo }}
+                            </td>
+
+                            <td>
+                                {{ tiempo.piscina or '—' }}
+                            </td>
+
+                            <td>
+                                <span class="badge bg-success tiempo-badge">
+                                    {{ tiempo.tiempo }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ tiempo.categoria or nadador.categoria_master or '—' }}
+                            </td>
+                        </tr>
+
+                        {% else %}
+                        <tr>
+                            <td
+                                colspan="5"
+                                class="text-center text-muted py-5"
+                            >
+                                No hay tiempos registrados.
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a
+            href="{{ url_for('nadadores') }}"
+            class="btn btn-secondary"
+        >
+            ← Volver a Gestión de Nadadores
+        </a>
+    </div>
+
+</div>
+
+<style>
+    .ficha-header {
+        border-radius: 18px;
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #f4fbfc
+            );
+    }
+
+    .avatar-nadador {
+        display: inline-flex;
+        width: 82px;
+        height: 82px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        background: #00a8a8;
+        border-radius: 50%;
+        font-size: 1.7rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+    }
+
+    .ficha-badge {
+        padding: 0.55rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .tarjeta-resumen {
+        border-radius: 16px;
+    }
+
+    .icono-resumen {
+        margin-bottom: 10px;
+        font-size: 2rem;
+    }
+
+    .numero-resumen {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .texto-resumen {
+        margin-top: 8px;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .encabezado-turquesa {
+        background: #00a8a8;
+    }
+
+    .piscina-25 {
+        color: #ffffff;
+        background: #0d6efd;
+    }
+
+    .piscina-50 {
+        color: #ffffff;
+        background: #00a8a8;
+    }
+
+    .tiempo-badge {
+        min-width: 80px;
+        padding: 0.45rem 0.65rem;
+        font-size: 0.85rem;
+    }
+
+    .temporada-fila {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .temporada-anio {
+        min-width: 52px;
+        color: #00a8a8;
+        font-weight: 800;
+    }
+
+    .temporada-fila .progress {
+        height: 28px;
+        background: #e9ecef;
+    }
+
+    .temporada-fila .progress-bar {
+        background: #00a8a8;
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+</style>
+
+{% endblock %}
