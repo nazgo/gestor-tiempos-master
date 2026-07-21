@@ -1687,11 +1687,89 @@ def estado_nadadores_anio(anio):
 @login_required
 def todos_los_tiempos():
 
-    tiempos = gestor_tiempos.obtener_todos_los_tiempos()
+    busqueda = request.args.get(
+        'busqueda',
+        ''
+    ).strip()
+
+    anio = request.args.get(
+        'anio',
+        type=int
+    )
+
+    piscina = request.args.get(
+        'piscina',
+        ''
+    ).strip()
+
+    estilo = request.args.get(
+        'estilo',
+        ''
+    ).strip()
+
+    distancia = request.args.get(
+        'distancia',
+        type=int
+    )
+
+    orden = request.args.get(
+        'orden',
+        'desc'
+    )
+
+    if orden not in (
+        'asc',
+        'desc'
+    ):
+        orden = 'desc'
+
+    pagina = request.args.get(
+        'pagina',
+        default=1,
+        type=int
+    )
+
+    por_pagina = request.args.get(
+        'por_pagina',
+        default=20,
+        type=int
+    )
+
+    resultado = (
+        gestor_tiempos.obtener_historial_tiempos(
+            busqueda=busqueda,
+            anio=anio,
+            piscina=piscina,
+            estilo=estilo,
+            distancia=distancia,
+            orden=orden,
+            pagina=pagina,
+            por_pagina=por_pagina
+        )
+    )
+
+    opciones = (
+        gestor_tiempos.obtener_opciones_historial()
+    )
 
     return render_template(
         'todos_los_tiempos.html',
-        tiempos=tiempos
+        tiempos=resultado['tiempos'],
+        total=resultado['total'],
+        pagina=resultado['pagina'],
+        por_pagina=resultado['por_pagina'],
+        total_paginas=resultado['total_paginas'],
+        desde=resultado['desde'],
+        hasta=resultado['hasta'],
+        opciones=opciones,
+        filtros={
+            'busqueda': busqueda,
+            'anio': anio,
+            'piscina': piscina,
+            'estilo': estilo,
+            'distancia': distancia,
+            'orden': orden
+        }
     )
     
 
