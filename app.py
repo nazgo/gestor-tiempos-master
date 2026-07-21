@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file, Response
 from functools import wraps
 from datetime import datetime
 import os
@@ -1687,6 +1687,10 @@ def estado_nadadores_anio(anio):
 @login_required
 def todos_los_tiempos():
 
+    # ==============================
+    # Leer filtros desde la URL
+    # ==============================
+
     busqueda = request.args.get(
         'busqueda',
         ''
@@ -1712,16 +1716,43 @@ def todos_los_tiempos():
         type=int
     )
 
-    orden = request.args.get(
-        'orden',
-        'desc'
-    )
+    # ==============================
+    # Ordenamiento
+    # ==============================
 
-    if orden not in (
+    columna_orden = request.args.get(
+        'columna_orden',
+        'fecha'
+    ).strip()
+
+    direccion = request.args.get(
+        'direccion',
+        'desc'
+    ).strip()
+
+    columnas_validas = {
+        'fecha',
+        'nombre',
+        'categoria',
+        'genero',
+        'estilo',
+        'distancia',
+        'piscina',
+        'tiempo'
+    }
+
+    if columna_orden not in columnas_validas:
+        columna_orden = 'fecha'
+
+    if direccion not in {
         'asc',
         'desc'
-    ):
-        orden = 'desc'
+    }:
+        direccion = 'desc'
+
+    # ==============================
+    # Paginación
+    # ==============================
 
     pagina = request.args.get(
         'pagina',
@@ -1735,6 +1766,16 @@ def todos_los_tiempos():
         type=int
     )
 
+    if por_pagina not in (
+        20,
+        50
+    ):
+        por_pagina = 20
+
+    # ==============================
+    # Consultar BD
+    # ==============================
+
     resultado = (
         gestor_tiempos.obtener_historial_tiempos(
             busqueda=busqueda,
@@ -1742,33 +1783,165 @@ def todos_los_tiempos():
             piscina=piscina,
             estilo=estilo,
             distancia=distancia,
-            orden=orden,
+            columna_orden=columna_orden,
+            direccion=direccion,
             pagina=pagina,
             por_pagina=por_pagina
         )
     )
 
+    # ==============================
+    # Opciones para filtros
+    # ==============================
+
     opciones = (
         gestor_tiempos.obtener_opciones_historial()
     )
 
+    # ==============================
+    # Renderizar
+    # ==============================
+
     return render_template(
         'todos_los_tiempos.html',
+
         tiempos=resultado['tiempos'],
+
         total=resultado['total'],
+
         pagina=resultado['pagina'],
+
         por_pagina=resultado['por_pagina'],
+
         total_paginas=resultado['total_paginas'],
+
         desde=resultado['desde'],
+
         hasta=resultado['hasta'],
+
         opciones=opciones,
+
         filtros={
+
             'busqueda': busqueda,
+
             'anio': anio,
+
             'piscina': piscina,
+
             'estilo': estilo,
+
             'distancia': distancia,
-            'orden': orden
+
+            'columna_orden': columna_orden,
+
+            'direccion': direccion
+
+        }
+
+    )
+
+
+@app.route('/estadisticas/todos_los_tiempos/exportar')
+@login_required
+def exportar_historial_tiempos():
+    busqueda = request.args.get(
+        'busqueda',
+        ''
+    ).strip()
+
+    anio = request.args.get(
+        'anio',
+        type=int
+    )
+
+    piscina = request.args.get(
+        'piscina',
+        ''
+    ).strip()
+
+    estilo = request.args.get(
+        'estilo',
+        ''
+    ).strip()
+
+    distancia = request.args.get(
+        'distancia',
+        type=int
+    )
+
+    columna_orden = request.args.get(
+        'columna_orden',
+        'fecha'
+    ).strip()
+
+    direccion = request.args.get(
+        'direccion',
+        'desc'
+    ).strip()
+
+    resultado = gestor_tiempos.obtener_historial_tiempos(
+        busqueda=busqueda,
+        anio=anio,
+        piscina=piscina,
+        estilo=estilo,
+        distancia=distancia,
+        columna_orden=columna_orden,
+        direccion=direccion,
+        pagina=1,
+        por_pagina=100000
+    )
+
+    salida = io.StringIO()
+    salida.write('\ufeff')
+
+    escritor = csv.writer(
+        salida,
+        delimiter=',',
+        lineterminator='\n'
+    )
+
+    escritor.writerow([
+        'Fecha',
+        'Nadador',
+        'Categoría',
+        'Género',
+        'Estilo',
+        'Distancia',
+        'Piscina',
+        'Tiempo'
+    ])
+
+    for tiempo in resultado['tiempos']:
+        fecha = tiempo.get('fecha')
+
+        if hasattr(fecha, 'strftime'):
+            fecha = fecha.strftime('%d-%m-%Y')
+
+        escritor.writerow([
+            fecha or '',
+            tiempo.get('nombre_nadador', ''),
+            tiempo.get('categoria', ''),
+            tiempo.get('genero', ''),
+            tiempo.get('estilo', ''),
+            tiempo.get('distancia', ''),
+            tiempo.get('piscina', ''),
+            tiempo.get('tiempo', '')
+        ])
+
+    nombre_archivo = 'historial_tiempos'
+
+    if anio:
+        nombre_archivo += f'_{anio}'
+
+    nombre_archivo += '.csv'
+
+    return Response(
+        salida.getvalue(),
+        mimetype='text/csv; charset=utf-8',
+        headers={
+            'Content-Disposition':
+                f'attachment; filename={nombre_archivo}'
         }
     )
     
