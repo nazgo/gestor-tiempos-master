@@ -1987,6 +1987,284 @@ class GestorTiemposMaster:
             if row
         ]
 
+
+
+ # ====================== Todos los Tiempos Registrados ======================
+    def obtener_historial_tiempos(
+        self,
+        busqueda="",
+        anio=None,
+        piscina="",
+        estilo="",
+        distancia=None,
+        orden="desc",
+        pagina=1,
+        por_pagina=20
+    ):
+        """
+        Retorna los tiempos filtrados y paginados.
+    
+        orden:
+            desc = fecha más reciente primero
+            asc  = fecha más antigua primero
+        """
+    
+        try:
+            pagina = max(int(pagina), 1)
+        except (TypeError, ValueError):
+            pagina = 1
+    
+        try:
+            por_pagina = int(por_pagina)
+        except (TypeError, ValueError):
+            por_pagina = 20
+    
+        if por_pagina not in (20, 50):
+            por_pagina = 20
+    
+        orden_sql = "ASC" if orden == "asc" else "DESC"
+    
+        condiciones = []
+        parametros = []
+    
+        # Búsqueda por nombre
+        if busqueda:
+            condiciones.append("""
+                LOWER(TRIM(nombre_nadador))
+                LIKE LOWER(?)
+            """)
+            parametros.append(
+                f"%{busqueda.strip()}%"
+            )
+    
+        # Año
+        if anio:
+            condiciones.append("""
+                EXTRACT(YEAR FROM fecha) = ?
+            """)
+            parametros.append(int(anio))
+    
+        # Piscina
+        if piscina:
+            condiciones.append("""
+                LOWER(TRIM(piscina)) = LOWER(TRIM(?))
+            """)
+            parametros.append(piscina)
+    
+        # Estilo
+        if estilo:
+            condiciones.append("""
+                LOWER(TRIM(estilo)) = LOWER(TRIM(?))
+            """)
+            parametros.append(estilo)
+    
+        # Distancia
+        if distancia:
+            condiciones.append("""
+                distancia = ?
+            """)
+            parametros.append(int(distancia))
+    
+        where_sql = ""
+    
+        if condiciones:
+            where_sql = (
+                "WHERE " +
+                " AND ".join(condiciones)
+            )
+    
+        # Contar resultados
+        cursor_total = self._execute(
+            f"""
+            SELECT COUNT(*) AS total
+            FROM tiempos
+            {where_sql}
+            """,
+            tuple(parametros),
+            commit=False
+        )
+    
+        fila_total = cursor_total.fetchone()
+    
+        if fila_total:
+            registro_total = self._row_to_dict(
+                fila_total,
+                cursor_total
+            )
+            total = int(
+                registro_total.get("total", 0)
+            )
+        else:
+            total = 0
+    
+        total_paginas = max(
+            (total + por_pagina - 1)
+            // por_pagina,
+            1
+        )
+    
+        if pagina > total_paginas:
+            pagina = total_paginas
+    
+        offset = (
+            pagina - 1
+        ) * por_pagina
+    
+        # Obtener página solicitada
+        parametros_pagina = (
+            parametros +
+            [por_pagina, offset]
+        )
+    
+        cursor = self._execute(
+            f"""
+            SELECT
+                id,
+                nombre_nadador,
+                categoria,
+                genero,
+                estilo,
+                distancia,
+                piscina,
+                tiempo,
+                tiempo_segundos,
+                fecha,
+                competencia_id
+            FROM tiempos
+            {where_sql}
+            ORDER BY
+                fecha {orden_sql},
+                LOWER(TRIM(nombre_nadador)) ASC,
+                LOWER(TRIM(estilo)) ASC,
+                distancia ASC
+            LIMIT ?
+            OFFSET ?
+            """,
+            tuple(parametros_pagina),
+            commit=False
+        )
+    
+        tiempos = [
+            self._row_to_dict(fila, cursor)
+            for fila in cursor.fetchall()
+            if fila
+        ]
+    
+        return {
+            "tiempos": tiempos,
+            "total": total,
+            "pagina": pagina,
+            "por_pagina": por_pagina,
+            "total_paginas": total_paginas,
+            "desde": (
+                offset + 1
+                if total > 0
+                else 0
+            ),
+            "hasta": min(
+                offset + por_pagina,
+                total
+            )
+        }
+
+    def obtener_opciones_historial(self):
+        # Años
+        cursor_anios = self._execute("""
+            SELECT DISTINCT
+                CAST(
+                    EXTRACT(YEAR FROM fecha)
+                    AS INTEGER
+                ) AS anio
+            FROM tiempos
+            WHERE fecha IS NOT NULL
+            ORDER BY anio DESC
+        """, commit=False)
+    
+        anios = []
+    
+        for fila in cursor_anios.fetchall():
+            registro = self._row_to_dict(
+                fila,
+                cursor_anios
+            )
+    
+            if registro and registro.get("anio"):
+                anios.append(
+                    registro["anio"]
+                )
+    
+        # Piscinas
+        cursor_piscinas = self._execute("""
+            SELECT DISTINCT piscina
+            FROM tiempos
+            WHERE piscina IS NOT NULL
+              AND TRIM(piscina) <> ''
+            ORDER BY piscina
+        """, commit=False)
+    
+        piscinas = []
+    
+        for fila in cursor_piscinas.fetchall():
+            registro = self._row_to_dict(
+                fila,
+                cursor_piscinas
+            )
+    
+            if registro:
+                piscinas.append(
+                    registro["piscina"]
+                )
+    
+        # Estilos
+        cursor_estilos = self._execute("""
+            SELECT DISTINCT estilo
+            FROM tiempos
+            WHERE estilo IS NOT NULL
+              AND TRIM(estilo) <> ''
+            ORDER BY estilo
+        """, commit=False)
+    
+        estilos = []
+    
+        for fila in cursor_estilos.fetchall():
+            registro = self._row_to_dict(
+                fila,
+                cursor_estilos
+            )
+    
+            if registro:
+                estilos.append(
+                    registro["estilo"]
+                )
+    
+        # Distancias
+        cursor_distancias = self._execute("""
+            SELECT DISTINCT distancia
+            FROM tiempos
+            WHERE distancia IS NOT NULL
+            ORDER BY distancia
+        """, commit=False)
+    
+        distancias = []
+    
+        for fila in cursor_distancias.fetchall():
+            registro = self._row_to_dict(
+                fila,
+                cursor_distancias
+            )
+    
+            if registro:
+                distancias.append(
+                    registro["distancia"]
+                )
+    
+        return {
+            "anios": anios,
+            "piscinas": piscinas,
+            "estilos": estilos,
+            "distancias": distancias
+        }
+
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
     print("Gestor de Tiempos Master inicializado correctamente.")
