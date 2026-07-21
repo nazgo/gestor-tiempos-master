@@ -1657,5 +1657,32 @@ def agregar_competencia():
     )
     
 
+@app.route('/estadisticas/nadadores/<int:anio>')
+@login_required
+def estado_nadadores_anio(anio):
+    nadadores = (
+        gestor_tiempos.obtener_estado_nadadores_por_anio(
+            anio
+        )
+    )
+
+    activos = [
+        n for n in nadadores
+        if n.get('estado') == 'ACTIVO'
+    ]
+
+    inactivos = [
+        n for n in nadadores
+        if n.get('estado') == 'INACTIVO'
+    ]
+
+    return render_template(
+        'estado_nadadores_anio.html',
+        anio=anio,
+        activos=activos,
+        inactivos=inactivos
+    )
+    
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
