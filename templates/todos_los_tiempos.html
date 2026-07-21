@@ -343,6 +343,23 @@
                         Limpiar
                     </a>
 
+                    <a
+                        href="{{ url_for(
+                            'exportar_historial_tiempos',
+                            busqueda=filtros.busqueda,
+                            anio=filtros.anio,
+                            piscina=filtros.piscina,
+                            estilo=filtros.estilo,
+                            distancia=filtros.distancia,
+                            columna_orden=filtros.columna_orden,
+                            direccion=filtros.direccion
+                        ) }}"
+                        class="btn btn-success"
+                    >
+                        <i class="fas fa-file-csv"></i>
+                        Exportar CSV
+                    </a>
+
                 </div>
 
             </form>
@@ -388,17 +405,41 @@
 
                 <table class="table table-striped table-hover align-middle mb-0">
 
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Nadador</th>
-                            <th>Categoría</th>
-                            <th>Género</th>
-                            <th>Prueba</th>
-                            <th>Piscina</th>
-                            <th>Tiempo</th>
-                        </tr>
-                    </thead>
+                <thead class="table-dark">
+                    <tr>
+                        <th>
+                            {{ encabezado_ordenable('Fecha', 'fecha') }}
+                        </th>
+                
+                        <th>
+                            {{ encabezado_ordenable('Nadador', 'nombre') }}
+                        </th>
+                
+                        <th>
+                            {{ encabezado_ordenable('Categoría', 'categoria') }}
+                        </th>
+                
+                        <th>
+                            {{ encabezado_ordenable('Género', 'genero') }}
+                        </th>
+                
+                        <th>
+                            {{ encabezado_ordenable('Estilo', 'estilo') }}
+                        </th>
+                
+                        <th>
+                            {{ encabezado_ordenable('Distancia', 'distancia') }}
+                        </th>
+                
+                        <th>
+                            {{ encabezado_ordenable('Piscina', 'piscina') }}
+                        </th>
+                
+                        <th>
+                            {{ encabezado_ordenable('Tiempo', 'tiempo') }}
+                        </th>
+                    </tr>
+                </thead>
 
                     <tbody>
 
@@ -432,9 +473,12 @@
                                 {{ t.genero or '—' }}
                             </td>
 
-                            <td class="text-nowrap">
+                            <td>
+                                {{ t.estilo or '—' }}
+                            </td>
+                            
+                            <td>
                                 {{ t.distancia }}m
-                                {{ t.estilo }}
                             </td>
 
                             <td>
@@ -471,7 +515,7 @@
 
                         <tr>
                             <td
-                                colspan="7"
+                                colspan="8"
                                 class="text-center text-muted py-5"
                             >
                                 <i class="fas fa-search fa-2x mb-3 d-block"></i>
@@ -511,7 +555,8 @@
                         piscina=filtros.piscina,
                         estilo=filtros.estilo,
                         distancia=filtros.distancia,
-                        orden=filtros.orden,
+                        columna_orden=filtros.columna_orden,
+                        direccion=filtros.direccion,
                         por_pagina=por_pagina,
                         pagina=1
                     ) }}"
@@ -531,7 +576,8 @@
                         piscina=filtros.piscina,
                         estilo=filtros.estilo,
                         distancia=filtros.distancia,
-                        orden=filtros.orden,
+                        columna_orden=filtros.columna_orden,
+                        direccion=filtros.direccion,
                         por_pagina=por_pagina,
                         pagina=pagina - 1
                     ) }}"
@@ -555,7 +601,8 @@
                         piscina=filtros.piscina,
                         estilo=filtros.estilo,
                         distancia=filtros.distancia,
-                        orden=filtros.orden,
+                        columna_orden=filtros.columna_orden,
+                        direccion=filtros.direccion,
                         por_pagina=por_pagina,
                         pagina=numero
                     ) }}"
@@ -577,7 +624,8 @@
                         piscina=filtros.piscina,
                         estilo=filtros.estilo,
                         distancia=filtros.distancia,
-                        orden=filtros.orden,
+                        columna_orden=filtros.columna_orden,
+                        direccion=filtros.direccion,
                         por_pagina=por_pagina,
                         pagina=pagina + 1
                     ) }}"
@@ -597,7 +645,8 @@
                         piscina=filtros.piscina,
                         estilo=filtros.estilo,
                         distancia=filtros.distancia,
-                        orden=filtros.orden,
+                        columna_orden=filtros.columna_orden,
+                        direccion=filtros.direccion,
                         por_pagina=por_pagina,
                         pagina=total_paginas
                     ) }}"
@@ -670,6 +719,24 @@
             padding: 0.45rem;
             font-size: 0.82rem;
         }
+    }
+
+        .enlace-orden {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: inherit;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    
+    .enlace-orden:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+    
+    .enlace-orden i {
+        font-size: 0.78rem;
     }
 </style>
 
