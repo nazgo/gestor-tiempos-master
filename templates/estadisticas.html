@@ -49,19 +49,31 @@
     </div>
 
     <div class="col-md-3">
-        <div class="card text-center h-100 shadow-sm border-0 tarjeta-resumen">
-            <div class="card-body">
-                <i class="fas fa-user-check fa-3x text-info mb-3"></i>
-
-                <h2 class="text-info fw-bold">
-                    {{ stats.activos_este_año }}
-                </h2>
-
-                <p class="text-muted mb-0">
-                    Nadadores Activos en {{ año_actual }}
-                </p>
+        <a
+            href="{{ url_for(
+                'estado_nadadores_anio',
+                anio=año_actual
+            ) }}"
+            class="text-decoration-none"
+        >
+            <div class="card text-center h-100 shadow-sm border-0 tarjeta-resumen tarjeta-clickeable">
+                <div class="card-body">
+                    <i class="fas fa-user-check fa-3x text-info mb-3"></i>
+    
+                    <h2 class="text-info fw-bold">
+                        {{ stats.activos_este_año }}
+                    </h2>
+    
+                    <p class="text-muted mb-0">
+                        Nadadores Activos en {{ año_actual }}
+                    </p>
+    
+                    <small class="text-info">
+                        Ver activos e inactivos
+                    </small>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
 
     <div class="col-md-3">
@@ -336,6 +348,20 @@
             font-size: 2.1rem;
         }
     }
+
+
+
+    .tarjeta-clickeable {
+    cursor: pointer;
+}
+
+.tarjeta-clickeable:hover {
+    transform: translateY(-5px);
+    box-shadow:
+        0 12px 26px
+        rgba(0, 0, 0, 0.13) !important;
+}
+    
 </style>
 
 {% endblock %}
