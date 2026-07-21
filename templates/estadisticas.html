@@ -173,13 +173,7 @@
 
                     <tbody>
                         {% for p in stats.por_prueba %}
-                        <tr>
-                            <td>
-                                <span class="badge bg-secondary">
-                                    {{ p.posicion }}
-                                </span>
-                            </td>
-                    
+                        <tr>                
                             <td>
                                 <strong>
                                     {{ p.nombre_nadador or '—' }}
@@ -212,7 +206,7 @@
                         {% else %}
                         <tr>
                             <td
-                                colspan="6"
+                                colspan="5"
                                 class="text-center text-muted py-4"
                             >
                                 No hay tiempos disponibles.
