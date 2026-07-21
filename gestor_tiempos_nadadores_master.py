@@ -654,24 +654,42 @@ class GestorTiemposMaster:
     
         # Nadadores activos en el año actual
         cursor = self._execute("""
-            SELECT
-                COUNT(DISTINCT nombre_nadador) AS activos_este_año
-            FROM tiempos
-            WHERE EXTRACT(YEAR FROM fecha) = ?
-        """, (
-            año_actual,
-        ), commit=False)
+        SELECT
+            t.nombre_nadador,
     
-        row = cursor.fetchone()
+            COALESCE(
+                MAX(t.categoria),
+                MAX(n.categoria_master),
+                'Sin categoría'
+            ) AS categoria_master,
     
-        activos = (
-            self._row_to_dict(row, cursor).get(
-                'activos_este_año',
-                0
-            )
-            if row
-            else 0
-        )
+            COUNT(*) AS total_tiempos
+    
+        FROM tiempos t
+    
+        LEFT JOIN nadadores n
+            ON LOWER(TRIM(t.nombre_nadador)) =
+               LOWER(TRIM(n.nombre || ' ' || n.apellido))
+    
+        WHERE EXTRACT(YEAR FROM t.fecha) = ?
+    
+        GROUP BY
+            t.nombre_nadador
+    
+        ORDER BY
+            total_tiempos DESC,
+            t.nombre_nadador ASC
+    
+        LIMIT 12
+    """, (
+        año_actual,
+    ), commit=False)
+    
+    mas_activos = [
+        self._row_to_dict(row, cursor)
+        for row in cursor.fetchall()
+        if row
+    ]
     
         # Número de temporadas registradas
         cursor = self._execute("""
