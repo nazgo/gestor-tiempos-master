@@ -87,6 +87,14 @@
                                 value="{{ competencia.id }}"
                             >
 
+                            >
+                        
+                            <input
+                                type="hidden"
+                                name="anio"
+                                value="{{ anio }}"
+                            >
+
                             {% if competencia.estado == 'REALIZADO' %}
                                 <button
                                     type="submit"
