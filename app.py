@@ -1682,6 +1682,17 @@ def estado_nadadores_anio(anio):
         activos=activos,
         inactivos=inactivos
     )
+
+@app.route('/estadisticas/todos_los_tiempos')
+@login_required
+def todos_los_tiempos():
+
+    tiempos = gestor_tiempos.obtener_todos_los_tiempos()
+
+    return render_template(
+        'todos_los_tiempos.html',
+        tiempos=tiempos
+    )
     
 
 if __name__ == '__main__':
