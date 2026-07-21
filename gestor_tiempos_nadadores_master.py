@@ -728,13 +728,7 @@ class GestorTiemposMaster:
     
                 FROM tiempos
     
-                WHERE LOWER(TRIM(piscina)) IN (
-                    '50 metros',
-                    '50m',
-                    '50 m',
-                    '50'
-                )
-                  AND distancia = 50
+                WHERE distancia = 50
                   AND nombre_nadador IS NOT NULL
                   AND TRIM(nombre_nadador) <> ''
                   AND estilo IS NOT NULL
