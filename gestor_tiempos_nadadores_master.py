@@ -638,54 +638,163 @@ class GestorTiemposMaster:
             "ultima_fecha": max(t['fecha'] for t in tiempos)
         }
 
-    def obtener_estadisticas_club(self):
-        año_actual = datetime.now().year
+def obtener_estadisticas_club(self):
+    año_actual = datetime.now().year
 
-        cursor = self._execute('''
-            SELECT COUNT(*) as total_tiempos, 
-                   COUNT(DISTINCT nombre_nadador) as total_nadadores 
+    # Resumen general
+    cursor = self._execute("""
+        SELECT
+            COUNT(*) AS total_tiempos,
+            COUNT(DISTINCT nombre_nadador) AS total_nadadores
+        FROM tiempos
+    """, commit=False)
+
+    row = cursor.fetchone()
+    general = self._row_to_dict(row, cursor) or {}
+
+    # Nadadores activos en el año actual
+    cursor = self._execute("""
+        SELECT
+            COUNT(DISTINCT nombre_nadador) AS activos_este_año
+        FROM tiempos
+        WHERE EXTRACT(YEAR FROM fecha) = ?
+    """, (
+        año_actual,
+    ), commit=False)
+
+    row = cursor.fetchone()
+
+    activos = (
+        self._row_to_dict(row, cursor).get(
+            'activos_este_año',
+            0
+        )
+        if row
+        else 0
+    )
+
+    # Número de temporadas registradas
+    cursor = self._execute("""
+        SELECT DISTINCT
+            EXTRACT(YEAR FROM fecha) AS ano
+        FROM tiempos
+        WHERE fecha IS NOT NULL
+    """, commit=False)
+
+    años = cursor.fetchall()
+    temporadas = len(años)
+
+    # Nadadores con más tiempos en el año actual
+    cursor = self._execute("""
+        SELECT
+            nombre_nadador,
+            COUNT(*) AS total_tiempos
+        FROM tiempos
+        WHERE EXTRACT(YEAR FROM fecha) = ?
+        GROUP BY nombre_nadador
+        ORDER BY total_tiempos DESC
+        LIMIT 10
+    """, (
+        año_actual,
+    ), commit=False)
+
+    mas_activos = [
+        self._row_to_dict(row, cursor)
+        for row in cursor.fetchall()
+        if row
+    ]
+
+    # Top 3 de cada estilo en 50 metros.
+    # Primero conserva solo el mejor tiempo de cada nadador
+    # dentro de cada estilo.
+    cursor = self._execute("""
+        WITH mejores_por_nadador AS (
+            SELECT
+                nombre_nadador,
+                estilo,
+                distancia,
+                tiempo,
+                tiempo_segundos,
+                fecha,
+
+                ROW_NUMBER() OVER (
+                    PARTITION BY
+                        LOWER(TRIM(nombre_nadador)),
+                        LOWER(TRIM(estilo))
+                    ORDER BY
+                        tiempo_segundos ASC,
+                        fecha ASC
+                ) AS puesto_nadador
+
             FROM tiempos
-        ''', commit=False)
-        row = cursor.fetchone()
-        general = self._row_to_dict(row, cursor) or {}
 
-        cursor = self._execute('''
-            SELECT COUNT(DISTINCT nombre_nadador) as activos_este_año
-            FROM tiempos 
-            WHERE EXTRACT(YEAR FROM fecha) = ?
-        ''', (año_actual,), commit=False)
-        row = cursor.fetchone()
-        activos = self._row_to_dict(row, cursor)['activos_este_año'] if row else 0
+            WHERE LOWER(TRIM(piscina)) IN (
+                '50 metros',
+                '50m',
+                '50 m',
+                '50'
+            )
+              AND distancia = 50
+              AND nombre_nadador IS NOT NULL
+              AND TRIM(nombre_nadador) <> ''
+              AND estilo IS NOT NULL
+              AND TRIM(estilo) <> ''
+              AND tiempo_segundos IS NOT NULL
+        ),
 
-        cursor = self._execute("SELECT DISTINCT EXTRACT(YEAR FROM fecha) as ano FROM tiempos WHERE fecha IS NOT NULL", commit=False)
-        años = cursor.fetchall()
-        temporadas = len(años)
+        ranking_por_estilo AS (
+            SELECT
+                nombre_nadador,
+                estilo,
+                distancia,
+                tiempo,
+                tiempo_segundos,
+                fecha,
 
-        cursor = self._execute('''
-            SELECT nombre_nadador, COUNT(*) as total_tiempos
-            FROM tiempos 
-            WHERE EXTRACT(YEAR FROM fecha) = ?
-            GROUP BY nombre_nadador 
-            ORDER BY total_tiempos DESC 
-            LIMIT 10
-        ''', (año_actual,), commit=False)
-        mas_activos = [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
+                ROW_NUMBER() OVER (
+                    PARTITION BY LOWER(TRIM(estilo))
+                    ORDER BY
+                        tiempo_segundos ASC,
+                        fecha ASC,
+                        nombre_nadador ASC
+                ) AS posicion
 
-        cursor = self._execute('''
-            SELECT nombre_nadador, estilo, distancia, tiempo, fecha
-            FROM tiempos
-            ORDER BY tiempo_segundos ASC
-            LIMIT 10
-        ''', commit=False)
-        por_prueba = [self._row_to_dict(row, cursor) for row in cursor.fetchall() if row]
+            FROM mejores_por_nadador
 
-        return {
-            'general': general,
-            'activos_este_año': activos,
-            'temporadas': temporadas,
-            'mas_activos': mas_activos,
-            'por_prueba': por_prueba
-        }
+            WHERE puesto_nadador = 1
+        )
+
+        SELECT
+            nombre_nadador,
+            estilo,
+            distancia,
+            tiempo,
+            tiempo_segundos,
+            fecha,
+            posicion
+
+        FROM ranking_por_estilo
+
+        WHERE posicion <= 3
+
+        ORDER BY
+            LOWER(TRIM(estilo)) ASC,
+            posicion ASC
+    """, commit=False)
+
+    por_prueba = [
+        self._row_to_dict(row, cursor)
+        for row in cursor.fetchall()
+        if row
+    ]
+
+    return {
+        'general': general,
+        'activos_este_año': activos,
+        'temporadas': temporadas,
+        'mas_activos': mas_activos,
+        'por_prueba': por_prueba
+    }
 
     def obtener_top_4_por_categoria_genero_estilo(
         self,
