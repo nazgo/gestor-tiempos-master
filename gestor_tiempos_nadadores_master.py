@@ -640,7 +640,7 @@ class GestorTiemposMaster:
 
     def obtener_estadisticas_club(self):
         año_actual = datetime.now().year
-    
+
         # Resumen general
         cursor = self._execute("""
             SELECT
@@ -648,83 +648,84 @@ class GestorTiemposMaster:
                 COUNT(DISTINCT nombre_nadador) AS total_nadadores
             FROM tiempos
         """, commit=False)
-    
+
         row = cursor.fetchone()
         general = self._row_to_dict(row, cursor) or {}
-    
+
         # Nadadores activos en el año actual
         cursor = self._execute("""
-        SELECT
-            t.nombre_nadador,
-    
-            COALESCE(
-                MAX(t.categoria),
-                MAX(n.categoria_master),
-                'Sin categoría'
-            ) AS categoria_master,
-    
-            COUNT(*) AS total_tiempos
-    
-        FROM tiempos t
-    
-        LEFT JOIN nadadores n
-            ON LOWER(TRIM(t.nombre_nadador)) =
-               LOWER(TRIM(n.nombre || ' ' || n.apellido))
-    
-        WHERE EXTRACT(YEAR FROM t.fecha) = ?
-    
-        GROUP BY
-            t.nombre_nadador
-    
-        ORDER BY
-            total_tiempos DESC,
-            t.nombre_nadador ASC
-    
-        LIMIT 12
-    """, (
-        año_actual,
-    ), commit=False)
-    
-    mas_activos = [
-        self._row_to_dict(row, cursor)
-        for row in cursor.fetchall()
-        if row
-    ]
-    
-        # Número de temporadas registradas
+            SELECT
+                COUNT(DISTINCT nombre_nadador) AS activos_este_año
+            FROM tiempos
+            WHERE EXTRACT(YEAR FROM fecha) = ?
+        """, (
+            año_actual,
+        ), commit=False)
+
+        row = cursor.fetchone()
+
+        activos = (
+            self._row_to_dict(row, cursor).get(
+                'activos_este_año',
+                0
+            )
+            if row
+            else 0
+        )
+
+        # Número de temporadas
         cursor = self._execute("""
             SELECT DISTINCT
                 EXTRACT(YEAR FROM fecha) AS ano
             FROM tiempos
             WHERE fecha IS NOT NULL
         """, commit=False)
-    
+
         años = cursor.fetchall()
         temporadas = len(años)
-    
-        # Nadadores con más tiempos en el año actual
+
+        # Los 12 nadadores más activos del año,
+        # incluyendo su categoría
         cursor = self._execute("""
             SELECT
-                nombre_nadador,
+                t.nombre_nadador,
+
+                COALESCE(
+                    MAX(t.categoria),
+                    MAX(n.categoria_master),
+                    'Sin categoría'
+                ) AS categoria_master,
+
                 COUNT(*) AS total_tiempos
-            FROM tiempos
-            WHERE EXTRACT(YEAR FROM fecha) = ?
-            GROUP BY nombre_nadador
-            ORDER BY total_tiempos DESC
-            LIMIT 10
+
+            FROM tiempos t
+
+            LEFT JOIN nadadores n
+                ON LOWER(TRIM(t.nombre_nadador)) =
+                   LOWER(TRIM(n.nombre || ' ' || n.apellido))
+
+            WHERE EXTRACT(YEAR FROM t.fecha) = ?
+
+            GROUP BY
+                t.nombre_nadador
+
+            ORDER BY
+                total_tiempos DESC,
+                t.nombre_nadador ASC
+
+            LIMIT 12
         """, (
             año_actual,
         ), commit=False)
-    
+
         mas_activos = [
             self._row_to_dict(row, cursor)
             for row in cursor.fetchall()
             if row
         ]
-    
-        # Top 3 de cada estilo en 50 metros.
-        # Primero conserva solo el mejor tiempo de cada nadador
-        # dentro de cada estilo.
+
+        # Top 3 de cada estilo en 50 metros,
+        # sin repetir nadador dentro del mismo estilo
         cursor = self._execute("""
             WITH mejores_por_nadador AS (
                 SELECT
@@ -734,7 +735,7 @@ class GestorTiemposMaster:
                     tiempo,
                     tiempo_segundos,
                     fecha,
-    
+
                     ROW_NUMBER() OVER (
                         PARTITION BY
                             LOWER(TRIM(nombre_nadador)),
@@ -743,17 +744,23 @@ class GestorTiemposMaster:
                             tiempo_segundos ASC,
                             fecha ASC
                     ) AS puesto_nadador
-    
+
                 FROM tiempos
-    
-                WHERE distancia = 50
+
+                WHERE LOWER(TRIM(piscina)) IN (
+                    '50 metros',
+                    '50m',
+                    '50 m',
+                    '50'
+                )
+                  AND distancia = 50
                   AND nombre_nadador IS NOT NULL
                   AND TRIM(nombre_nadador) <> ''
                   AND estilo IS NOT NULL
                   AND TRIM(estilo) <> ''
                   AND tiempo_segundos IS NOT NULL
             ),
-    
+
             ranking_por_estilo AS (
                 SELECT
                     nombre_nadador,
@@ -762,7 +769,7 @@ class GestorTiemposMaster:
                     tiempo,
                     tiempo_segundos,
                     fecha,
-    
+
                     ROW_NUMBER() OVER (
                         PARTITION BY LOWER(TRIM(estilo))
                         ORDER BY
@@ -770,12 +777,12 @@ class GestorTiemposMaster:
                             fecha ASC,
                             nombre_nadador ASC
                     ) AS posicion
-    
+
                 FROM mejores_por_nadador
-    
+
                 WHERE puesto_nadador = 1
             )
-    
+
             SELECT
                 nombre_nadador,
                 estilo,
@@ -784,22 +791,22 @@ class GestorTiemposMaster:
                 tiempo_segundos,
                 fecha,
                 posicion
-    
+
             FROM ranking_por_estilo
-    
+
             WHERE posicion <= 3
-    
+
             ORDER BY
                 LOWER(TRIM(estilo)) ASC,
                 posicion ASC
         """, commit=False)
-    
+
         por_prueba = [
             self._row_to_dict(row, cursor)
             for row in cursor.fetchall()
             if row
         ]
-    
+
         return {
             'general': general,
             'activos_este_año': activos,
