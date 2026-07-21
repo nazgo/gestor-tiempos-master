@@ -823,48 +823,147 @@ def nueva_competencia():
 @login_required
 @editor_required
 def editar_competencia(competencia_id):
-    competencia = gestor_tiempos.obtener_competencia(competencia_id)
+
+    competencia = gestor_tiempos.obtener_competencia(
+        competencia_id
+    )
 
     if not competencia:
-        flash('Competencia no encontrada.', 'danger')
-        return redirect(url_for('calendario_competencias'))
+        flash(
+            'Competencia no encontrada.',
+            'danger'
+        )
+        return redirect(
+            url_for('seleccionar_anio_calendario')
+        )
 
-    if request.method == 'POST':
-        fecha = request.form.get('fecha', '').strip()
-        lugar = request.form.get('lugar', '').strip()
-        organiza = request.form.get('organiza', '').strip()
-        nombre = request.form.get('nombre', '').strip()
-        tipo_piscina = request.form.get('tipo_piscina', '').strip()
-        estado = request.form.get('estado', 'NO REALIZADO').strip()
+    # Primero intenta recibirlo por la URL.
+    anio = request.args.get(
+        'anio',
+        type=int
+    )
 
-        if not fecha or not lugar or not nombre:
-            flash(
-                'Fecha, lugar y nombre del torneo son obligatorios.',
-                'danger'
-            )
+    # Si no llegó por URL, se obtiene desde la fecha
+    # registrada en la competencia.
+    if not anio:
+        fecha_competencia = competencia.get('fecha')
+
+        if hasattr(fecha_competencia, 'year'):
+            anio = fecha_competencia.year
         else:
             try:
-                gestor_tiempos.editar_competencia(
-                    competencia_id=competencia_id,
-                    fecha=fecha,
-                    lugar=lugar,
-                    organiza=organiza,
-                    nombre=nombre,
-                    tipo_piscina=tipo_piscina,
-                    estado=estado
+                anio = datetime.strptime(
+                    str(fecha_competencia),
+                    '%Y-%m-%d'
+                ).year
+            except (TypeError, ValueError):
+                anio = 2026
+
+    if request.method == 'POST':
+        try:
+            fecha_str = request.form.get(
+                'fecha',
+                ''
+            ).strip()
+
+            lugar = request.form.get(
+                'lugar',
+                ''
+            ).strip()
+
+            organiza = request.form.get(
+                'organiza',
+                ''
+            ).strip()
+
+            nombre = request.form.get(
+                'nombre',
+                ''
+            ).strip()
+
+            tipo_piscina = request.form.get(
+                'tipo_piscina',
+                ''
+            ).strip()
+
+            estado = request.form.get(
+                'estado',
+                'NO REALIZADO'
+            ).strip()
+
+            if not fecha_str or not lugar or not nombre:
+                raise ValueError(
+                    'Fecha, lugar y nombre son obligatorios.'
                 )
 
-                flash('Competencia actualizada correctamente.', 'success')
-                return redirect(url_for('calendario_competencias'))
+            fecha_objeto = datetime.strptime(
+                fecha_str,
+                '%Y-%m-%d'
+            ).date()
 
-            except Exception as e:
-                print("Error editando competencia:", e)
-                flash('No fue posible editar la competencia.', 'danger')
+            meses = {
+                1: 'ENERO',
+                2: 'FEBRERO',
+                3: 'MARZO',
+                4: 'ABRIL',
+                5: 'MAYO',
+                6: 'JUNIO',
+                7: 'JULIO',
+                8: 'AGOSTO',
+                9: 'SEPTIEMBRE',
+                10: 'OCTUBRE',
+                11: 'NOVIEMBRE',
+                12: 'DICIEMBRE'
+            }
+
+            mes = meses[fecha_objeto.month]
+
+            gestor_tiempos.editar_competencia(
+                competencia_id=competencia_id,
+                fecha=fecha_objeto,
+                mes=mes,
+                lugar=lugar,
+                organiza=organiza,
+                nombre=nombre,
+                tipo_piscina=tipo_piscina,
+                estado=estado
+            )
+
+            flash(
+                'Competencia actualizada correctamente.',
+                'success'
+            )
+
+            return redirect(
+                url_for(
+                    'calendario_competencias',
+                    anio=fecha_objeto.year
+                )
+            )
+
+        except Exception as e:
+            print(
+                'Error editando competencia:',
+                repr(e)
+            )
+
+            flash(
+                f'No fue posible editar la competencia: {e}',
+                'danger'
+            )
+
+            return render_template(
+                'competencia_form.html',
+                competencia=request.form,
+                titulo='Editar competencia',
+                anio=anio
+            )
 
     return render_template(
         'competencia_form.html',
         competencia=competencia,
-        titulo='Editar competencia'
+        titulo='Editar competencia',
+        anio=anio
     )
 
 @app.route(
