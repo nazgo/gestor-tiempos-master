@@ -165,46 +165,61 @@
                             <tr>
                                 <th>Nadador</th>
                                 <th>Estilo</th>
+                                <th>Piscina</th>
                                 <th>Tiempo</th>
                                 <th>Fecha</th>
                             </tr>
                         </thead>
 
-                        <tbody>
-                            {% for p in stats.por_prueba %}
-                            <tr>
-                                <td>
-                                    <strong>
-                                        {{ p.nombre_nadador or '—' }}
-                                    </strong>
-                                </td>
-
-                                <td>
-                                    {{ p.estilo }}
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-success">
-                                        {{ p.tiempo }}
-                                    </span>
-                                </td>
-
-                                <td>
-                                    {{ p.fecha or '—' }}
-                                </td>
-                            </tr>
-
-                            {% else %}
-                            <tr>
-                                <td
-                                    colspan="4"
-                                    class="text-center text-muted py-4"
-                                >
-                                    No hay tiempos disponibles.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
+                    <tbody>
+                        {% for p in stats.por_prueba %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    {{ p.posicion }}
+                                </span>
+                            </td>
+                    
+                            <td>
+                                <strong>
+                                    {{ p.nombre_nadador or '—' }}
+                                </strong>
+                            </td>
+                    
+                            <td>
+                                {{ p.estilo }}
+                            </td>
+                    
+                            <td>
+                                {% if p.piscina in ['50 metros', '50m', '50 m', '50'] %}
+                                    50m
+                                {% else %}
+                                    {{ p.piscina }}
+                                {% endif %}
+                            </td>
+                    
+                            <td>
+                                <span class="badge bg-success">
+                                    {{ p.tiempo }}
+                                </span>
+                            </td>
+                    
+                            <td>
+                                {{ p.fecha or '—' }}
+                            </td>
+                        </tr>
+                    
+                        {% else %}
+                        <tr>
+                            <td
+                                colspan="6"
+                                class="text-center text-muted py-4"
+                            >
+                                No hay tiempos disponibles.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
                     </table>
 
                 </div>
