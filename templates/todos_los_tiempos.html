@@ -2,6 +2,43 @@
 
 {% block content %}
 
+{% macro encabezado_ordenable(texto, columna) %}
+    {% set nueva_direccion =
+        'desc'
+        if filtros.columna_orden == columna
+           and filtros.direccion == 'asc'
+        else 'asc'
+    %}
+
+    <a
+        href="{{ url_for(
+            'todos_los_tiempos',
+            busqueda=filtros.busqueda,
+            anio=filtros.anio,
+            piscina=filtros.piscina,
+            estilo=filtros.estilo,
+            distancia=filtros.distancia,
+            columna_orden=columna,
+            direccion=nueva_direccion,
+            por_pagina=por_pagina,
+            pagina=1
+        ) }}"
+        class="enlace-orden"
+    >
+        {{ texto }}
+
+        {% if filtros.columna_orden == columna %}
+            {% if filtros.direccion == 'asc' %}
+                <i class="fas fa-sort-up"></i>
+            {% else %}
+                <i class="fas fa-sort-down"></i>
+            {% endif %}
+        {% else %}
+            <i class="fas fa-sort text-secondary"></i>
+        {% endif %}
+    </a>
+{% endmacro %}
+
 <div class="container-fluid py-4">
 
     <div class="text-center mb-4">
