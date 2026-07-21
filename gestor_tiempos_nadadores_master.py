@@ -2286,6 +2286,158 @@ class GestorTiemposMaster:
             "distancias": distancias
         }
 
+
+     # ====================== FICHA NADADOR ======================
+
+    def obtener_ficha_nadador(self, nombre_completo):
+        nombre_completo = nombre_completo.strip()
+    
+        # Total de tiempos
+        cursor = self._execute("""
+            SELECT
+                COUNT(*) AS total_tiempos,
+                COUNT(DISTINCT competencia_id)
+                    FILTER (WHERE competencia_id IS NOT NULL)
+                    AS total_competencias,
+                MIN(fecha) AS primer_registro,
+                MAX(fecha) AS ultimo_registro
+            FROM tiempos
+            WHERE LOWER(TRIM(nombre_nadador)) =
+                  LOWER(TRIM(?))
+        """, (
+            nombre_completo,
+        ), commit=False)
+    
+        fila = cursor.fetchone()
+    
+        resumen = (
+            self._row_to_dict(fila, cursor)
+            if fila
+            else {}
+        )
+    
+        # Mejores marcas: una por estilo, distancia y piscina
+        cursor = self._execute("""
+            WITH ranking AS (
+                SELECT
+                    id,
+                    estilo,
+                    distancia,
+                    piscina,
+                    tiempo,
+                    tiempo_segundos,
+                    fecha,
+                    competencia_id,
+    
+                    ROW_NUMBER() OVER (
+                        PARTITION BY
+                            LOWER(TRIM(estilo)),
+                            distancia,
+                            LOWER(TRIM(piscina))
+                        ORDER BY
+                            tiempo_segundos ASC,
+                            fecha ASC,
+                            id ASC
+                    ) AS posicion
+    
+                FROM tiempos
+    
+                WHERE LOWER(TRIM(nombre_nadador)) =
+                      LOWER(TRIM(?))
+                  AND tiempo_segundos IS NOT NULL
+            )
+    
+            SELECT
+                id,
+                estilo,
+                distancia,
+                piscina,
+                tiempo,
+                tiempo_segundos,
+                fecha,
+                competencia_id
+    
+            FROM ranking
+    
+            WHERE posicion = 1
+    
+            ORDER BY
+                distancia ASC,
+                estilo ASC,
+                piscina ASC
+        """, (
+            nombre_completo,
+        ), commit=False)
+    
+        mejores_marcas = [
+            self._row_to_dict(fila, cursor)
+            for fila in cursor.fetchall()
+            if fila
+        ]
+    
+        # Últimos 10 tiempos
+        cursor = self._execute("""
+            SELECT
+                id,
+                estilo,
+                distancia,
+                piscina,
+                tiempo,
+                tiempo_segundos,
+                fecha,
+                categoria,
+                genero,
+                competencia_id
+            FROM tiempos
+            WHERE LOWER(TRIM(nombre_nadador)) =
+                  LOWER(TRIM(?))
+            ORDER BY
+                fecha DESC,
+                id DESC
+            LIMIT 10
+        """, (
+            nombre_completo,
+        ), commit=False)
+    
+        ultimos_tiempos = [
+            self._row_to_dict(fila, cursor)
+            for fila in cursor.fetchall()
+            if fila
+        ]
+    
+        # Cantidad de registros por temporada
+        cursor = self._execute("""
+            SELECT
+                CAST(
+                    EXTRACT(YEAR FROM fecha)
+                    AS INTEGER
+                ) AS anio,
+                COUNT(*) AS total
+            FROM tiempos
+            WHERE LOWER(TRIM(nombre_nadador)) =
+                  LOWER(TRIM(?))
+              AND fecha IS NOT NULL
+            GROUP BY
+                EXTRACT(YEAR FROM fecha)
+            ORDER BY
+                anio DESC
+        """, (
+            nombre_completo,
+        ), commit=False)
+    
+        temporadas = [
+            self._row_to_dict(fila, cursor)
+            for fila in cursor.fetchall()
+            if fila
+        ]
+    
+        return {
+            'resumen': resumen or {},
+            'mejores_marcas': mejores_marcas,
+            'ultimos_tiempos': ultimos_tiempos,
+            'temporadas': temporadas
+        }
+
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
     print("Gestor de Tiempos Master inicializado correctamente.")
