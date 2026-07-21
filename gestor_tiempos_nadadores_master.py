@@ -1765,6 +1765,25 @@ class GestorTiemposMaster:
             estado
         ))
 
+    def obtener_registros_por_temporada(self):
+        cursor = self._execute("""
+            SELECT
+                EXTRACT(YEAR FROM fecha)::INTEGER AS anio,
+                COUNT(*) AS total
+            FROM tiempos
+            WHERE fecha IS NOT NULL
+            GROUP BY EXTRACT(YEAR FROM fecha)
+            ORDER BY anio DESC
+        """, commit=False)
+    
+        filas = cursor.fetchall()
+    
+        return [
+            self._row_to_dict(fila, cursor)
+            for fila in filas
+            if fila
+        ]
+
 if __name__ == "__main__":
     gestor = GestorTiemposMaster()
     print("Gestor de Tiempos Master inicializado correctamente.")
