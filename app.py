@@ -664,29 +664,68 @@ def calendario_competencias(anio):
 @login_required
 @editor_required
 def actualizar_estado():
-    competencia_id = request.form.get('id')
-    estado = request.form.get('estado')
-
-    if not competencia_id or estado not in (
-        'REALIZADO',
-        'NO REALIZADO'
-    ):
-        flash('Datos inválidos para actualizar el estado.', 'danger')
-        return redirect(url_for('calendario_competencias'))
+    anio = request.form.get(
+        'anio',
+        default=2026,
+        type=int
+    )
 
     try:
+        competencia_id = request.form.get(
+            'id',
+            type=int
+        )
+
+        estado = request.form.get(
+            'estado',
+            ''
+        ).strip()
+
+        if not competencia_id:
+            raise ValueError(
+                'No se recibió el ID de la competencia.'
+            )
+
+        estados_validos = {
+            'NO REALIZADO',
+            'REALIZADO'
+        }
+
+        if estado not in estados_validos:
+            raise ValueError(
+                'Estado de competencia inválido.'
+            )
+
         gestor_tiempos.actualizar_estado_competencia(
             competencia_id,
             estado
         )
 
-        flash('Estado actualizado correctamente.', 'success')
+        flash(
+            'Estado actualizado correctamente.',
+            'success'
+        )
 
     except Exception as e:
-        print("Error actualizando estado:", e)
-        flash('No fue posible actualizar el estado.', 'danger')
+        print(
+            'Error actualizando estado:',
+            repr(e)
+        )
 
-    return redirect(url_for('calendario_competencias'))
+        flash(
+            f'No fue posible actualizar el estado: {e}',
+            'danger'
+        )
+
+    if anio not in (2025, 2026):
+        anio = 2026
+
+    return redirect(
+        url_for(
+            'calendario_competencias',
+            anio=anio
+        )
+    )
 
 @app.route('/competencias/nueva', methods=['GET', 'POST'])
 @login_required
@@ -816,10 +855,7 @@ def nueva_competencia():
         anio=anio
     )
 
-@app.route(
-    '/competencias/<int:competencia_id>/editar',
-    methods=['GET', 'POST']
-)
+@app.route('/competencias/<int:competencia_id>/editar', methods=['GET', 'POST'])
 @login_required
 @editor_required
 def editar_competencia(competencia_id):
@@ -966,10 +1002,7 @@ def editar_competencia(competencia_id):
         anio=anio
     )
 
-@app.route(
-    '/competencias/<int:competencia_id>/eliminar',
-    methods=['POST']
-)
+@app.route('/competencias/<int:competencia_id>/eliminar', methods=['POST'])
 @login_required
 @editor_required
 def eliminar_competencia(competencia_id):
@@ -1308,10 +1341,7 @@ def eliminar_tiempo_nadador(tiempo_id):
 
     return redirect(url_for('listar_tiempos'))
 
-@app.route(
-    '/nadadores/importar',
-    methods=['GET', 'POST']
-)
+@app.route('/nadadores/importar', methods=['GET', 'POST'])
 @login_required
 @editor_required
 def importar_nadadores():
