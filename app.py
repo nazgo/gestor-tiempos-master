@@ -493,8 +493,9 @@ def progreso_nadador1(nadador_id):
 
     return render_template(
     'estadisticas.html',
-    registros_temporada=registros_temporada,
-    # conserva aquí las demás variables que ya envías
+    stats=stats,
+    año_actual=año_actual,
+    registros_temporada=registros_temporada
     )
 
 @app.route('/progreso_nadador', methods=['GET', 'POST'])
