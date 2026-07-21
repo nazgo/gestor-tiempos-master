@@ -102,6 +102,7 @@
                         <thead>
                             <tr>
                                 <th>Nadador</th>
+                                <th>Categoría</th>
                                 <th class="text-end">
                                     Tiempos Registrados
                                 </th>
@@ -109,21 +110,27 @@
                         </thead>
 
                         <tbody>
-                            {% for n in stats.mas_activos[:12] %}
+                            {% for n in stats.mas_activos %}
                             <tr>
                                 <td>
                                     {{ n.nombre_nadador }}
                                 </td>
-
+                        
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        {{ n.categoria_master or 'Sin categoría' }}
+                                    </span>
+                                </td>
+                        
                                 <td class="text-end fw-bold">
                                     {{ n.total_tiempos }}
                                 </td>
                             </tr>
-
+                        
                             {% else %}
                             <tr>
                                 <td
-                                    colspan="2"
+                                    colspan="3"
                                     class="text-center text-muted py-4"
                                 >
                                     No hay registros disponibles.
