@@ -17,19 +17,32 @@
 <div class="row g-4 mb-5">
 
     <div class="col-md-3">
-        <div class="card text-center h-100 shadow-sm border-0 tarjeta-resumen">
-            <div class="card-body">
-                <i class="fas fa-stopwatch fa-3x text-primary mb-3"></i>
-
-                <h2 class="text-primary fw-bold">
-                    {{ stats.general.total_tiempos }}
-                </h2>
-
-                <p class="text-muted mb-0">
-                    Tiempos Registrados
-                </p>
+        <a
+            href="{{ url_for('todos_los_tiempos') }}"
+            class="text-decoration-none"
+        >
+            <div class="card text-center h-100 shadow-sm border-0 tarjeta-resumen tarjeta-clickeable">
+    
+                <div class="card-body">
+    
+                    <i class="fas fa-stopwatch fa-3x text-primary mb-3"></i>
+    
+                    <h2 class="text-primary fw-bold">
+                        {{ stats.general.total_tiempos }}
+                    </h2>
+    
+                    <p class="text-muted mb-0">
+                        Tiempos Registrados
+                    </p>
+    
+                    <small class="text-primary">
+                        Ver todos los tiempos
+                    </small>
+    
+                </div>
+    
             </div>
-        </div>
+        </a>
     </div>
 
     <div class="col-md-3">
