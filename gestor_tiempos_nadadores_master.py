@@ -2020,7 +2020,7 @@ class GestorTiemposMaster:
         except (TypeError, ValueError):
             por_pagina = 20
     
-        if por_pagina not in (20, 50):
+        if por_pagina not in (20, 50, 100000):
             por_pagina = 20
     
         columnas_permitidas = {
