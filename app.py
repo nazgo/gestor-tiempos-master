@@ -1076,6 +1076,96 @@ def importar_tiempos():
 
     return render_template('importar.html')
 
+@app.route('/importar_nadadores', methods=['GET', 'POST'])
+@login_required
+@editor_required
+def importar_nadadores():
+    if request.method == 'POST':
+
+        if 'file' not in request.files:
+            flash(
+                'No se seleccionó ningún archivo.',
+                'danger'
+            )
+            return redirect(
+                url_for('importar_nadadores')
+            )
+
+        file = request.files['file']
+
+        if file.filename == '':
+            flash(
+                'No se seleccionó ningún archivo.',
+                'danger'
+            )
+            return redirect(
+                url_for('importar_nadadores')
+            )
+
+        if not file.filename.lower().endswith('.csv'):
+            flash(
+                'Solo se permiten archivos CSV.',
+                'danger'
+            )
+            return redirect(
+                url_for('importar_nadadores')
+            )
+
+        try:
+            resultado = gestor_nadadores.importar_csv(
+                file
+            )
+
+            importados = resultado.get(
+                'importados',
+                0
+            )
+
+            omitidos = resultado.get(
+                'omitidos',
+                0
+            )
+
+            errores = resultado.get(
+                'errores',
+                []
+            )
+
+            flash(
+                (
+                    f'Importación terminada: '
+                    f'{importados} nadadores importados, '
+                    f'{omitidos} omitidos y '
+                    f'{len(errores)} errores.'
+                ),
+                'success'
+                if importados > 0
+                else 'warning'
+            )
+
+            return render_template(
+                'importar_nadadores.html',
+                resultado=resultado
+            )
+
+        except Exception as e:
+            print(
+                'ERROR AL IMPORTAR NADADORES:',
+                repr(e)
+            )
+
+            flash(
+                f'Error al importar nadadores: {e}',
+                'danger'
+            )
+
+    return render_template(
+        'importar_nadadores.html',
+        resultado=None
+    )
+
+
+
 @app.route('/exportar_pdf')
 @login_required
 def exportar_pdf():
