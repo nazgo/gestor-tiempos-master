@@ -3,6 +3,7 @@ from functools import wraps
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+import zipfile
 
 load_dotenv()
 
@@ -1036,6 +1037,274 @@ def eliminar_competencia(competencia_id):
 @login_required
 def import_export():
     return render_template('import_export.html')
+
+@app.route('/respaldo_datos')
+@login_required
+@editor_required
+def respaldo_datos():
+    """
+    Genera un archivo ZIP con un CSV por cada tabla de la base de datos.
+    Funciona con PostgreSQL en Render/Neon y SQLite en desarrollo local.
+    """
+
+    try:
+        # Usaremos la conexión del gestor de tiempos porque comparte
+        # la misma base de datos del sistema.
+        conexion = gestor_tiempos.ensure_connection()
+        cursor = conexion.cursor()
+
+        database_url = os.environ.get('DATABASE_URL', '')
+        es_postgresql = database_url.startswith('postgresql')
+
+        # ---------------------------------------------------------
+        # Obtener listado de tablas
+        # ---------------------------------------------------------
+        if es_postgresql:
+            cursor.execute("""
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_type = 'BASE TABLE'
+                ORDER BY table_name
+            """)
+        else:
+            cursor.execute("""
+                SELECT name
+                FROM sqlite_master
+                WHERE type = 'table'
+                  AND name NOT LIKE 'sqlite_%'
+                ORDER BY name
+            """)
+
+        filas_tablas = cursor.fetchall()
+
+        tablas = []
+
+        for fila in filas_tablas:
+            if isinstance(fila, dict):
+                nombre_tabla = (
+                    fila.get('table_name')
+                    or fila.get('name')
+                )
+            elif hasattr(fila, 'keys'):
+                fila_dict = dict(fila)
+
+                nombre_tabla = (
+                    fila_dict.get('table_name')
+                    or fila_dict.get('name')
+                )
+            else:
+                nombre_tabla = fila[0]
+
+            if nombre_tabla:
+                tablas.append(nombre_tabla)
+
+        if not tablas:
+            flash(
+                'No se encontraron tablas para respaldar.',
+                'warning'
+            )
+
+            return redirect(
+                url_for('import_export')
+            )
+
+        # ---------------------------------------------------------
+        # Crear ZIP en memoria
+        # ---------------------------------------------------------
+        memoria_zip = io.BytesIO()
+
+        tablas_exportadas = 0
+        tablas_con_error = []
+
+        with zipfile.ZipFile(
+            memoria_zip,
+            mode='w',
+            compression=zipfile.ZIP_DEFLATED
+        ) as archivo_zip:
+
+            for tabla in tablas:
+                try:
+                    # El nombre proviene del catálogo de la base de datos.
+                    # Las comillas dobles permiten nombres seguros.
+                    cursor_tabla = conexion.cursor()
+
+                    cursor_tabla.execute(
+                        f'SELECT * FROM "{tabla}"'
+                    )
+
+                    columnas = [
+                        descripcion[0]
+                        for descripcion
+                        in cursor_tabla.description
+                    ]
+
+                    registros = cursor_tabla.fetchall()
+
+                    texto_csv = io.StringIO()
+
+                    escritor = csv.writer(
+                        texto_csv,
+                        delimiter=',',
+                        quotechar='"',
+                        quoting=csv.QUOTE_MINIMAL,
+                        lineterminator='\n'
+                    )
+
+                    escritor.writerow(columnas)
+
+                    for registro in registros:
+                        if isinstance(registro, dict):
+                            valores = [
+                                registro.get(columna)
+                                for columna in columnas
+                            ]
+
+                        elif hasattr(registro, 'keys'):
+                            registro_dict = dict(registro)
+
+                            valores = [
+                                registro_dict.get(columna)
+                                for columna in columnas
+                            ]
+
+                        else:
+                            valores = list(registro)
+
+                        valores_limpios = []
+
+                        for valor in valores:
+                            if valor is None:
+                                valores_limpios.append('')
+
+                            elif isinstance(valor, datetime):
+                                valores_limpios.append(
+                                    valor.isoformat(
+                                        sep=' ',
+                                        timespec='seconds'
+                                    )
+                                )
+
+                            elif hasattr(valor, 'isoformat'):
+                                valores_limpios.append(
+                                    valor.isoformat()
+                                )
+
+                            else:
+                                valores_limpios.append(
+                                    str(valor)
+                                )
+
+                        escritor.writerow(
+                            valores_limpios
+                        )
+
+                    contenido_csv = texto_csv.getvalue()
+
+                    archivo_zip.writestr(
+                        f'{tabla}.csv',
+                        contenido_csv.encode('utf-8-sig')
+                    )
+
+                    tablas_exportadas += 1
+
+                    cursor_tabla.close()
+
+                except Exception as error_tabla:
+                    print(
+                        f'Error respaldando tabla {tabla}:',
+                        repr(error_tabla)
+                    )
+
+                    tablas_con_error.append(
+                        f'{tabla}: {error_tabla}'
+                    )
+
+            # -----------------------------------------------------
+            # Agregar archivo informativo al respaldo
+            # -----------------------------------------------------
+            fecha_generacion = datetime.now()
+
+            contenido_info = (
+                'RESPALDO DE DATOS - ÑUÑOA MASTER\n'
+                '=================================\n\n'
+                f'Fecha de generación: '
+                f'{fecha_generacion.strftime("%d/%m/%Y %H:%M:%S")}\n'
+                f'Motor de base de datos: '
+                f'{"PostgreSQL" if es_postgresql else "SQLite"}\n'
+                f'Tablas encontradas: {len(tablas)}\n'
+                f'Tablas exportadas: {tablas_exportadas}\n\n'
+                'Tablas incluidas:\n'
+                + '\n'.join(
+                    f'- {tabla}'
+                    for tabla in tablas
+                    if not any(
+                        error.startswith(f'{tabla}:')
+                        for error in tablas_con_error
+                    )
+                )
+            )
+
+            if tablas_con_error:
+                contenido_info += (
+                    '\n\nTablas con errores:\n'
+                    + '\n'.join(
+                        f'- {error}'
+                        for error in tablas_con_error
+                    )
+                )
+
+            archivo_zip.writestr(
+                'INFORMACION_RESPALDO.txt',
+                contenido_info.encode('utf-8')
+            )
+
+        memoria_zip.seek(0)
+
+        if tablas_exportadas == 0:
+            flash(
+                'No fue posible exportar ninguna tabla.',
+                'danger'
+            )
+
+            return redirect(
+                url_for('import_export')
+            )
+
+        marca_tiempo = datetime.now().strftime(
+            '%Y-%m-%d_%H%M%S'
+        )
+
+        nombre_archivo = (
+            f'respaldo_nunoa_master_{marca_tiempo}.zip'
+        )
+
+        print(
+            f'Respaldo generado correctamente: '
+            f'{tablas_exportadas} tablas.'
+        )
+
+        return send_file(
+            memoria_zip,
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name=nombre_archivo
+        )
+
+    except Exception as e:
+        print(
+            'ERROR GENERANDO RESPALDO:',
+            repr(e)
+        )
+
+        flash(
+            f'Error al generar el respaldo: {e}',
+            'danger'
+        )
+
+        return redirect(
+            url_for('import_export')
+        )
     
 
 @app.route('/importar', methods=['GET', 'POST'])
