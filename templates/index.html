@@ -1,135 +1,667 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="text-center mb-5">
-    <h1 class="display-4 fw-bold text-primary">Sistema de Gestión de Tiempos</h1>
-    <p class="lead text-muted">Club Natación Ñuñoa Master - Natación Competitiva</p>
-</div>
 
-<div class="row g-4">
-    <!-- Fila 1 -->
-<div class="col-md-3 col-sm-6">
-    <a href="/nadadores" class="text-decoration-none">
-        <div class="card h-100 shadow-sm hover-card">
-            <div class="card-body text-center p-4">
-                <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                    <i class="fas fa-users fa-3x text-success"></i>
+<div class="dashboard-home">
+
+    <!-- Encabezado principal -->
+    <section class="home-hero mb-5">
+
+        <div class="home-hero-content">
+
+            <div>
+
+                <div class="home-kicker">
+                    <i class="fas fa-water"></i>
+                    Club Natación Ñuñoa Master
                 </div>
-                <h5 class="text-success">Gestión de Nadadores</h5>
-                <p class="text-muted small">Agrega / Ver un Nadador</p>
+
+                <h1 class="home-title">
+                    Sistema de Gestión de Tiempos
+                </h1>
+
+                <p class="home-subtitle mb-0">
+                    Nadadores, tiempos, estadísticas, competencias y rendimiento
+                    en un solo lugar.
+                </p>
+
             </div>
+
+            <div class="home-hero-icon">
+                <i class="fas fa-swimmer"></i>
+            </div>
+
         </div>
-    </a>
-</div>
 
-    <div class="col-md-3 col-sm-6">
-        <a href="/season_best" class="text-decoration-none">
-            <div class="card h-100 shadow-sm hover-card">
-                <div class="card-body text-center p-4">
-                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                        <i class="fas fa-trophy fa-3x text-warning"></i>
-                    </div>
-                    <h5 class="text-warning">Season Best</h5>
-                    <p class="text-muted small">Ver los mejores Tiempos</p>
-                </div>
-            </div>
-        </a>
+    </section>
+
+    <!-- Título de accesos -->
+    <div class="section-heading mb-3">
+
+        <div>
+            <h2 class="section-title mb-1">
+                Panel principal
+            </h2>
+
+            <p class="text-muted mb-0">
+                Selecciona el módulo que deseas consultar
+            </p>
+        </div>
+
     </div>
 
-    <div class="col-md-3 col-sm-6">
-        <a href="/estadisticas" class="text-decoration-none">
-            <div class="card h-100 shadow-sm hover-card">
-                <div class="card-body text-center p-4">
-                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                        <i class="fas fa-chart-bar fa-3x text-info"></i>
+    <!-- Módulos -->
+    <div class="row g-4">
+
+        <!-- Gestión de Nadadores -->
+        <div class="col-sm-6 col-xl-3">
+
+            <a
+                href="{{ url_for('nadadores') }}"
+                class="modulo-link"
+            >
+                <article class="modulo-card h-100">
+
+                    <div class="modulo-top">
+
+                        <div class="modulo-icon modulo-verde">
+                            <i class="fas fa-users"></i>
+                        </div>
+
+                        <span class="modulo-flecha">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
                     </div>
-                    <h5 class="text-info">Estadísticas del Club</h5>
-                    <p class="text-muted small">Resumen y métricas generales</p>
-                </div>
-            </div>
-        </a>
+
+                    <div class="modulo-body">
+
+                        <h3 class="modulo-title">
+                            Gestión de Nadadores
+                        </h3>
+
+                        <p class="modulo-description">
+                            Registra, edita y consulta la ficha completa de cada nadador.
+                        </p>
+
+                    </div>
+
+                </article>
+            </a>
+
+        </div>
+
+        <!-- Season Best -->
+        <div class="col-sm-6 col-xl-3">
+
+            <a
+                href="{{ url_for('season_best') }}"
+                class="modulo-link"
+            >
+                <article class="modulo-card h-100">
+
+                    <div class="modulo-top">
+
+                        <div class="modulo-icon modulo-dorado">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+
+                        <span class="modulo-flecha">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="modulo-body">
+
+                        <h3 class="modulo-title">
+                            Season Best
+                        </h3>
+
+                        <p class="modulo-description">
+                            Consulta las mejores marcas personales por prueba y piscina.
+                        </p>
+
+                    </div>
+
+                </article>
+            </a>
+
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="col-sm-6 col-xl-3">
+
+            <a
+                href="{{ url_for('estadisticas_club') }}"
+                class="modulo-link"
+            >
+                <article class="modulo-card h-100">
+
+                    <div class="modulo-top">
+
+                        <div class="modulo-icon modulo-turquesa">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+
+                        <span class="modulo-flecha">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="modulo-body">
+
+                        <h3 class="modulo-title">
+                            Estadísticas del Club
+                        </h3>
+
+                        <p class="modulo-description">
+                            Revisa métricas generales, rankings y actividad por temporada.
+                        </p>
+
+                    </div>
+
+                </article>
+            </a>
+
+        </div>
+
+        <!-- Asistencias -->
+        <div class="col-sm-6 col-xl-3">
+
+            <a
+                href="{{ url_for('seleccionar_anio_asistencias') }}"
+                class="modulo-link"
+            >
+                <article class="modulo-card h-100">
+
+                    <div class="modulo-top">
+
+                        <div class="modulo-icon modulo-gris">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+
+                        <span class="modulo-flecha">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="modulo-body">
+
+                        <h3 class="modulo-title">
+                            Asistencia a Competencias
+                        </h3>
+
+                        <p class="modulo-description">
+                            Marca y consulta la participación de los nadadores por año.
+                        </p>
+
+                    </div>
+
+                </article>
+            </a>
+
+        </div>
+
+        <!-- Importar / Exportar -->
+        <div class="col-sm-6 col-xl-3">
+
+            <a
+                href="{{ url_for('import_export') }}"
+                class="modulo-link"
+            >
+                <article class="modulo-card h-100">
+
+                    <div class="modulo-top">
+
+                        <div class="modulo-icon modulo-morado">
+                            <i class="fas fa-file-import"></i>
+                        </div>
+
+                        <span class="modulo-flecha">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="modulo-body">
+
+                        <h3 class="modulo-title">
+                            Importar / Exportar
+                        </h3>
+
+                        <p class="modulo-description">
+                            Realiza cargas masivas y genera archivos de respaldo.
+                        </p>
+
+                    </div>
+
+                </article>
+            </a>
+
+        </div>
+
+        <!-- Progreso -->
+        <div class="col-sm-6 col-xl-3">
+
+            <a
+                href="{{ url_for('progreso_nadador') }}"
+                class="modulo-link"
+            >
+                <article class="modulo-card h-100">
+
+                    <div class="modulo-top">
+
+                        <div class="modulo-icon modulo-verde">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+
+                        <span class="modulo-flecha">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="modulo-body">
+
+                        <h3 class="modulo-title">
+                            Progreso del Nadador
+                        </h3>
+
+                        <p class="modulo-description">
+                            Analiza la evolución de tiempos y rendimiento individual.
+                        </p>
+
+                    </div>
+
+                </article>
+            </a>
+
+        </div>
+
+        <!-- Comparación -->
+        <div class="col-sm-6 col-xl-3">
+
+            <a
+                href="{{ url_for('comparacion_25_50') }}"
+                class="modulo-link"
+            >
+                <article class="modulo-card h-100">
+
+                    <div class="modulo-top">
+
+                        <div class="modulo-icon modulo-azul">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+
+                        <span class="modulo-flecha">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="modulo-body">
+
+                        <h3 class="modulo-title">
+                            Comparativa 25 m vs 50 m
+                        </h3>
+
+                        <p class="modulo-description">
+                            Compara las mejores marcas entre piscina corta y olímpica.
+                        </p>
+
+                    </div>
+
+                </article>
+            </a>
+
+        </div>
+
+        <!-- Calendario -->
+        <div class="col-sm-6 col-xl-3">
+
+            <a
+                href="{{ url_for('seleccionar_anio_calendario') }}"
+                class="modulo-link"
+            >
+                <article class="modulo-card h-100">
+
+                    <div class="modulo-top">
+
+                        <div class="modulo-icon modulo-dorado">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+
+                        <span class="modulo-flecha">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="modulo-body">
+
+                        <h3 class="modulo-title">
+                            Circuito de Competencias
+                        </h3>
+
+                        <p class="modulo-description">
+                            Consulta el calendario anual y administra cada competencia.
+                        </p>
+
+                    </div>
+
+                </article>
+            </a>
+
+        </div>
+
     </div>
 
-  <div class="col-md-3 col-sm-6">
-        <a href="{{ url_for('seleccionar_anio_asistencias') }}" class="text-decoration-none">
-            <div class="card h-100 shadow-sm hover-card">
-                <div class="card-body text-center p-4">
-                    <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                        <i class="fas fa-flag fa-3x text-secondary"></i>
-                    </div>
-                    <h5 class="text-secondary">Asistencia a Compentencias</h5>
-                    <p class="text-muted small">Asistencia de los Nadadores a Competencias</p>
-                </div>
-            </div>
-        </a>
-    </div>    
+    <!-- Pie del panel -->
+    <section class="home-footer-card mt-5">
 
+        <div class="home-footer-content">
 
-    <!-- Fila 2 -->
-    <div class="col-md-3 col-sm-6">
-        <a href="/import_export" class="text-decoration-none">
-            <div class="card h-100 shadow-sm hover-card">
-                <div class="card-body text-center p-4">
-                    <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                        <i class="fas fa-file-import fa-3x text-secondary mb-3"></i>
-                    </div>
-                    <h5 class="text-secondary">Importar / Exportar</h5>
-                    <p class="text-muted small">Cargas Múltiples / Exportar a PDF</p>
-                </div>
-            </div>
-        </a>
-    </div>
+            <div>
 
-    <div class="col-md-3 col-sm-6">
-        <a href="/progreso_nadador" class="text-decoration-none">
-            <div class="card h-100 shadow-sm hover-card">
-                <div class="card-body text-center p-4">
-                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                        <i class="fas fa-chart-line fa-3x text-success"></i>
-                    </div>
-                    <h5 class="text-success">Progreso del Nadador</h5>
-                    <p class="text-muted small">Evolución y Estadísticas Personales</p>
+                <div class="home-footer-label">
+                    Gestión deportiva
                 </div>
-            </div>
-        </a>
-    </div>
 
-    <div class="col-md-3 col-sm-6">
-        <a href="/comparacion_25_50" class="text-decoration-none">
-            <div class="card h-100 shadow-sm hover-card">
-                <div class="card-body text-center p-4">
-                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                        <i class="fas fa-balance-scale fa-3x text-info"></i>
-                    </div>
-                    <h5 class="text-info">Comparativa 25 vs 50</h5>
-                    <p class="text-muted small">Comparar Piscinas</p>
-                </div>
-            </div>
-        </a>
-    </div>
+                <h3 class="home-footer-title">
+                    Ñuñoa Master
+                </h3>
 
-    <div class="col-md-3 col-sm-6">
-        <a href="{{ url_for('seleccionar_anio_calendario') }}" class="text-decoration-none">
-            <div class="card h-100 shadow-sm hover-card">
-                <div class="card-body text-center p-4">
-                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                        <i class="fas fa-calendar-alt fa-3x text-warning"></i>
-                    </div>
-                    <h5 class="text-warning">Circuito de Competencias</h5>
-                    <p class="text-muted small">Calendario Circuito FCHMN</p>
-                </div>
+                <p class="home-footer-text mb-0">
+                    Información centralizada para apoyar el rendimiento y la
+                    participación del equipo.
+                </p>
+
             </div>
-        </a>
-    </div>
+
+            <div class="home-footer-symbol">
+                ÑM
+            </div>
+
+        </div>
+
+    </section>
+
 </div>
 
 <style>
-    .hover-card {
-        transition: all 0.3s ease;
+    .dashboard-home {
+        padding: 1rem 0 2rem;
     }
-    .hover-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+
+    .home-hero {
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #1b1724 0%,
+                #4d2771 55%,
+                #00a8a8 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(42, 25, 62, 0.22);
+    }
+
+    .home-hero-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 38px 42px;
+        color: #ffffff;
+    }
+
+    .home-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .home-title {
+        max-width: 760px;
+        margin-bottom: 8px;
+        font-size: clamp(2.2rem, 5vw, 3.6rem);
+        font-weight: 850;
+        letter-spacing: -0.045em;
+    }
+
+    .home-subtitle {
+        max-width: 720px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 1rem;
+    }
+
+    .home-hero-icon {
+        display: inline-flex;
+        width: 112px;
+        height: 112px;
+        min-width: 112px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.12);
+        font-size: 3rem;
+        backdrop-filter: blur(6px);
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .section-title {
+        color: #25202c;
+        font-size: 1.55rem;
+        font-weight: 850;
+    }
+
+    .modulo-link {
+        display: block;
+        height: 100%;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .modulo-card {
+        overflow: hidden;
+        padding: 20px;
+        border: 1px solid #e7e4eb;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow:
+            0 6px 18px
+            rgba(28, 24, 34, 0.07);
+        transition:
+            transform 0.18s ease,
+            box-shadow 0.18s ease,
+            border-color 0.18s ease;
+    }
+
+    .modulo-card:hover {
+        transform: translateY(-6px);
+        border-color: #d4c7e0;
+        box-shadow:
+            0 14px 30px
+            rgba(47, 32, 60, 0.14);
+    }
+
+    .modulo-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .modulo-icon {
+        display: inline-flex;
+        width: 58px;
+        height: 58px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        font-size: 1.45rem;
+    }
+
+    .modulo-verde {
+        color: #18794e;
+        background: #eaf7f0;
+    }
+
+    .modulo-dorado {
+        color: #a87400;
+        background: #fff6d9;
+    }
+
+    .modulo-turquesa {
+        color: #007f83;
+        background: #e8f8f8;
+    }
+
+    .modulo-gris {
+        color: #5f6870;
+        background: #eef1f3;
+    }
+
+    .modulo-morado {
+        color: #693b8f;
+        background: #f3ebfa;
+    }
+
+    .modulo-azul {
+        color: #2363aa;
+        background: #eaf2fc;
+    }
+
+    .modulo-flecha {
+        display: inline-flex;
+        width: 32px;
+        height: 32px;
+        align-items: center;
+        justify-content: center;
+        color: #8e8794;
+        border-radius: 50%;
+        background: #f5f3f7;
+        transition:
+            transform 0.18s ease,
+            color 0.18s ease,
+            background 0.18s ease;
+    }
+
+    .modulo-card:hover .modulo-flecha {
+        transform: translateX(3px);
+        color: #ffffff;
+        background: #00a8a8;
+    }
+
+    .modulo-title {
+        margin-bottom: 8px;
+        color: #2e2933;
+        font-size: 1.02rem;
+        font-weight: 800;
+    }
+
+    .modulo-description {
+        margin-bottom: 0;
+        color: #74707a;
+        font-size: 0.86rem;
+        line-height: 1.5;
+    }
+
+    .home-footer-card {
+        overflow: hidden;
+        border-radius: 20px;
+        background:
+            linear-gradient(
+                135deg,
+                #f4eff8,
+                #edfafa
+            );
+        border: 1px solid #e0d8e7;
+    }
+
+    .home-footer-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 28px 32px;
+    }
+
+    .home-footer-label {
+        color: #7e718a;
+        font-size: 0.72rem;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .home-footer-title {
+        margin: 3px 0 5px;
+        color: #3f2853;
+        font-size: 1.55rem;
+        font-weight: 850;
+    }
+
+    .home-footer-text {
+        max-width: 650px;
+        color: #716a77;
+    }
+
+    .home-footer-symbol {
+        display: inline-flex;
+        width: 76px;
+        height: 76px;
+        min-width: 76px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 50%;
+        background:
+            linear-gradient(
+                135deg,
+                #4d2771,
+                #00a8a8
+            );
+        font-size: 1.3rem;
+        font-weight: 850;
+        letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 768px) {
+        .home-hero-content {
+            padding: 28px 22px;
+        }
+
+        .home-hero-icon {
+            display: none;
+        }
+
+        .home-title {
+            font-size: 2.2rem;
+        }
+
+        .home-footer-content {
+            padding: 24px 20px;
+        }
+
+        .home-footer-symbol {
+            display: none;
+        }
     }
 </style>
+
 {% endblock %}
