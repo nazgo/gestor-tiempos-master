@@ -23,23 +23,35 @@
                         {{ nombre_completo }}
                     </h2>
 
-                    <div class="d-flex flex-wrap gap-2 mt-2">
-
-                        <span class="badge bg-primary ficha-badge">
-                            {{ nadador.categoria_master or 'Sin categoría' }}
-                        </span>
-
-                        <span class="badge bg-light text-dark border ficha-badge">
-                            {{ nadador.genero or 'Sin género' }}
-                        </span>
-
-                        {% if nadador.rut %}
-                        <span class="badge bg-light text-dark border ficha-badge">
-                            RUT: {{ nadador.rut }}
-                        </span>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                
+                    <span class="badge bg-primary ficha-badge">
+                        {{ nadador.categoria_master or 'Sin categoría' }}
+                    </span>
+                
+                    <span class="badge bg-light text-dark border ficha-badge">
+                        {{ nadador.genero or 'Sin género' }}
+                    </span>
+                
+                    {% if nadador.fecha_nacimiento %}
+                    <span class="badge bg-light text-dark border ficha-badge">
+                        <i class="fas fa-birthday-cake me-1"></i>
+                        Nacimiento:
+                        {% if nadador.fecha_nacimiento.strftime is defined %}
+                            {{ nadador.fecha_nacimiento.strftime('%d/%m/%Y') }}
+                        {% else %}
+                            {{ nadador.fecha_nacimiento }}
                         {% endif %}
-
-                    </div>
+                    </span>
+                    {% endif %}
+                
+                    {% if nadador.rut %}
+                    <span class="badge bg-light text-dark border ficha-badge">
+                        RUT: {{ nadador.rut }}
+                    </span>
+                    {% endif %}
+                
+                </div>
 
                 </div>
 
