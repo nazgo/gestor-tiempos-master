@@ -1440,87 +1440,87 @@ def eliminar_tiempo_nadador(tiempo_id):
 
     return redirect(url_for('listar_tiempos'))
 
-<!-- @app.route('/nadadores/importar', methods=['GET', 'POST'])
-@login_required
-@editor_required
-def importar_nadadores():
-    if request.method == 'POST':
+#@app.route('/nadadores/importar', methods=['GET', 'POST'])
+#@login_required
+#@editor_required
+#def importar_nadadores():
+ #   if request.method == 'POST':
 
-        if 'file' not in request.files:
-            flash(
-                'No se seleccionó archivo.',
-                'danger'
-            )
+  #      if 'file' not in request.files:
+   #         flash(
+    #            'No se seleccionó archivo.',
+     #           'danger'
+      #      )
 
-            return redirect(
-                url_for('importar_nadadores')
-            )
+       #     return redirect(
+        #        url_for('importar_nadadores')
+         #   )
 
-        file = request.files['file']
+      #  file = request.files['file']
 
-        if file.filename == '':
-            flash(
-                'No se seleccionó archivo.',
-                'danger'
-            )
+      #  if file.filename == '':
+       #     flash(
+        #        'No se seleccionó archivo.',
+         #       'danger'
+          #  )
 
-            return redirect(
-                url_for('importar_nadadores')
-            )
+           # return redirect(
+            #    url_for('importar_nadadores')
+            #)
 
-        if not file.filename.lower().endswith('.csv'):
-            flash(
-                'Solo se permiten archivos CSV.',
-                'danger'
-            )
+#        if not file.filename.lower().endswith('.csv'):
+ #           flash(
+  #              'Solo se permiten archivos CSV.',
+   #             'danger'
+    #        )
 
-            return redirect(
-                url_for('importar_nadadores')
-            )
+ #           return redirect(
+  #              url_for('importar_nadadores')
+   #         )
 
-        try:
-            resultado = gestor_nadadores.importar_csv(
-                file
-            )
+     #   try:
+         #   resultado = gestor_nadadores.importar_csv(
+         #       file
+        #    )
 
-            importados = resultado['importados']
-            omitidos = resultado['omitidos']
-            errores = resultado['errores']
+           # importados = resultado['importados']
+           # omitidos = resultado['omitidos']
+           # errores = resultado['errores']
 
-            if errores:
-                flash(
-                    f'Importación terminada: '
-                    f'{importados} importados, '
-                    f'{omitidos} omitidos y '
-                    f'{len(errores)} errores.',
-                    'warning'
-                )
-            else:
-                flash(
-                    f'✅ {importados} nadadores '
-                    f'importados correctamente. '
-                    f'{omitidos} duplicados omitidos.',
-                    'success'
-                )
+          #  if errores:
+              #  flash(
+             #       f'Importación terminada: '
+            #        f'{importados} importados, '
+           #         f'{omitidos} omitidos y '
+          #          f'{len(errores)} errores.',
+         #           'warning'
+        #        )
+       #     else:
+      #          flash(
+     #               f'✅ {importados} nadadores '
+    #                f'importados correctamente. '
+   #                 f'{omitidos} duplicados omitidos.',
+  #                  'success'
+ #               )
+#
+  #          return redirect(
+ #               url_for('nadadores')
+#            )
 
-            return redirect(
-                url_for('nadadores')
-            )
+     #   except Exception as e:
+    #        print(
+   #             "Error importando nadadores:",
+  #              repr(e)
+ #           )
 
-        except Exception as e:
-            print(
-                "Error importando nadadores:",
-                repr(e)
-            )
+#            flash(
+#                f'❌ Error al importar: {str(e)}',
+#                'danger'
+#           )
 
-            flash(
-                f'❌ Error al importar: {str(e)}',
-                'danger'
-            )
-
-    return render_template(
-        'importar_nadadores.html'
-    ) -->
+#    return render_template(
+#       'importar_nadadores.html'
+#    ) 
 
 # ==================== OTRAS RUTAS (puedes ir agregando) ====================
 @app.route('/season_best', methods=['GET', 'POST'])
