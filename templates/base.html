@@ -147,14 +147,18 @@
 
         .logo-img {
             width: auto;
-            height: 54px;
+            height: 62px;
+            max-width: 110px;
             object-fit: contain;
-            border: 2px solid rgba(255, 255, 255, 0.7);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow:
-                0 5px 14px
-                rgba(0, 82, 84, 0.22);
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            filter:
+                drop-shadow(
+                    0 2px 4px
+                    rgba(0, 70, 72, 0.25)
+                );
         }
 
         .brand-text {
@@ -394,8 +398,8 @@
             }
 
             .logo-img {
-                height: 44px;
-                border-radius: 10px;
+                height: 52px;
+                max-width: 88px;
             }
 
             .brand-text {
