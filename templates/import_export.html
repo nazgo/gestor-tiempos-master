@@ -1,180 +1,424 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Centro de Datos | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
 
-<div class="container py-4">
+<div class="data-center-page">
 
     <!-- Encabezado -->
-    <div class="text-center mb-5">
+    <section class="data-hero mb-4">
 
-        <h1 class="fw-bold display-5 text-primary">
-            <i class="fas fa-file-import"></i>
-            Importar / Exportar Datos
-        </h1>
+        <div class="data-hero-content">
 
-        <p class="lead text-muted">
-            Administra la carga y exportación de información del Club Ñuñoa Master
-        </p>
+            <div>
+
+                <div class="data-kicker">
+                    <i class="fas fa-database"></i>
+                    Administración de información
+                </div>
+
+                <h1 class="data-title">
+                    Centro de Datos
+                </h1>
+
+                <p class="data-subtitle mb-0">
+                    Importa, exporta y administra la información deportiva
+                    del Club Natación Ñuñoa Master.
+                </p>
+
+            </div>
+
+            <div class="data-hero-icon">
+                <i class="fas fa-server"></i>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Encabezado de módulos -->
+    <div class="section-heading mb-3">
+
+        <div>
+
+            <h2 class="section-title mb-1">
+                Operaciones disponibles
+            </h2>
+
+            <p class="section-subtitle mb-0">
+                Selecciona la operación que deseas realizar
+            </p>
+
+        </div>
 
     </div>
 
+    <!-- Opciones -->
     <div class="row g-4">
 
-        <!-- Importar -->
+        <!-- Importar tiempos -->
+        <div class="col-md-6 col-xl-3">
 
-        <div class="col-lg-6">
+            <a
+                href="/importar"
+                class="data-option-link"
+            >
 
-            <div class="card option-card h-100 shadow-sm">
+                <article class="data-option-card h-100">
 
-                <div class="card-body text-center p-5">
+                    <div class="option-card-top">
 
-                    <div class="icon-circle bg-import">
+                        <div class="option-icon">
+                            <i class="fas fa-stopwatch"></i>
+                        </div>
 
-                        <i class="fas fa-file-import"></i>
+                        <span class="option-status status-active">
+                            Disponible
+                        </span>
 
                     </div>
 
-                    <h3 class="mt-4 mb-3">
+                    <div class="option-card-body">
 
-                        Importar Tiempos
+                        <h3 class="option-title">
+                            Importar Tiempos
+                        </h3>
 
-                    </h3>
+                        <p class="option-description">
+                            Carga de forma masiva los resultados de competencias
+                            mediante un archivo CSV.
+                        </p>
 
-                    <p class="text-muted">
+                        <div class="option-features">
 
-                        Permite cargar de forma masiva tiempos registrados desde un
-                        archivo CSV.
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                Archivo CSV
+                            </div>
 
-                    </p>
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                Carga masiva
+                            </div>
 
-                    <hr>
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                Validación de datos
+                            </div>
 
-                    <ul class="text-start text-muted small">
+                        </div>
 
-                        <li>✔ Importación rápida.</li>
+                    </div>
 
-                        <li>✔ Actualización masiva.</li>
+                    <div class="option-card-footer">
 
-                        <li>✔ Compatible con CSV.</li>
+                        <span>
+                            Abrir importador
+                        </span>
 
-                        <li>✔ Conserva el historial.</li>
+                        <i class="fas fa-arrow-right"></i>
 
-                    </ul>
+                    </div>
 
-                    <a
-                        href="{{ url_for('importar') }}"
-                        class="btn btn-primary btn-lg w-100 mt-3"
-                    >
-                        <i class="fas fa-upload"></i>
-                        Importar Archivo
-                    </a>
+                </article>
 
-                </div>
-
-            </div>
+            </a>
 
         </div>
 
-        <!-- Exportar -->
+        <!-- Importar nadadores -->
+        <div class="col-md-6 col-xl-3">
 
-        <div class="col-lg-6">
+            <article class="data-option-card disabled-card h-100">
 
-            <div class="card option-card h-100 shadow-sm">
+                <div class="option-card-top">
 
-                <div class="card-body text-center p-5">
-
-                    <div class="icon-circle bg-export">
-
-                        <i class="fas fa-file-pdf"></i>
-
+                    <div class="option-icon">
+                        <i class="fas fa-users"></i>
                     </div>
 
-                    <h3 class="mt-4 mb-3">
-
-                        Exportar Reporte
-
-                    </h3>
-
-                    <p class="text-muted">
-
-                        Genera un informe completo de todos los tiempos registrados
-                        en formato PDF.
-
-                    </p>
-
-                    <hr>
-
-                    <ul class="text-start text-muted small">
-
-                        <li>✔ Reporte profesional.</li>
-
-                        <li>✔ Fácil impresión.</li>
-
-                        <li>✔ Compartir por correo.</li>
-
-                        <li>✔ Historial completo.</li>
-
-                    </ul>
-
-                    <a
-                        href="{{ url_for('exportar_pdf') }}"
-                        class="btn btn-danger btn-lg w-100 mt-3"
-                    >
-                        <i class="fas fa-file-pdf"></i>
-                        Exportar PDF
-                    </a>
+                    <span class="option-status status-pending">
+                        Próximamente
+                    </span>
 
                 </div>
 
-            </div>
+                <div class="option-card-body">
+
+                    <h3 class="option-title">
+                        Importar Nadadores
+                    </h3>
+
+                    <p class="option-description">
+                        Registra múltiples nadadores desde un archivo CSV
+                        utilizando el formato oficial del sistema.
+                    </p>
+
+                    <div class="option-features">
+
+                        <div class="feature-item">
+                            <i class="fas fa-file-csv"></i>
+                            Nombre y apellido
+                        </div>
+
+                        <div class="feature-item">
+                            <i class="fas fa-id-card"></i>
+                            RUT y nacimiento
+                        </div>
+
+                        <div class="feature-item">
+                            <i class="fas fa-layer-group"></i>
+                            Categoría y género
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="option-card-footer disabled-footer">
+
+                    <span>
+                        Función en preparación
+                    </span>
+
+                    <i class="fas fa-lock"></i>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- Exportar PDF -->
+        <div class="col-md-6 col-xl-3">
+
+            <a
+                href="/exportar_pdf"
+                class="data-option-link"
+            >
+
+                <article class="data-option-card h-100">
+
+                    <div class="option-card-top">
+
+                        <div class="option-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+
+                        <span class="option-status status-active">
+                            Disponible
+                        </span>
+
+                    </div>
+
+                    <div class="option-card-body">
+
+                        <h3 class="option-title">
+                            Exportar Reporte PDF
+                        </h3>
+
+                        <p class="option-description">
+                            Genera un reporte descargable con los tiempos
+                            registrados en la base de datos.
+                        </p>
+
+                        <div class="option-features">
+
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                Reporte completo
+                            </div>
+
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                Formato imprimible
+                            </div>
+
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                Fácil de compartir
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="option-card-footer">
+
+                        <span>
+                            Generar PDF
+                        </span>
+
+                        <i class="fas fa-download"></i>
+
+                    </div>
+
+                </article>
+
+            </a>
+
+        </div>
+
+        <!-- Respaldo -->
+        <div class="col-md-6 col-xl-3">
+
+            <article class="data-option-card disabled-card h-100">
+
+                <div class="option-card-top">
+
+                    <div class="option-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+
+                    <span class="option-status status-pending">
+                        Próximamente
+                    </span>
+
+                </div>
+
+                <div class="option-card-body">
+
+                    <h3 class="option-title">
+                        Respaldo de Datos
+                    </h3>
+
+                    <p class="option-description">
+                        Descarga una copia de seguridad de la información
+                        principal registrada en el sistema.
+                    </p>
+
+                    <div class="option-features">
+
+                        <div class="feature-item">
+                            <i class="fas fa-table"></i>
+                            Nadadores
+                        </div>
+
+                        <div class="feature-item">
+                            <i class="fas fa-stopwatch"></i>
+                            Tiempos
+                        </div>
+
+                        <div class="feature-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            Competencias
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="option-card-footer disabled-footer">
+
+                    <span>
+                        Función en preparación
+                    </span>
+
+                    <i class="fas fa-lock"></i>
+
+                </div>
+
+            </article>
 
         </div>
 
     </div>
 
-    <!-- Información -->
+    <!-- Recomendaciones -->
+    <section class="recommendations-card mt-5">
 
-    <div class="card mt-5 border-0 shadow-sm">
+        <div class="recommendations-header">
 
-        <div class="card-body">
-
-            <h5 class="fw-bold text-primary">
-
+            <div class="recommendations-icon">
                 <i class="fas fa-circle-info"></i>
-                Recomendaciones
+            </div>
 
-            </h5>
+            <div>
 
-            <div class="row mt-3">
+                <h3 class="recommendations-title">
+                    Recomendaciones de uso
+                </h3>
 
-                <div class="col-md-6">
+                <p class="recommendations-subtitle mb-0">
+                    Revisa la información antes de ejecutar operaciones masivas.
+                </p>
 
-                    <div class="alert alert-light border">
+            </div>
 
-                        <strong>Importación</strong>
+        </div>
 
-                        <p class="mb-0 mt-2">
+        <div class="row g-3 mt-1">
 
-                            Antes de importar un archivo verifica que las columnas
-                            correspondan al formato oficial del sistema.
+            <div class="col-lg-4">
 
+                <div class="recommendation-item">
+
+                    <div class="recommendation-number">
+                        1
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Verifica el formato
+                        </strong>
+
+                        <p class="mb-0">
+                            Usa las columnas y el orden definidos por el
+                            importador del sistema.
                         </p>
 
                     </div>
 
                 </div>
 
-                <div class="col-md-6">
+            </div>
 
-                    <div class="alert alert-light border">
+            <div class="col-lg-4">
 
-                        <strong>Exportación</strong>
+                <div class="recommendation-item">
 
-                        <p class="mb-0 mt-2">
+                    <div class="recommendation-number">
+                        2
+                    </div>
 
-                            El PDF incluirá todos los tiempos actualmente registrados
-                            en la base de datos.
+                    <div>
 
+                        <strong>
+                            Revisa los datos
+                        </strong>
+
+                        <p class="mb-0">
+                            Confirma nombres, fechas, tiempos y competencias
+                            antes de importar.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="recommendation-item">
+
+                    <div class="recommendation-number">
+                        3
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Conserva una copia
+                        </strong>
+
+                        <p class="mb-0">
+                            Guarda el archivo original utilizado en cada
+                            carga masiva.
                         </p>
 
                     </div>
@@ -185,17 +429,17 @@
 
         </div>
 
-    </div>
+    </section>
 
-    <div class="text-center mt-5">
+    <!-- Volver -->
+    <div class="text-center mt-4">
 
         <a
             href="{{ url_for('index') }}"
-            class="btn btn-secondary btn-lg"
+            class="btn btn-volver"
         >
-
-            ← Volver al Inicio
-
+            <i class="fas fa-arrow-left me-1"></i>
+            Volver al Inicio
         </a>
 
     </div>
@@ -203,64 +447,395 @@
 </div>
 
 <style>
+    .data-center-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
+    }
 
-.option-card{
+    /* Encabezado */
+    .data-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
+    }
 
-    border:none;
-    border-radius:18px;
-    transition:.25s;
-}
+    .data-hero::before {
+        position: absolute;
+        top: -90px;
+        right: 110px;
+        width: 230px;
+        height: 230px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
+    }
 
-.option-card:hover{
+    .data-hero::after {
+        position: absolute;
+        right: -80px;
+        bottom: -140px;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
 
-    transform:translateY(-8px);
+    .data-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
 
-    box-shadow:0 15px 35px rgba(0,0,0,.10)!important;
-}
+    .data-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
 
-.icon-circle{
+    .data-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
 
-    width:95px;
+    .data-subtitle {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
 
-    height:95px;
+    .data-hero-icon {
+        display: inline-flex;
+        width: 100px;
+        height: 100px;
+        min-width: 100px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 27px;
+        background: rgba(255, 255, 255, 0.13);
+        font-size: 2.6rem;
+        backdrop-filter: blur(6px);
+    }
 
-    margin:auto;
+    /* Título sección */
+    .section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
 
-    border-radius:50%;
+    .section-title {
+        color: #29393a;
+        font-size: 1.45rem;
+        font-weight: 850;
+    }
 
-    display:flex;
+    .section-subtitle {
+        color: #748486;
+    }
 
-    align-items:center;
+    /* Tarjetas */
+    .data-option-link {
+        display: block;
+        height: 100%;
+        color: inherit;
+        text-decoration: none;
+    }
 
-    justify-content:center;
+    .data-option-link:hover {
+        color: inherit;
+    }
 
-    font-size:2.6rem;
-}
+    .data-option-card {
+        position: relative;
+        display: flex;
+        overflow: hidden;
+        flex-direction: column;
+        border: 1px solid #dceaea;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+        transition:
+            transform 0.18s ease,
+            border-color 0.18s ease,
+            box-shadow 0.18s ease;
+    }
 
-.bg-import{
+    .data-option-link .data-option-card:hover {
+        transform: translateY(-7px);
+        border-color: #aedadf;
+        box-shadow:
+            0 16px 34px
+            rgba(0, 126, 128, 0.15);
+    }
 
-    background:#EAF9F9;
+    .option-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 20px 0;
+    }
 
-    color:#009294;
-}
+    .option-icon {
+        display: inline-flex;
+        width: 58px;
+        height: 58px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border: 1px solid #ccebec;
+        border-radius: 16px;
+        background: #eaf9f9;
+        font-size: 1.45rem;
+    }
 
-.bg-export{
+    .option-status {
+        padding: 0.38rem 0.58rem;
+        border-radius: 999px;
+        font-size: 0.66rem;
+        font-weight: 750;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
 
-    background:#FDECEC;
+    .status-active {
+        color: #08734d;
+        background: #e6f7ef;
+    }
 
-    color:#D64545;
-}
+    .status-pending {
+        color: #7b6a34;
+        background: #fff6d9;
+    }
 
-.option-card hr{
+    .option-card-body {
+        flex: 1;
+        padding: 22px 20px;
+    }
 
-    margin:25px 0;
-}
+    .option-title {
+        margin-bottom: 10px;
+        color: #29393a;
+        font-size: 1.12rem;
+        font-weight: 850;
+    }
 
-.option-card ul{
+    .option-description {
+        min-height: 82px;
+        margin-bottom: 20px;
+        color: #748486;
+        font-size: 0.86rem;
+        line-height: 1.55;
+    }
 
-    line-height:2;
-}
+    .option-features {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        padding-top: 16px;
+        border-top: 1px solid #edf3f3;
+    }
 
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #596a6c;
+        font-size: 0.78rem;
+        font-weight: 650;
+    }
+
+    .feature-item i {
+        width: 16px;
+        color: #009294;
+        text-align: center;
+    }
+
+    .option-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        color: #ffffff;
+        background: #009294;
+        font-size: 0.82rem;
+        font-weight: 750;
+        transition: background 0.18s ease;
+    }
+
+    .data-option-link:hover .option-card-footer {
+        background: #007d7f;
+    }
+
+    /* Tarjetas deshabilitadas */
+    .disabled-card {
+        background: #fbfdfd;
+        opacity: 0.82;
+    }
+
+    .disabled-card .option-icon {
+        color: #849496;
+        border-color: #e0e8e8;
+        background: #eff3f3;
+    }
+
+    .disabled-card .feature-item i {
+        color: #8d9b9d;
+    }
+
+    .disabled-footer {
+        color: #6f7d7f;
+        background: #e8eeee;
+    }
+
+    /* Recomendaciones */
+    .recommendations-card {
+        overflow: hidden;
+        padding: 26px;
+        border: 1px solid #bfe4e4;
+        border-radius: 20px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #eaf9f9
+            );
+    }
+
+    .recommendations-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .recommendations-icon {
+        display: inline-flex;
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 14px;
+        background: #009294;
+        font-size: 1.2rem;
+    }
+
+    .recommendations-title {
+        margin-bottom: 3px;
+        color: #29393a;
+        font-size: 1.2rem;
+        font-weight: 850;
+    }
+
+    .recommendations-subtitle {
+        color: #748486;
+        font-size: 0.84rem;
+    }
+
+    .recommendation-item {
+        display: flex;
+        height: 100%;
+        gap: 12px;
+        padding: 16px;
+        border: 1px solid #d5eeee;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.82);
+    }
+
+    .recommendation-number {
+        display: inline-flex;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 50%;
+        background: #009294;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .recommendation-item strong {
+        color: #334345;
+        font-size: 0.86rem;
+    }
+
+    .recommendation-item p {
+        margin-top: 4px;
+        color: #718183;
+        font-size: 0.76rem;
+        line-height: 1.5;
+    }
+
+    /* Botón volver */
+    .btn-volver {
+        padding: 0.68rem 1.1rem;
+        color: #ffffff;
+        border-color: #647477;
+        border-radius: 11px;
+        background: #647477;
+        font-weight: 700;
+    }
+
+    .btn-volver:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .data-hero-content {
+            padding: 27px 22px;
+        }
+
+        .data-hero-icon {
+            display: none;
+        }
+
+        .data-title {
+            font-size: 2rem;
+        }
+
+        .recommendations-card {
+            padding: 20px;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .data-hero {
+            border-radius: 18px;
+        }
+
+        .option-description {
+            min-height: auto;
+        }
+    }
 </style>
 
 {% endblock %}
