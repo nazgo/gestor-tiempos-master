@@ -1979,6 +1979,22 @@ def ficha_nadador(nadador_id):
     )
 
 
+@app.template_filter('tiempo_natacion')
+def tiempo_natacion(valor):
+    if valor is None:
+        return '—'
+
+    try:
+        total_segundos = float(valor)
+    except (TypeError, ValueError):
+        return str(valor)
+
+    minutos = int(total_segundos // 60)
+    segundos = total_segundos % 60
+
+    return f"{minutos:02d}:{segundos:05.2f}"
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
