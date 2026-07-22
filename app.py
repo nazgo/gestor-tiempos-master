@@ -1077,6 +1077,7 @@ def importar_tiempos():
     return render_template('importar.html')
 
 @app.route('/importar_nadadores', methods=['GET', 'POST'])
+@app.route('/nadadores/importar', methods=['GET', 'POST'])
 @login_required
 @editor_required
 def importar_nadadores():
