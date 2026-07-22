@@ -1,37 +1,61 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container py-4">
 
-    <div class="text-center mb-4">
-        <h2 class="fw-bold">
-            <i class="fas fa-trophy text-warning"></i>
-            Mejores Tiempos en
-            {% if piscina == '25 metros' %}
-                25m
-            {% else %}
-                50m
-            {% endif %}
-            — {{ anio }}
-        </h2>
+<div class="container-fluid px-lg-4 py-4">
 
-        <p class="text-muted mb-0">
-            Top 4 por categoría, género, estilo y distancia
-        </p>
+    <!-- Encabezado principal -->
+    <div class="ranking-hero mb-4">
+        <div class="ranking-hero-content">
+
+            <div>
+                <div class="ranking-kicker">
+                    <i class="fas fa-trophy"></i>
+                    Ranking oficial del club
+                </div>
+
+                <h1 class="ranking-title">
+                    Mejores Tiempos
+                </h1>
+
+                <p class="ranking-subtitle mb-0">
+                    Top 4 por categoría, género, estilo y distancia
+                </p>
+            </div>
+
+            <div class="ranking-contexto">
+                <span class="contexto-item">
+                    <i class="fas fa-swimming-pool"></i>
+
+                    {% if piscina == '25 metros' %}
+                        Piscina 25 m
+                    {% else %}
+                        Piscina 50 m
+                    {% endif %}
+                </span>
+
+                <span class="contexto-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    Temporada {{ anio }}
+                </span>
+            </div>
+
+        </div>
     </div>
 
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body">
-            <form
-                method="GET"
-                class="row g-3 align-items-end"
-            >
-                <div class="col-md-5">
+    <!-- Filtros -->
+    <div class="card filtro-card border-0 shadow-sm mb-4">
+        <div class="card-body p-3 p-lg-4">
+
+            <form method="GET" class="row g-3 align-items-end">
+
+                <div class="col-md-4">
                     <label
                         for="piscina"
-                        class="form-label fw-semibold"
+                        class="form-label filtro-label"
                     >
-                        Piscina
+                        <i class="fas fa-swimming-pool me-1"></i>
+                        Tipo de piscina
                     </label>
 
                     <select
@@ -45,7 +69,7 @@
                                 selected
                             {% endif %}
                         >
-                            25 metros
+                            Piscina de 25 metros
                         </option>
 
                         <option
@@ -54,17 +78,18 @@
                                 selected
                             {% endif %}
                         >
-                            50 metros
+                            Piscina de 50 metros
                         </option>
                     </select>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label
                         for="anio"
-                        class="form-label fw-semibold"
+                        class="form-label filtro-label"
                     >
-                        Año
+                        <i class="fas fa-calendar me-1"></i>
+                        Temporada
                     </label>
 
                     <input
@@ -81,39 +106,82 @@
                 <div class="col-md-3">
                     <button
                         type="submit"
-                        class="btn btn-primary w-100"
+                        class="btn btn-ranking w-100"
                     >
-                        Ver clasificación
+                        <i class="fas fa-search me-1"></i>
+                        Consultar ranking
                     </button>
                 </div>
+
+                <div class="col-md-2">
+                    <a
+                        href="{{ url_for('mejores_tiempos') }}"
+                        class="btn btn-outline-secondary w-100"
+                    >
+                        Limpiar
+                    </a>
+                </div>
+
             </form>
+
         </div>
     </div>
 
+    <!-- Contenido -->
     {% for categoria, generos in grupos.items() %}
 
-        <section class="categoria-card mb-4">
+        <section class="categoria-panel mb-4">
 
-            <div class="categoria-header">
-                {{ categoria }}
+            <div class="categoria-barra">
+
+                <div>
+                    <div class="categoria-etiqueta">
+                        Categoría
+                    </div>
+
+                    <h2 class="categoria-nombre mb-0">
+                        {{ categoria }}
+                    </h2>
+                </div>
+
+                <div class="categoria-icono">
+                    <i class="fas fa-medal"></i>
+                </div>
+
             </div>
 
-            <div class="categoria-body">
+            <div class="categoria-contenido">
 
                 {% for genero, estilos in generos.items() %}
 
-                    <div class="genero-bloque mb-4">
+                    <div class="genero-panel">
 
-                        <div class="genero-titulo">
-                            {% if genero == 'Femenino' %}
-                                <i class="fas fa-venus"></i>
-                            {% elif genero == 'Masculino' %}
-                                <i class="fas fa-mars"></i>
-                            {% else %}
-                                <i class="fas fa-user"></i>
-                            {% endif %}
+                        <div class="genero-encabezado">
 
-                            {{ genero }}
+                            <div class="genero-identidad">
+
+                                <span class="genero-icono">
+                                    {% if genero == 'Femenino' %}
+                                        <i class="fas fa-venus"></i>
+                                    {% elif genero == 'Masculino' %}
+                                        <i class="fas fa-mars"></i>
+                                    {% else %}
+                                        <i class="fas fa-user"></i>
+                                    {% endif %}
+                                </span>
+
+                                <div>
+                                    <span class="genero-label">
+                                        Género
+                                    </span>
+
+                                    <h3 class="genero-nombre mb-0">
+                                        {{ genero }}
+                                    </h3>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <div class="row g-3">
@@ -121,40 +189,88 @@
                             {% for estilo, distancias in estilos.items() %}
                                 {% for distancia, tiempos in distancias.items() %}
 
-                                    <div class="col-lg-6 col-xl-4">
+                                    <div class="col-md-6 col-xl-4">
 
-                                        <div class="estilo-card h-100">
+                                        <article class="prueba-card h-100">
 
-                                            <div class="estilo-header">
-                                                {{ estilo }}
-                                                {{ distancia }}m
+                                            <div class="prueba-header">
+
+                                                <div>
+                                                    <div class="prueba-estilo">
+                                                        {{ estilo }}
+                                                    </div>
+
+                                                    <div class="prueba-distancia">
+                                                        {{ distancia }} metros
+                                                    </div>
+                                                </div>
+
+                                                <div class="prueba-icono">
+                                                    <i class="fas fa-stopwatch"></i>
+                                                </div>
+
                                             </div>
 
-                                            <div class="estilo-body">
+                                            <div class="prueba-ranking">
 
                                                 {% for t in tiempos %}
 
-                                                    <div class="ranking-fila">
+                                                    <div class="ranking-item">
 
-                                                        <span class="ranking-posicion">
-                                                            {{ t.posicion }}
-                                                        </span>
+                                                        <div
+                                                            class="
+                                                                posicion
+                                                                {% if t.posicion == 1 %}
+                                                                    posicion-oro
+                                                                {% elif t.posicion == 2 %}
+                                                                    posicion-plata
+                                                                {% elif t.posicion == 3 %}
+                                                                    posicion-bronce
+                                                                {% else %}
+                                                                    posicion-cuarto
+                                                                {% endif %}
+                                                            "
+                                                        >
+                                                            {% if t.posicion == 1 %}
+                                                                <i class="fas fa-crown"></i>
+                                                            {% else %}
+                                                                {{ t.posicion }}
+                                                            {% endif %}
+                                                        </div>
 
-                                                        <span class="ranking-nombre">
-                                                            {{ t.nombre_nadador }}
-                                                        </span>
+                                                        <div class="nadador-info">
 
-                                                        <span class="ranking-tiempo">
+                                                            <div class="nadador-nombre">
+                                                                {{ t.nombre_nadador }}
+                                                            </div>
+
+                                                            <div class="nadador-puesto">
+                                                                {% if t.posicion == 1 %}
+                                                                    Mejor marca
+                                                                {% else %}
+                                                                    Puesto {{ t.posicion }}
+                                                                {% endif %}
+                                                            </div>
+
+                                                        </div>
+
+                                                        <div class="tiempo-ranking">
                                                             {{ t.tiempo }}
-                                                        </span>
+                                                        </div>
 
+                                                    </div>
+
+                                                {% else %}
+
+                                                    <div class="sin-marcas">
+                                                        No hay marcas disponibles.
                                                     </div>
 
                                                 {% endfor %}
 
                                             </div>
 
-                                        </div>
+                                        </article>
 
                                     </div>
 
@@ -162,23 +278,35 @@
                             {% endfor %}
 
                         </div>
+
                     </div>
+
+                    {% if not loop.last %}
+                        <div class="separador-genero"></div>
+                    {% endif %}
 
                 {% endfor %}
 
             </div>
+
         </section>
 
     {% else %}
 
-        <div class="alert alert-warning text-center py-4">
-            <h5 class="mb-2">
+        <div class="sin-resultados">
+
+            <div class="sin-resultados-icono">
+                <i class="fas fa-stopwatch"></i>
+            </div>
+
+            <h4>
                 No hay tiempos disponibles
-            </h5>
+            </h4>
 
             <p class="mb-0">
-                No existen registros para la piscina y el año seleccionados.
+                No existen registros para la piscina y temporada seleccionadas.
             </p>
+
         </div>
 
     {% endfor %}
@@ -188,7 +316,8 @@
             href="{{ url_for('estadisticas_club') }}"
             class="btn btn-secondary"
         >
-            ← Volver a Estadísticas
+            <i class="fas fa-arrow-left me-1"></i>
+            Volver a Estadísticas
         </a>
     </div>
 
@@ -196,122 +325,412 @@
 
 <style>
     body {
-        background: #f7f5ff;
+        background:
+            linear-gradient(
+                180deg,
+                #f4f8fa 0,
+                #ffffff 420px
+            );
     }
 
-    .categoria-card {
+    .ranking-hero {
         overflow: hidden;
-        border-radius: 14px;
-        background: #ffffff;
-        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+        border-radius: 22px;
+        background:
+            linear-gradient(
+                135deg,
+                #007f83,
+                #00a8a8
+            );
+        box-shadow:
+            0 12px 30px
+            rgba(0, 128, 128, 0.20);
     }
 
-    .categoria-header {
-        padding: 12px 18px;
+    .ranking-hero-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        padding: 30px 34px;
         color: #ffffff;
-        background:linear-gradient(90deg,#009999,#00A8A8);
-        font-size: 1.1rem;
+    }
+
+    .ranking-kicker {
+        margin-bottom: 6px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.82rem;
         font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
     }
 
-    .categoria-body {
-        padding: 18px;
+    .ranking-title {
+        margin-bottom: 5px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
     }
 
-    .genero-titulo {
-        margin-bottom: 12px;
-        padding-bottom: 6px;
-        color: #35323b;
-        border-bottom: 2px solid #ece7fb;
-        font-size: 1rem;
-        font-weight: 700;
+    .ranking-subtitle {
+        color: rgba(255, 255, 255, 0.84);
     }
 
-    .genero-titulo i {
-        width: 22px;
-        color: #7448d8;
+    .ranking-contexto {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 190px;
     }
 
-    .estilo-card {
-        overflow: hidden;
-        border: 1px solid #ececec;
-        border-radius: 13px;
-        background: #ffffff;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
-    }
-
-    .estilo-header {
+    .contexto-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
         padding: 10px 14px;
-        background: #f5f6f8;
-        color: #29272d;
-        border-bottom: 1px solid #dedede;
-        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.12);
+        font-size: 0.9rem;
+        font-weight: 700;
+        backdrop-filter: blur(5px);
+    }
+
+    .filtro-card {
+        border-radius: 16px;
+    }
+
+    .filtro-label {
+        color: #42484d;
+        font-size: 0.86rem;
+        font-weight: 750;
+    }
+
+    .btn-ranking {
+        color: #ffffff;
+        background: #008f91;
+        border-color: #008f91;
         font-weight: 700;
     }
 
-    .estilo-body {
-        padding: 10px 14px 14px;
+    .btn-ranking:hover {
+        color: #ffffff;
+        background: #00787a;
+        border-color: #00787a;
     }
 
-    .ranking-fila {
+    .categoria-panel {
+        overflow: hidden;
+        border: 1px solid #e2eaec;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow:
+            0 8px 24px
+            rgba(28, 58, 62, 0.08);
+    }
+
+    .categoria-barra {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 17px 22px;
+        color: #ffffff;
+        background:
+            linear-gradient(
+                90deg,
+                #008b8e,
+                #00a8a8
+            );
+    }
+
+    .categoria-etiqueta {
+        margin-bottom: 2px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .categoria-nombre {
+        font-size: 1.35rem;
+        font-weight: 800;
+    }
+
+    .categoria-icono {
+        display: inline-flex;
+        width: 42px;
+        height: 42px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.16);
+        font-size: 1.1rem;
+    }
+
+    .categoria-contenido {
+        padding: 20px;
+    }
+
+    .genero-panel {
+        padding: 2px 0;
+    }
+
+    .genero-encabezado {
+        margin-bottom: 14px;
+    }
+
+    .genero-identidad {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .genero-icono {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        align-items: center;
+        justify-content: center;
+        color: #008f91;
+        border: 1px solid #bce2e3;
+        border-radius: 10px;
+        background: #effafa;
+        font-size: 1.05rem;
+    }
+
+    .genero-label {
+        display: block;
+        color: #8a9498;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .genero-nombre {
+        color: #263337;
+        font-size: 1.05rem;
+        font-weight: 800;
+    }
+
+    .separador-genero {
+        height: 1px;
+        margin: 24px 0;
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                #d9e3e5,
+                transparent
+            );
+    }
+
+    .prueba-card {
+        overflow: hidden;
+        border: 1px solid #e3e9eb;
+        border-radius: 16px;
+        background: #ffffff;
+        transition:
+            transform 0.16s ease,
+            box-shadow 0.16s ease,
+            border-color 0.16s ease;
+    }
+
+    .prueba-card:hover {
+        transform: translateY(-3px);
+        border-color: #abdcdc;
+        box-shadow:
+            0 10px 22px
+            rgba(0, 115, 117, 0.11);
+    }
+
+    .prueba-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 15px;
+        border-bottom: 1px solid #e8edef;
+        background: #f6f9fa;
+    }
+
+    .prueba-estilo {
+        color: #263337;
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .prueba-distancia {
+        margin-top: 1px;
+        color: #7b878b;
+        font-size: 0.78rem;
+    }
+
+    .prueba-icono {
+        color: #00a8a8;
+        font-size: 1.1rem;
+    }
+
+    .prueba-ranking {
+        padding: 8px 14px 11px;
+    }
+
+    .ranking-item {
         display: grid;
-        grid-template-columns: 25px 1fr auto;
+        grid-template-columns: 34px minmax(0, 1fr) auto;
         gap: 10px;
         align-items: center;
-        min-height: 36px;
-        border-bottom: 1px solid #f1f1f1;
+        min-height: 50px;
+        border-bottom: 1px solid #eef1f2;
     }
 
-    .ranking-fila:last-child {
+    .ranking-item:last-child {
         border-bottom: 0;
     }
 
-    .ranking-posicion {
+    .posicion {
         display: inline-flex;
-        width: 22px;
-        height: 22px;
+        width: 28px;
+        height: 28px;
         align-items: center;
         justify-content: center;
-        color: #ffffff;
-        background: #727b84;
-        border-radius: 6px;
-        font-size: 0.78rem;
-        font-weight: 700;
+        border-radius: 8px;
+        font-size: 0.77rem;
+        font-weight: 850;
     }
 
-    .ranking-nombre {
+    .posicion-oro {
+        color: #765300;
+        background:
+            linear-gradient(
+                135deg,
+                #ffe99a,
+                #f2c94c
+            );
+    }
+
+    .posicion-plata {
+        color: #51585c;
+        background:
+            linear-gradient(
+                135deg,
+                #f1f3f4,
+                #c8cdd0
+            );
+    }
+
+    .posicion-bronce {
+        color: #6c3b18;
+        background:
+            linear-gradient(
+                135deg,
+                #eab583,
+                #c98249
+            );
+    }
+
+    .posicion-cuarto {
+        color: #556065;
+        background: #e9eef0;
+    }
+
+    .nadador-info {
+        min-width: 0;
+    }
+
+    .nadador-nombre {
         overflow: hidden;
-        color: #34323a;
-        font-size: 0.91rem;
-        font-weight: 650;
+        color: #263337;
+        font-size: 0.9rem;
+        font-weight: 750;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .ranking-tiempo {
-        display: inline-block;
-        min-width: 82px;
-        padding: 5px 9px;
+    .nadador-puesto {
+        margin-top: 1px;
+        color: #969fa3;
+        font-size: 0.68rem;
+    }
+
+    .tiempo-ranking {
+        min-width: 79px;
+        padding: 6px 8px;
         color: #ffffff;
-        background: #168b57;
-        border-radius: 6px;
+        border-radius: 8px;
+        background: #16875a;
         text-align: center;
-        font-size: 0.88rem;
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif;
+        font-size: 0.84rem;
         font-weight: 800;
+        letter-spacing: 0.02em;
+    }
+
+    .sin-marcas {
+        padding: 20px 8px;
+        color: #8b969a;
+        text-align: center;
+        font-size: 0.84rem;
+    }
+
+    .sin-resultados {
+        padding: 55px 20px;
+        border: 1px dashed #cbd8da;
+        border-radius: 18px;
+        background: #ffffff;
+        color: #6f7c80;
+        text-align: center;
+    }
+
+    .sin-resultados-icono {
+        display: inline-flex;
+        width: 65px;
+        height: 65px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        color: #00a8a8;
+        border-radius: 50%;
+        background: #ebf9f9;
+        font-size: 1.65rem;
     }
 
     @media (max-width: 768px) {
-        .categoria-body {
-            padding: 12px;
+        .ranking-hero-content {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 24px 20px;
         }
 
-        .ranking-nombre {
+        .ranking-contexto {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .categoria-contenido {
+            padding: 14px;
+        }
+
+        .categoria-barra {
+            padding: 15px 17px;
+        }
+
+        .ranking-item {
+            grid-template-columns: 31px minmax(0, 1fr) auto;
+            gap: 8px;
+        }
+
+        .nadador-nombre {
             font-size: 0.84rem;
         }
 
-        .ranking-tiempo {
-            min-width: 75px;
-            font-size: 0.82rem;
+        .tiempo-ranking {
+            min-width: 72px;
+            padding: 5px 6px;
+            font-size: 0.78rem;
         }
     }
 </style>
