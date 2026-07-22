@@ -1,35 +1,266 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="text-center mb-5">
-    <h2>📤 Importar / Exportar Tiempos</h2>
+
+<div class="container py-4">
+
+    <!-- Encabezado -->
+    <div class="text-center mb-5">
+
+        <h1 class="fw-bold display-5 text-primary">
+            <i class="fas fa-file-import"></i>
+            Importar / Exportar Datos
+        </h1>
+
+        <p class="lead text-muted">
+            Administra la carga y exportación de información del Club Ñuñoa Master
+        </p>
+
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Importar -->
+
+        <div class="col-lg-6">
+
+            <div class="card option-card h-100 shadow-sm">
+
+                <div class="card-body text-center p-5">
+
+                    <div class="icon-circle bg-import">
+
+                        <i class="fas fa-file-import"></i>
+
+                    </div>
+
+                    <h3 class="mt-4 mb-3">
+
+                        Importar Tiempos
+
+                    </h3>
+
+                    <p class="text-muted">
+
+                        Permite cargar de forma masiva tiempos registrados desde un
+                        archivo CSV.
+
+                    </p>
+
+                    <hr>
+
+                    <ul class="text-start text-muted small">
+
+                        <li>✔ Importación rápida.</li>
+
+                        <li>✔ Actualización masiva.</li>
+
+                        <li>✔ Compatible con CSV.</li>
+
+                        <li>✔ Conserva el historial.</li>
+
+                    </ul>
+
+                    <a
+                        href="{{ url_for('importar') }}"
+                        class="btn btn-primary btn-lg w-100 mt-3"
+                    >
+                        <i class="fas fa-upload"></i>
+                        Importar Archivo
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Exportar -->
+
+        <div class="col-lg-6">
+
+            <div class="card option-card h-100 shadow-sm">
+
+                <div class="card-body text-center p-5">
+
+                    <div class="icon-circle bg-export">
+
+                        <i class="fas fa-file-pdf"></i>
+
+                    </div>
+
+                    <h3 class="mt-4 mb-3">
+
+                        Exportar Reporte
+
+                    </h3>
+
+                    <p class="text-muted">
+
+                        Genera un informe completo de todos los tiempos registrados
+                        en formato PDF.
+
+                    </p>
+
+                    <hr>
+
+                    <ul class="text-start text-muted small">
+
+                        <li>✔ Reporte profesional.</li>
+
+                        <li>✔ Fácil impresión.</li>
+
+                        <li>✔ Compartir por correo.</li>
+
+                        <li>✔ Historial completo.</li>
+
+                    </ul>
+
+                    <a
+                        href="{{ url_for('exportar_pdf') }}"
+                        class="btn btn-danger btn-lg w-100 mt-3"
+                    >
+                        <i class="fas fa-file-pdf"></i>
+                        Exportar PDF
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Información -->
+
+    <div class="card mt-5 border-0 shadow-sm">
+
+        <div class="card-body">
+
+            <h5 class="fw-bold text-primary">
+
+                <i class="fas fa-circle-info"></i>
+                Recomendaciones
+
+            </h5>
+
+            <div class="row mt-3">
+
+                <div class="col-md-6">
+
+                    <div class="alert alert-light border">
+
+                        <strong>Importación</strong>
+
+                        <p class="mb-0 mt-2">
+
+                            Antes de importar un archivo verifica que las columnas
+                            correspondan al formato oficial del sistema.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="alert alert-light border">
+
+                        <strong>Exportación</strong>
+
+                        <p class="mb-0 mt-2">
+
+                            El PDF incluirá todos los tiempos actualmente registrados
+                            en la base de datos.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="text-center mt-5">
+
+        <a
+            href="{{ url_for('index') }}"
+            class="btn btn-secondary btn-lg"
+        >
+
+            ← Volver al Inicio
+
+        </a>
+
+    </div>
+
 </div>
 
-<div class="row g-4 justify-content-center">
-    <div class="col-md-5">
-        <div class="card shadow h-100">
-            <div class="card-body text-center p-5">
-                <i class="fas fa-file-import fa-4x text-primary mb-4"></i>
-                <h4>Importar CSV</h4>
-                <p class="text-muted">Carga masiva de tiempos desde un archivo CSV</p>
-                <a href="/importar" class="btn btn-primary btn-lg w-100">Ir a Importar</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-5">
-        <div class="card shadow h-100">
-            <div class="card-body text-center p-5">
-                <i class="fas fa-file-export fa-4x text-success mb-4"></i>
-                <h4>Exportar a PDF</h4>
-                <p class="text-muted">Descarga todos los tiempos en formato PDF</p>
-                <a href="/exportar_pdf" class="btn btn-success btn-lg w-100">Exportar PDF</a>
-            </div>
-        </div>
-    </div>
-</div>
+<style>
 
-<div class="text-center mt-4">
-            <a href="/" class="btn btn-secondary">← Volver al Inicio</a>
-</div>
+.option-card{
+
+    border:none;
+    border-radius:18px;
+    transition:.25s;
+}
+
+.option-card:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:0 15px 35px rgba(0,0,0,.10)!important;
+}
+
+.icon-circle{
+
+    width:95px;
+
+    height:95px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:2.6rem;
+}
+
+.bg-import{
+
+    background:#EAF9F9;
+
+    color:#009294;
+}
+
+.bg-export{
+
+    background:#FDECEC;
+
+    color:#D64545;
+}
+
+.option-card hr{
+
+    margin:25px 0;
+}
+
+.option-card ul{
+
+    line-height:2;
+}
+
+</style>
 
 {% endblock %}
