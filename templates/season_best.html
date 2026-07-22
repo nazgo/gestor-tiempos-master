@@ -1,98 +1,395 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <div class="season-best-page">
-    <div class="container py-4">
+    <div class="container-fluid px-lg-4 py-4">
 
-        <div class="mb-4">
-            <h1 class="season-best-title">
-                <i class="fas fa-trophy"></i>
-                Mejores Tiempos del Nadador
-            </h1>
-        </div>
+        <!-- Encabezado -->
+        <section class="season-hero mb-4">
 
-        <div class="card season-best-card shadow-sm">
-            <div class="card-body p-3 p-md-4">
-                <form method="POST" action="{{ url_for('season_best') }}" class="row g-3 align-items-end">
+            <div class="season-hero-content">
 
-                    <div class="col-lg-10 col-md-9">
-                        <label for="nadador_id" class="form-label">Nadador</label>
-
-                        <select id="nadador_id" name="nadador_id" class="form-select" required>
-                            <option value="">-- Selecciona un nadador --</option>
-
-                            {% for n in nadadores %}
-                                <option value="{{ n.id }}" {% if nadador and n.id == nadador.id %}selected{% endif %}>
-                                    {{ n.nombre }} {{ n.apellido }}
-                                </option>
-                            {% endfor %}
-                        </select>
+                <div>
+                    <div class="season-kicker">
+                        <i class="fas fa-medal"></i>
+                        Rendimiento individual
                     </div>
 
-                    <div class="col-lg-2 col-md-3">
-                        <button type="submit" class="btn btn-primary w-100">
-                            Ver Mejores Tiempos
+                    <h1 class="season-title">
+                        Mejores Tiempos del Nadador
+                    </h1>
+
+                    <p class="season-subtitle mb-0">
+                        Consulta las mejores marcas registradas por prueba y tipo de piscina
+                    </p>
+                </div>
+
+                <div class="season-hero-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Selector -->
+        <div class="card selector-card border-0 shadow-sm mb-4">
+
+            <div class="card-body p-3 p-lg-4">
+
+                <form
+                    method="POST"
+                    action="{{ url_for('season_best') }}"
+                    class="row g-3 align-items-end"
+                >
+
+                    <div class="col-lg-9 col-md-8">
+
+                        <label
+                            for="nadador_id"
+                            class="form-label selector-label"
+                        >
+                            <i class="fas fa-user me-1"></i>
+                            Seleccione un nadador
+                        </label>
+
+                        <select
+                            id="nadador_id"
+                            name="nadador_id"
+                            class="form-select form-select-lg"
+                            required
+                        >
+                            <option value="">
+                                -- Seleccione un nadador --
+                            </option>
+
+                            {% for n in nadadores %}
+                            <option
+                                value="{{ n.id }}"
+                                {% if nadador and n.id == nadador.id %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ n.apellido }}, {{ n.nombre }}
+                                {% if n.categoria_master %}
+                                    — {{ n.categoria_master }}
+                                {% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="col-lg-3 col-md-4">
+
+                        <button
+                            type="submit"
+                            class="btn btn-season w-100 btn-lg"
+                        >
+                            <i class="fas fa-search me-1"></i>
+                            Ver mejores tiempos
                         </button>
+
                     </div>
 
                 </form>
+
             </div>
+
         </div>
 
         {% if mejores_tiempos %}
-        <div class="card season-best-card shadow-sm mt-4">
-            <div class="card-header bg-primary text-white">
-                <strong>
-                    Mejores tiempos de {{ nadador.nombre }} {{ nadador.apellido }}
-                </strong>
+
+        <!-- Ficha del nadador -->
+        <div class="card nadador-resumen border-0 shadow-sm mb-4">
+
+            <div class="card-body p-4">
+
+                <div class="row align-items-center g-3">
+
+                    <div class="col-auto">
+
+                        <div class="nadador-avatar">
+                            {{ nadador.nombre[:1]|upper }}
+                            {{ nadador.apellido[:1]|upper }}
+                        </div>
+
+                    </div>
+
+                    <div class="col">
+
+                        <div class="resumen-label">
+                            Mejores marcas de
+                        </div>
+
+                        <h2 class="resumen-nombre mb-1">
+                            {{ nadador.nombre }}
+                            {{ nadador.apellido }}
+                        </h2>
+
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+
+                            {% if nadador.categoria_master %}
+                            <span class="badge resumen-badge badge-categoria">
+                                {{ nadador.categoria_master }}
+                            </span>
+                            {% endif %}
+
+                            {% if nadador.genero %}
+                            <span class="badge resumen-badge bg-light text-dark border">
+                                {{ nadador.genero }}
+                            </span>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-auto">
+
+                        <div class="resumen-total">
+
+                            <div class="resumen-total-numero">
+                                {{ mejores_tiempos|length }}
+                            </div>
+
+                            <div class="resumen-total-texto">
+                                mejores marcas
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Mejores marcas -->
+        <section class="mb-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <div>
+                    <h3 class="seccion-titulo mb-1">
+                        <i class="fas fa-stopwatch"></i>
+                        Marcas personales
+                    </h3>
+
+                    <p class="text-muted mb-0">
+                        Mejor tiempo registrado en cada prueba y piscina
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="row g-3">
+
+                {% for tiempo in mejores_tiempos %}
+
+                <div class="col-md-6 col-xl-4">
+
+                    <article class="marca-card h-100">
+
+                        <div class="marca-card-header">
+
+                            <div>
+
+                                <div class="marca-estilo">
+                                    {{ tiempo.estilo }}
+                                </div>
+
+                                <div class="marca-distancia">
+                                    {{ tiempo.distancia }} metros
+                                </div>
+
+                            </div>
+
+                            <div class="marca-icono">
+                                <i class="fas fa-medal"></i>
+                            </div>
+
+                        </div>
+
+                        <div class="marca-card-body">
+
+                            <div class="marca-tiempo">
+                                {{ tiempo.tiempo }}
+                            </div>
+
+                            <div class="marca-detalles">
+
+                                <div class="detalle-item">
+
+                                    <span class="detalle-label">
+                                        Piscina
+                                    </span>
+
+                                    {% if tiempo.piscina == '25 metros' %}
+
+                                    <span class="badge piscina-badge piscina-25">
+                                        25 m
+                                    </span>
+
+                                    {% elif tiempo.piscina == '50 metros' %}
+
+                                    <span class="badge piscina-badge piscina-50">
+                                        50 m
+                                    </span>
+
+                                    {% else %}
+
+                                    <span class="detalle-valor">
+                                        {{ tiempo.piscina or '—' }}
+                                    </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="detalle-item">
+
+                                    <span class="detalle-label">
+                                        Fecha
+                                    </span>
+
+                                    <span class="detalle-valor">
+                                        {% if tiempo.fecha and tiempo.fecha.strftime is defined %}
+                                            {{ tiempo.fecha.strftime('%d/%m/%Y') }}
+                                        {% else %}
+                                            {{ tiempo.fecha or '—' }}
+                                        {% endif %}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        <!-- Tabla detallada -->
+        <div class="card detalle-card border-0 shadow-sm">
+
+            <div class="card-header detalle-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list"></i>
+                    Resumen detallado
+                </h5>
             </div>
 
             <div class="card-body p-0">
+
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle mb-0">
-                        <thead class="table-dark">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
                             <tr>
-                                <th>Estilo</th>
-                                <th>Distancia</th>
+                                <th>Prueba</th>
                                 <th>Piscina</th>
-                                <th class="text-center">Mejor tiempo</th>
-                                <th class="text-center">Fecha</th>
+                                <th>Mejor tiempo</th>
+                                <th>Fecha</th>
                             </tr>
                         </thead>
 
                         <tbody>
+
                             {% for tiempo in mejores_tiempos %}
+
                             <tr>
-                                <td><strong>{{ tiempo.estilo }}</strong></td>
-                                <td>{{ tiempo.distancia }}m</td>
-                                <td>{{ tiempo.piscina }}</td>
-                                <td class="text-center"><strong>{{ tiempo.tiempo }}</strong></td>
-                                <td class="text-center">
-                                    {% if tiempo.fecha.strftime is defined %}
-                                        {{ tiempo.fecha.strftime('%d/%m/%Y') }}
+
+                                <td>
+                                    <strong>
+                                        {{ tiempo.distancia }}m
+                                        {{ tiempo.estilo }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {% if tiempo.piscina == '25 metros' %}
+                                        <span class="badge piscina-badge piscina-25">
+                                            25 m
+                                        </span>
+                                    {% elif tiempo.piscina == '50 metros' %}
+                                        <span class="badge piscina-badge piscina-50">
+                                            50 m
+                                        </span>
                                     {% else %}
-                                        {{ tiempo.fecha }}
+                                        {{ tiempo.piscina or '—' }}
                                     {% endif %}
                                 </td>
+
+                                <td>
+                                    <span class="badge tiempo-tabla">
+                                        {{ tiempo.tiempo }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {% if tiempo.fecha and tiempo.fecha.strftime is defined %}
+                                        {{ tiempo.fecha.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        {{ tiempo.fecha or '—' }}
+                                    {% endif %}
+                                </td>
+
                             </tr>
+
                             {% endfor %}
+
                         </tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
         </div>
 
         {% elif consulta_realizada %}
-        <div class="alert alert-warning text-center mt-4 py-4">
-            <h5 class="mb-2">No hay tiempos registrados</h5>
-            <p class="mb-0">El nadador seleccionado todavía no tiene marcas disponibles.</p>
+
+        <div class="sin-resultados">
+
+            <div class="sin-resultados-icono">
+                <i class="fas fa-stopwatch"></i>
+            </div>
+
+            <h4>
+                No hay tiempos registrados
+            </h4>
+
+            <p class="mb-0">
+                El nadador seleccionado todavía no tiene marcas disponibles.
+            </p>
+
         </div>
+
         {% endif %}
 
         <div class="text-center mt-4">
-            <a href="{{ url_for('index') }}" class="btn btn-secondary season-best-back">
-                ← Volver al Inicio
+
+            <a
+                href="{{ url_for('index') }}"
+                class="btn btn-secondary"
+            >
+                <i class="fas fa-arrow-left me-1"></i>
+                Volver al Inicio
             </a>
+
         </div>
 
     </div>
@@ -102,46 +399,355 @@
     .season-best-page {
         min-height: 100vh;
         background:
-            radial-gradient(circle at center, rgba(111, 66, 217, 0.06), transparent 42%),
-            #f6f3ff;
+            linear-gradient(
+                180deg,
+                #f3f9fa 0,
+                #ffffff 460px
+            );
     }
 
-    .season-best-title {
-        color: #2f2f35;
-        font-size: clamp(2rem, 4vw, 3rem);
-        font-weight: 500;
-        margin-bottom: 0;
-    }
-
-    .season-best-title i {
-        color: #f7b500;
-        margin-right: 0.35rem;
-    }
-
-    .season-best-card {
-        border: 0;
-        border-radius: 16px;
+    .season-hero {
         overflow: hidden;
+        border-radius: 22px;
+        background:
+            linear-gradient(
+                135deg,
+                #007f83,
+                #00a8a8
+            );
+        box-shadow:
+            0 12px 30px
+            rgba(0, 128, 128, 0.20);
     }
 
-    .season-best-card .form-label {
-        font-weight: 500;
-        margin-bottom: 0.45rem;
+    .season-hero-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 30px 34px;
+        color: #ffffff;
     }
 
-    .season-best-card .form-select,
-    .season-best-card .btn {
-        min-height: 46px;
+    .season-kicker {
+        margin-bottom: 7px;
+        color: rgba(255, 255, 255, 0.80);
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
     }
 
-    .season-best-back {
-        min-width: 145px;
+    .season-title {
+        margin-bottom: 6px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 850;
+        letter-spacing: -0.035em;
+    }
+
+    .season-subtitle {
+        max-width: 650px;
+        color: rgba(255, 255, 255, 0.84);
+    }
+
+    .season-hero-icon {
+        display: inline-flex;
+        width: 90px;
+        height: 90px;
+        min-width: 90px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.13);
+        font-size: 2.5rem;
+        backdrop-filter: blur(5px);
+    }
+
+    .selector-card,
+    .nadador-resumen,
+    .detalle-card {
+        overflow: hidden;
+        border-radius: 17px;
+    }
+
+    .selector-label {
+        color: #38464a;
+        font-size: 0.88rem;
+        font-weight: 750;
+    }
+
+    .btn-season {
+        color: #ffffff;
+        background: #008f91;
+        border-color: #008f91;
+        font-weight: 700;
+    }
+
+    .btn-season:hover {
+        color: #ffffff;
+        background: #00787a;
+        border-color: #00787a;
+    }
+
+    .nadador-resumen {
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #eefafa
+            );
+    }
+
+    .nadador-avatar {
+        display: inline-flex;
+        width: 76px;
+        height: 76px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border: 3px solid #ffffff;
+        border-radius: 50%;
+        background:
+            linear-gradient(
+                135deg,
+                #00a8a8,
+                #007b7b
+            );
+        box-shadow:
+            0 5px 16px
+            rgba(0, 0, 0, 0.16);
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif;
+        font-size: 1.55rem;
+        font-weight: 750;
+        letter-spacing: 0.10em;
+    }
+
+    .resumen-label {
+        color: #7b898d;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .resumen-nombre {
+        color: #263337;
+        font-size: 1.6rem;
+        font-weight: 850;
+    }
+
+    .resumen-badge {
+        padding: 0.5rem 0.72rem;
+        font-size: 0.78rem;
+    }
+
+    .badge-categoria {
+        color: #ffffff;
+        background: #00a8a8;
+    }
+
+    .resumen-total {
+        min-width: 135px;
+        padding: 14px 18px;
+        border: 1px solid #cde6e7;
+        border-radius: 14px;
+        background: #ffffff;
+        text-align: center;
+    }
+
+    .resumen-total-numero {
+        color: #008f91;
+        font-size: 2rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .resumen-total-texto {
+        margin-top: 6px;
+        color: #7c898d;
+        font-size: 0.76rem;
+    }
+
+    .seccion-titulo {
+        color: #263337;
+        font-size: 1.3rem;
+        font-weight: 850;
+    }
+
+    .seccion-titulo i {
+        color: #f2b705;
+        margin-right: 5px;
+    }
+
+    .marca-card {
+        overflow: hidden;
+        border: 1px solid #e1e9eb;
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow:
+            0 5px 16px
+            rgba(34, 67, 70, 0.07);
+        transition:
+            transform 0.16s ease,
+            box-shadow 0.16s ease,
+            border-color 0.16s ease;
+    }
+
+    .marca-card:hover {
+        transform: translateY(-4px);
+        border-color: #aedddd;
+        box-shadow:
+            0 11px 25px
+            rgba(0, 116, 117, 0.13);
+    }
+
+    .marca-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        border-bottom: 1px solid #e7edef;
+        background: #f6f9fa;
+    }
+
+    .marca-estilo {
+        color: #263337;
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    .marca-distancia {
+        margin-top: 2px;
+        color: #7e8b8f;
+        font-size: 0.77rem;
+    }
+
+    .marca-icono {
+        color: #f0b400;
+        font-size: 1.15rem;
+    }
+
+    .marca-card-body {
+        padding: 17px;
+    }
+
+    .marca-tiempo {
+        margin-bottom: 15px;
+        color: #138456;
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif;
+        font-size: 1.75rem;
+        font-weight: 850;
+        letter-spacing: 0.02em;
+    }
+
+    .marca-detalles {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .detalle-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .detalle-label {
+        color: #919b9f;
+        font-size: 0.69rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+    }
+
+    .detalle-valor {
+        color: #3b474b;
+        font-size: 0.84rem;
+        font-weight: 650;
+    }
+
+    .piscina-badge {
+        width: fit-content;
+        min-width: 48px;
+        padding: 0.42rem 0.55rem;
+    }
+
+    .piscina-25 {
+        color: #ffffff;
+        background: #0d6efd;
+    }
+
+    .piscina-50 {
+        color: #ffffff;
+        background: #00a8a8;
+    }
+
+    .detalle-header {
+        padding: 13px 17px;
+        color: #ffffff;
+        background: #263337;
+    }
+
+    .tiempo-tabla {
+        min-width: 78px;
+        padding: 0.45rem 0.6rem;
+        color: #ffffff;
+        background: #16875a;
+        font-size: 0.83rem;
+    }
+
+    .sin-resultados {
+        padding: 55px 20px;
+        border: 1px dashed #cbd8da;
+        border-radius: 18px;
+        background: #ffffff;
+        color: #6f7c80;
+        text-align: center;
+    }
+
+    .sin-resultados-icono {
+        display: inline-flex;
+        width: 67px;
+        height: 67px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        color: #00a8a8;
+        border-radius: 50%;
+        background: #eaf9f9;
+        font-size: 1.7rem;
     }
 
     @media (max-width: 768px) {
-        .season-best-title {
-            text-align: center;
+        .season-hero-content {
+            padding: 24px 20px;
+        }
+
+        .season-hero-icon {
+            display: none;
+        }
+
+        .nadador-avatar {
+            width: 64px;
+            height: 64px;
+            font-size: 1.25rem;
+        }
+
+        .resumen-total {
+            width: 100%;
+        }
+
+        .marca-detalles {
+            grid-template-columns: 1fr;
         }
     }
 </style>
+
 {% endblock %}
