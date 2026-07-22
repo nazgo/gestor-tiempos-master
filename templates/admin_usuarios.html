@@ -1,133 +1,1392 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Gestión de Usuarios | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>
-                <i class="fas fa-users-cog"></i> Gestión de Usuarios
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrear">
-                <i class="fas fa-plus"></i> Nuevo Usuario
-            </button>
+
+<div class="usuarios-page">
+
+    <!-- Encabezado -->
+    <section class="usuarios-hero mb-4">
+
+        <div class="usuarios-hero-content">
+
+            <div>
+
+                <div class="usuarios-kicker">
+                    <i class="fas fa-users-cog"></i>
+                    Administración del sistema
+                </div>
+
+                <h1 class="usuarios-title">
+                    Gestión de Usuarios
+                </h1>
+
+                <p class="usuarios-subtitle mb-0">
+                    Administra accesos, roles y credenciales del sistema.
+                </p>
+
+            </div>
+
+            <div class="usuarios-hero-actions">
+
+                <div class="usuarios-total">
+
+                    <span class="usuarios-total-numero">
+                        {{ usuarios|length }}
+                    </span>
+
+                    <span class="usuarios-total-texto">
+                        usuarios registrados
+                    </span>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="btn btn-nuevo-usuario"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCrear"
+                >
+                    <i class="fas fa-user-plus me-1"></i>
+                    Nuevo Usuario
+                </button>
+
+            </div>
+
         </div>
 
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <strong>Usuarios Registrados ({{ usuarios|length }})</strong>
+    </section>
+
+    <!-- Información de roles -->
+    <section class="roles-info mb-4">
+
+        <div class="row g-3">
+
+            <div class="col-md-4">
+
+                <div class="rol-info-card">
+
+                    <div class="rol-info-icon rol-admin">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+
+                    <div>
+                        <strong>Administrador</strong>
+
+                        <p class="mb-0">
+                            Control completo del sistema y gestión de usuarios.
+                        </p>
+                    </div>
+
+                </div>
+
             </div>
+
+            <div class="col-md-4">
+
+                <div class="rol-info-card">
+
+                    <div class="rol-info-icon rol-editor">
+                        <i class="fas fa-user-pen"></i>
+                    </div>
+
+                    <div>
+                        <strong>Editor</strong>
+
+                        <p class="mb-0">
+                            Puede registrar, editar e importar información.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="rol-info-card">
+
+                    <div class="rol-info-icon rol-viewer">
+                        <i class="fas fa-user"></i>
+                    </div>
+
+                    <div>
+                        <strong>Viewer</strong>
+
+                        <p class="mb-0">
+                            Acceso de consulta sin permisos de modificación.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Tabla -->
+    <section class="card usuarios-card border-0 shadow-sm">
+
+        <div class="card-header usuarios-card-header">
+
+            <div>
+
+                <h2 class="usuarios-card-title mb-1">
+                    Usuarios registrados
+                </h2>
+
+                <p class="usuarios-card-subtitle mb-0">
+                    Cambia roles, restablece contraseñas o elimina accesos.
+                </p>
+
+            </div>
+
+            <div class="usuarios-search">
+
+                <i class="fas fa-search"></i>
+
+                <input
+                    type="search"
+                    id="buscarUsuario"
+                    class="form-control"
+                    placeholder="Buscar usuario..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+        </div>
+
+        <div class="card-body p-0">
+
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-dark">
+
+                <table
+                    class="table usuarios-table align-middle mb-0"
+                    id="tablaUsuarios"
+                >
+
+                    <thead>
                         <tr>
                             <th>Usuario</th>
-                            <th>Nombre Completo</th>
+                            <th>Nombre completo</th>
                             <th>Rol</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
+
                     <tbody>
+
                         {% for u in usuarios %}
-                        <tr>
-                            <td><strong>{{ u.username }}</strong></td>
-                            <td>{{ u.nombre or '—' }}</td>
+
+                        <tr class="usuario-row">
+
                             <td>
-                                <!-- Cambio de Rol -->
-                                <form method="POST" action="{{ url_for('cambiar_rol', user_id=u.id) }}" class="d-inline">
-                                    <select name="rol" onchange="this.form.submit()" class="form-select form-select-sm d-inline w-auto">
-                                        <option value="admin" {{ 'selected' if u.rol == 'admin' }}>Admin</option>
-                                        <option value="editor" {{ 'selected' if u.rol == 'editor' }}>Editor</option>
-                                        <option value="viewer" {{ 'selected' if u.rol == 'viewer' }}>Viewer</option>
+
+                                <div class="usuario-identidad">
+
+                                    <div class="usuario-avatar">
+                                        {{ u.username[:1]|upper }}
+                                    </div>
+
+                                    <div>
+
+                                        <div class="usuario-username">
+                                            {{ u.username }}
+                                        </div>
+
+                                        {% if u.id == 1 %}
+                                        <span class="usuario-principal">
+                                            <i class="fas fa-star"></i>
+                                            Usuario principal
+                                        </span>
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                <span class="usuario-nombre">
+                                    {{ u.nombre or 'Sin nombre registrado' }}
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('cambiar_rol', user_id=u.id) }}"
+                                    class="rol-form"
+                                >
+
+                                    <select
+                                        name="rol"
+                                        class="form-select form-select-sm rol-select rol-{{ u.rol }}"
+                                        onchange="confirmarCambioRol(this)"
+                                        {% if u.id == 1 %}disabled{% endif %}
+                                    >
+                                        <option
+                                            value="admin"
+                                            {% if u.rol == 'admin' %}selected{% endif %}
+                                        >
+                                            Administrador
+                                        </option>
+
+                                        <option
+                                            value="editor"
+                                            {% if u.rol == 'editor' %}selected{% endif %}
+                                        >
+                                            Editor
+                                        </option>
+
+                                        <option
+                                            value="viewer"
+                                            {% if u.rol == 'viewer' %}selected{% endif %}
+                                        >
+                                            Viewer
+                                        </option>
                                     </select>
+
                                 </form>
+
                             </td>
+
                             <td class="text-center">
-                                <!-- Cambiar Contraseña -->
-                                <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#modalPass{{ u.id }}">
-                                    <i class="fas fa-key"></i>
-                                </button>
-                                <!-- Eliminar -->
-                                {% if u.id != 1 %}
-                                <form method="POST" action="{{ url_for('eliminar_usuario', user_id=u.id) }}" class="d-inline" 
-                                      onsubmit="return confirm('¿Eliminar este usuario permanentemente?')">
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="fas fa-trash"></i>
+
+                                <div class="acciones-usuario">
+
+                                    <button
+                                        type="button"
+                                        class="btn accion-btn accion-password"
+                                        title="Cambiar contraseña"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalPass{{ u.id }}"
+                                    >
+                                        <i class="fas fa-key"></i>
                                     </button>
-                                </form>
-                                {% else %}
-                                    <span class="text-muted small">Usuario Principal</span>
-                                {% endif %}
+
+                                    {% if u.id != 1 %}
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('eliminar_usuario', user_id=u.id) }}"
+                                        class="d-inline"
+                                        onsubmit="return confirmarEliminacion('{{ u.username }}');"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="btn accion-btn accion-eliminar"
+                                            title="Eliminar usuario"
+                                        >
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+
+                                    </form>
+
+                                    {% else %}
+
+                                    <span
+                                        class="accion-protegida"
+                                        title="El usuario principal no se puede eliminar"
+                                    >
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+
+                                    {% endif %}
+
+                                </div>
+
                             </td>
+
                         </tr>
+
+                        {% else %}
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="text-center py-5"
+                            >
+
+                                <div class="sin-usuarios">
+
+                                    <i class="fas fa-users-slash"></i>
+
+                                    <h4>
+                                        No hay usuarios registrados
+                                    </h4>
+
+                                    <p class="mb-0">
+                                        Crea el primer usuario desde el botón superior.
+                                    </p>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
                         {% endfor %}
+
                     </tbody>
+
                 </table>
+
             </div>
+
+            <div
+                id="sinResultadosBusqueda"
+                class="sin-resultados-busqueda d-none"
+            >
+                <i class="fas fa-search"></i>
+                No se encontraron usuarios que coincidan con la búsqueda.
+            </div>
+
         </div>
 
+    </section>
 
-        <div class="text-center mt-4">
-            <a href="/" class="btn btn-secondary">← Volver al Inicio</a>
-        </div>
+    <!-- Volver -->
+    <div class="text-center mt-4">
+
+        <a
+            href="{{ url_for('index') }}"
+            class="btn btn-volver"
+        >
+            <i class="fas fa-arrow-left me-1"></i>
+            Volver al Inicio
+        </a>
+
     </div>
+
 </div>
 
-<!-- Modal Nuevo Usuario -->
-<div class="modal fade" id="modalCrear" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">➕ Nuevo Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Modal crear usuario -->
+<div
+    class="modal fade"
+    id="modalCrear"
+    tabindex="-1"
+    aria-labelledby="modalCrearLabel"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content modal-usuario-content">
+
+            <div class="modal-header modal-usuario-header">
+
+                <div>
+
+                    <div class="modal-kicker">
+                        Nuevo acceso
+                    </div>
+
+                    <h5
+                        class="modal-title"
+                        id="modalCrearLabel"
+                    >
+                        Crear Usuario
+                    </h5>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                    aria-label="Cerrar"
+                ></button>
+
             </div>
-            <form method="POST" action="{{ url_for('crear_usuario') }}">
-                <div class="modal-body">
+
+            <form
+                method="POST"
+                action="{{ url_for('crear_usuario') }}"
+            >
+
+                <div class="modal-body p-4">
+
                     <div class="mb-3">
-                        <label>Usuario</label>
-                        <input type="text" name="username" class="form-control" required>
+
+                        <label
+                            for="nuevoUsername"
+                            class="form-label modal-label"
+                        >
+                            <i class="fas fa-user me-1"></i>
+                            Usuario
+                        </label>
+
+                        <input
+                            type="text"
+                            id="nuevoUsername"
+                            name="username"
+                            class="form-control form-control-lg"
+                            placeholder="Ej.: cgomez"
+                            autocomplete="username"
+                            required
+                        >
+
                     </div>
+
                     <div class="mb-3">
-                        <label>Contraseña</label>
-                        <input type="password" name="password" class="form-control" required>
+
+                        <label
+                            for="nuevoPassword"
+                            class="form-label modal-label"
+                        >
+                            <i class="fas fa-lock me-1"></i>
+                            Contraseña
+                        </label>
+
+                        <div class="password-field">
+
+                            <input
+                                type="password"
+                                id="nuevoPassword"
+                                name="password"
+                                class="form-control form-control-lg"
+                                placeholder="Ingrese una contraseña"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                onclick="alternarPassword('nuevoPassword', this)"
+                                aria-label="Mostrar contraseña"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+
+                        </div>
+
+                        <div class="form-text">
+                            Se recomienda utilizar al menos 6 caracteres.
+                        </div>
+
                     </div>
+
                     <div class="mb-3">
-                        <label>Nombre Completo</label>
-                        <input type="text" name="nombre" class="form-control">
+
+                        <label
+                            for="nuevoNombre"
+                            class="form-label modal-label"
+                        >
+                            <i class="fas fa-id-card me-1"></i>
+                            Nombre completo
+                        </label>
+
+                        <input
+                            type="text"
+                            id="nuevoNombre"
+                            name="nombre"
+                            class="form-control form-control-lg"
+                            placeholder="Nombre y apellido"
+                        >
+
                     </div>
-                    <div class="mb-3">
-                        <label>Rol</label>
-                        <select name="rol" class="form-select">
-                            <option value="admin">Admin</option>
-                            <option value="editor" selected>Editor</option>
-                            <option value="viewer">Viewer</option>
+
+                    <div>
+
+                        <label
+                            for="nuevoRol"
+                            class="form-label modal-label"
+                        >
+                            <i class="fas fa-user-tag me-1"></i>
+                            Rol
+                        </label>
+
+                        <select
+                            id="nuevoRol"
+                            name="rol"
+                            class="form-select form-select-lg"
+                            required
+                        >
+                            <option value="admin">
+                                Administrador
+                            </option>
+
+                            <option
+                                value="editor"
+                                selected
+                            >
+                                Editor
+                            </option>
+
+                            <option value="viewer">
+                                Viewer
+                            </option>
                         </select>
+
                     </div>
+
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Crear</button>
+
+                <div class="modal-footer modal-usuario-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-cancelar"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-crear"
+                    >
+                        <i class="fas fa-user-plus me-1"></i>
+                        Crear Usuario
+                    </button>
+
                 </div>
+
             </form>
+
         </div>
+
     </div>
+
 </div>
 
-<!-- Modales Cambiar Contraseña -->
+<!-- Modales de contraseña -->
 {% for u in usuarios %}
-<div class="modal fade" id="modalPass{{ u.id }}" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST" action="{{ url_for('cambiar_password', user_id=u.id) }}">
-                <div class="modal-body">
-                    <h6>Cambiar contraseña de <strong>{{ u.username }}</strong></h6>
-                    <input type="password" name="new_password" class="form-control mt-3" placeholder="Nueva contraseña" required>
+
+<div
+    class="modal fade"
+    id="modalPass{{ u.id }}"
+    tabindex="-1"
+    aria-labelledby="modalPassLabel{{ u.id }}"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content modal-usuario-content">
+
+            <div class="modal-header modal-password-header">
+
+                <div>
+
+                    <div class="modal-kicker">
+                        Seguridad
+                    </div>
+
+                    <h5
+                        class="modal-title"
+                        id="modalPassLabel{{ u.id }}"
+                    >
+                        Cambiar Contraseña
+                    </h5>
+
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning">Cambiar Contraseña</button>
+
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                    aria-label="Cerrar"
+                ></button>
+
+            </div>
+
+            <form
+                method="POST"
+                action="{{ url_for('cambiar_password', user_id=u.id) }}"
+            >
+
+                <div class="modal-body p-4">
+
+                    <div class="password-user-card">
+
+                        <div class="usuario-avatar password-avatar">
+                            {{ u.username[:1]|upper }}
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Nueva contraseña para
+                            </span>
+
+                            <strong>
+                                {{ u.username }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mt-4">
+
+                        <label
+                            for="password{{ u.id }}"
+                            class="form-label modal-label"
+                        >
+                            Nueva contraseña
+                        </label>
+
+                        <div class="password-field">
+
+                            <input
+                                type="password"
+                                id="password{{ u.id }}"
+                                name="new_password"
+                                class="form-control form-control-lg"
+                                placeholder="Ingrese la nueva contraseña"
+                                minlength="6"
+                                autocomplete="new-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                onclick="alternarPassword('password{{ u.id }}', this)"
+                                aria-label="Mostrar contraseña"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+
+                        </div>
+
+                    </div>
+
                 </div>
+
+                <div class="modal-footer modal-usuario-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-cancelar"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-password"
+                    >
+                        <i class="fas fa-key me-1"></i>
+                        Cambiar Contraseña
+                    </button>
+
+                </div>
+
             </form>
+
         </div>
+
     </div>
+
 </div>
+
 {% endfor %}
+
+<style>
+    .usuarios-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
+    }
+
+    /* Hero */
+    .usuarios-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
+    }
+
+    .usuarios-hero::before {
+        position: absolute;
+        top: -90px;
+        right: 115px;
+        width: 230px;
+        height: 230px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 50%;
+        content: "";
+    }
+
+    .usuarios-hero::after {
+        position: absolute;
+        right: -80px;
+        bottom: -140px;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .usuarios-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
+
+    .usuarios-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .usuarios-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .usuarios-subtitle {
+        max-width: 650px;
+        color: rgba(255, 255, 255, 0.86);
+    }
+
+    .usuarios-hero-actions {
+        display: flex;
+        min-width: 190px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .usuarios-total {
+        display: flex;
+        flex-direction: column;
+        padding: 13px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.12);
+        text-align: center;
+        backdrop-filter: blur(5px);
+    }
+
+    .usuarios-total-numero {
+        font-size: 1.8rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .usuarios-total-texto {
+        margin-top: 5px;
+        color: rgba(255, 255, 255, 0.80);
+        font-size: 0.7rem;
+    }
+
+    .btn-nuevo-usuario {
+        padding: 0.7rem 1rem;
+        color: #007d7f;
+        border: 1px solid #ffffff;
+        border-radius: 11px;
+        background: #ffffff;
+        font-weight: 800;
+    }
+
+    .btn-nuevo-usuario:hover {
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.75);
+        background: rgba(255, 255, 255, 0.16);
+    }
+
+    /* Roles */
+    .rol-info-card {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        gap: 13px;
+        padding: 15px;
+        border: 1px solid #dceaea;
+        border-radius: 15px;
+        background: #ffffff;
+        box-shadow:
+            0 5px 15px
+            rgba(25, 68, 70, 0.06);
+    }
+
+    .rol-info-icon {
+        display: inline-flex;
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        font-size: 1.1rem;
+    }
+
+    .rol-admin {
+        color: #8b6510;
+        background: #fff5d6;
+    }
+
+    .rol-editor {
+        color: #007d7f;
+        background: #eaf9f9;
+    }
+
+    .rol-viewer {
+        color: #5d6d70;
+        background: #eef2f2;
+    }
+
+    .rol-info-card strong {
+        color: #2f3f40;
+        font-size: 0.86rem;
+    }
+
+    .rol-info-card p {
+        margin-top: 3px;
+        color: #788789;
+        font-size: 0.73rem;
+        line-height: 1.4;
+    }
+
+    /* Tabla */
+    .usuarios-card {
+        overflow: hidden;
+        border-radius: 19px;
+    }
+
+    .usuarios-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 18px 20px;
+        border: 0;
+        background: #ffffff;
+    }
+
+    .usuarios-card-title {
+        color: #2c3b3c;
+        font-size: 1.18rem;
+        font-weight: 850;
+    }
+
+    .usuarios-card-subtitle {
+        color: #788789;
+        font-size: 0.78rem;
+    }
+
+    .usuarios-search {
+        position: relative;
+        width: min(290px, 100%);
+    }
+
+    .usuarios-search i {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        z-index: 2;
+        color: #819092;
+        transform: translateY(-50%);
+    }
+
+    .usuarios-search input {
+        padding-left: 38px;
+        border-color: #d9e7e7;
+        border-radius: 11px;
+    }
+
+    .usuarios-table thead th {
+        padding: 12px 18px;
+        color: #627173;
+        border-top: 1px solid #edf2f2;
+        border-bottom: 1px solid #dce7e7;
+        background: #f5f9f9;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .usuarios-table tbody td {
+        padding: 13px 18px;
+        border-color: #edf2f2;
+    }
+
+    .usuarios-table tbody tr {
+        transition: background 0.15s ease;
+    }
+
+    .usuarios-table tbody tr:hover {
+        background: #f8fdfd;
+    }
+
+    .usuario-identidad {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .usuario-avatar {
+        display: inline-flex;
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 13px;
+        background:
+            linear-gradient(
+                135deg,
+                #009294,
+                #00b3b5
+            );
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    .usuario-username {
+        color: #2e3e3f;
+        font-size: 0.9rem;
+        font-weight: 800;
+    }
+
+    .usuario-principal {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 3px;
+        color: #997012;
+        font-size: 0.65rem;
+        font-weight: 700;
+    }
+
+    .usuario-nombre {
+        color: #58686a;
+        font-size: 0.84rem;
+    }
+
+    .rol-form {
+        display: inline-block;
+        min-width: 145px;
+    }
+
+    .rol-select {
+        border-radius: 9px;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .rol-select:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .rol-admin {
+        border-color: #ead797;
+        background: #fff9e7;
+    }
+
+    .rol-editor {
+        border-color: #bce3e3;
+        background: #effafa;
+    }
+
+    .rol-viewer {
+        border-color: #d9e0e1;
+        background: #f4f6f6;
+    }
+
+    .acciones-usuario {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+    }
+
+    .accion-btn,
+    .accion-protegida {
+        display: inline-flex;
+        width: 35px;
+        height: 35px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+    }
+
+    .accion-password {
+        color: #966d13;
+        border: 1px solid #edd99d;
+        background: #fff8e4;
+    }
+
+    .accion-password:hover {
+        color: #ffffff;
+        border-color: #bd8b1a;
+        background: #bd8b1a;
+    }
+
+    .accion-eliminar {
+        color: #bd3e3e;
+        border: 1px solid #efcaca;
+        background: #fff0f0;
+    }
+
+    .accion-eliminar:hover {
+        color: #ffffff;
+        border-color: #c84343;
+        background: #c84343;
+    }
+
+    .accion-protegida {
+        color: #879496;
+        border: 1px solid #dfe6e6;
+        background: #f1f4f4;
+    }
+
+    .sin-usuarios {
+        color: #7c8a8c;
+    }
+
+    .sin-usuarios i {
+        margin-bottom: 12px;
+        color: #009294;
+        font-size: 2rem;
+    }
+
+    .sin-usuarios h4 {
+        color: #405052;
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .sin-resultados-busqueda {
+        padding: 25px;
+        color: #778688;
+        border-top: 1px solid #e4ecec;
+        text-align: center;
+    }
+
+    /* Modales */
+    .modal-usuario-content {
+        overflow: hidden;
+        border: 0;
+        border-radius: 19px;
+        box-shadow:
+            0 20px 50px
+            rgba(24, 60, 62, 0.20);
+    }
+
+    .modal-usuario-header,
+    .modal-password-header {
+        padding: 19px 22px;
+        color: #ffffff;
+        border: 0;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b,
+                #00a4a6
+            );
+    }
+
+    .modal-kicker {
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .modal-title {
+        margin-top: 2px;
+        font-weight: 850;
+    }
+
+    .modal-label {
+        color: #405052;
+        font-size: 0.82rem;
+        font-weight: 750;
+    }
+
+    .password-field {
+        position: relative;
+    }
+
+    .password-field input {
+        padding-right: 48px;
+    }
+
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        width: 36px;
+        height: 36px;
+        color: #718183;
+        border: 0;
+        border-radius: 9px;
+        background: transparent;
+        transform: translateY(-50%);
+    }
+
+    .password-toggle:hover {
+        color: #007d7f;
+        background: #eaf9f9;
+    }
+
+    .modal-usuario-footer {
+        padding: 14px 22px;
+        border-top: 1px solid #e8eeee;
+        background: #f8fbfb;
+    }
+
+    .btn-cancelar {
+        color: #667678;
+        border-color: #d5dede;
+        background: #ffffff;
+        font-weight: 700;
+    }
+
+    .btn-crear {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+        font-weight: 750;
+    }
+
+    .btn-crear:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    .btn-password {
+        color: #ffffff;
+        border-color: #b9871b;
+        background: #b9871b;
+        font-weight: 750;
+    }
+
+    .btn-password:hover {
+        color: #ffffff;
+        border-color: #9f7313;
+        background: #9f7313;
+    }
+
+    .password-user-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid #dceaea;
+        border-radius: 14px;
+        background: #f5fbfb;
+    }
+
+    .password-avatar {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+    }
+
+    .password-user-card span {
+        display: block;
+        color: #7a898b;
+        font-size: 0.72rem;
+    }
+
+    .password-user-card strong {
+        color: #2f4041;
+        font-size: 0.95rem;
+    }
+
+    .btn-volver {
+        padding: 0.68rem 1.1rem;
+        color: #ffffff;
+        border-color: #647477;
+        border-radius: 11px;
+        background: #647477;
+        font-weight: 700;
+    }
+
+    .btn-volver:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    @media (max-width: 768px) {
+        .usuarios-hero-content {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 27px 22px;
+        }
+
+        .usuarios-hero-actions {
+            width: 100%;
+        }
+
+        .usuarios-card-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .usuarios-search {
+            width: 100%;
+        }
+
+        .usuarios-title {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .usuarios-hero {
+            border-radius: 18px;
+        }
+
+        .roles-info {
+            display: none;
+        }
+
+        .usuarios-table tbody td,
+        .usuarios-table thead th {
+            padding-right: 12px;
+            padding-left: 12px;
+        }
+    }
+</style>
+
+<script>
+    function confirmarCambioRol(selectElement) {
+        const formulario = selectElement.form;
+        const nuevoRol =
+            selectElement.options[
+                selectElement.selectedIndex
+            ].text;
+
+        const confirmado = confirm(
+            "¿Deseas cambiar el rol de este usuario a " +
+            nuevoRol +
+            "?"
+        );
+
+        if (confirmado) {
+            formulario.submit();
+        } else {
+            window.location.reload();
+        }
+    }
+
+    function confirmarEliminacion(username) {
+        return confirm(
+            '¿Eliminar permanentemente al usuario "' +
+            username +
+            '"?\n\nEsta acción no se puede deshacer.'
+        );
+    }
+
+    function alternarPassword(inputId, button) {
+        const input = document.getElementById(inputId);
+        const icono = button.querySelector("i");
+
+        if (input.type === "password") {
+            input.type = "text";
+            icono.classList.remove("fa-eye");
+            icono.classList.add("fa-eye-slash");
+            button.setAttribute(
+                "aria-label",
+                "Ocultar contraseña"
+            );
+        } else {
+            input.type = "password";
+            icono.classList.remove("fa-eye-slash");
+            icono.classList.add("fa-eye");
+            button.setAttribute(
+                "aria-label",
+                "Mostrar contraseña"
+            );
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const buscador =
+            document.getElementById("buscarUsuario");
+
+        const filas =
+            document.querySelectorAll(
+                "#tablaUsuarios .usuario-row"
+            );
+
+        const sinResultados =
+            document.getElementById(
+                "sinResultadosBusqueda"
+            );
+
+        if (!buscador) {
+            return;
+        }
+
+        buscador.addEventListener("input", function () {
+            const termino =
+                buscador.value
+                    .toLowerCase()
+                    .trim();
+
+            let visibles = 0;
+
+            filas.forEach(function (fila) {
+                const contenido =
+                    fila.textContent
+                        .toLowerCase();
+
+                const coincide =
+                    contenido.includes(termino);
+
+                fila.style.display =
+                    coincide ? "" : "none";
+
+                if (coincide) {
+                    visibles++;
+                }
+            });
+
+            sinResultados.classList.toggle(
+                "d-none",
+                visibles > 0 || termino === ""
+            );
+        });
+    });
+</script>
+
 {% endblock %}
