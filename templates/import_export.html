@@ -271,68 +271,74 @@ Centro de Datos | Gestor Ñuñoa Master
 
         <!-- Respaldo de datos -->
         <div class="col-md-6 col-xl-3">
-
-            <article class="data-option-card disabled-card h-100">
-
-                <div class="option-card-top">
-
-                    <div class="option-icon">
-                        <i class="fas fa-database"></i>
+        
+            <a
+                href="{{ url_for('respaldo_datos') }}"
+                class="data-option-link"
+                onclick="return confirmarRespaldo();"
+            >
+        
+                <article class="data-option-card h-100">
+        
+                    <div class="option-card-top">
+        
+                        <div class="option-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+        
+                        <span class="option-status status-active">
+                            Disponible
+                        </span>
+        
                     </div>
-
-                    <span class="option-status status-pending">
-                        Próximamente
-                    </span>
-
-                </div>
-
-                <div class="option-card-body">
-
-                    <h3 class="option-title">
-                        Respaldo de Datos
-                    </h3>
-
-                    <p class="option-description">
-                        Descarga una copia de seguridad con la información
-                        principal registrada en el sistema.
-                    </p>
-
-                    <div class="option-features">
-
-                        <div class="feature-item">
-                            <i class="fas fa-table"></i>
-                            Nadadores
+        
+                    <div class="option-card-body">
+        
+                        <h3 class="option-title">
+                            Respaldo de Datos
+                        </h3>
+        
+                        <p class="option-description">
+                            Descarga una copia de seguridad con la información
+                            registrada actualmente en el sistema.
+                        </p>
+        
+                        <div class="option-features">
+        
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                Todas las tablas
+                            </div>
+        
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                Archivos CSV
+                            </div>
+        
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                Descarga en ZIP
+                            </div>
+        
                         </div>
-
-                        <div class="feature-item">
-                            <i class="fas fa-stopwatch"></i>
-                            Tiempos
-                        </div>
-
-                        <div class="feature-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            Competencias
-                        </div>
-
+        
                     </div>
-
-                </div>
-
-                <div class="option-card-footer disabled-footer">
-
-                    <span>
-                        Función en preparación
-                    </span>
-
-                    <i class="fas fa-lock"></i>
-
-                </div>
-
-            </article>
-
+        
+                    <div class="option-card-footer">
+        
+                        <span>
+                            Descargar respaldo
+                        </span>
+        
+                        <i class="fas fa-download"></i>
+        
+                    </div>
+        
+                </article>
+        
+            </a>
+        
         </div>
-
-    </div>
 
     <!-- Recomendaciones -->
     <section class="recommendations-card mt-5">
@@ -838,4 +844,14 @@ Centro de Datos | Gestor Ñuñoa Master
     }
 </style>
 
+
+<script>
+    function confirmarRespaldo() {
+        return confirm(
+            "Se generará una copia de seguridad de los datos actuales. " +
+            "¿Deseas continuar?"
+        );
+    }
+</script>
+    
 {% endblock %}
