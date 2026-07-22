@@ -1,144 +1,452 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="text-center mb-5">
-    <h1 class="display-5 fw-bold text-primary">
-        <i class="fas fa-balance-scale"></i> Comparativa de Tiempos
-    </h1>
-    <p class="lead text-muted">25 metros vs 50 metros</p>
-</div>
 
-<div class="card shadow mb-5">
-    <div class="card-body p-4">
+<div class="comparacion-page">
+    <div class="container-fluid px-lg-4 py-4">
 
-        <form
-            method="POST"
-            action="{{ url_for('comparacion_25_50') }}"
-            class="row g-3 justify-content-center"
-        >
+        <!-- Encabezado -->
+        <section class="comparacion-hero mb-4">
 
-            <div class="col-md-6">
-                <label
-                    for="nadador_id"
-                    class="form-label fw-semibold"
-                >
-                    Seleccione un nadador
-                </label>
+            <div class="comparacion-hero-content">
 
-                <select
-                    id="nadador_id"
-                    name="nadador_id"
-                    class="form-select form-select-lg"
-                    required
-                >
-                    <option value="">
-                        -- Seleccione un nadador --
-                    </option>
+                <div>
+                    <div class="comparacion-kicker">
+                        <i class="fas fa-balance-scale"></i>
+                        Análisis de rendimiento
+                    </div>
 
-                    {% for n in nadadores %}
-                        <option value="{{ n.id }}">
-                            {{ n.nombre }} {{ n.apellido }}
-                        </option>
-                    {% else %}
-                        <option value="" disabled>
-                            No hay nadadores registrados
-                        </option>
-                    {% endfor %}
-                </select>
+                    <h1 class="comparacion-title">
+                        Comparación entre Piscinas
+                    </h1>
+
+                    <p class="comparacion-subtitle mb-0">
+                        Compara las mejores marcas del nadador en piscinas de 25 m y 50 m
+                    </p>
+                </div>
+
+                <div class="comparacion-hero-icon">
+                    <i class="fas fa-swimming-pool"></i>
+                </div>
+
             </div>
 
-            <div class="col-md-3 d-flex align-items-end">
-                <button
-                    type="submit"
-                    class="btn btn-primary btn-lg w-100"
+        </section>
+
+        <!-- Selector de nadador -->
+        <div class="card selector-card border-0 shadow-sm mb-4">
+
+            <div class="card-body p-3 p-lg-4">
+
+                <form
+                    method="POST"
+                    action="{{ url_for('comparacion_25_50') }}"
+                    class="row g-3 align-items-end"
                 >
-                    <i class="fas fa-balance-scale"></i>
-                    Comparar
-                </button>
+
+                    <div class="col-lg-9 col-md-8">
+
+                        <label
+                            for="nadador_id"
+                            class="form-label selector-label"
+                        >
+                            <i class="fas fa-user me-1"></i>
+                            Seleccione un nadador
+                        </label>
+
+                        <select
+                            id="nadador_id"
+                            name="nadador_id"
+                            class="form-select form-select-lg"
+                            required
+                        >
+                            <option value="">
+                                -- Seleccione un nadador --
+                            </option>
+
+                            {% for n in nadadores %}
+                            <option
+                                value="{{ n.id }}"
+                                {% if nadador and n.id == nadador.id %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ n.apellido }}, {{ n.nombre }}
+
+                                {% if n.categoria_master %}
+                                    — {{ n.categoria_master }}
+                                {% endif %}
+                            </option>
+
+                            {% else %}
+
+                            <option value="" disabled>
+                                No hay nadadores registrados
+                            </option>
+
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="col-lg-3 col-md-4">
+
+                        <button
+                            type="submit"
+                            class="btn btn-comparar btn-lg w-100"
+                        >
+                            <i class="fas fa-balance-scale me-1"></i>
+                            Comparar marcas
+                        </button>
+
+                    </div>
+
+                </form>
+
             </div>
 
-        </form>
-    </div>
-</div>
+        </div>
 
-{% if comparacion %}
-<div class="card shadow">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">
-            Comparativa 25m vs 50m para
-            <strong>
-                {{ nadador.nombre }} {{ nadador.apellido }}
-            </strong>
-        </h5>
-    </div>
+        {% if nadador %}
 
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle mb-0">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Estilo</th>
-                        <th>Distancia</th>
-                        <th class="text-center">Tiempo 25m</th>
-                        <th class="text-center">Tiempo 50m</th>
-                        <th class="text-center">Diferencia</th>
-                        <th class="text-center">% Diferencia</th>
-                    </tr>
-                </thead>
+        <!-- Resumen del nadador -->
+        <div class="card nadador-resumen border-0 shadow-sm mb-4">
 
-                <tbody>
-                    {% for c in comparacion %}
-                    <tr>
-                        <td>
-                            <strong>{{ c.estilo }}</strong>
-                        </td>
+            <div class="card-body p-4">
 
-                        <td>
-                            {{ c.distancia }}m
-                        </td>
+                <div class="row align-items-center g-3">
 
-                        <td class="text-center">
-                            {% if c.tiempo_25 is not none %}
-                                <strong>{{ c.tiempo_25|round(2) }} seg</strong>
-                            {% else %}
-                                <span class="text-muted">Sin registro</span>
+                    <div class="col-auto">
+
+                        <div class="nadador-avatar">
+                            {{ nadador.nombre[:1]|upper }}
+                            {{ nadador.apellido[:1]|upper }}
+                        </div>
+
+                    </div>
+
+                    <div class="col">
+
+                        <div class="resumen-label">
+                            Comparación de marcas
+                        </div>
+
+                        <h2 class="resumen-nombre mb-1">
+                            {{ nadador.nombre }}
+                            {{ nadador.apellido }}
+                        </h2>
+
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+
+                            {% if nadador.categoria_master %}
+                            <span class="badge resumen-badge badge-categoria">
+                                {{ nadador.categoria_master }}
+                            </span>
                             {% endif %}
-                        </td>
 
-                        <td class="text-center">
-                            {% if c.tiempo_50 is not none %}
-                                <strong>{{ c.tiempo_50|round(2) }} seg</strong>
-                            {% else %}
-                                <span class="text-muted">Sin registro</span>
+                            {% if nadador.genero %}
+                            <span class="badge resumen-badge bg-light text-dark border">
+                                {{ nadador.genero }}
+                            </span>
                             {% endif %}
-                        </td>
 
-                        <td class="text-center">
-                            {% if c.diferencia_segundos is not none %}
+                        </div>
 
-                                {% if c.diferencia_segundos > 0 %}
-                                    <span class="text-danger">
+                    </div>
+
+                    {% if comparacion %}
+                    <div class="col-md-auto">
+
+                        <div class="resumen-total">
+
+                            <div class="resumen-total-numero">
+                                {{ comparacion|length }}
+                            </div>
+
+                            <div class="resumen-total-texto">
+                                pruebas analizadas
+                            </div>
+
+                        </div>
+
+                    </div>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+        {% if comparacion %}
+
+        <!-- Explicación -->
+        <div class="alert comparacion-info mb-4">
+
+            <div class="d-flex gap-3 align-items-start">
+
+                <div class="comparacion-info-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+
+                <div>
+                    <strong>
+                        Cómo interpretar la comparación
+                    </strong>
+
+                    <p class="mb-0 mt-1">
+                        La diferencia se calcula como el tiempo de piscina de 50 m
+                        menos el tiempo de piscina de 25 m. Un valor positivo indica
+                        que la marca de 50 m fue más lenta.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Tarjetas de comparación -->
+        <div class="row g-4">
+
+            {% for c in comparacion %}
+
+            {% set comparable =
+                c.tiempo_25 is not none
+                and c.tiempo_50 is not none
+            %}
+
+            {% if comparable and c.tiempo_25 > 0 %}
+                {% set porcentaje =
+                    ((c.tiempo_50 - c.tiempo_25)
+                    / c.tiempo_25) * 100
+                %}
+            {% else %}
+                {% set porcentaje = none %}
+            {% endif %}
+
+            <div class="col-lg-6 col-xl-4">
+
+                <article class="comparacion-card h-100">
+
+                    <div class="comparacion-card-header">
+
+                        <div>
+                            <div class="prueba-estilo">
+                                {{ c.estilo }}
+                            </div>
+
+                            <div class="prueba-distancia">
+                                {{ c.distancia }} metros
+                            </div>
+                        </div>
+
+                        <div class="prueba-icono">
+                            <i class="fas fa-stopwatch"></i>
+                        </div>
+
+                    </div>
+
+                    <div class="comparacion-card-body">
+
+                        <div class="piscinas-grid">
+
+                            <!-- Piscina 25 m -->
+                            <div class="piscina-panel piscina-panel-25">
+
+                                <div class="piscina-label">
+                                    Piscina corta
+                                </div>
+
+                                <div class="piscina-titulo">
+                                    25 m
+                                </div>
+
+                                <div class="piscina-tiempo">
+
+                                    {% if c.tiempo_25 is not none %}
+                                        {{ c.tiempo_25|tiempo_natacion }}
+                                    {% else %}
+                                        <span class="sin-registro">
+                                            Sin registro
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                            <!-- Piscina 50 m -->
+                            <div class="piscina-panel piscina-panel-50">
+
+                                <div class="piscina-label">
+                                    Piscina olímpica
+                                </div>
+
+                                <div class="piscina-titulo">
+                                    50 m
+                                </div>
+
+                                <div class="piscina-tiempo">
+
+                                    {% if c.tiempo_50 is not none %}
+                                        {{ c.tiempo_50|tiempo_natacion }}
+                                    {% else %}
+                                        <span class="sin-registro">
+                                            Sin registro
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="comparacion-metricas">
+
+                            <div class="metrica-item">
+
+                                <span class="metrica-label">
+                                    Diferencia
+                                </span>
+
+                                <span class="
+                                    metrica-valor
+                                    {% if c.diferencia_segundos is none %}
+                                        metrica-neutra
+                                    {% elif c.diferencia_segundos > 0 %}
+                                        metrica-negativa
+                                    {% elif c.diferencia_segundos < 0 %}
+                                        metrica-positiva
+                                    {% else %}
+                                        metrica-neutra
+                                    {% endif %}
+                                ">
+
+                                    {% if c.diferencia_segundos is none %}
+                                        No comparable
+
+                                    {% elif c.diferencia_segundos > 0 %}
                                         +{{ c.diferencia_segundos|round(2) }} seg
-                                    </span>
 
-                                {% elif c.diferencia_segundos < 0 %}
-                                    <span class="text-success">
+                                    {% elif c.diferencia_segundos < 0 %}
                                         {{ c.diferencia_segundos|round(2) }} seg
-                                    </span>
+
+                                    {% else %}
+                                        0.00 seg
+                                    {% endif %}
+
+                                </span>
+
+                            </div>
+
+                            <div class="metrica-item">
+
+                                <span class="metrica-label">
+                                    Diferencia porcentual
+                                </span>
+
+                                {% if porcentaje is not none %}
+
+                                <span class="
+                                    badge porcentaje-badge
+                                    {% if porcentaje <= 0 %}
+                                        porcentaje-positivo
+                                    {% else %}
+                                        porcentaje-negativo
+                                    {% endif %}
+                                ">
+                                    {{ porcentaje|round(1) }}%
+                                </span>
 
                                 {% else %}
-                                    <span class="text-muted">
-                                        0.00 seg
-                                    </span>
+
+                                <span class="badge bg-secondary">
+                                    N/D
+                                </span>
+
                                 {% endif %}
 
-                            {% else %}
-                                <span class="text-muted">
-                                    No comparable
-                                </span>
-                            {% endif %}
-                        </td>
+                            </div>
 
-                        <td class="text-center">
+                        </div>
+
+                        {% if comparable %}
+
+                        <div class="comparacion-conclusion">
+
+                            {% if c.tiempo_25 < c.tiempo_50 %}
+
+                                <i class="fas fa-check-circle"></i>
+                                Mejor marca en piscina de 25 m
+
+                            {% elif c.tiempo_50 < c.tiempo_25 %}
+
+                                <i class="fas fa-check-circle"></i>
+                                Mejor marca en piscina de 50 m
+
+                            {% else %}
+
+                                <i class="fas fa-equals"></i>
+                                Ambas marcas son iguales
+
+                            {% endif %}
+
+                        </div>
+
+                        {% else %}
+
+                        <div class="comparacion-conclusion incompleta">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Faltan registros para completar la comparación
+                        </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </article>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <!-- Tabla resumen -->
+        <div class="card tabla-card border-0 shadow-sm mt-4">
+
+            <div class="card-header tabla-header">
+
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-1"></i>
+                    Resumen detallado
+                </h5>
+
+            </div>
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Prueba</th>
+                                <th class="text-center">Piscina 25 m</th>
+                                <th class="text-center">Piscina 50 m</th>
+                                <th class="text-center">Diferencia</th>
+                                <th class="text-center">% Diferencia</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for c in comparacion %}
+
                             {% if c.tiempo_25 is not none
                                   and c.tiempo_50 is not none
                                   and c.tiempo_25 > 0 %}
@@ -148,40 +456,594 @@
                                     / c.tiempo_25) * 100
                                 %}
 
-                                <span class="badge
-                                    {% if porcentaje <= 0 %}
-                                        bg-success
-                                    {% else %}
-                                        bg-danger
-                                    {% endif %}
-                                ">
-                                    {{ porcentaje|round(1) }}%
-                                </span>
-
                             {% else %}
-                                <span class="badge bg-secondary">
-                                    N/D
-                                </span>
+                                {% set porcentaje = none %}
                             {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ c.distancia }}m
+                                        {{ c.estilo }}
+                                    </strong>
+                                </td>
+
+                                <td class="text-center">
+
+                                    {% if c.tiempo_25 is not none %}
+
+                                        <span class="badge tiempo-25">
+                                            {{ c.tiempo_25|tiempo_natacion }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="text-muted">
+                                            Sin registro
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td class="text-center">
+
+                                    {% if c.tiempo_50 is not none %}
+
+                                        <span class="badge tiempo-50">
+                                            {{ c.tiempo_50|tiempo_natacion }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="text-muted">
+                                            Sin registro
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td class="text-center">
+
+                                    {% if c.diferencia_segundos is none %}
+
+                                        <span class="text-muted">
+                                            No comparable
+                                        </span>
+
+                                    {% elif c.diferencia_segundos > 0 %}
+
+                                        <span class="text-danger fw-semibold">
+                                            +{{ c.diferencia_segundos|round(2) }} seg
+                                        </span>
+
+                                    {% elif c.diferencia_segundos < 0 %}
+
+                                        <span class="text-success fw-semibold">
+                                            {{ c.diferencia_segundos|round(2) }} seg
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="text-muted">
+                                            0.00 seg
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td class="text-center">
+
+                                    {% if porcentaje is not none %}
+
+                                        <span class="
+                                            badge porcentaje-badge
+                                            {% if porcentaje <= 0 %}
+                                                porcentaje-positivo
+                                            {% else %}
+                                                porcentaje-negativo
+                                            {% endif %}
+                                        ">
+                                            {{ porcentaje|round(1) }}%
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="badge bg-secondary">
+                                            N/D
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
         </div>
+
+        {% elif nadador %}
+
+        <div class="sin-resultados">
+
+            <div class="sin-resultados-icono">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+
+            <h4>
+                No hay datos suficientes para comparar
+            </h4>
+
+            <p class="mb-0">
+                {{ nadador.nombre }} {{ nadador.apellido }}
+                necesita tiempos en piscinas de 25 m y 50 m para la misma prueba.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+        <div class="text-center mt-4">
+
+            <a
+                href="{{ url_for('index') }}"
+                class="btn btn-secondary"
+            >
+                <i class="fas fa-arrow-left me-1"></i>
+                Volver al Inicio
+            </a>
+
+        </div>
+
     </div>
 </div>
 
-{% elif nadador %}
-<div class="alert alert-warning text-center py-5">
-    <i class="fas fa-balance-scale fa-3x mb-3"></i>
+<style>
+    .comparacion-page {
+        min-height: 100vh;
+        background:
+            linear-gradient(
+                180deg,
+                #f3f9fa 0,
+                #ffffff 480px
+            );
+    }
 
-    <h5>No hay datos suficientes para comparar</h5>
+    .comparacion-hero {
+        overflow: hidden;
+        border-radius: 22px;
+        background:
+            linear-gradient(
+                135deg,
+                #007f83,
+                #00a8a8
+            );
+        box-shadow:
+            0 12px 30px
+            rgba(0, 128, 128, 0.20);
+    }
 
-    <p class="mb-0">
-        {{ nadador.nombre }} {{ nadador.apellido }}
-        necesita tiempos en piscinas de 25m y 50m para la misma prueba.
-    </p>
-</div>
-{% endif %}
+    .comparacion-hero-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 30px 34px;
+        color: #ffffff;
+    }
+
+    .comparacion-kicker {
+        margin-bottom: 7px;
+        color: rgba(255, 255, 255, 0.80);
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+    }
+
+    .comparacion-title {
+        margin-bottom: 6px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 850;
+        letter-spacing: -0.035em;
+    }
+
+    .comparacion-subtitle {
+        max-width: 700px;
+        color: rgba(255, 255, 255, 0.84);
+    }
+
+    .comparacion-hero-icon {
+        display: inline-flex;
+        width: 90px;
+        height: 90px;
+        min-width: 90px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.13);
+        font-size: 2.4rem;
+        backdrop-filter: blur(5px);
+    }
+
+    .selector-card,
+    .nadador-resumen,
+    .tabla-card {
+        overflow: hidden;
+        border-radius: 17px;
+    }
+
+    .selector-label {
+        color: #38464a;
+        font-size: 0.88rem;
+        font-weight: 750;
+    }
+
+    .btn-comparar {
+        color: #ffffff;
+        background: #008f91;
+        border-color: #008f91;
+        font-weight: 700;
+    }
+
+    .btn-comparar:hover {
+        color: #ffffff;
+        background: #00787a;
+        border-color: #00787a;
+    }
+
+    .nadador-resumen {
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #eefafa
+            );
+    }
+
+    .nadador-avatar {
+        display: inline-flex;
+        width: 76px;
+        height: 76px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border: 3px solid #ffffff;
+        border-radius: 50%;
+        background:
+            linear-gradient(
+                135deg,
+                #00a8a8,
+                #007b7b
+            );
+        box-shadow:
+            0 5px 16px
+            rgba(0, 0, 0, 0.16);
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif;
+        font-size: 1.55rem;
+        font-weight: 750;
+        letter-spacing: 0.10em;
+    }
+
+    .resumen-label {
+        color: #7b898d;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .resumen-nombre {
+        color: #263337;
+        font-size: 1.6rem;
+        font-weight: 850;
+    }
+
+    .resumen-badge {
+        padding: 0.5rem 0.72rem;
+        font-size: 0.78rem;
+    }
+
+    .badge-categoria {
+        color: #ffffff;
+        background: #00a8a8;
+    }
+
+    .resumen-total {
+        min-width: 135px;
+        padding: 14px 18px;
+        border: 1px solid #cde6e7;
+        border-radius: 14px;
+        background: #ffffff;
+        text-align: center;
+    }
+
+    .resumen-total-numero {
+        color: #008f91;
+        font-size: 2rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .resumen-total-texto {
+        margin-top: 6px;
+        color: #7c898d;
+        font-size: 0.76rem;
+    }
+
+    .comparacion-info {
+        border: 1px solid #bfe3e4;
+        border-radius: 15px;
+        background: #eefafa;
+        color: #3b5559;
+    }
+
+    .comparacion-info-icon {
+        color: #00a8a8;
+        font-size: 1.35rem;
+    }
+
+    .comparacion-card {
+        overflow: hidden;
+        border: 1px solid #e1e9eb;
+        border-radius: 17px;
+        background: #ffffff;
+        box-shadow:
+            0 5px 16px
+            rgba(34, 67, 70, 0.07);
+        transition:
+            transform 0.16s ease,
+            box-shadow 0.16s ease,
+            border-color 0.16s ease;
+    }
+
+    .comparacion-card:hover {
+        transform: translateY(-4px);
+        border-color: #aedddd;
+        box-shadow:
+            0 11px 25px
+            rgba(0, 116, 117, 0.13);
+    }
+
+    .comparacion-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        border-bottom: 1px solid #e7edef;
+        background: #f6f9fa;
+    }
+
+    .prueba-estilo {
+        color: #263337;
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    .prueba-distancia {
+        margin-top: 2px;
+        color: #7e8b8f;
+        font-size: 0.77rem;
+    }
+
+    .prueba-icono {
+        color: #00a8a8;
+        font-size: 1.15rem;
+    }
+
+    .comparacion-card-body {
+        padding: 16px;
+    }
+
+    .piscinas-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .piscina-panel {
+        padding: 14px;
+        border-radius: 14px;
+    }
+
+    .piscina-panel-25 {
+        border: 1px solid #c9dcff;
+        background: #f1f6ff;
+    }
+
+    .piscina-panel-50 {
+        border: 1px solid #bfe4e4;
+        background: #eefafa;
+    }
+
+    .piscina-label {
+        color: #7b878b;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+    }
+
+    .piscina-titulo {
+        margin-top: 2px;
+        color: #263337;
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    .piscina-tiempo {
+        margin-top: 8px;
+        color: #16875a;
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif;
+        font-size: 1.35rem;
+        font-weight: 850;
+        letter-spacing: 0.02em;
+    }
+
+    .sin-registro {
+        color: #8f999d;
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+
+    .comparacion-metricas {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid #edf1f2;
+    }
+
+    .metrica-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .metrica-label {
+        color: #929da1;
+        font-size: 0.67rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .metrica-valor {
+        font-size: 0.9rem;
+        font-weight: 800;
+    }
+
+    .metrica-positiva {
+        color: #138456;
+    }
+
+    .metrica-negativa {
+        color: #c43b3b;
+    }
+
+    .metrica-neutra {
+        color: #747f83;
+    }
+
+    .porcentaje-badge {
+        width: fit-content;
+        min-width: 58px;
+        padding: 0.46rem 0.62rem;
+    }
+
+    .porcentaje-positivo {
+        color: #ffffff;
+        background: #16875a;
+    }
+
+    .porcentaje-negativo {
+        color: #ffffff;
+        background: #c84343;
+    }
+
+    .comparacion-conclusion {
+        margin-top: 14px;
+        padding: 10px 12px;
+        color: #137b51;
+        border-radius: 10px;
+        background: #edf9f3;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .comparacion-conclusion.incompleta {
+        color: #8a6a16;
+        background: #fff8df;
+    }
+
+    .tabla-header {
+        padding: 13px 17px;
+        color: #ffffff;
+        background: #263337;
+    }
+
+    .tiempo-25 {
+        min-width: 82px;
+        padding: 0.45rem 0.6rem;
+        color: #ffffff;
+        background: #0d6efd;
+        font-size: 0.84rem;
+    }
+
+    .tiempo-50 {
+        min-width: 82px;
+        padding: 0.45rem 0.6rem;
+        color: #ffffff;
+        background: #00a8a8;
+        font-size: 0.84rem;
+    }
+
+    .sin-resultados {
+        padding: 55px 20px;
+        border: 1px dashed #cbd8da;
+        border-radius: 18px;
+        background: #ffffff;
+        color: #6f7c80;
+        text-align: center;
+    }
+
+    .sin-resultados-icono {
+        display: inline-flex;
+        width: 67px;
+        height: 67px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        color: #00a8a8;
+        border-radius: 50%;
+        background: #eaf9f9;
+        font-size: 1.7rem;
+    }
+
+    @media (max-width: 768px) {
+        .comparacion-hero-content {
+            padding: 24px 20px;
+        }
+
+        .comparacion-hero-icon {
+            display: none;
+        }
+
+        .nadador-avatar {
+            width: 64px;
+            height: 64px;
+            font-size: 1.25rem;
+        }
+
+        .resumen-total {
+            width: 100%;
+        }
+
+        .piscinas-grid,
+        .comparacion-metricas {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 {% endblock %}
