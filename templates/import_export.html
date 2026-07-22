@@ -39,7 +39,7 @@ Centro de Datos | Gestor Ñuñoa Master
 
     </section>
 
-    <!-- Encabezado de módulos -->
+    <!-- Título de sección -->
     <div class="section-heading mb-3">
 
         <div>
@@ -132,63 +132,70 @@ Centro de Datos | Gestor Ñuñoa Master
         <!-- Importar nadadores -->
         <div class="col-md-6 col-xl-3">
 
-            <article class="data-option-card disabled-card h-100">
+            <a
+                href="{{ url_for('importar_nadadores') }}"
+                class="data-option-link"
+            >
 
-                <div class="option-card-top">
+                <article class="data-option-card h-100">
 
-                    <div class="option-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
+                    <div class="option-card-top">
 
-                    <span class="option-status status-pending">
-                        Próximamente
-                    </span>
-
-                </div>
-
-                <div class="option-card-body">
-
-                    <h3 class="option-title">
-                        Importar Nadadores
-                    </h3>
-
-                    <p class="option-description">
-                        Registra múltiples nadadores desde un archivo CSV
-                        utilizando el formato oficial del sistema.
-                    </p>
-
-                    <div class="option-features">
-
-                        <div class="feature-item">
-                            <i class="fas fa-file-csv"></i>
-                            Nombre y apellido
+                        <div class="option-icon">
+                            <i class="fas fa-users"></i>
                         </div>
 
-                        <div class="feature-item">
-                            <i class="fas fa-id-card"></i>
-                            RUT y nacimiento
-                        </div>
-
-                        <div class="feature-item">
-                            <i class="fas fa-layer-group"></i>
-                            Categoría y género
-                        </div>
+                        <span class="option-status status-active">
+                            Disponible
+                        </span>
 
                     </div>
 
-                </div>
+                    <div class="option-card-body">
 
-                <div class="option-card-footer disabled-footer">
+                        <h3 class="option-title">
+                            Importar Nadadores
+                        </h3>
 
-                    <span>
-                        Función en preparación
-                    </span>
+                        <p class="option-description">
+                            Registra múltiples nadadores desde un archivo CSV
+                            utilizando el formato oficial del sistema.
+                        </p>
 
-                    <i class="fas fa-lock"></i>
+                        <div class="option-features">
 
-                </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                Nombre y apellido
+                            </div>
 
-            </article>
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                RUT y nacimiento
+                            </div>
+
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                Categoría automática
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="option-card-footer">
+
+                        <span>
+                            Abrir importador
+                        </span>
+
+                        <i class="fas fa-arrow-right"></i>
+
+                    </div>
+
+                </article>
+
+            </a>
 
         </div>
 
@@ -262,7 +269,7 @@ Centro de Datos | Gestor Ñuñoa Master
 
         </div>
 
-        <!-- Respaldo -->
+        <!-- Respaldo de datos -->
         <div class="col-md-6 col-xl-3">
 
             <article class="data-option-card disabled-card h-100">
@@ -286,7 +293,7 @@ Centro de Datos | Gestor Ñuñoa Master
                     </h3>
 
                     <p class="option-description">
-                        Descarga una copia de seguridad de la información
+                        Descarga una copia de seguridad con la información
                         principal registrada en el sistema.
                     </p>
 
@@ -367,7 +374,7 @@ Centro de Datos | Gestor Ñuñoa Master
                         </strong>
 
                         <p class="mb-0">
-                            Usa las columnas y el orden definidos por el
+                            Usa las columnas y el orden definidos por cada
                             importador del sistema.
                         </p>
 
@@ -392,7 +399,7 @@ Centro de Datos | Gestor Ñuñoa Master
                         </strong>
 
                         <p class="mb-0">
-                            Confirma nombres, fechas, tiempos y competencias
+                            Confirma nombres, fechas, tiempos, RUT y competencias
                             antes de importar.
                         </p>
 
@@ -418,7 +425,7 @@ Centro de Datos | Gestor Ñuñoa Master
 
                         <p class="mb-0">
                             Guarda el archivo original utilizado en cada
-                            carga masiva.
+                            proceso de carga masiva.
                         </p>
 
                     </div>
@@ -452,7 +459,6 @@ Centro de Datos | Gestor Ñuñoa Master
         padding: 0.5rem 0 2rem;
     }
 
-    /* Encabezado */
     .data-hero {
         position: relative;
         overflow: hidden;
@@ -538,7 +544,6 @@ Centro de Datos | Gestor Ñuñoa Master
         backdrop-filter: blur(6px);
     }
 
-    /* Título sección */
     .section-heading {
         display: flex;
         align-items: center;
@@ -555,7 +560,6 @@ Centro de Datos | Gestor Ñuñoa Master
         color: #748486;
     }
 
-    /* Tarjetas */
     .data-option-link {
         display: block;
         height: 100%;
@@ -690,7 +694,6 @@ Centro de Datos | Gestor Ñuñoa Master
         background: #007d7f;
     }
 
-    /* Tarjetas deshabilitadas */
     .disabled-card {
         background: #fbfdfd;
         opacity: 0.82;
@@ -711,7 +714,6 @@ Centro de Datos | Gestor Ñuñoa Master
         background: #e8eeee;
     }
 
-    /* Recomendaciones */
     .recommendations-card {
         overflow: hidden;
         padding: 26px;
@@ -792,7 +794,6 @@ Centro de Datos | Gestor Ñuñoa Master
         line-height: 1.5;
     }
 
-    /* Botón volver */
     .btn-volver {
         padding: 0.68rem 1.1rem;
         color: #ffffff;
@@ -808,7 +809,6 @@ Centro de Datos | Gestor Ñuñoa Master
         background: #4e5d5f;
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
         .data-hero-content {
             padding: 27px 22px;
