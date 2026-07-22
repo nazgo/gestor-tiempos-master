@@ -1440,7 +1440,7 @@ def eliminar_tiempo_nadador(tiempo_id):
 
     return redirect(url_for('listar_tiempos'))
 
-@app.route('/nadadores/importar', methods=['GET', 'POST'])
+<!-- @app.route('/nadadores/importar', methods=['GET', 'POST'])
 @login_required
 @editor_required
 def importar_nadadores():
@@ -1520,7 +1520,7 @@ def importar_nadadores():
 
     return render_template(
         'importar_nadadores.html'
-    )
+    ) -->
 
 # ==================== OTRAS RUTAS (puedes ir agregando) ====================
 @app.route('/season_best', methods=['GET', 'POST'])
