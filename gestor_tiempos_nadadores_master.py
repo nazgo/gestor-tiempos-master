@@ -1587,38 +1587,48 @@ class GestorTiemposMaster:
     
     
     def editar_competencia(
-        self,
-        competencia_id,
+    self,
+    competencia_id,
+    fecha,
+    lugar,
+    organiza,
+    nombre,
+    tipo_piscina,
+    estado,
+    mes=None
+):
+    """
+    Edita una competencia existente.
+
+    Si no se recibe el mes, se calcula automáticamente a partir de la fecha.
+    """
+
+    if mes is None:
+        mes = self._obtener_mes_competencia(fecha)
+
+    self._execute("""
+        UPDATE competencias
+        SET
+            fecha = ?,
+            mes = ?,
+            lugar = ?,
+            organiza = ?,
+            nombre = ?,
+            tipo_piscina = ?,
+            estado = ?
+        WHERE id = ?
+    """, (
         fecha,
+        mes,
         lugar,
         organiza,
         nombre,
         tipo_piscina,
-        estado
-    ):
-        mes = self._obtener_mes_competencia(fecha)
-    
-        self._execute("""
-            UPDATE competencias
-            SET fecha = ?,
-                mes = ?,
-                lugar = ?,
-                organiza = ?,
-                nombre = ?,
-                tipo_piscina = ?,
-                estado = ?
-            WHERE id = ?
-        """, (
-            fecha,
-            mes,
-            lugar,
-            organiza,
-            nombre,
-            tipo_piscina,
-            estado,
-            competencia_id
-        ))
-    
+        estado,
+        competencia_id
+    ))
+
+    return True    
     
     def eliminar_competencia(self, competencia_id):
         self._execute("""
