@@ -1,220 +1,345 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Nadadores | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
 
-<div class="container-fluid py-3">
+<div class="nadadores-page">
 
     <!-- Encabezado -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <section class="nadadores-hero mb-4">
 
-        <div>
-            <h2 class="fw-bold mb-1">
-                <i class="fas fa-users text-primary"></i>
-                Nadadores Registrados
-            </h2>
+        <div class="nadadores-hero-content">
 
-            <p class="text-muted mb-0">
-                Gestión, fichas y tiempos de los nadadores del club
-            </p>
-        </div>
+            <div>
 
-        <div class="d-flex flex-wrap gap-2">
-
-            <a
-                href="{{ url_for('importar_nadadores') }}"
-                class="btn btn-outline-primary"
-            >
-                <i class="fas fa-file-import"></i>
-                Importar CSV
-            </a>
-
-            <a
-                href="{{ url_for('agregar_nadador') }}"
-                class="btn btn-primary"
-            >
-                <i class="fas fa-user-plus"></i>
-                Nuevo Nadador
-            </a>
-
-        </div>
-
-    </div>
-
-    <!-- Resumen -->
-    <div class="card shadow-sm border-0 mb-3">
-        <div class="card-body py-3">
-
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-
-                <div class="text-muted">
-                    Total registrados:
-                    <strong class="text-dark">
-                        {{ nadadores|length }}
-                    </strong>
+                <div class="nadadores-kicker">
+                    <i class="fas fa-users"></i>
+                    Gestión deportiva
                 </div>
 
-                <div class="input-group buscador-nadadores">
-                    <span class="input-group-text bg-white">
-                        <i class="fas fa-search"></i>
+                <h1 class="nadadores-title">
+                    Nadadores Registrados
+                </h1>
+
+                <p class="nadadores-subtitle mb-0">
+                    Administra las fichas, datos personales, tiempos y progreso
+                    de los nadadores del Club Ñuñoa Master.
+                </p>
+
+            </div>
+
+            <div class="nadadores-hero-actions">
+
+                <div class="nadadores-total">
+
+                    <span class="nadadores-total-numero">
+                        {{ nadadores|length }}
                     </span>
 
-                    <input
-                        type="text"
-                        id="buscarNadador"
-                        class="form-control"
-                        placeholder="Buscar por nombre, RUT o categoría..."
+                    <span class="nadadores-total-texto">
+                        nadadores registrados
+                    </span>
+
+                </div>
+
+                <div class="hero-buttons">
+
+                    <a
+                        href="{{ url_for('importar_nadadores') }}"
+                        class="btn btn-importar"
                     >
+                        <i class="fas fa-file-import me-1"></i>
+                        Importar CSV
+                    </a>
+
+                    <a
+                        href="{{ url_for('agregar_nadador') }}"
+                        class="btn btn-nuevo"
+                    >
+                        <i class="fas fa-user-plus me-1"></i>
+                        Nuevo Nadador
+                    </a>
+
                 </div>
 
             </div>
 
         </div>
-    </div>
 
-    <!-- Tabla -->
-    <div class="card shadow-sm border-0">
+    </section>
 
-        <div class="card-body p-0">
+    <!-- Barra de herramientas -->
+    <section class="toolbar-card mb-4">
 
-            <div class="table-responsive">
+        <div class="toolbar-content">
 
-                <table
-                    id="tablaNadadores"
-                    class="table table-hover align-middle mb-0"
+            <div>
+
+                <div class="toolbar-kicker">
+                    Directorio deportivo
+                </div>
+
+                <h2 class="toolbar-title">
+                    Lista de nadadores
+                </h2>
+
+                <p class="toolbar-description mb-0">
+                    Selecciona un nadador para consultar su ficha o utiliza
+                    las acciones rápidas.
+                </p>
+
+            </div>
+
+            <div class="nadadores-search">
+
+                <i class="fas fa-search"></i>
+
+                <input
+                    type="search"
+                    id="buscarNadador"
+                    class="form-control"
+                    placeholder="Buscar por nombre, RUT, género o categoría..."
+                    autocomplete="off"
                 >
 
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Nadador</th>
-                            <th>RUT</th>
-                            <th>Fecha de nacimiento</th>
-                            <th>Género</th>
-                            <th>Categoría</th>
-                            <th class="text-center">
-                                Acciones
-                            </th>
-                        </tr>
-                    </thead>
+                <button
+                    type="button"
+                    id="limpiarBusqueda"
+                    class="search-clear d-none"
+                    title="Limpiar búsqueda"
+                    aria-label="Limpiar búsqueda"
+                >
+                    <i class="fas fa-times"></i>
+                </button>
 
-                    <tbody>
+            </div>
 
-                        {% for n in nadadores %}
+        </div>
 
-                        <tr>
+    </section>
 
-                            <td>
+    <!-- Tabla -->
+    <section class="nadadores-card">
+
+        <div class="table-responsive">
+
+            <table
+                id="tablaNadadores"
+                class="table nadadores-table align-middle mb-0"
+            >
+
+                <thead>
+                    <tr>
+                        <th>Nadador</th>
+                        <th>Identificación</th>
+                        <th>Nacimiento</th>
+                        <th>Género</th>
+                        <th>Categoría</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for n in nadadores %}
+
+                    <tr class="nadador-row">
+
+                        <!-- Identidad -->
+                        <td>
+
+                            <a
+                                href="{{ url_for(
+                                    'ficha_nadador',
+                                    nadador_id=n.id
+                                ) }}"
+                                class="nadador-link"
+                                title="Abrir ficha del nadador"
+                            >
+
+                                <div class="nadador-identidad">
+
+                                    <div class="nadador-avatar">
+                                        {{ n.nombre[:1]|upper }}
+                                        {{ n.apellido[:1]|upper }}
+                                    </div>
+
+                                    <div class="nadador-datos">
+
+                                        <strong class="nadador-nombre">
+                                            {{ n.nombre }}
+                                            {{ n.apellido }}
+                                        </strong>
+
+                                        <span class="nadador-ficha-link">
+                                            <i class="fas fa-id-card"></i>
+                                            Ver ficha completa
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </a>
+
+                        </td>
+
+                        <!-- RUT -->
+                        <td>
+
+                            {% if n.rut %}
+
+                            <span class="rut-value">
+                                <i class="fas fa-address-card"></i>
+                                {{ n.rut }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="dato-vacio">
+                                Sin RUT
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Fecha -->
+                        <td class="text-nowrap">
+
+                            {% if n.fecha_nacimiento %}
+
+                                {% if n.fecha_nacimiento.strftime is defined %}
+
+                                <span class="fecha-nacimiento">
+                                    <i class="fas fa-cake-candles"></i>
+                                    {{ n.fecha_nacimiento.strftime('%d/%m/%Y') }}
+                                </span>
+
+                                {% else %}
+
+                                <span class="fecha-nacimiento">
+                                    <i class="fas fa-cake-candles"></i>
+                                    {{ n.fecha_nacimiento }}
+                                </span>
+
+                                {% endif %}
+
+                            {% else %}
+
+                            <span class="dato-vacio">
+                                Sin fecha
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Género -->
+                        <td>
+
+                            {% if n.genero == 'Masculino' %}
+
+                            <span class="genero-badge genero-masculino">
+                                <i class="fas fa-mars"></i>
+                                Masculino
+                            </span>
+
+                            {% elif n.genero == 'Femenino' %}
+
+                            <span class="genero-badge genero-femenino">
+                                <i class="fas fa-venus"></i>
+                                Femenino
+                            </span>
+
+                            {% elif n.genero %}
+
+                            <span class="genero-badge genero-otro">
+                                {{ n.genero }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="dato-vacio">
+                                Sin género
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Categoría -->
+                        <td>
+
+                            <span class="categoria-badge">
+                                <i class="fas fa-layer-group"></i>
+                                {{ n.categoria_master or 'Sin categoría' }}
+                            </span>
+
+                        </td>
+
+                        <!-- Acciones -->
+                        <td class="text-center">
+
+                            <div class="acciones-desktop">
+
                                 <a
                                     href="{{ url_for(
                                         'ficha_nadador',
                                         nadador_id=n.id
                                     ) }}"
-                                    class="nombre-nadador text-decoration-none"
-                                    title="Abrir ficha del nadador"
+                                    class="accion-btn accion-ficha"
+                                    title="Ficha del nadador"
                                 >
-                                    <div class="d-flex align-items-center gap-2">
-
-                                        <div class="avatar-mini">
-                                            {{ n.nombre[:1]|upper }}
-                                            {{ n.apellido[:1]|upper }}
-                                        </div>
-
-                                        <div>
-                                            <strong>
-                                                {{ n.nombre }}
-                                                {{ n.apellido }}
-                                            </strong>
-
-                                            <div class="small text-muted">
-                                                Ver ficha completa
-                                            </div>
-                                        </div>
-
-                                    </div>
+                                    <i class="fas fa-id-card"></i>
                                 </a>
-                            </td>
 
-                            <td>
-                                {{ n.rut or '—' }}
-                            </td>
+                                <a
+                                    href="{{ url_for(
+                                        'progreso_nadador1',
+                                        nadador_id=n.id
+                                    ) }}"
+                                    class="accion-btn accion-progreso"
+                                    title="Ver progreso"
+                                >
+                                    <i class="fas fa-chart-line"></i>
+                                </a>
 
-                            <td class="text-nowrap">
-                                {% if n.fecha_nacimiento and n.fecha_nacimiento.strftime is defined %}
-                                    {{ n.fecha_nacimiento.strftime('%d/%m/%Y') }}
-                                {% else %}
-                                    {{ n.fecha_nacimiento or '—' }}
-                                {% endif %}
-                            </td>
+                                <a
+                                    href="{{ url_for(
+                                        'agregar',
+                                        nadador_id=n.id
+                                    ) }}"
+                                    class="accion-btn accion-agregar"
+                                    title="Agregar tiempo"
+                                >
+                                    <i class="fas fa-plus"></i>
+                                </a>
 
-                            <td>
-                                {{ n.genero or '—' }}
-                            </td>
+                                <a
+                                    href="{{ url_for(
+                                        'tiempos_nadador',
+                                        nadador_id=n.id
+                                    ) }}"
+                                    class="accion-btn accion-tiempos"
+                                    title="Ver tiempos"
+                                >
+                                    <i class="fas fa-stopwatch"></i>
+                                </a>
 
-                            <td>
-                                <span class="badge categoria-badge">
-                                    {{ n.categoria_master or 'Sin categoría' }}
-                                </span>
-                            </td>
-
-                            <td class="text-center text-nowrap">
-
-                                <div class="btn-group btn-group-sm" role="group">
-
-                                    <a
-                                        href="{{ url_for(
-                                            'ficha_nadador',
-                                            nadador_id=n.id
-                                        ) }}"
-                                        class="btn btn-info text-white"
-                                        title="Ficha del nadador"
-                                    >
-                                        <i class="fas fa-id-card"></i>
-                                    </a>
-
-                                    <a
-                                        href="{{ url_for(
-                                            'progreso_nadador1',
-                                            nadador_id=n.id
-                                        ) }}"
-                                        class="btn btn-outline-info"
-                                        title="Ver progreso"
-                                    >
-                                        <i class="fas fa-chart-line"></i>
-                                    </a>
-
-                                    <a
-                                        href="{{ url_for(
-                                            'agregar',
-                                            nadador_id=n.id
-                                        ) }}"
-                                        class="btn btn-success"
-                                        title="Agregar tiempo"
-                                    >
-                                        <i class="fas fa-plus"></i>
-                                    </a>
-
-                                    <a
-                                        href="{{ url_for(
-                                            'tiempos_nadador',
-                                            nadador_id=n.id
-                                        ) }}"
-                                        class="btn btn-primary"
-                                        title="Ver tiempos"
-                                    >
-                                        <i class="fas fa-stopwatch"></i>
-                                    </a>
-
-                                    <a
-                                        href="{{ url_for(
-                                            'editar_nadador',
-                                            nadador_id=n.id
-                                        ) }}"
-                                        class="btn btn-warning"
-                                        title="Editar nadador"
-                                    >
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-
-                                </div>
+                                <a
+                                    href="{{ url_for(
+                                        'editar_nadador',
+                                        nadador_id=n.id
+                                    ) }}"
+                                    class="accion-btn accion-editar"
+                                    title="Editar nadador"
+                                >
+                                    <i class="fas fa-pen"></i>
+                                </a>
 
                                 <form
                                     method="POST"
@@ -223,64 +348,940 @@
                                         nadador_id=n.id
                                     ) }}"
                                     class="d-inline"
-                                    onsubmit="return confirm(
-                                        '¿Eliminar a {{ n.nombre }} {{ n.apellido }}? Esta acción puede afectar sus registros relacionados.'
-                                    )"
+                                    onsubmit="return confirmarEliminacion(
+                                        '{{ n.nombre|e }}',
+                                        '{{ n.apellido|e }}'
+                                    );"
                                 >
+
                                     <button
                                         type="submit"
-                                        class="btn btn-danger btn-sm ms-1"
+                                        class="accion-btn accion-eliminar"
                                         title="Eliminar nadador"
                                     >
-                                        <i class="fas fa-trash"></i>
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
+
                                 </form>
 
-                            </td>
+                            </div>
 
-                        </tr>
+                            <!-- Acciones móviles -->
+                            <div class="dropdown acciones-mobile">
 
-                        {% else %}
+                                <button
+                                    class="btn dropdown-toggle acciones-dropdown"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                    <i class="fas fa-ellipsis-vertical"></i>
+                                    Acciones
+                                </button>
 
-                        <tr>
-                            <td
-                                colspan="6"
-                                class="text-center text-muted py-5"
-                            >
-                                <i class="fas fa-users fa-2x d-block mb-3"></i>
-                                No hay nadadores registrados.
-                            </td>
-                        </tr>
+                                <ul class="dropdown-menu dropdown-menu-end">
 
-                        {% endfor %}
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="{{ url_for(
+                                                'ficha_nadador',
+                                                nadador_id=n.id
+                                            ) }}"
+                                        >
+                                            <i class="fas fa-id-card"></i>
+                                            Ver ficha
+                                        </a>
+                                    </li>
 
-                    </tbody>
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="{{ url_for(
+                                                'progreso_nadador1',
+                                                nadador_id=n.id
+                                            ) }}"
+                                        >
+                                            <i class="fas fa-chart-line"></i>
+                                            Ver progreso
+                                        </a>
+                                    </li>
 
-                </table>
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="{{ url_for(
+                                                'agregar',
+                                                nadador_id=n.id
+                                            ) }}"
+                                        >
+                                            <i class="fas fa-plus"></i>
+                                            Agregar tiempo
+                                        </a>
+                                    </li>
 
-            </div>
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="{{ url_for(
+                                                'tiempos_nadador',
+                                                nadador_id=n.id
+                                            ) }}"
+                                        >
+                                            <i class="fas fa-stopwatch"></i>
+                                            Ver tiempos
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="{{ url_for(
+                                                'editar_nadador',
+                                                nadador_id=n.id
+                                            ) }}"
+                                        >
+                                            <i class="fas fa-pen"></i>
+                                            Editar nadador
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+
+                                    <li>
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for(
+                                                'eliminar_nadador',
+                                                nadador_id=n.id
+                                            ) }}"
+                                            onsubmit="return confirmarEliminacion(
+                                                '{{ n.nombre|e }}',
+                                                '{{ n.apellido|e }}'
+                                            );"
+                                        >
+
+                                            <button
+                                                type="submit"
+                                                class="dropdown-item dropdown-delete"
+                                            >
+                                                <i class="fas fa-trash-alt"></i>
+                                                Eliminar nadador
+                                            </button>
+
+                                        </form>
+
+                                    </li>
+
+                                </ul>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="6">
+
+                            <div class="empty-state">
+
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-users-slash"></i>
+                                </div>
+
+                                <h3>
+                                    No hay nadadores registrados
+                                </h3>
+
+                                <p>
+                                    Registra un nuevo nadador o importa un archivo
+                                    CSV para comenzar.
+                                </p>
+
+                                <div class="empty-actions">
+
+                                    <a
+                                        href="{{ url_for('agregar_nadador') }}"
+                                        class="btn btn-nuevo-empty"
+                                    >
+                                        <i class="fas fa-user-plus me-1"></i>
+                                        Nuevo Nadador
+                                    </a>
+
+                                    <a
+                                        href="{{ url_for('importar_nadadores') }}"
+                                        class="btn btn-importar-empty"
+                                    >
+                                        <i class="fas fa-file-import me-1"></i>
+                                        Importar CSV
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
 
         </div>
-    </div>
 
+        <!-- Sin resultados -->
+        <div
+            id="sinResultadosBusqueda"
+            class="search-empty d-none"
+        >
+
+            <div class="search-empty-icon">
+                <i class="fas fa-search"></i>
+            </div>
+
+            <h3>
+                No se encontraron nadadores
+            </h3>
+
+            <p class="mb-0">
+                Intenta buscar utilizando otro nombre, RUT, género o categoría.
+            </p>
+
+        </div>
+
+        <!-- Pie de tabla -->
+        {% if nadadores %}
+
+        <div class="table-footer">
+
+            <span>
+                Mostrando
+                <strong id="cantidadVisible">
+                    {{ nadadores|length }}
+                </strong>
+                de
+                <strong>
+                    {{ nadadores|length }}
+                </strong>
+                nadadores
+            </span>
+
+            <span class="table-footer-help">
+                Haz clic en el nombre para abrir la ficha.
+            </span>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+    <!-- Accesos complementarios -->
+    <section class="nadadores-help mt-4">
+
+        <div class="nadadores-help-icon">
+            <i class="fas fa-circle-info"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                Gestión de información
+            </strong>
+
+            <p class="mb-0">
+                La categoría Master se calcula automáticamente a partir de la
+                fecha de nacimiento. Eliminar un nadador puede afectar sus
+                registros relacionados.
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- Volver -->
     <div class="text-center mt-4">
+
         <a
             href="{{ url_for('index') }}"
-            class="btn btn-secondary"
+            class="btn btn-volver"
         >
-            ← Volver al Inicio
+            <i class="fas fa-arrow-left me-1"></i>
+            Volver al Inicio
         </a>
+
     </div>
 
 </div>
 
 <style>
-    .buscador-nadadores {
-        width: 360px;
-        max-width: 100%;
+    .nadadores-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
     }
 
-    .avatar-mini {
+    /* Hero */
+    .nadadores-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
+    }
+
+    .nadadores-hero::before {
+        position: absolute;
+        top: -100px;
+        right: 150px;
+        width: 250px;
+        height: 250px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
+    }
+
+    .nadadores-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .nadadores-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
+
+    .nadadores-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .nadadores-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .nadadores-subtitle {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
+
+    .nadadores-hero-actions {
+        display: flex;
+        min-width: 245px;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .nadadores-total {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 13px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .nadadores-total-numero {
+        font-size: 1.9rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .nadadores-total-texto {
+        margin-top: 5px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.69rem;
+    }
+
+    .hero-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .btn-importar,
+    .btn-nuevo {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.65rem 0.8rem;
+        border-radius: 10px;
+        font-size: 0.76rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .btn-importar {
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        background: rgba(255, 255, 255, 0.10);
+    }
+
+    .btn-importar:hover {
+        color: #007d7f;
+        border-color: #ffffff;
+        background: #ffffff;
+    }
+
+    .btn-nuevo {
+        color: #007d7f;
+        border: 1px solid #ffffff;
+        background: #ffffff;
+    }
+
+    .btn-nuevo:hover {
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.62);
+        background: rgba(255, 255, 255, 0.14);
+    }
+
+    /* Herramientas */
+    .toolbar-card {
+        padding: 18px 20px;
+        border: 1px solid #dceaea;
+        border-radius: 17px;
+        background: #ffffff;
+        box-shadow:
+            0 6px 18px
+            rgba(25, 68, 70, 0.06);
+    }
+
+    .toolbar-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+    }
+
+    .toolbar-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .toolbar-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.18rem;
+        font-weight: 850;
+    }
+
+    .toolbar-description {
+        color: #79898b;
+        font-size: 0.77rem;
+    }
+
+    .nadadores-search {
+        position: relative;
+        width: min(390px, 100%);
+    }
+
+    .nadadores-search > i {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        z-index: 2;
+        color: #829193;
+        transform: translateY(-50%);
+    }
+
+    .nadadores-search input {
+        min-height: 45px;
+        padding-right: 44px;
+        padding-left: 40px;
+        border-color: #d7e7e7;
+        border-radius: 12px;
+        font-size: 0.83rem;
+    }
+
+    .search-clear {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        z-index: 2;
+        width: 32px;
+        height: 32px;
+        color: #788789;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        transform: translateY(-50%);
+    }
+
+    .search-clear:hover {
+        color: #007d7f;
+        background: #eaf9f9;
+    }
+
+    /* Tabla */
+    .nadadores-card {
+        overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .nadadores-table thead th {
+        padding: 12px 16px;
+        color: #68787a;
+        border-bottom: 1px solid #dce7e7;
+        background: #f5f9f9;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .nadadores-table tbody td {
+        padding: 13px 16px;
+        color: #526365;
+        border-color: #edf2f2;
+        font-size: 0.81rem;
+    }
+
+    .nadador-row {
+        transition: background 0.15s ease;
+    }
+
+    .nadador-row:hover {
+        background: #f8fdfd;
+    }
+
+    .nadador-link {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .nadador-identidad {
+        display: flex;
+        min-width: 190px;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .nadador-avatar {
+        display: inline-flex;
+        width: 43px;
+        height: 43px;
+        min-width: 43px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 13px;
+        background:
+            linear-gradient(
+                135deg,
+                #009294,
+                #00b4b6
+            );
+        box-shadow:
+            0 4px 10px
+            rgba(0, 126, 128, 0.17);
+        font-size: 0.78rem;
+        font-weight: 850;
+        letter-spacing: 0.04em;
+    }
+
+    .nadador-datos {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .nadador-nombre {
+        color: #2e4041;
+        font-size: 0.87rem;
+        transition: color 0.15s ease;
+    }
+
+    .nadador-link:hover .nadador-nombre {
+        color: #009294;
+    }
+
+    .nadador-ficha-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 3px;
+        color: #839193;
+        font-size: 0.65rem;
+    }
+
+    .rut-value,
+    .fecha-nacimiento {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .rut-value i,
+    .fecha-nacimiento i {
+        color: #009294;
+    }
+
+    .dato-vacio {
+        color: #9aa5a7;
+        font-size: 0.74rem;
+        font-style: italic;
+    }
+
+    .genero-badge,
+    .categoria-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 0.4rem 0.58rem;
+        border-radius: 9px;
+        font-size: 0.68rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .genero-masculino {
+        color: #2465a8;
+        border: 1px solid #c9dcf2;
+        background: #edf5fd;
+    }
+
+    .genero-femenino {
+        color: #a54875;
+        border: 1px solid #efd2df;
+        background: #fff0f6;
+    }
+
+    .genero-otro {
+        color: #5e6c6e;
+        border: 1px solid #dce4e4;
+        background: #f2f5f5;
+    }
+
+    .categoria-badge {
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        background: #eaf9f9;
+    }
+
+    /* Acciones */
+    .acciones-desktop {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+
+    .accion-btn {
+        display: inline-flex;
+        width: 33px;
+        height: 33px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        background: transparent;
+        font-size: 0.76rem;
+        text-decoration: none;
+        transition:
+            color 0.15s ease,
+            background 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .accion-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .accion-ficha {
+        color: #007d7f;
+        border-color: #bfe4e4;
+        background: #eaf9f9;
+    }
+
+    .accion-ficha:hover {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .accion-progreso {
+        color: #286cae;
+        border-color: #c9dcf2;
+        background: #edf5fd;
+    }
+
+    .accion-progreso:hover {
+        color: #ffffff;
+        border-color: #2878c7;
+        background: #2878c7;
+    }
+
+    .accion-agregar {
+        color: #16875a;
+        border-color: #c4e7d7;
+        background: #ebf8f2;
+    }
+
+    .accion-agregar:hover {
+        color: #ffffff;
+        border-color: #16875a;
+        background: #16875a;
+    }
+
+    .accion-tiempos {
+        color: #815da1;
+        border-color: #dfd1eb;
+        background: #f5eef9;
+    }
+
+    .accion-tiempos:hover {
+        color: #ffffff;
+        border-color: #815da1;
+        background: #815da1;
+    }
+
+    .accion-editar {
+        color: #9b7112;
+        border-color: #ebd99f;
+        background: #fff8e4;
+    }
+
+    .accion-editar:hover {
+        color: #ffffff;
+        border-color: #b9871b;
+        background: #b9871b;
+    }
+
+    .accion-eliminar {
+        color: #bd3e3e;
+        border-color: #efcaca;
+        background: #fff0f0;
+    }
+
+    .accion-eliminar:hover {
+        color: #ffffff;
+        border-color: #c84343;
+        background: #c84343;
+    }
+
+    .acciones-mobile {
+        display: none;
+    }
+
+    .acciones-dropdown {
+        padding: 0.4rem 0.65rem;
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        border-radius: 9px;
+        background: #eaf9f9;
+        font-size: 0.73rem;
+        font-weight: 750;
+    }
+
+    .acciones-mobile .dropdown-menu {
+        min-width: 190px;
+        padding: 6px;
+        border: 1px solid #dce7e7;
+        border-radius: 12px;
+        box-shadow:
+            0 13px 30px
+            rgba(25, 68, 70, 0.14);
+    }
+
+    .acciones-mobile .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 0.55rem 0.65rem;
+        border-radius: 8px;
+        color: #4d5e60;
+        font-size: 0.76rem;
+    }
+
+    .acciones-mobile .dropdown-item i {
+        width: 16px;
+        color: #009294;
+        text-align: center;
+    }
+
+    .acciones-mobile .dropdown-item:hover {
+        background: #edfafa;
+    }
+
+    .acciones-mobile .dropdown-delete {
+        width: 100%;
+        color: #bd3e3e;
+        border: 0;
+        background: transparent;
+        text-align: left;
+    }
+
+    .acciones-mobile .dropdown-delete i {
+        color: #bd3e3e;
+    }
+
+    /* Estados vacíos */
+    .empty-state,
+    .search-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 48px 20px;
+        color: #768688;
+        text-align: center;
+    }
+
+    .empty-state-icon,
+    .search-empty-icon {
+        display: inline-flex;
+        width: 68px;
+        height: 68px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        color: #009294;
+        border-radius: 50%;
+        background: #eaf9f9;
+        font-size: 1.6rem;
+    }
+
+    .empty-state h3,
+    .search-empty h3 {
+        margin-bottom: 6px;
+        color: #3f5153;
+        font-size: 1.05rem;
+        font-weight: 850;
+    }
+
+    .empty-state p,
+    .search-empty p {
+        max-width: 520px;
+        font-size: 0.79rem;
+    }
+
+    .empty-actions {
+        display: flex;
+        gap: 9px;
+        margin-top: 17px;
+    }
+
+    .btn-nuevo-empty,
+    .btn-importar-empty {
+        padding: 0.62rem 0.9rem;
+        border-radius: 10px;
+        font-size: 0.77rem;
+        font-weight: 750;
+    }
+
+    .btn-nuevo-empty {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .btn-nuevo-empty:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    .btn-importar-empty {
+        color: #007d7f;
+        border-color: #bfe4e4;
+        background: #eaf9f9;
+    }
+
+    .btn-importar-empty:hover {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    /* Pie de tabla */
+    .table-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 17px;
+        color: #7a898b;
+        border-top: 1px solid #e4eded;
+        background: #f8fbfb;
+        font-size: 0.7rem;
+    }
+
+    .table-footer strong {
+        color: #007d7f;
+    }
+
+    .table-footer-help {
+        color: #8a9799;
+    }
+
+    /* Información */
+    .nadadores-help {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 19px;
+        color: #667779;
+        border: 1px solid #bfe4e4;
+        border-radius: 15px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #eaf9f9
+            );
+    }
+
+    .nadadores-help-icon {
         display: inline-flex;
         width: 38px;
         height: 38px;
@@ -288,77 +1289,213 @@
         align-items: center;
         justify-content: center;
         color: #ffffff;
-        background: #00a8a8;
-        border-radius: 50%;
-        font-size: 0.78rem;
-        font-weight: 800;
-        letter-spacing: 0.03em;
+        border-radius: 11px;
+        background: #009294;
     }
 
-    .nombre-nadador {
-        color: #212529;
+    .nadadores-help strong {
+        color: #3d4f51;
+        font-size: 0.83rem;
     }
 
-    .nombre-nadador:hover {
-        color: #00a8a8;
+    .nadadores-help p {
+        margin-top: 3px;
+        font-size: 0.74rem;
+        line-height: 1.5;
     }
 
-    .categoria-badge {
+    .btn-volver {
+        padding: 0.68rem 1.1rem;
         color: #ffffff;
-        background: #00a8a8;
-        padding: 0.45rem 0.65rem;
-        font-weight: 600;
+        border-color: #647477;
+        border-radius: 11px;
+        background: #647477;
+        font-weight: 700;
     }
 
-    #tablaNadadores th,
-    #tablaNadadores td {
-        padding: 0.7rem 0.75rem;
-        vertical-align: middle;
+    .btn-volver:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
     }
 
-    #tablaNadadores tbody tr {
-        transition: background-color 0.12s ease;
-    }
+    /* Responsive */
+    @media (max-width: 1199px) {
+        .acciones-desktop {
+            display: none;
+        }
 
-    #tablaNadadores tbody tr:hover {
-        background-color: #f4fbfc;
+        .acciones-mobile {
+            display: inline-block;
+        }
     }
 
     @media (max-width: 768px) {
-        #tablaNadadores th,
-        #tablaNadadores td {
-            padding: 0.55rem;
-            font-size: 0.85rem;
+        .nadadores-hero-content {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 27px 22px;
         }
 
-        .btn-group .btn {
-            padding: 0.3rem 0.45rem;
+        .nadadores-hero-actions {
+            width: 100%;
+        }
+
+        .nadadores-total {
+            width: 100%;
+        }
+
+        .toolbar-content {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .nadadores-search {
+            width: 100%;
+        }
+
+        .nadadores-title {
+            font-size: 2rem;
+        }
+
+        .table-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .nadadores-hero {
+            border-radius: 18px;
+        }
+
+        .hero-buttons {
+            grid-template-columns: 1fr;
+        }
+
+        .nadadores-table tbody td,
+        .nadadores-table thead th {
+            padding-right: 11px;
+            padding-left: 11px;
+        }
+
+        .empty-actions {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .empty-actions .btn {
+            width: 100%;
+        }
+
+        .nadadores-help {
+            padding: 15px;
         }
     }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const buscador = document.getElementById('buscarNadador');
-    const filas = document.querySelectorAll(
-        '#tablaNadadores tbody tr'
-    );
+    document.addEventListener("DOMContentLoaded", function () {
+        const buscador =
+            document.getElementById("buscarNadador");
 
-    buscador.addEventListener('input', function () {
-        const texto = buscador.value
-            .toLowerCase()
-            .trim();
+        const limpiar =
+            document.getElementById("limpiarBusqueda");
 
-        filas.forEach(function (fila) {
-            const contenido = fila.textContent
-                .toLowerCase();
+        const filas =
+            document.querySelectorAll(
+                "#tablaNadadores .nadador-row"
+            );
 
-            fila.style.display = contenido.includes(texto)
-                ? ''
-                : 'none';
-        });
+        const sinResultados =
+            document.getElementById(
+                "sinResultadosBusqueda"
+            );
+
+        const cantidadVisible =
+            document.getElementById(
+                "cantidadVisible"
+            );
+
+        function aplicarBusqueda() {
+            if (!buscador) {
+                return;
+            }
+
+            const texto =
+                buscador.value
+                    .toLowerCase()
+                    .trim();
+
+            let visibles = 0;
+
+            filas.forEach(function (fila) {
+                const contenido =
+                    fila.textContent
+                        .toLowerCase()
+                        .trim();
+
+                const coincide =
+                    contenido.includes(texto);
+
+                fila.style.display =
+                    coincide ? "" : "none";
+
+                if (coincide) {
+                    visibles++;
+                }
+            });
+
+            if (cantidadVisible) {
+                cantidadVisible.textContent =
+                    visibles;
+            }
+
+            if (limpiar) {
+                limpiar.classList.toggle(
+                    "d-none",
+                    texto === ""
+                );
+            }
+
+            if (sinResultados) {
+                sinResultados.classList.toggle(
+                    "d-none",
+                    visibles > 0 || texto === ""
+                );
+            }
+        }
+
+        if (buscador) {
+            buscador.addEventListener(
+                "input",
+                aplicarBusqueda
+            );
+        }
+
+        if (limpiar) {
+            limpiar.addEventListener(
+                "click",
+                function () {
+                    buscador.value = "";
+                    buscador.focus();
+                    aplicarBusqueda();
+                }
+            );
+        }
     });
-});
+
+    function confirmarEliminacion(nombre, apellido) {
+        return confirm(
+            '¿Eliminar a "' +
+            nombre +
+            " " +
+            apellido +
+            '"?\n\n' +
+            "Esta acción puede eliminar o afectar sus tiempos " +
+            "y registros relacionados. No se puede deshacer."
+        );
+    }
 </script>
 
 {% endblock %}
