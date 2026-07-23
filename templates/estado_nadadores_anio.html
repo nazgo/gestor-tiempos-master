@@ -1,151 +1,1364 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Estado de Nadadores {{ anio }} | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
 
-    <div class="text-center mb-4">
-        <h2 class="fw-bold text-primary">
-            Estado de Nadadores {{ anio }}
-        </h2>
+<div class="estado-nadadores-page">
 
-        <p class="text-muted">
-            Activos e inactivos según tiempos registrados
-        </p>
-    </div>
+    <!-- Encabezado -->
+    <section class="estado-hero mb-4">
 
-    <div class="row g-4">
+        <div class="estado-hero-content">
 
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 h-100">
+            <div>
 
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-user-check"></i>
-                        Activos ({{ activos|length }})
-                    </h5>
+                <div class="estado-kicker">
+                    <i class="fas fa-users-viewfinder"></i>
+                    Actividad deportiva
                 </div>
 
-                <div class="card-body p-0">
-                    <div class="table-responsive">
+                <h1 class="estado-title">
+                    Estado de Nadadores
+                </h1>
 
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Nadador</th>
-                                    <th>Categoría</th>
-                                    <th>Género</th>
-                                    <th class="text-end">
-                                        Tiempos
-                                    </th>
-                                </tr>
-                            </thead>
+                <p class="estado-subtitle mb-0">
+                    Clasificación de nadadores activos e inactivos según
+                    los tiempos registrados durante la temporada {{ anio }}.
+                </p>
 
-                            <tbody>
-                                {% for n in activos %}
-                                <tr>
-                                    <td>
-                                        {{ n.apellido }}
-                                        {{ n.nombre }}
-                                    </td>
+            </div>
 
-                                    <td>
-                                        {{ n.categoria_master or '—' }}
-                                    </td>
-                                    
-                                    <td>
-                                        {{ n.genero or '—' }}
-                                    </td>
+            <div class="estado-season">
 
-                                    <td class="text-end fw-bold">
+                <span class="season-label">
+                    Temporada
+                </span>
+
+                <span class="season-year">
+                    {{ anio }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Resumen -->
+    <section class="row g-3 mb-4">
+
+        <div class="col-sm-6 col-xl-4">
+
+            <article class="summary-card h-100">
+
+                <div class="summary-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+
+                <div>
+
+                    <div class="summary-number">
+                        {{ activos|length + inactivos|length }}
+                    </div>
+
+                    <div class="summary-label">
+                        Nadadores totales
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <div class="col-sm-6 col-xl-4">
+
+            <article class="summary-card h-100">
+
+                <div class="summary-icon summary-icon-active">
+                    <i class="fas fa-user-check"></i>
+                </div>
+
+                <div>
+
+                    <div class="summary-number">
+                        {{ activos|length }}
+                    </div>
+
+                    <div class="summary-label">
+                        Nadadores activos
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <div class="col-sm-6 col-xl-4">
+
+            <article class="summary-card h-100">
+
+                <div class="summary-icon summary-icon-inactive">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+
+                <div>
+
+                    <div class="summary-number">
+                        {{ inactivos|length }}
+                    </div>
+
+                    <div class="summary-label">
+                        Nadadores inactivos
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- Barra informativa -->
+    <section class="estado-toolbar mb-4">
+
+        <div>
+
+            <div class="toolbar-kicker">
+                Clasificación anual
+            </div>
+
+            <h2 class="toolbar-title">
+                Actividad por temporada
+            </h2>
+
+            <p class="toolbar-description mb-0">
+                Un nadador se considera activo cuando tiene al menos un tiempo
+                registrado durante {{ anio }}.
+            </p>
+
+        </div>
+
+        <div class="toolbar-search">
+
+            <i class="fas fa-search"></i>
+
+            <input
+                type="search"
+                id="buscarNadador"
+                class="form-control"
+                placeholder="Buscar nadador..."
+                autocomplete="off"
+            >
+
+            <button
+                type="button"
+                id="limpiarBusqueda"
+                class="search-clear d-none"
+                title="Limpiar búsqueda"
+                aria-label="Limpiar búsqueda"
+            >
+                <i class="fas fa-times"></i>
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- Paneles -->
+    <section class="row g-4">
+
+        <!-- Activos -->
+        <div class="col-xl-6">
+
+            <article class="estado-panel h-100">
+
+                <header class="panel-header panel-header-active">
+
+                    <div>
+
+                        <div class="panel-kicker">
+                            Con actividad
+                        </div>
+
+                        <h2 class="panel-title">
+                            Nadadores activos
+                        </h2>
+
+                        <p class="panel-description mb-0">
+                            Con tiempos registrados durante {{ anio }}.
+                        </p>
+
+                    </div>
+
+                    <span class="panel-count panel-count-active">
+                        {{ activos|length }}
+                    </span>
+
+                </header>
+
+                <div class="table-responsive">
+
+                    <table
+                        class="table estado-table align-middle mb-0"
+                        id="tablaActivos"
+                    >
+
+                        <thead>
+                            <tr>
+                                <th>Nadador</th>
+                                <th>Categoría</th>
+                                <th>Género</th>
+                                <th class="text-end">Tiempos</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for n in activos %}
+
+                            <tr class="nadador-row">
+
+                                <td>
+
+                                    <div class="nadador-cell">
+
+                                        <div class="nadador-avatar">
+                                            {{ n.nombre[:1]|upper }}
+                                            {{ n.apellido[:1]|upper }}
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                {{ n.apellido }}
+                                                {{ n.nombre }}
+                                            </strong>
+
+                                            <span>
+                                                Activo en {{ anio }}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="category-badge">
+                                        <i class="fas fa-layer-group"></i>
+                                        {{ n.categoria_master or 'Sin categoría' }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    {% if n.genero == 'Masculino' %}
+
+                                    <span class="gender-badge gender-male">
+                                        <i class="fas fa-mars"></i>
+                                        Masculino
+                                    </span>
+
+                                    {% elif n.genero == 'Femenino' %}
+
+                                    <span class="gender-badge gender-female">
+                                        <i class="fas fa-venus"></i>
+                                        Femenino
+                                    </span>
+
+                                    {% elif n.genero %}
+
+                                    <span class="gender-badge gender-other">
+                                        {{ n.genero }}
+                                    </span>
+
+                                    {% else %}
+
+                                    <span class="data-empty">
+                                        Sin género
+                                    </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td class="text-end">
+
+                                    <span class="times-badge">
                                         {{ n.total_tiempos }}
-                                    </td>
-                                </tr>
+                                    </span>
 
-                                {% else %}
-                                <tr>
-                                    <td
-                                        colspan="3"
-                                        class="text-center text-muted py-4"
-                                    >
-                                        No hay nadadores activos.
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </td>
 
-                    </div>
+                            </tr>
+
+                            {% else %}
+
+                            <tr>
+
+                                <td colspan="4">
+
+                                    <div class="empty-state">
+
+                                        <div class="empty-state-icon">
+                                            <i class="fas fa-user-check"></i>
+                                        </div>
+
+                                        <h3>
+                                            No hay nadadores activos
+                                        </h3>
+
+                                        <p>
+                                            No existen tiempos registrados durante
+                                            la temporada {{ anio }}.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
                 </div>
-            </div>
+
+                {% if activos %}
+
+                <div class="panel-footer">
+
+                    <span>
+                        Mostrando
+                        <strong id="activosVisibles">
+                            {{ activos|length }}
+                        </strong>
+                        de
+                        <strong>
+                            {{ activos|length }}
+                        </strong>
+                    </span>
+
+                    <span>
+                        Ordenados según la consulta del sistema
+                    </span>
+
+                </div>
+
+                {% endif %}
+
+            </article>
+
         </div>
 
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 h-100">
+        <!-- Inactivos -->
+        <div class="col-xl-6">
 
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-user-times"></i>
-                        Inactivos ({{ inactivos|length }})
-                    </h5>
-                </div>
+            <article class="estado-panel h-100">
 
-                <div class="card-body p-0">
-                    <div class="table-responsive">
+                <header class="panel-header panel-header-inactive">
 
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Nadador</th>
-                                    <th>Categoría</th>
-                                    <th>Género</th>
-                                </tr>
-                            </thead>
+                    <div>
 
-                            <tbody>
-                                {% for n in inactivos %}
-                                <tr>
-                                    <td>
-                                        {{ n.apellido }}
-                                        {{ n.nombre }}
-                                    </td>
+                        <div class="panel-kicker">
+                            Sin actividad
+                        </div>
 
-                                    <td>
-                                        {{ n.categoria_master or '—' }}
-                                    </td>
+                        <h2 class="panel-title">
+                            Nadadores inactivos
+                        </h2>
 
-                                    <td>
-                                        {{ n.genero or '—' }}
-                                    </td>
-                                </tr>
-
-                                {% else %}
-                                <tr>
-                                    <td
-                                        colspan="3"
-                                        class="text-center text-muted py-4"
-                                    >
-                                        No hay nadadores inactivos.
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                        <p class="panel-description mb-0">
+                            Sin tiempos registrados durante {{ anio }}.
+                        </p>
 
                     </div>
+
+                    <span class="panel-count panel-count-inactive">
+                        {{ inactivos|length }}
+                    </span>
+
+                </header>
+
+                <div class="table-responsive">
+
+                    <table
+                        class="table estado-table align-middle mb-0"
+                        id="tablaInactivos"
+                    >
+
+                        <thead>
+                            <tr>
+                                <th>Nadador</th>
+                                <th>Categoría</th>
+                                <th>Género</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for n in inactivos %}
+
+                            <tr class="nadador-row">
+
+                                <td>
+
+                                    <div class="nadador-cell">
+
+                                        <div class="nadador-avatar avatar-inactive">
+                                            {{ n.nombre[:1]|upper }}
+                                            {{ n.apellido[:1]|upper }}
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                {{ n.apellido }}
+                                                {{ n.nombre }}
+                                            </strong>
+
+                                            <span>
+                                                Sin actividad en {{ anio }}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="category-badge">
+                                        <i class="fas fa-layer-group"></i>
+                                        {{ n.categoria_master or 'Sin categoría' }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    {% if n.genero == 'Masculino' %}
+
+                                    <span class="gender-badge gender-male">
+                                        <i class="fas fa-mars"></i>
+                                        Masculino
+                                    </span>
+
+                                    {% elif n.genero == 'Femenino' %}
+
+                                    <span class="gender-badge gender-female">
+                                        <i class="fas fa-venus"></i>
+                                        Femenino
+                                    </span>
+
+                                    {% elif n.genero %}
+
+                                    <span class="gender-badge gender-other">
+                                        {{ n.genero }}
+                                    </span>
+
+                                    {% else %}
+
+                                    <span class="data-empty">
+                                        Sin género
+                                    </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                            {% else %}
+
+                            <tr>
+
+                                <td colspan="3">
+
+                                    <div class="empty-state">
+
+                                        <div class="empty-state-icon">
+                                            <i class="fas fa-user-clock"></i>
+                                        </div>
+
+                                        <h3>
+                                            No hay nadadores inactivos
+                                        </h3>
+
+                                        <p>
+                                            Todos los nadadores tienen actividad
+                                            registrada durante {{ anio }}.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
                 </div>
-            </div>
+
+                {% if inactivos %}
+
+                <div class="panel-footer">
+
+                    <span>
+                        Mostrando
+                        <strong id="inactivosVisibles">
+                            {{ inactivos|length }}
+                        </strong>
+                        de
+                        <strong>
+                            {{ inactivos|length }}
+                        </strong>
+                    </span>
+
+                    <span>
+                        Sin tiempos en la temporada
+                    </span>
+
+                </div>
+
+                {% endif %}
+
+            </article>
+
         </div>
 
-    </div>
+    </section>
 
-    <div class="text-center mt-4">
+    <!-- Sin resultados -->
+    <section
+        id="sinResultadosBusqueda"
+        class="search-empty d-none mt-4"
+    >
+
+        <div class="search-empty-icon">
+            <i class="fas fa-search"></i>
+        </div>
+
+        <h3>
+            No se encontraron nadadores
+        </h3>
+
+        <p class="mb-0">
+            Intenta buscar utilizando otro nombre, apellido,
+            categoría o género.
+        </p>
+
+    </section>
+
+    <!-- Información -->
+    <section class="estado-help mt-4">
+
+        <div class="estado-help-icon">
+            <i class="fas fa-circle-info"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                Criterio de actividad
+            </strong>
+
+            <p class="mb-0">
+                Esta clasificación depende exclusivamente de la existencia
+                de tiempos registrados dentro del año seleccionado. No indica
+                asistencia a entrenamientos ni vigencia administrativa.
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- Navegación -->
+    <div class="page-actions mt-4">
+
         <a
             href="{{ url_for('estadisticas_club') }}"
-            class="btn btn-secondary"
+            class="btn btn-back"
         >
-            ← Volver a Estadísticas
+            <i class="fas fa-arrow-left me-1"></i>
+            Volver a Estadísticas
         </a>
+
+        <a
+            href="{{ url_for('nadadores') }}"
+            class="btn btn-nadadores"
+        >
+            <i class="fas fa-users me-1"></i>
+            Ver Nadadores
+        </a>
+
     </div>
 
 </div>
+
+<style>
+    .estado-nadadores-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
+    }
+
+    /* Hero */
+    .estado-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
+    }
+
+    .estado-hero::before {
+        position: absolute;
+        top: -100px;
+        right: 150px;
+        width: 250px;
+        height: 250px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
+    }
+
+    .estado-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .estado-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
+
+    .estado-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .estado-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .estado-subtitle {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
+
+    .estado-season {
+        display: flex;
+        min-width: 150px;
+        flex-direction: column;
+        align-items: center;
+        padding: 17px 20px;
+        border: 1px solid rgba(255, 255, 255, 0.23);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .season-label {
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 0.67rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+    }
+
+    .season-year {
+        margin-top: 4px;
+        font-size: 2rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    /* Resumen */
+    .summary-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 17px;
+        border: 1px solid #dceaea;
+        border-radius: 17px;
+        background: #ffffff;
+        box-shadow:
+            0 6px 17px
+            rgba(25, 68, 70, 0.06);
+    }
+
+    .summary-icon {
+        display: inline-flex;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border-radius: 14px;
+        background: #eaf9f9;
+        font-size: 1.1rem;
+    }
+
+    .summary-icon-active {
+        color: #16875a;
+        background: #e9f8f1;
+    }
+
+    .summary-icon-inactive {
+        color: #6c7b7d;
+        background: #eef2f2;
+    }
+
+    .summary-number {
+        color: #2e4041;
+        font-size: 1.55rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .summary-label {
+        margin-top: 5px;
+        color: #819092;
+        font-size: 0.69rem;
+    }
+
+    /* Toolbar */
+    .estado-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+        padding: 18px 20px;
+        border: 1px solid #dceaea;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .toolbar-kicker,
+    .panel-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .toolbar-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.2rem;
+        font-weight: 850;
+    }
+
+    .toolbar-description {
+        color: #79898b;
+        font-size: 0.77rem;
+    }
+
+    .toolbar-search {
+        position: relative;
+        width: min(330px, 100%);
+    }
+
+    .toolbar-search > i {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        z-index: 2;
+        color: #829193;
+        transform: translateY(-50%);
+    }
+
+    .toolbar-search input {
+        min-height: 43px;
+        padding-right: 42px;
+        padding-left: 38px;
+        border-color: #d7e7e7;
+        border-radius: 11px;
+        font-size: 0.81rem;
+    }
+
+    .search-clear {
+        position: absolute;
+        top: 50%;
+        right: 7px;
+        z-index: 2;
+        width: 30px;
+        height: 30px;
+        color: #788789;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        transform: translateY(-50%);
+    }
+
+    .search-clear:hover {
+        color: #007d7f;
+        background: #eaf9f9;
+    }
+
+    /* Paneles */
+    .estado-panel {
+        overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 18px 20px;
+        border-bottom: 1px solid #e3eded;
+    }
+
+    .panel-header-active {
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #effbf6
+            );
+    }
+
+    .panel-header-inactive {
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #f4f7f7
+            );
+    }
+
+    .panel-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.15rem;
+        font-weight: 850;
+    }
+
+    .panel-description {
+        color: #79898b;
+        font-size: 0.75rem;
+    }
+
+    .panel-count {
+        display: inline-flex;
+        min-width: 42px;
+        height: 42px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 850;
+    }
+
+    .panel-count-active {
+        color: #11754d;
+        background: #e7f7ef;
+    }
+
+    .panel-count-inactive {
+        color: #627173;
+        background: #e9eeee;
+    }
+
+    /* Tabla */
+    .estado-table thead th {
+        padding: 11px 14px;
+        color: #68787a;
+        border-bottom: 1px solid #dce7e7;
+        background: #f5f9f9;
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .estado-table tbody td {
+        padding: 12px 14px;
+        color: #526365;
+        border-color: #edf2f2;
+        font-size: 0.78rem;
+    }
+
+    .estado-table tbody tr:hover {
+        background: #f8fdfd;
+    }
+
+    .nadador-cell {
+        display: flex;
+        min-width: 180px;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .nadador-avatar {
+        display: inline-flex;
+        width: 39px;
+        height: 39px;
+        min-width: 39px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 12px;
+        background:
+            linear-gradient(
+                135deg,
+                #009294,
+                #00b4b6
+            );
+        font-size: 0.72rem;
+        font-weight: 850;
+        letter-spacing: 0.04em;
+    }
+
+    .avatar-inactive {
+        background:
+            linear-gradient(
+                135deg,
+                #7b898b,
+                #a1adaf
+            );
+    }
+
+    .nadador-cell > div:last-child {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .nadador-cell strong {
+        color: #344648;
+        font-size: 0.8rem;
+    }
+
+    .nadador-cell span {
+        margin-top: 2px;
+        color: #8a9799;
+        font-size: 0.63rem;
+    }
+
+    .category-badge,
+    .gender-badge,
+    .times-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 0.39rem 0.56rem;
+        border-radius: 9px;
+        font-size: 0.67rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .category-badge {
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        background: #eaf9f9;
+    }
+
+    .gender-male {
+        color: #2465a8;
+        border: 1px solid #c9dcf2;
+        background: #edf5fd;
+    }
+
+    .gender-female {
+        color: #a54875;
+        border: 1px solid #efd2df;
+        background: #fff0f6;
+    }
+
+    .gender-other {
+        color: #5e6c6e;
+        border: 1px solid #dce4e4;
+        background: #f2f5f5;
+    }
+
+    .times-badge {
+        min-width: 42px;
+        color: #ffffff;
+        background: #16875a;
+    }
+
+    .data-empty {
+        color: #9aa5a7;
+        font-size: 0.71rem;
+        font-style: italic;
+    }
+
+    .panel-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 11px 15px;
+        color: #7b8a8c;
+        border-top: 1px solid #e3eded;
+        background: #f8fbfb;
+        font-size: 0.67rem;
+    }
+
+    .panel-footer strong {
+        color: #007d7f;
+    }
+
+    /* Estados vacíos */
+    .empty-state,
+    .search-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 45px 20px;
+        color: #768688;
+        text-align: center;
+    }
+
+    .empty-state-icon,
+    .search-empty-icon {
+        display: inline-flex;
+        width: 64px;
+        height: 64px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 14px;
+        color: #009294;
+        border-radius: 50%;
+        background: #eaf9f9;
+        font-size: 1.5rem;
+    }
+
+    .empty-state h3,
+    .search-empty h3 {
+        margin-bottom: 6px;
+        color: #3f5153;
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    .empty-state p,
+    .search-empty p {
+        max-width: 500px;
+        font-size: 0.77rem;
+    }
+
+    .search-empty {
+        border: 1px dashed #bfd9da;
+        border-radius: 17px;
+        background: #ffffff;
+    }
+
+    /* Ayuda */
+    .estado-help {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 19px;
+        color: #667779;
+        border: 1px solid #bfe4e4;
+        border-radius: 15px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #eaf9f9
+            );
+    }
+
+    .estado-help-icon {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 11px;
+        background: #009294;
+    }
+
+    .estado-help strong {
+        color: #3d4f51;
+        font-size: 0.83rem;
+    }
+
+    .estado-help p {
+        margin-top: 3px;
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    /* Navegación */
+    .page-actions {
+        display: flex;
+        justify-content: center;
+        gap: 9px;
+    }
+
+    .btn-back,
+    .btn-nadadores {
+        padding: 0.68rem 1.1rem;
+        border-radius: 11px;
+        font-weight: 700;
+    }
+
+    .btn-back {
+        color: #ffffff;
+        border-color: #647477;
+        background: #647477;
+    }
+
+    .btn-back:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    .btn-nadadores {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .btn-nadadores:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .estado-hero-content {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 27px 22px;
+        }
+
+        .estado-season {
+            width: 100%;
+        }
+
+        .estado-title {
+            font-size: 2rem;
+        }
+
+        .estado-toolbar {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .toolbar-search {
+            width: 100%;
+        }
+
+        .panel-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .estado-hero {
+            border-radius: 18px;
+        }
+
+        .estado-table tbody td,
+        .estado-table thead th {
+            padding-right: 11px;
+            padding-left: 11px;
+        }
+
+        .page-actions {
+            flex-direction: column;
+        }
+
+        .page-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const buscador =
+            document.getElementById("buscarNadador");
+
+        const limpiar =
+            document.getElementById("limpiarBusqueda");
+
+        const filasActivos =
+            document.querySelectorAll(
+                "#tablaActivos .nadador-row"
+            );
+
+        const filasInactivos =
+            document.querySelectorAll(
+                "#tablaInactivos .nadador-row"
+            );
+
+        const sinResultados =
+            document.getElementById(
+                "sinResultadosBusqueda"
+            );
+
+        const activosVisibles =
+            document.getElementById(
+                "activosVisibles"
+            );
+
+        const inactivosVisibles =
+            document.getElementById(
+                "inactivosVisibles"
+            );
+
+        function filtrarFilas(
+            filas,
+            texto
+        ) {
+            let visibles = 0;
+
+            filas.forEach(function (fila) {
+                const contenido =
+                    fila.textContent
+                        .toLowerCase()
+                        .trim();
+
+                const coincide =
+                    contenido.includes(texto);
+
+                fila.style.display =
+                    coincide ? "" : "none";
+
+                if (coincide) {
+                    visibles++;
+                }
+            });
+
+            return visibles;
+        }
+
+        function aplicarBusqueda() {
+            if (!buscador) {
+                return;
+            }
+
+            const texto =
+                buscador.value
+                    .toLowerCase()
+                    .trim();
+
+            const totalActivos =
+                filtrarFilas(
+                    filasActivos,
+                    texto
+                );
+
+            const totalInactivos =
+                filtrarFilas(
+                    filasInactivos,
+                    texto
+                );
+
+            if (activosVisibles) {
+                activosVisibles.textContent =
+                    totalActivos;
+            }
+
+            if (inactivosVisibles) {
+                inactivosVisibles.textContent =
+                    totalInactivos;
+            }
+
+            if (limpiar) {
+                limpiar.classList.toggle(
+                    "d-none",
+                    texto === ""
+                );
+            }
+
+            if (sinResultados) {
+                sinResultados.classList.toggle(
+                    "d-none",
+                    totalActivos + totalInactivos > 0 ||
+                    texto === ""
+                );
+            }
+        }
+
+        if (buscador) {
+            buscador.addEventListener(
+                "input",
+                aplicarBusqueda
+            );
+        }
+
+        if (limpiar) {
+            limpiar.addEventListener(
+                "click",
+                function () {
+                    buscador.value = "";
+                    buscador.focus();
+                    aplicarBusqueda();
+                }
+            );
+        }
+    });
+</script>
+
 {% endblock %}
