@@ -1,310 +1,1662 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Progreso del Nadador | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
+
 <div class="progreso-page">
-    <div class="container py-4">
 
-        <div class="text-center mb-4">
-            <h1 class="progreso-title">
-                <i class="fas fa-chart-line"></i>
-                Progreso del Nadador
-            </h1>
-            <p class="text-muted mb-0">
-                Evolución de sus marcas a lo largo del tiempo
-            </p>
-        </div>
+    <!-- Encabezado -->
+    <section class="progreso-hero mb-4">
 
-        <div class="card progreso-filtros shadow-sm mb-4">
-            <div class="card-body p-4">
-                <form method="POST" action="{{ url_for('progreso_nadador') }}">
-                    <div class="row g-3 align-items-end">
+        <div class="progreso-hero-content">
 
-                        <div class="col-lg-5 col-md-6">
-                            <label for="nadador_id" class="form-label">Nadador</label>
-                            <select
-                                id="nadador_id"
-                                name="nadador_id"
-                                class="form-select"
-                                required
-                            >
-                                <option value="">Seleccione un nadador</option>
+            <div>
 
-                                {% for n in nadadores %}
-                                    <option
-                                        value="{{ n.id }}"
-                                        {% if filtros.nadador_id == n.id %}selected{% endif %}
-                                    >
-                                        {{ n.nombre }} {{ n.apellido }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="col-lg-3 col-md-6">
-                            <label for="estilo" class="form-label">Estilo</label>
-                            <select
-                                id="estilo"
-                                name="estilo"
-                                class="form-select"
-                                required
-                            >
-                                <option value="">Estilo</option>
-
-                                {% for estilo in estilos %}
-                                    <option
-                                        value="{{ estilo }}"
-                                        {% if filtros.estilo == estilo %}selected{% endif %}
-                                    >
-                                        {{ estilo }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="col-lg-2 col-md-6">
-                            <label for="distancia" class="form-label">Distancia</label>
-                            <select
-                                id="distancia"
-                                name="distancia"
-                                class="form-select"
-                                required
-                            >
-                                <option value="">Dist.</option>
-
-                                {% for distancia in distancias %}
-                                    <option
-                                        value="{{ distancia }}"
-                                        {% if filtros.distancia == distancia %}selected{% endif %}
-                                    >
-                                        {{ distancia }}m
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="col-lg-2 col-md-6">
-                            <label for="piscina" class="form-label">Piscina</label>
-                            <select
-                                id="piscina"
-                                name="piscina"
-                                class="form-select"
-                                required
-                            >
-                                <option value="25 metros"
-                                    {% if filtros.piscina == '25 metros' %}selected{% endif %}
-                                >
-                                    25m
-                                </option>
-
-                                <option value="50 metros"
-                                    {% if filtros.piscina == '50 metros' %}selected{% endif %}
-                                >
-                                    50m
-                                </option>
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <div class="text-center mt-3">
-                        <button type="submit" class="btn btn-primary px-5">
-                            <i class="fas fa-chart-line me-2"></i>
-                            Ver Evolución
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        {% if historial %}
-            <div class="card shadow-sm progreso-resultados">
-                <div class="card-header bg-primary text-white">
-                    <strong>
-                        Evolución de {{ nadador.nombre }} {{ nadador.apellido }}
-                        — {{ filtros.estilo }} {{ filtros.distancia }}m
-                        ({{ '25m' if filtros.piscina == '25 metros' else '50m' }})
-                    </strong>
+                <div class="progreso-kicker">
+                    <i class="fas fa-chart-line"></i>
+                    Análisis de rendimiento
                 </div>
 
-                <div class="card-body">
-                    <div class="grafico-contenedor">
-                        <canvas id="graficoProgreso"></canvas>
-                    </div>
+                <h1 class="progreso-title">
+                    Progreso del Nadador
+                </h1>
 
-                    <h5 class="mt-4 mb-3">Historial detallado</h5>
-
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover align-middle mb-0">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Tiempo</th>
-                                    <th class="text-end">Diferencia con anterior</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {% for registro in historial %}
-                                    <tr>
-                                        <td>
-                                            {% if registro.fecha.strftime is defined %}
-                                                {{ registro.fecha.strftime('%Y-%m-%d') }}
-                                            {% else %}
-                                                {{ registro.fecha }}
-                                            {% endif %}
-                                        </td>
-
-                                        <td>
-                                            <strong>{{ registro.tiempo }}</strong>
-                                        </td>
-
-                                        <td class="text-end">
-                                            {% if registro.diferencia is none %}
-                                                <span class="text-muted">Primer registro</span>
-
-                                            {% elif registro.diferencia < 0 %}
-                                                <span class="text-success">
-                                                    {{ registro.diferencia|round(2) }} seg
-                                                </span>
-
-                                            {% elif registro.diferencia > 0 %}
-                                                <span class="text-danger">
-                                                    +{{ registro.diferencia|round(2) }} seg
-                                                </span>
-
-                                            {% else %}
-                                                <span class="text-muted">0.00 seg</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        {% elif consulta_realizada %}
-            <div class="alert alert-warning text-center py-4">
-                <i class="fas fa-chart-line fa-2x mb-3"></i>
-                <h5>No hay registros para esta selección</h5>
-                <p class="mb-0">
-                    Selecciona otra combinación de estilo, distancia o piscina.
+                <p class="progreso-subtitle mb-0">
+                    Analiza la evolución cronológica de las marcas por prueba
+                    y tipo de piscina.
                 </p>
-            </div>
-        {% endif %}
 
-        <div class="text-center mt-4">
-            <a href="{{ url_for('index') }}" class="btn btn-secondary px-4">
-                ← Volver al Inicio
-            </a>
+            </div>
+
+            <div class="progreso-hero-icon">
+                <i class="fas fa-arrow-trend-up"></i>
+            </div>
+
         </div>
+
+    </section>
+
+    <!-- Filtros -->
+    <section class="filtros-card mb-4">
+
+        <div class="filtros-header">
+
+            <div>
+
+                <div class="filtros-kicker">
+                    Consulta individual
+                </div>
+
+                <h2 class="filtros-title">
+                    Selecciona la prueba
+                </h2>
+
+                <p class="filtros-description mb-0">
+                    Escoge un nadador, estilo, distancia y piscina para
+                    visualizar su evolución.
+                </p>
+
+            </div>
+
+            <div class="filtros-header-icon">
+                <i class="fas fa-sliders"></i>
+            </div>
+
+        </div>
+
+        <form
+            method="POST"
+            action="{{ url_for('progreso_nadador') }}"
+            class="filtros-form"
+        >
+
+            <div class="row g-3 align-items-end">
+
+                <!-- Nadador -->
+                <div class="col-xl-4 col-lg-5 col-md-6">
+
+                    <label
+                        for="nadador_id"
+                        class="form-label filtro-label"
+                    >
+                        <i class="fas fa-user"></i>
+                        Nadador
+                    </label>
+
+                    <select
+                        id="nadador_id"
+                        name="nadador_id"
+                        class="form-select form-select-lg"
+                        required
+                    >
+                        <option value="">
+                            -- Seleccione un nadador --
+                        </option>
+
+                        {% for n in nadadores %}
+
+                        <option
+                            value="{{ n.id }}"
+                            {% if filtros.nadador_id == n.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ n.apellido }}, {{ n.nombre }}
+
+                            {% if n.categoria_master %}
+                                — {{ n.categoria_master }}
+                            {% endif %}
+                        </option>
+
+                        {% endfor %}
+                    </select>
+
+                </div>
+
+                <!-- Estilo -->
+                <div class="col-xl-3 col-lg-3 col-md-6">
+
+                    <label
+                        for="estilo"
+                        class="form-label filtro-label"
+                    >
+                        <i class="fas fa-water"></i>
+                        Estilo
+                    </label>
+
+                    <select
+                        id="estilo"
+                        name="estilo"
+                        class="form-select form-select-lg"
+                        required
+                    >
+                        <option value="">
+                            -- Estilo --
+                        </option>
+
+                        {% for estilo in estilos %}
+
+                        <option
+                            value="{{ estilo }}"
+                            {% if filtros.estilo == estilo %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ estilo }}
+                        </option>
+
+                        {% endfor %}
+                    </select>
+
+                </div>
+
+                <!-- Distancia -->
+                <div class="col-xl-2 col-lg-2 col-md-6">
+
+                    <label
+                        for="distancia"
+                        class="form-label filtro-label"
+                    >
+                        <i class="fas fa-ruler-horizontal"></i>
+                        Distancia
+                    </label>
+
+                    <select
+                        id="distancia"
+                        name="distancia"
+                        class="form-select form-select-lg"
+                        required
+                    >
+                        <option value="">
+                            -- Distancia --
+                        </option>
+
+                        {% for distancia in distancias %}
+
+                        <option
+                            value="{{ distancia }}"
+                            {% if filtros.distancia == distancia %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ distancia }} m
+                        </option>
+
+                        {% endfor %}
+                    </select>
+
+                </div>
+
+                <!-- Piscina -->
+                <div class="col-xl-3 col-lg-2 col-md-6">
+
+                    <label
+                        for="piscina"
+                        class="form-label filtro-label"
+                    >
+                        <i class="fas fa-swimming-pool"></i>
+                        Piscina
+                    </label>
+
+                    <select
+                        id="piscina"
+                        name="piscina"
+                        class="form-select form-select-lg"
+                        required
+                    >
+                        <option
+                            value="25 metros"
+                            {% if filtros.piscina == '25 metros' %}
+                                selected
+                            {% endif %}
+                        >
+                            Piscina 25 m
+                        </option>
+
+                        <option
+                            value="50 metros"
+                            {% if filtros.piscina == '50 metros' %}
+                                selected
+                            {% endif %}
+                        >
+                            Piscina 50 m
+                        </option>
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="filtros-footer">
+
+                <div class="filtros-help">
+                    <i class="fas fa-circle-info"></i>
+                    El gráfico ordena las marcas desde la más antigua
+                    hasta la más reciente.
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-consultar"
+                >
+                    <i class="fas fa-chart-line me-1"></i>
+                    Ver evolución
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+    {% if historial %}
+
+    {% set primer_registro = historial|first %}
+    {% set ultimo_registro = historial|last %}
+
+    <!-- Ficha del nadador -->
+    <section class="nadador-resumen mb-4">
+
+        <div class="nadador-resumen-content">
+
+            <div class="nadador-identidad">
+
+                <div class="nadador-avatar">
+                    {{ nadador.nombre[:1]|upper }}
+                    {{ nadador.apellido[:1]|upper }}
+                </div>
+
+                <div>
+
+                    <div class="nadador-resumen-label">
+                        Evolución deportiva
+                    </div>
+
+                    <h2 class="nadador-nombre">
+                        {{ nadador.nombre }}
+                        {{ nadador.apellido }}
+                    </h2>
+
+                    <div class="nadador-badges">
+
+                        {% if nadador.categoria_master %}
+
+                        <span class="nadador-badge badge-categoria">
+                            <i class="fas fa-layer-group"></i>
+                            {{ nadador.categoria_master }}
+                        </span>
+
+                        {% endif %}
+
+                        {% if nadador.genero %}
+
+                        <span class="nadador-badge badge-genero">
+                            <i class="fas fa-user"></i>
+                            {{ nadador.genero }}
+                        </span>
+
+                        {% endif %}
+
+                        <span class="nadador-badge badge-prueba">
+                            <i class="fas fa-water"></i>
+                            {{ filtros.distancia }} m {{ filtros.estilo }}
+                        </span>
+
+                        <span class="
+                            nadador-badge
+                            {% if filtros.piscina == '25 metros' %}
+                                badge-piscina-25
+                            {% else %}
+                                badge-piscina-50
+                            {% endif %}
+                        ">
+                            <i class="fas fa-swimming-pool"></i>
+
+                            {% if filtros.piscina == '25 metros' %}
+                                Piscina 25 m
+                            {% else %}
+                                Piscina 50 m
+                            {% endif %}
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="nadador-registros">
+
+                <span class="nadador-registros-numero">
+                    {{ historial|length }}
+                </span>
+
+                <span class="nadador-registros-texto">
+                    marcas registradas
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Métricas -->
+    <section class="row g-3 mb-4">
+
+        <!-- Mejor tiempo -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="metrica-card h-100">
+
+                <div class="metrica-top">
+
+                    <div class="metrica-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+
+                    <span class="metrica-kicker">
+                        Mejor marca
+                    </span>
+
+                </div>
+
+                <div class="metrica-tiempo">
+
+                    {% set mejor_tiempo = historial|min(attribute='tiempo_segundos') %}
+
+                    {% if mejor_tiempo and mejor_tiempo.tiempo is defined %}
+                        {{ mejor_tiempo.tiempo }}
+                    {% else %}
+                        —
+                    {% endif %}
+
+                </div>
+
+                <div class="metrica-description">
+                    Tiempo más rápido registrado
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- Primer tiempo -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="metrica-card h-100">
+
+                <div class="metrica-top">
+
+                    <div class="metrica-icon">
+                        <i class="fas fa-flag"></i>
+                    </div>
+
+                    <span class="metrica-kicker">
+                        Marca inicial
+                    </span>
+
+                </div>
+
+                <div class="metrica-tiempo">
+                    {{ primer_registro.tiempo }}
+                </div>
+
+                <div class="metrica-description">
+                    Primer tiempo del historial
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- Último tiempo -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="metrica-card h-100">
+
+                <div class="metrica-top">
+
+                    <div class="metrica-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+
+                    <span class="metrica-kicker">
+                        Última marca
+                    </span>
+
+                </div>
+
+                <div class="metrica-tiempo">
+                    {{ ultimo_registro.tiempo }}
+                </div>
+
+                <div class="metrica-description">
+                    Registro más reciente
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- Mejora total -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="metrica-card h-100">
+
+                <div class="metrica-top">
+
+                    <div class="metrica-icon">
+                        <i class="fas fa-arrow-trend-up"></i>
+                    </div>
+
+                    <span class="metrica-kicker">
+                        Balance total
+                    </span>
+
+                </div>
+
+                {% if primer_registro.tiempo_segundos is defined
+                      and ultimo_registro.tiempo_segundos is defined %}
+
+                    {% set mejora_total =
+                        ultimo_registro.tiempo_segundos
+                        - primer_registro.tiempo_segundos
+                    %}
+
+                    <div class="
+                        metrica-tiempo
+                        {% if mejora_total < 0 %}
+                            metrica-mejora
+                        {% elif mejora_total > 0 %}
+                            metrica-retroceso
+                        {% else %}
+                            metrica-neutra
+                        {% endif %}
+                    ">
+
+                        {% if mejora_total < 0 %}
+                            {{ mejora_total|round(2) }} seg
+
+                        {% elif mejora_total > 0 %}
+                            +{{ mejora_total|round(2) }} seg
+
+                        {% else %}
+                            0.00 seg
+                        {% endif %}
+
+                    </div>
+
+                    <div class="metrica-description">
+
+                        {% if mejora_total < 0 %}
+                            Mejoría desde la primera marca
+
+                        {% elif mejora_total > 0 %}
+                            Diferencia respecto de la primera marca
+
+                        {% else %}
+                            Sin variación entre marcas
+                        {% endif %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="metrica-tiempo metrica-neutra">
+                        —
+                    </div>
+
+                    <div class="metrica-description">
+                        Información no disponible
+                    </div>
+
+                {% endif %}
+
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- Gráfico -->
+    <section class="grafico-card mb-4">
+
+        <header class="grafico-header">
+
+            <div>
+
+                <div class="grafico-kicker">
+                    Tendencia cronológica
+                </div>
+
+                <h2 class="grafico-title">
+                    Evolución de tiempos
+                </h2>
+
+                <p class="grafico-description mb-0">
+                    Los valores más bajos representan mejores marcas.
+                </p>
+
+            </div>
+
+            <div class="grafico-leyenda">
+
+                <span class="leyenda-linea"></span>
+
+                <span>
+                    Tiempo registrado
+                </span>
+
+            </div>
+
+        </header>
+
+        <div class="grafico-body">
+
+            <div class="grafico-contenedor">
+                <canvas id="graficoProgreso"></canvas>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Historial -->
+    <section class="historial-card">
+
+        <header class="historial-header">
+
+            <div>
+
+                <div class="historial-kicker">
+                    Detalle de marcas
+                </div>
+
+                <h2 class="historial-title">
+                    Historial cronológico
+                </h2>
+
+                <p class="historial-description mb-0">
+                    Comparación de cada tiempo con la marca inmediatamente anterior.
+                </p>
+
+            </div>
+
+            <span class="historial-total">
+                {{ historial|length }}
+                registros
+            </span>
+
+        </header>
+
+        <div class="table-responsive">
+
+            <table class="table historial-table align-middle mb-0">
+
+                <thead>
+                    <tr>
+                        <th class="posicion-columna">#</th>
+                        <th>Fecha</th>
+                        <th>Tiempo</th>
+                        <th class="text-end">Variación</th>
+                        <th class="text-center">Resultado</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for registro in historial %}
+
+                    <tr>
+
+                        <td class="posicion-columna">
+
+                            <span class="registro-posicion">
+                                {{ loop.index }}
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <span class="fecha-registro">
+                                <i class="fas fa-calendar-day"></i>
+
+                                {% if registro.fecha
+                                      and registro.fecha.strftime is defined %}
+
+                                    {{ registro.fecha.strftime('%d/%m/%Y') }}
+
+                                {% else %}
+
+                                    {{ registro.fecha or '—' }}
+
+                                {% endif %}
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <span class="tiempo-registro">
+                                {{ registro.tiempo }}
+                            </span>
+
+                        </td>
+
+                        <td class="text-end">
+
+                            {% if registro.diferencia is none %}
+
+                            <span class="diferencia diferencia-inicial">
+                                —
+                            </span>
+
+                            {% elif registro.diferencia < 0 %}
+
+                            <span class="diferencia diferencia-mejora">
+                                <i class="fas fa-arrow-down"></i>
+                                {{ registro.diferencia|round(2) }} seg
+                            </span>
+
+                            {% elif registro.diferencia > 0 %}
+
+                            <span class="diferencia diferencia-retroceso">
+                                <i class="fas fa-arrow-up"></i>
+                                +{{ registro.diferencia|round(2) }} seg
+                            </span>
+
+                            {% else %}
+
+                            <span class="diferencia diferencia-igual">
+                                0.00 seg
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td class="text-center">
+
+                            {% if registro.diferencia is none %}
+
+                            <span class="resultado-badge resultado-inicial">
+                                Primer registro
+                            </span>
+
+                            {% elif registro.diferencia < 0 %}
+
+                            <span class="resultado-badge resultado-mejora">
+                                <i class="fas fa-check-circle"></i>
+                                Mejoró
+                            </span>
+
+                            {% elif registro.diferencia > 0 %}
+
+                            <span class="resultado-badge resultado-retroceso">
+                                <i class="fas fa-circle-exclamation"></i>
+                                Más lento
+                            </span>
+
+                            {% else %}
+
+                            <span class="resultado-badge resultado-igual">
+                                Sin cambio
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+    {% elif consulta_realizada %}
+
+    <!-- Sin resultados -->
+    <section class="sin-resultados">
+
+        <div class="sin-resultados-icono">
+            <i class="fas fa-chart-line"></i>
+        </div>
+
+        <h2>
+            No hay registros para esta selección
+        </h2>
+
+        <p>
+            El nadador seleccionado no tiene tiempos para la combinación
+            de estilo, distancia y piscina indicada.
+        </p>
+
+        <button
+            type="button"
+            class="btn btn-nueva-consulta"
+            onclick="document.getElementById('nadador_id').focus();"
+        >
+            <i class="fas fa-filter me-1"></i>
+            Cambiar selección
+        </button>
+
+    </section>
+
+    {% endif %}
+
+    <!-- Volver -->
+    <div class="text-center mt-4">
+
+        <a
+            href="{{ url_for('index') }}"
+            class="btn btn-volver"
+        >
+            <i class="fas fa-arrow-left me-1"></i>
+            Volver al Inicio
+        </a>
 
     </div>
+
 </div>
 
 {% if historial %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-    const etiquetas = {{ etiquetas|tojson }};
-    const tiempos = {{ tiempos_grafico|tojson }};
+    document.addEventListener("DOMContentLoaded", function () {
+        const etiquetas = {{ etiquetas|tojson }};
+        const tiempos = {{ tiempos_grafico|tojson }};
 
-    const contexto = document
-        .getElementById("graficoProgreso")
-        .getContext("2d");
+        const canvas =
+            document.getElementById("graficoProgreso");
 
-    new Chart(contexto, {
-        type: "line",
-        data: {
-            labels: etiquetas,
-            datasets: [{
-                label: "Tiempo (segundos)",
-                data: tiempos,
-                borderColor: "#6f42d9",
-                backgroundColor: "rgba(111, 66, 217, 0.10)",
-                pointBackgroundColor: "#ffffff",
-                pointBorderColor: "#6f42d9",
-                pointBorderWidth: 3,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                borderWidth: 3,
-                tension: 0.35,
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: "index",
-                intersect: false
+        if (!canvas || typeof Chart === "undefined") {
+            return;
+        }
+
+        function formatearTiempoNatacion(valor) {
+            const totalSegundos = Number(valor);
+
+            if (!Number.isFinite(totalSegundos)) {
+                return "—";
+            }
+
+            const minutos =
+                Math.floor(totalSegundos / 60);
+
+            const segundos =
+                totalSegundos % 60;
+
+            return (
+                String(minutos).padStart(2, "0") +
+                ":" +
+                segundos.toFixed(2).padStart(5, "0")
+            );
+        }
+
+        const contexto = canvas.getContext("2d");
+
+        new Chart(contexto, {
+            type: "line",
+
+            data: {
+                labels: etiquetas,
+
+                datasets: [
+                    {
+                        label: "Tiempo",
+
+                        data: tiempos,
+
+                        borderColor: "#009294",
+
+                        backgroundColor:
+                            "rgba(0, 146, 148, 0.10)",
+
+                        pointBackgroundColor: "#ffffff",
+
+                        pointBorderColor: "#009294",
+
+                        pointHoverBackgroundColor: "#009294",
+
+                        pointHoverBorderColor: "#ffffff",
+
+                        pointBorderWidth: 3,
+
+                        pointRadius: 5,
+
+                        pointHoverRadius: 7,
+
+                        borderWidth: 3,
+
+                        tension: 0.30,
+
+                        fill: true
+                    }
+                ]
             },
-            plugins: {
-                legend: {
-                    display: false
+
+            options: {
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+                    mode: "index",
+                    intersect: false
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.parsed.y.toFixed(2) + " segundos";
+
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+                        backgroundColor:
+                            "rgba(38, 56, 57, 0.94)",
+
+                        padding: 12,
+
+                        titleFont: {
+                            size: 12,
+                            weight: "bold"
+                        },
+
+                        bodyFont: {
+                            size: 13,
+                            weight: "bold"
+                        },
+
+                        displayColors: false,
+
+                        callbacks: {
+                            label: function (context) {
+                                return (
+                                    "Tiempo: " +
+                                    formatearTiempoNatacion(
+                                        context.parsed.y
+                                    )
+                                );
+                            }
                         }
                     }
-                }
-            },
-            scales: {
-                y: {
-                    reverse: true,
-                    title: {
-                        display: true,
-                        text: "Tiempo (segundos)"
+                },
+
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+
+                        ticks: {
+                            color: "#788789",
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 8
+                        },
+
+                        title: {
+                            display: true,
+                            text: "Fecha",
+                            color: "#6f7f81",
+                            font: {
+                                size: 11,
+                                weight: "bold"
+                            }
+                        }
                     },
-                    ticks: {
-                        callback: function(value) {
-                            return Number(value).toFixed(1);
+
+                    y: {
+                        reverse: true,
+
+                        grace: "8%",
+
+                        grid: {
+                            color:
+                                "rgba(111, 135, 137, 0.12)"
+                        },
+
+                        ticks: {
+                            color: "#788789",
+
+                            callback: function (value) {
+                                return formatearTiempoNatacion(
+                                    value
+                                );
+                            }
+                        },
+
+                        title: {
+                            display: true,
+                            text: "Tiempo",
+                            color: "#6f7f81",
+                            font: {
+                                size: 11,
+                                weight: "bold"
+                            }
                         }
                     }
                 }
             }
-        }
+        });
     });
 </script>
+
 {% endif %}
 
 <style>
     .progreso-page {
         min-height: 100vh;
+        padding: 0.5rem 0 2rem;
+    }
+
+    /* Hero */
+    .progreso-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
         background:
-            radial-gradient(circle at center, rgba(111, 66, 217, 0.06), transparent 45%),
-            #f6f3ff;
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
+    }
+
+    .progreso-hero::before {
+        position: absolute;
+        top: -100px;
+        right: 145px;
+        width: 250px;
+        height: 250px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
+    }
+
+    .progreso-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .progreso-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
+
+    .progreso-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
     }
 
     .progreso-title {
-        color: #1769f6;
-        font-weight: 800;
-        font-size: clamp(2rem, 4vw, 3rem);
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
     }
 
-    .progreso-filtros,
-    .progreso-resultados {
-        border: 0;
-        border-radius: 14px;
+    .progreso-subtitle {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
+
+    .progreso-hero-icon {
+        display: inline-flex;
+        width: 100px;
+        height: 100px;
+        min-width: 100px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 27px;
+        background: rgba(255, 255, 255, 0.13);
+        font-size: 2.5rem;
+        backdrop-filter: blur(6px);
+    }
+
+    /* Filtros */
+    .filtros-card,
+    .nadador-resumen,
+    .grafico-card,
+    .historial-card {
         overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
     }
 
-    .progreso-filtros .form-label {
-        font-weight: 600;
-        margin-bottom: 0.35rem;
+    .filtros-header,
+    .grafico-header,
+    .historial-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 19px 21px;
+        border-bottom: 1px solid #e3eded;
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #f2fbfb
+            );
+    }
+
+    .filtros-kicker,
+    .grafico-kicker,
+    .historial-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .filtros-title,
+    .grafico-title,
+    .historial-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.18rem;
+        font-weight: 850;
+    }
+
+    .filtros-description,
+    .grafico-description,
+    .historial-description {
+        color: #79898b;
+        font-size: 0.76rem;
+    }
+
+    .filtros-header-icon {
+        display: inline-flex;
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border-radius: 13px;
+        background: #eaf9f9;
+        font-size: 1.1rem;
+    }
+
+    .filtros-form {
+        padding: 21px;
+    }
+
+    .filtro-label {
+        color: #455658;
+        font-size: 0.76rem;
+        font-weight: 750;
+    }
+
+    .filtro-label i {
+        width: 16px;
+        margin-right: 3px;
+        color: #009294;
+        text-align: center;
+    }
+
+    .filtros-form .form-select {
+        min-height: 48px;
+        border-color: #d7e6e6;
+        border-radius: 11px;
+        font-size: 0.84rem;
+    }
+
+    .filtros-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 19px;
+        padding-top: 17px;
+        border-top: 1px solid #e8eeee;
+    }
+
+    .filtros-help {
+        color: #7a898b;
+        font-size: 0.73rem;
+    }
+
+    .filtros-help i {
+        margin-right: 4px;
+        color: #009294;
+    }
+
+    .btn-consultar {
+        min-width: 180px;
+        padding: 0.68rem 1rem;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.82rem;
+        font-weight: 750;
+    }
+
+    .btn-consultar:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Ficha */
+    .nadador-resumen {
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #eefafa
+            );
+    }
+
+    .nadador-resumen-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 22px;
+    }
+
+    .nadador-identidad {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .nadador-avatar {
+        display: inline-flex;
+        width: 70px;
+        height: 70px;
+        min-width: 70px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border: 3px solid #ffffff;
+        border-radius: 20px;
+        background:
+            linear-gradient(
+                135deg,
+                #009294,
+                #00b4b6
+            );
+        box-shadow:
+            0 6px 16px
+            rgba(0, 126, 128, 0.18);
+        font-size: 1.3rem;
+        font-weight: 850;
+        letter-spacing: 0.06em;
+    }
+
+    .nadador-resumen-label {
+        color: #7c8b8d;
+        font-size: 0.66rem;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .nadador-nombre {
+        margin: 3px 0 7px;
+        color: #2d4041;
+        font-size: 1.5rem;
+        font-weight: 850;
+    }
+
+    .nadador-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .nadador-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0.42rem 0.58rem;
+        border-radius: 9px;
+        font-size: 0.67rem;
+        font-weight: 750;
+    }
+
+    .badge-categoria,
+    .badge-prueba {
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        background: #eaf9f9;
+    }
+
+    .badge-genero {
+        color: #5c6c6e;
+        border: 1px solid #dce5e5;
+        background: #f4f6f6;
+    }
+
+    .badge-piscina-25 {
+        color: #ffffff;
+        background: #2878c7;
+    }
+
+    .badge-piscina-50 {
+        color: #ffffff;
+        background: #009294;
+    }
+
+    .nadador-registros {
+        display: flex;
+        min-width: 135px;
+        flex-direction: column;
+        align-items: center;
+        padding: 14px 18px;
+        border: 1px solid #cde7e7;
+        border-radius: 14px;
+        background: #ffffff;
+    }
+
+    .nadador-registros-numero {
+        color: #009294;
+        font-size: 1.9rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .nadador-registros-texto {
+        margin-top: 5px;
+        color: #7d8c8e;
+        font-size: 0.68rem;
+    }
+
+    /* Métricas */
+    .metrica-card {
+        padding: 18px;
+        border: 1px solid #dceaea;
+        border-radius: 17px;
+        background: #ffffff;
+        box-shadow:
+            0 6px 17px
+            rgba(25, 68, 70, 0.06);
+    }
+
+    .metrica-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .metrica-icon {
+        display: inline-flex;
+        width: 40px;
+        height: 40px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border-radius: 12px;
+        background: #eaf9f9;
+    }
+
+    .metrica-kicker {
+        color: #819092;
+        font-size: 0.64rem;
+        font-weight: 750;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .metrica-tiempo {
+        margin-top: 16px;
+        color: #2d4041;
+        font-size: 1.65rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .metrica-mejora {
+        color: #16875a;
+    }
+
+    .metrica-retroceso {
+        color: #c84343;
+    }
+
+    .metrica-neutra {
+        color: #6f7e80;
+    }
+
+    .metrica-description {
+        margin-top: 7px;
+        color: #839193;
+        font-size: 0.69rem;
+    }
+
+    /* Gráfico */
+    .grafico-leyenda {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #748486;
+        font-size: 0.7rem;
+    }
+
+    .leyenda-linea {
+        width: 24px;
+        height: 3px;
+        border-radius: 999px;
+        background: #009294;
+    }
+
+    .grafico-body {
+        padding: 20px;
     }
 
     .grafico-contenedor {
         position: relative;
-        height: 320px;
+        height: 360px;
     }
 
+    /* Tabla */
+    .historial-total {
+        padding: 0.45rem 0.65rem;
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        border-radius: 9px;
+        background: #eaf9f9;
+        font-size: 0.7rem;
+        font-weight: 750;
+    }
+
+    .historial-table thead th {
+        padding: 11px 15px;
+        color: #68787a;
+        border-bottom: 1px solid #dce7e7;
+        background: #f5f9f9;
+        font-size: 0.67rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .historial-table tbody td {
+        padding: 12px 15px;
+        color: #526365;
+        border-color: #edf2f2;
+        font-size: 0.79rem;
+    }
+
+    .historial-table tbody tr:hover {
+        background: #f8fdfd;
+    }
+
+    .posicion-columna {
+        width: 48px;
+        text-align: center;
+    }
+
+    .registro-posicion {
+        display: inline-flex;
+        width: 27px;
+        height: 27px;
+        align-items: center;
+        justify-content: center;
+        color: #617173;
+        border-radius: 8px;
+        background: #eef3f3;
+        font-size: 0.69rem;
+        font-weight: 850;
+    }
+
+    .fecha-registro {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .fecha-registro i {
+        color: #009294;
+    }
+
+    .tiempo-registro {
+        display: inline-flex;
+        min-width: 82px;
+        justify-content: center;
+        padding: 0.42rem 0.58rem;
+        color: #ffffff;
+        border-radius: 9px;
+        background: #009294;
+        font-size: 0.78rem;
+        font-weight: 800;
+    }
+
+    .diferencia {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.74rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .diferencia-inicial,
+    .diferencia-igual {
+        color: #788789;
+    }
+
+    .diferencia-mejora {
+        color: #16875a;
+    }
+
+    .diferencia-retroceso {
+        color: #c84343;
+    }
+
+    .resultado-badge {
+        display: inline-flex;
+        min-width: 91px;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 0.39rem 0.55rem;
+        border-radius: 9px;
+        font-size: 0.66rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .resultado-inicial,
+    .resultado-igual {
+        color: #687779;
+        background: #edf2f2;
+    }
+
+    .resultado-mejora {
+        color: #11754d;
+        background: #e9f8f1;
+    }
+
+    .resultado-retroceso {
+        color: #b43838;
+        background: #fff0f0;
+    }
+
+    /* Sin resultados */
+    .sin-resultados {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 55px 20px;
+        color: #758587;
+        border: 1px dashed #bfd9da;
+        border-radius: 19px;
+        background: #ffffff;
+        text-align: center;
+    }
+
+    .sin-resultados-icono {
+        display: inline-flex;
+        width: 70px;
+        height: 70px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        color: #009294;
+        border-radius: 50%;
+        background: #eaf9f9;
+        font-size: 1.7rem;
+    }
+
+    .sin-resultados h2 {
+        margin-bottom: 7px;
+        color: #3e5052;
+        font-size: 1.12rem;
+        font-weight: 850;
+    }
+
+    .sin-resultados p {
+        max-width: 560px;
+        font-size: 0.8rem;
+    }
+
+    .btn-nueva-consulta {
+        margin-top: 13px;
+        padding: 0.64rem 0.9rem;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.77rem;
+        font-weight: 750;
+    }
+
+    .btn-nueva-consulta:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    .btn-volver {
+        padding: 0.68rem 1.1rem;
+        color: #ffffff;
+        border-color: #647477;
+        border-radius: 11px;
+        background: #647477;
+        font-weight: 700;
+    }
+
+    .btn-volver:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
+        .progreso-hero-content {
+            padding: 27px 22px;
+        }
+
+        .progreso-hero-icon {
+            display: none;
+        }
+
+        .progreso-title {
+            font-size: 2rem;
+        }
+
+        .filtros-footer {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .btn-consultar {
+            width: 100%;
+        }
+
+        .nadador-resumen-content {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .nadador-registros {
+            width: 100%;
+        }
+
         .grafico-contenedor {
-            height: 280px;
+            height: 300px;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .progreso-hero {
+            border-radius: 18px;
+        }
+
+        .filtros-header-icon,
+        .grafico-leyenda {
+            display: none;
+        }
+
+        .filtros-header,
+        .grafico-header,
+        .historial-header {
+            align-items: flex-start;
+        }
+
+        .nadador-avatar {
+            width: 60px;
+            height: 60px;
+            min-width: 60px;
+            border-radius: 17px;
+            font-size: 1.05rem;
+        }
+
+        .nadador-nombre {
+            font-size: 1.25rem;
+        }
+
+        .historial-table tbody td,
+        .historial-table thead th {
+            padding-right: 11px;
+            padding-left: 11px;
         }
     }
 </style>
+
 {% endblock %}
