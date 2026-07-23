@@ -969,13 +969,13 @@ def editar_competencia(competencia_id):
 
             gestor_tiempos.editar_competencia(
                 competencia_id=competencia_id,
-                fecha=fecha_objeto,
-                mes=mes,
+                fecha=fecha,
                 lugar=lugar,
                 organiza=organiza,
                 nombre=nombre,
                 tipo_piscina=tipo_piscina,
-                estado=estado
+                estado=estado,
+                mes=mes
             )
 
             flash(
