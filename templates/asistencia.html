@@ -1,442 +1,1929 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Asistencia {{ anio }} | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
 
-<div class="container-fluid py-3">
+<div class="asistencia-page">
 
-    <div class="text-center mb-3">
-        <h2 class="fw-bold text-primary mb-1">
-            <i class="fas fa-clipboard-check"></i>
-            Asistencia a Competencias {{ anio }}
-        </h2>
+    <!-- Encabezado -->
+    <section class="asistencia-hero mb-4">
 
-        <p class="text-muted small mb-0">
-            Registro de participación de nadadores por competencia
-        </p>
-    </div>
+        <div class="asistencia-hero-content">
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
+            <div>
 
-            <div class="table-responsive tabla-asistencia">
-                <table class="table table-bordered table-hover table-sm align-middle mb-0 table-asistencias">
+                <div class="asistencia-kicker">
+                    <i class="fas fa-clipboard-check"></i>
+                    Participación deportiva
+                </div>
 
-                    <thead>
-                        <tr>
-                            <th class="columna-nadador">NADADOR(A)</th>
+                <h1 class="asistencia-title">
+                    Asistencia a Competencias
+                </h1>
 
-                            {% for competencia in competencias %}
-                            <th class="columna-competencia">
-                                <div class="nombre-competencia">
-                                    {{ competencia.nombre }}
-                                </div>
-                                <small>
-                                    {% if competencia.fecha.strftime is defined %}
-                                        {{ competencia.fecha.strftime('%d/%m/%Y') }}
-                                    {% else %}
-                                        {{ competencia.fecha }}
-                                    {% endif %}
-                                </small>
-                            </th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
+                <p class="asistencia-subtitle mb-0">
+                    Registro de participación de los nadadores durante
+                    la temporada {{ anio }}.
+                </p>
 
-                    <tbody>
-                        {% for nadador in nadadores %}
-                        <tr>
-                            <td class="columna-nadador fw-semibold">
-                                {{ nadador.apellido }} {{ nadador.nombre }}
-                            </td>
+            </div>
 
-                            {% for competencia in competencias %}
-                                {% set clave = (nadador.id, competencia.id) %}
-                                {% set estado = asistencias.get(clave, 'SIN_REGISTRO') %}
+            <div class="asistencia-season">
 
-                                <td class="text-center celda-asistencia">
-                                    <button
-                                        type="button"
-                                        class="btn-asistencia
-                                            {% if estado == 'PRESENTE' %}
-                                                asistencia-presente
-                                            {% elif estado == 'AUSENTE' %}
-                                                asistencia-ausente
-                                            {% elif estado == 'NO_APLICA' %}
-                                                asistencia-no-aplica
-                                            {% else %}
-                                                asistencia-sin-registro
-                                            {% endif %}"
-                                        data-nadador-id="{{ nadador.id }}"
-                                        data-competencia-id="{{ competencia.id }}"
-                                        data-estado="{{ estado }}"
-                                        title="Haz clic para cambiar el estado"
-                                        aria-label="Cambiar estado de asistencia"
-                                    >
-                                        <span class="simbolo-asistencia">
-                                            {% if estado == 'PRESENTE' %}
-                                                <i class="fas fa-check"></i>
-                                            {% elif estado == 'AUSENTE' %}
-                                                <i class="fas fa-times"></i>
-                                            {% elif estado == 'NO_APLICA' %}
-                                                <i class="fas fa-minus"></i>
-                                            {% else %}
-                                                <i class="far fa-circle"></i>
-                                            {% endif %}
-                                        </span>
-                                    </button>
-                                </td>
-                            {% endfor %}
-                        </tr>
+                <span class="season-label">
+                    Temporada
+                </span>
 
-                        {% else %}
-                        <tr>
-                            <td colspan="{{ competencias|length + 1 }}" class="text-center text-muted py-4">
-                                No hay nadadores registrados.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
+                <span class="season-year">
+                    {{ anio }}
+                </span>
 
-                </table>
             </div>
 
         </div>
-    </div>
 
-    <div class="mt-3 d-flex flex-wrap justify-content-center gap-3 leyenda-asistencia">
-        <span>
-            <strong class="leyenda-presente"><i class="fas fa-check"></i></strong>
-            Participó
-        </span>
-        <span>
-            <strong class="leyenda-ausente"><i class="fas fa-times"></i></strong>
-            No participó
-        </span>
-        <span>
-            <strong class="leyenda-no-aplica"><i class="fas fa-minus"></i></strong>
-            No aplicaba
-        </span>
-        <span>
-            <strong class="leyenda-sin-registro"><i class="far fa-circle"></i></strong>
-            Sin registrar
-        </span>
-    </div>
+    </section>
 
-    <div class="text-center mt-3">
+    <!-- Resumen -->
+    <section class="row g-3 mb-4">
+
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="summary-card h-100">
+
+                <div class="summary-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+
+                <div>
+
+                    <div class="summary-number">
+                        {{ nadadores|length }}
+                    </div>
+
+                    <div class="summary-label">
+                        Nadadores registrados
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="summary-card h-100">
+
+                <div class="summary-icon">
+                    <i class="fas fa-flag-checkered"></i>
+                </div>
+
+                <div>
+
+                    <div class="summary-number">
+                        {{ competencias|length }}
+                    </div>
+
+                    <div class="summary-label">
+                        Competencias
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="summary-card h-100">
+
+                <div class="summary-icon summary-icon-success">
+                    <i class="fas fa-check"></i>
+                </div>
+
+                <div>
+
+                    <div
+                        class="summary-number"
+                        id="contadorPresentes"
+                    >
+                        0
+                    </div>
+
+                    <div class="summary-label">
+                        Participaciones marcadas
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="summary-card h-100">
+
+                <div class="summary-icon summary-icon-pending">
+                    <i class="far fa-circle"></i>
+                </div>
+
+                <div>
+
+                    <div
+                        class="summary-number"
+                        id="contadorPendientes"
+                    >
+                        0
+                    </div>
+
+                    <div class="summary-label">
+                        Registros pendientes
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- Barra de herramientas -->
+    <section class="asistencia-toolbar mb-4">
+
+        <div class="toolbar-content">
+
+            <div>
+
+                <div class="toolbar-kicker">
+                    Matriz de participación
+                </div>
+
+                <h2 class="toolbar-title">
+                    Nadadores y competencias
+                </h2>
+
+                <p class="toolbar-description mb-0">
+                    Haz clic en cada casilla para cambiar su estado.
+                </p>
+
+            </div>
+
+            <div class="toolbar-actions">
+
+                <div class="nadador-search">
+
+                    <i class="fas fa-search"></i>
+
+                    <input
+                        type="search"
+                        id="buscarNadador"
+                        class="form-control"
+                        placeholder="Buscar nadador..."
+                        autocomplete="off"
+                    >
+
+                    <button
+                        type="button"
+                        id="limpiarBusqueda"
+                        class="search-clear d-none"
+                        title="Limpiar búsqueda"
+                        aria-label="Limpiar búsqueda"
+                    >
+                        <i class="fas fa-times"></i>
+                    </button>
+
+                </div>
+
+                <a
+                    href="{{ url_for('seleccionar_anio_asistencias') }}"
+                    class="btn btn-change-year"
+                >
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    Cambiar año
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Leyenda -->
+    <section class="legend-card mb-3">
+
+        <div class="legend-title">
+            Estados:
+        </div>
+
+        <div class="legend-items">
+
+            <span class="legend-item">
+
+                <span class="legend-symbol legend-present">
+                    <i class="fas fa-check"></i>
+                </span>
+
+                Participó
+
+            </span>
+
+            <span class="legend-item">
+
+                <span class="legend-symbol legend-absent">
+                    <i class="fas fa-times"></i>
+                </span>
+
+                No participó
+
+            </span>
+
+            <span class="legend-item">
+
+                <span class="legend-symbol legend-na">
+                    <i class="fas fa-minus"></i>
+                </span>
+
+                No aplicaba
+
+            </span>
+
+            <span class="legend-item">
+
+                <span class="legend-symbol legend-empty">
+                    <i class="far fa-circle"></i>
+                </span>
+
+                Sin registrar
+
+            </span>
+
+        </div>
+
+        <div class="legend-cycle">
+            <i class="fas fa-rotate"></i>
+            Cada clic avanza al siguiente estado
+        </div>
+
+    </section>
+
+    <!-- Tabla -->
+    <section class="attendance-card">
+
+        {% if competencias and nadadores %}
+
+        <div class="table-scroll-hint">
+
+            <i class="fas fa-arrows-left-right"></i>
+
+            Desplázate horizontalmente para consultar todas las competencias.
+
+        </div>
+
+        {% endif %}
+
+        <div class="attendance-table-container">
+
+            <table
+                class="table attendance-table align-middle mb-0"
+                id="tablaAsistencia"
+            >
+
+                <thead>
+
+                    <tr>
+
+                        <th class="swimmer-column">
+
+                            <div class="swimmer-header">
+                                <i class="fas fa-user"></i>
+                                Nadador
+                            </div>
+
+                        </th>
+
+                        {% for competencia in competencias %}
+
+                        <th class="competition-column">
+
+                            <div class="competition-header">
+
+                                <div class="competition-number">
+                                    {{ loop.index }}
+                                </div>
+
+                                <div class="competition-name">
+                                    {{ competencia.nombre }}
+                                </div>
+
+                                <div class="competition-date">
+
+                                    <i class="fas fa-calendar-day"></i>
+
+                                    {% if competencia.fecha
+                                          and competencia.fecha.strftime is defined %}
+
+                                        {{ competencia.fecha.strftime('%d/%m/%Y') }}
+
+                                    {% else %}
+
+                                        {{ competencia.fecha or 'Sin fecha' }}
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </th>
+
+                        {% endfor %}
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for nadador in nadadores %}
+
+                    <tr class="swimmer-row">
+
+                        <td class="swimmer-column">
+
+                            <div class="swimmer-cell">
+
+                                <div class="swimmer-avatar">
+                                    {{ nadador.nombre[:1]|upper }}
+                                    {{ nadador.apellido[:1]|upper }}
+                                </div>
+
+                                <div class="swimmer-data">
+
+                                    <strong>
+                                        {{ nadador.apellido }}
+                                        {{ nadador.nombre }}
+                                    </strong>
+
+                                    {% if nadador.categoria_master %}
+
+                                    <span>
+                                        {{ nadador.categoria_master }}
+                                    </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                        {% for competencia in competencias %}
+
+                            {% set clave = (
+                                nadador.id,
+                                competencia.id
+                            ) %}
+
+                            {% set estado =
+                                asistencias.get(
+                                    clave,
+                                    'SIN_REGISTRO'
+                                )
+                            %}
+
+                        <td class="attendance-cell">
+
+                            <button
+                                type="button"
+                                class="
+                                    attendance-button
+                                    {% if estado == 'PRESENTE' %}
+                                        attendance-present
+                                    {% elif estado == 'AUSENTE' %}
+                                        attendance-absent
+                                    {% elif estado == 'NO_APLICA' %}
+                                        attendance-na
+                                    {% else %}
+                                        attendance-empty
+                                    {% endif %}
+                                "
+                                data-nadador-id="{{ nadador.id }}"
+                                data-competencia-id="{{ competencia.id }}"
+                                data-estado="{{ estado }}"
+                                title="
+                                    {% if estado == 'PRESENTE' %}
+                                        Participó
+                                    {% elif estado == 'AUSENTE' %}
+                                        No participó
+                                    {% elif estado == 'NO_APLICA' %}
+                                        No aplicaba
+                                    {% else %}
+                                        Sin registrar
+                                    {% endif %}
+                                "
+                                aria-label="Cambiar estado de asistencia"
+                            >
+
+                                <span class="attendance-symbol">
+
+                                    {% if estado == 'PRESENTE' %}
+
+                                        <i class="fas fa-check"></i>
+
+                                    {% elif estado == 'AUSENTE' %}
+
+                                        <i class="fas fa-times"></i>
+
+                                    {% elif estado == 'NO_APLICA' %}
+
+                                        <i class="fas fa-minus"></i>
+
+                                    {% else %}
+
+                                        <i class="far fa-circle"></i>
+
+                                    {% endif %}
+
+                                </span>
+
+                                <span class="saving-spinner">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+
+                            </button>
+
+                        </td>
+
+                        {% endfor %}
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="{{ competencias|length + 1 }}"
+                        >
+
+                            <div class="empty-state">
+
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-users-slash"></i>
+                                </div>
+
+                                <h3>
+                                    No hay nadadores registrados
+                                </h3>
+
+                                <p>
+                                    Registra nadadores antes de administrar
+                                    su asistencia a competencias.
+                                </p>
+
+                                <a
+                                    href="{{ url_for('nadadores') }}"
+                                    class="btn btn-empty-action"
+                                >
+                                    <i class="fas fa-users me-1"></i>
+                                    Ir a Nadadores
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% if not competencias %}
+
+        <div class="empty-state">
+
+            <div class="empty-state-icon">
+                <i class="fas fa-calendar-xmark"></i>
+            </div>
+
+            <h3>
+                No hay competencias en {{ anio }}
+            </h3>
+
+            <p>
+                Agrega competencias al calendario para comenzar
+                a registrar la participación de los nadadores.
+            </p>
+
+            <a
+                href="{{ url_for('seleccionar_anio_calendario') }}"
+                class="btn btn-empty-action"
+            >
+                <i class="fas fa-calendar-alt me-1"></i>
+                Ir al Calendario
+            </a>
+
+        </div>
+
+        {% endif %}
+
+        <!-- Sin resultados del buscador -->
+        <div
+            id="sinResultadosBusqueda"
+            class="search-empty d-none"
+        >
+
+            <div class="search-empty-icon">
+                <i class="fas fa-search"></i>
+            </div>
+
+            <h3>
+                No se encontraron nadadores
+            </h3>
+
+            <p class="mb-0">
+                Prueba escribiendo otro nombre, apellido o categoría.
+            </p>
+
+        </div>
+
+        {% if nadadores and competencias %}
+
+        <div class="attendance-footer">
+
+            <span>
+
+                Mostrando
+
+                <strong id="cantidadVisible">
+                    {{ nadadores|length }}
+                </strong>
+
+                de
+
+                <strong>
+                    {{ nadadores|length }}
+                </strong>
+
+                nadadores
+
+            </span>
+
+            <span id="estadoGuardado">
+                <i class="fas fa-cloud"></i>
+                Los cambios se guardan automáticamente
+            </span>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+    <!-- Información -->
+    <section class="attendance-help mt-4">
+
+        <div class="attendance-help-icon">
+            <i class="fas fa-circle-info"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                Registro automático
+            </strong>
+
+            <p class="mb-0">
+                Los cambios se guardan inmediatamente. El ciclo de estados es:
+                sin registrar, participó, no participó, no aplicaba y nuevamente
+                sin registrar.
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- Navegación -->
+    <div class="page-actions mt-4">
+
         <a
-    href="{{ url_for('seleccionar_anio_asistencias') }}"
-    class="btn btn-secondary btn-sm"
->
-    ← Elegir otro año
-</a>
+            href="{{ url_for('seleccionar_anio_asistencias') }}"
+            class="btn btn-back"
+        >
+            <i class="fas fa-arrow-left me-1"></i>
+            Elegir otro año
+        </a>
+
+        <a
+            href="{{ url_for('index') }}"
+            class="btn btn-home"
+        >
+            <i class="fas fa-house me-1"></i>
+            Volver al Inicio
+        </a>
+
     </div>
 
 </div>
 
 <style>
-    .tabla-asistencia {
-        max-height: 76vh;
+    .asistencia-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
     }
 
-    .tabla-asistencia table {
-        min-width: 1200px;
+    /* Encabezado */
+    .asistencia-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
     }
 
-    .table-asistencias {
-        font-size: 12px;
-        line-height: 1.1;
+    .asistencia-hero::before {
+        position: absolute;
+        top: -100px;
+        right: 155px;
+        width: 250px;
+        height: 250px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
     }
 
-    .table-asistencias th,
-    .table-asistencias td {
-        padding: 2px 5px !important;
-        height: 28px;
-        vertical-align: middle;
+    .asistencia-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .asistencia-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
+
+    .asistencia-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .asistencia-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .asistencia-subtitle {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
+
+    .asistencia-season {
+        display: flex;
+        min-width: 150px;
+        flex-direction: column;
+        align-items: center;
+        padding: 17px 20px;
+        border: 1px solid rgba(255, 255, 255, 0.23);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .season-label {
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 0.67rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+    }
+
+    .season-year {
+        margin-top: 4px;
+        font-size: 2rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    /* Resumen */
+    .summary-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 17px;
+        border: 1px solid #dceaea;
+        border-radius: 17px;
+        background: #ffffff;
+        box-shadow:
+            0 6px 17px
+            rgba(25, 68, 70, 0.06);
+    }
+
+    .summary-icon {
+        display: inline-flex;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border-radius: 14px;
+        background: #eaf9f9;
+        font-size: 1.1rem;
+    }
+
+    .summary-icon-success {
+        color: #16875a;
+        background: #e9f8f1;
+    }
+
+    .summary-icon-pending {
+        color: #788789;
+        background: #eef3f3;
+    }
+
+    .summary-number {
+        color: #2e4041;
+        font-size: 1.55rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .summary-label {
+        margin-top: 5px;
+        color: #819092;
+        font-size: 0.69rem;
+    }
+
+    /* Herramientas */
+    .asistencia-toolbar,
+    .legend-card,
+    .attendance-card {
+        overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .asistencia-toolbar {
+        padding: 18px 20px;
+    }
+
+    .toolbar-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+    }
+
+    .toolbar-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .toolbar-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.18rem;
+        font-weight: 850;
+    }
+
+    .toolbar-description {
+        color: #79898b;
+        font-size: 0.77rem;
+    }
+
+    .toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .nadador-search {
+        position: relative;
+        width: min(300px, 100%);
+    }
+
+    .nadador-search > i {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        z-index: 2;
+        color: #829193;
+        transform: translateY(-50%);
+    }
+
+    .nadador-search input {
+        min-height: 42px;
+        padding-right: 42px;
+        padding-left: 38px;
+        border-color: #d7e7e7;
+        border-radius: 11px;
+        font-size: 0.8rem;
+    }
+
+    .search-clear {
+        position: absolute;
+        top: 50%;
+        right: 7px;
+        z-index: 2;
+        width: 30px;
+        height: 30px;
+        color: #788789;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        transform: translateY(-50%);
+    }
+
+    .search-clear:hover {
+        color: #007d7f;
+        background: #eaf9f9;
+    }
+
+    .btn-change-year {
+        min-height: 42px;
+        padding: 0.58rem 0.8rem;
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        border-radius: 10px;
+        background: #eaf9f9;
+        font-size: 0.75rem;
+        font-weight: 750;
         white-space: nowrap;
     }
 
-    .tabla-asistencia thead th {
-        position: sticky;
-        top: 0;
-        z-index: 3;
-        background: #25a9c5;
+    .btn-change-year:hover {
         color: #ffffff;
-        text-align: center;
-        vertical-align: middle;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.01em;
-        border-color: rgba(255, 255, 255, 0.2);
+        border-color: #009294;
+        background: #009294;
     }
 
-    .columna-nadador {
-        position: sticky;
-        left: 0;
-        z-index: 2;
-        min-width: 190px;
-        max-width: 220px;
-        background: #d9eaf7 !important;
-        font-size: 12px;
+    /* Leyenda */
+    .legend-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 13px 16px;
     }
 
-    thead .columna-nadador {
-        z-index: 5;
-        background: #25a9c5 !important;
-        color: #ffffff;
+    .legend-title {
+        color: #435456;
+        font-size: 0.75rem;
+        font-weight: 800;
     }
 
-    .columna-competencia {
-        min-width: 112px;
-        max-width: 135px;
-        font-size: 10px !important;
+    .legend-items {
+        display: flex;
+        flex: 1;
+        flex-wrap: wrap;
+        gap: 14px;
     }
 
-    .nombre-competencia {
-        white-space: normal;
-        line-height: 1.05;
-        margin-bottom: 2px;
-        font-weight: 700;
+    .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #617173;
+        font-size: 0.7rem;
+        white-space: nowrap;
     }
 
-    .columna-competencia small {
-        font-size: 9px;
-        opacity: 0.9;
-    }
-
-    .celda-asistencia {
-        min-width: 34px;
-        width: 34px;
-        padding: 1px 2px !important;
-    }
-
-    tbody tr:nth-child(even) td {
-        background-color: #eaf3f9;
-    }
-
-    tbody tr:nth-child(even) .columna-nadador {
-        background-color: #d1e5f3 !important;
-    }
-
-    tbody tr:hover td {
-        background-color: #f3f9fc;
-    }
-
-    tbody tr:hover .columna-nadador {
-        background-color: #cce3f1 !important;
-    }
-
-    .btn-asistencia {
+    .legend-symbol {
+        display: inline-flex;
         width: 24px;
         height: 24px;
-        padding: 0;
-        border: 0;
-        border-radius: 5px;
-        display: inline-flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: 600;
-        line-height: 1;
-        transition: transform 0.1s ease, opacity 0.1s ease, background-color 0.1s ease, box-shadow 0.1s ease;
+        border-radius: 7px;
+        font-size: 0.7rem;
     }
 
-    .btn-asistencia:hover {
-        transform: scale(1.06);
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
+    .legend-present {
+        color: #11754d;
+        background: #e7f7ef;
     }
 
-    .btn-asistencia:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+    .legend-absent {
+        color: #b43838;
+        background: #fff0f0;
     }
 
-    .btn-asistencia:disabled {
-        cursor: wait;
+    .legend-na {
+        color: #59686a;
+        background: #edf1f1;
     }
 
-    .btn-asistencia.guardando {
-        opacity: 0.45;
+    .legend-empty {
+        color: #879496;
+        border: 1px solid #d6dfdf;
+        background: #ffffff;
     }
 
-    .simbolo-asistencia {
+    .legend-cycle {
         display: inline-flex;
         align-items: center;
+        gap: 5px;
+        color: #879496;
+        font-size: 0.67rem;
+        white-space: nowrap;
+    }
+
+    .legend-cycle i {
+        color: #009294;
+    }
+
+    /* Tabla */
+    .table-scroll-hint {
+        display: none;
+        padding: 10px 14px;
+        color: #6f7f81;
+        border-bottom: 1px solid #e3eded;
+        background: #f7fbfb;
+        font-size: 0.7rem;
+        text-align: center;
+    }
+
+    .table-scroll-hint i {
+        margin-right: 4px;
+        color: #009294;
+    }
+
+    .attendance-table-container {
+        overflow: auto;
+        max-height: 72vh;
+    }
+
+    .attendance-table {
+        width: max-content;
+        min-width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.74rem;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        height: 38px;
+        padding: 4px 6px;
+        border-right: 1px solid #e1eaea;
+        border-bottom: 1px solid #e1eaea;
+        vertical-align: middle;
+    }
+
+    .attendance-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        color: #ffffff;
+        background: #008f91;
+        text-align: center;
+    }
+
+    .swimmer-column {
+        position: sticky;
+        left: 0;
+        z-index: 4;
+        min-width: 215px;
+        max-width: 215px;
+        background: #f1f9f9;
+    }
+
+    thead .swimmer-column {
+        z-index: 8;
+        background: #007d7f;
+    }
+
+    .swimmer-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding-left: 5px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .competition-column {
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+    }
+
+    .competition-header {
+        display: flex;
+        min-height: 72px;
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
-        width: 100%;
-        height: 100%;
+        padding: 5px 3px;
     }
 
-    .asistencia-presente {
-        color: #0b57d0;
-        background: #e8f0fe;
-    }
-
-    .asistencia-ausente {
-        color: #b3261e;
-        background: #fce8e6;
-    }
-
-    .asistencia-no-aplica {
-        color: #4f565d;
-        background: #eceff1;
-    }
-
-    .asistencia-sin-registro {
-        color: #8a8f94;
-        background: transparent;
-    }
-
-    .leyenda-asistencia {
-        font-size: 12px;
-        color: #495057;
-    }
-
-    .leyenda-asistencia strong {
+    .competition-number {
         display: inline-flex;
         width: 20px;
         height: 20px;
         align-items: center;
         justify-content: center;
-        border-radius: 4px;
-        margin-right: 4px;
-        font-size: 11px;
+        margin-bottom: 4px;
+        color: #007d7f;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.9);
+        font-size: 0.61rem;
+        font-weight: 850;
     }
 
-    .leyenda-presente {
-        color: #0b57d0;
-        background: #e8f0fe;
+    .competition-name {
+        display: -webkit-box;
+        overflow: hidden;
+        color: #ffffff;
+        font-size: 0.63rem;
+        font-weight: 750;
+        line-height: 1.18;
+        text-align: center;
+        white-space: normal;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
     }
 
-    .leyenda-ausente {
-        color: #b3261e;
-        background: #fce8e6;
+    .competition-date {
+        margin-top: 4px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.56rem;
+        white-space: nowrap;
     }
 
-    .leyenda-no-aplica {
-        color: #4f565d;
-        background: #eceff1;
+    .swimmer-row:nth-child(even) td {
+        background: #f8fbfb;
     }
 
-    .leyenda-sin-registro {
-        color: #8a8f94;
+    .swimmer-row:nth-child(even) .swimmer-column {
+        background: #e9f5f5;
+    }
+
+    .swimmer-row:hover td {
+        background: #f1fbfb;
+    }
+
+    .swimmer-row:hover .swimmer-column {
+        background: #dff2f2;
+    }
+
+    .swimmer-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .swimmer-avatar {
+        display: inline-flex;
+        width: 31px;
+        height: 31px;
+        min-width: 31px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 9px;
+        background:
+            linear-gradient(
+                135deg,
+                #009294,
+                #00b4b6
+            );
+        font-size: 0.58rem;
+        font-weight: 850;
+        letter-spacing: 0.03em;
+    }
+
+    .swimmer-data {
+        display: flex;
+        overflow: hidden;
+        flex-direction: column;
+    }
+
+    .swimmer-data strong {
+        overflow: hidden;
+        color: #354648;
+        font-size: 0.7rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .swimmer-data span {
+        margin-top: 1px;
+        color: #839193;
+        font-size: 0.57rem;
+    }
+
+    .attendance-cell {
+        width: 42px;
+        min-width: 42px;
+        padding: 2px !important;
+        text-align: center;
+    }
+
+    .attendance-button {
+        position: relative;
+        display: inline-flex;
+        width: 28px;
+        height: 28px;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.72rem;
+        transition:
+            transform 0.12s ease,
+            box-shadow 0.12s ease,
+            color 0.12s ease,
+            background 0.12s ease,
+            border-color 0.12s ease;
+    }
+
+    .attendance-button:hover {
+        transform: scale(1.09);
+        box-shadow:
+            0 3px 8px
+            rgba(32, 66, 68, 0.15);
+    }
+
+    .attendance-button:focus-visible {
+        outline: 2px solid rgba(0, 146, 148, 0.35);
+        outline-offset: 2px;
+    }
+
+    .attendance-button:disabled {
+        cursor: wait;
+    }
+
+    .attendance-present {
+        color: #11754d;
+        border-color: #bce4d0;
+        background: #e7f7ef;
+    }
+
+    .attendance-absent {
+        color: #b43838;
+        border-color: #efcaca;
+        background: #fff0f0;
+    }
+
+    .attendance-na {
+        color: #59686a;
+        border-color: #d9e1e1;
+        background: #edf1f1;
+    }
+
+    .attendance-empty {
+        color: #96a2a4;
+        border-color: transparent;
         background: transparent;
-        border: 1px solid #ced4da;
+    }
+
+    .attendance-empty:hover {
+        border-color: #d3e4e4;
+        background: #f3f9f9;
+    }
+
+    .saving-spinner {
+        display: none;
+    }
+
+    .attendance-button.saving .attendance-symbol {
+        display: none;
+    }
+
+    .attendance-button.saving .saving-spinner {
+        display: inline-flex;
+    }
+
+    .attendance-button.saved {
+        animation: savedPulse 0.35s ease;
+    }
+
+    @keyframes savedPulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.18);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    /* Estados vacíos */
+    .empty-state,
+    .search-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 50px 20px;
+        color: #768688;
+        text-align: center;
+    }
+
+    .empty-state-icon,
+    .search-empty-icon {
+        display: inline-flex;
+        width: 68px;
+        height: 68px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        color: #009294;
+        border-radius: 50%;
+        background: #eaf9f9;
+        font-size: 1.6rem;
+    }
+
+    .empty-state h3,
+    .search-empty h3 {
+        margin-bottom: 6px;
+        color: #3f5153;
+        font-size: 1.05rem;
+        font-weight: 850;
+    }
+
+    .empty-state p,
+    .search-empty p {
+        max-width: 530px;
+        font-size: 0.79rem;
+    }
+
+    .btn-empty-action {
+        margin-top: 14px;
+        padding: 0.64rem 0.9rem;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.77rem;
+        font-weight: 750;
+    }
+
+    .btn-empty-action:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    .attendance-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 11px 16px;
+        color: #7b8a8c;
+        border-top: 1px solid #e3eded;
+        background: #f8fbfb;
+        font-size: 0.68rem;
+    }
+
+    .attendance-footer strong {
+        color: #007d7f;
+    }
+
+    #estadoGuardado {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    #estadoGuardado i {
+        color: #009294;
+    }
+
+    #estadoGuardado.saving-state {
+        color: #9a7112;
+    }
+
+    #estadoGuardado.saving-state i {
+        color: #b9871b;
+    }
+
+    #estadoGuardado.error-state {
+        color: #bd3e3e;
+    }
+
+    #estadoGuardado.error-state i {
+        color: #bd3e3e;
+    }
+
+    /* Ayuda */
+    .attendance-help {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 19px;
+        color: #667779;
+        border: 1px solid #bfe4e4;
+        border-radius: 15px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #eaf9f9
+            );
+    }
+
+    .attendance-help-icon {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 11px;
+        background: #009294;
+    }
+
+    .attendance-help strong {
+        color: #3d4f51;
+        font-size: 0.83rem;
+    }
+
+    .attendance-help p {
+        margin-top: 3px;
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    /* Navegación */
+    .page-actions {
+        display: flex;
+        justify-content: center;
+        gap: 9px;
+    }
+
+    .btn-back,
+    .btn-home {
+        padding: 0.68rem 1.1rem;
+        border-radius: 11px;
+        font-weight: 700;
+    }
+
+    .btn-back {
+        color: #ffffff;
+        border-color: #647477;
+        background: #647477;
+    }
+
+    .btn-back:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    .btn-home {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .btn-home:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .table-scroll-hint {
+            display: block;
+        }
+
+        .legend-card {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .legend-cycle {
+            width: 100%;
+        }
     }
 
     @media (max-width: 768px) {
-        .columna-nadador {
-            min-width: 155px;
+        .asistencia-hero-content {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 27px 22px;
+        }
+
+        .asistencia-season {
+            width: 100%;
+        }
+
+        .asistencia-title {
+            font-size: 2rem;
+        }
+
+        .toolbar-content {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .toolbar-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .nadador-search {
+            width: 100%;
+        }
+
+        .btn-change-year {
+            width: 100%;
+        }
+
+        .swimmer-column {
+            min-width: 180px;
             max-width: 180px;
-            font-size: 11px;
         }
 
-        .columna-competencia {
-            min-width: 100px;
-            max-width: 115px;
+        .competition-column {
+            width: 108px;
+            min-width: 108px;
+            max-width: 108px;
         }
 
-        .table-asistencias {
-            font-size: 11px;
+        .attendance-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .asistencia-hero {
+            border-radius: 18px;
+        }
+
+        .summary-card {
+            padding: 14px;
+        }
+
+        .legend-items {
+            gap: 9px;
+        }
+
+        .attendance-table-container {
+            max-height: 68vh;
+        }
+
+        .swimmer-column {
+            min-width: 160px;
+            max-width: 160px;
+        }
+
+        .swimmer-avatar {
+            display: none;
+        }
+
+        .page-actions {
+            flex-direction: column;
+        }
+
+        .page-actions .btn {
+            width: 100%;
         }
     }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const botones = document.querySelectorAll('.btn-asistencia');
+    document.addEventListener("DOMContentLoaded", function () {
+        const botones =
+            document.querySelectorAll(
+                ".attendance-button"
+            );
 
-    const cicloEstados = {
-        'SIN_REGISTRO': 'PRESENTE',
-        'PRESENTE': 'AUSENTE',
-        'AUSENTE': 'NO_APLICA',
-        'NO_APLICA': 'SIN_REGISTRO'
-    };
+        const buscador =
+            document.getElementById(
+                "buscarNadador"
+            );
 
-    const configuracion = {
-        'SIN_REGISTRO': {
-            icono: '<i class="far fa-circle"></i>',
-            clase: 'asistencia-sin-registro'
-        },
-        'PRESENTE': {
-            icono: '<i class="fas fa-check"></i>',
-            clase: 'asistencia-presente'
-        },
-        'AUSENTE': {
-            icono: '<i class="fas fa-times"></i>',
-            clase: 'asistencia-ausente'
-        },
-        'NO_APLICA': {
-            icono: '<i class="fas fa-minus"></i>',
-            clase: 'asistencia-no-aplica'
+        const limpiarBusqueda =
+            document.getElementById(
+                "limpiarBusqueda"
+            );
+
+        const filas =
+            document.querySelectorAll(
+                "#tablaAsistencia .swimmer-row"
+            );
+
+        const sinResultados =
+            document.getElementById(
+                "sinResultadosBusqueda"
+            );
+
+        const cantidadVisible =
+            document.getElementById(
+                "cantidadVisible"
+            );
+
+        const contadorPresentes =
+            document.getElementById(
+                "contadorPresentes"
+            );
+
+        const contadorPendientes =
+            document.getElementById(
+                "contadorPendientes"
+            );
+
+        const estadoGuardado =
+            document.getElementById(
+                "estadoGuardado"
+            );
+
+        const cicloEstados = {
+            SIN_REGISTRO: "PRESENTE",
+            PRESENTE: "AUSENTE",
+            AUSENTE: "NO_APLICA",
+            NO_APLICA: "SIN_REGISTRO"
+        };
+
+        const configuracion = {
+            SIN_REGISTRO: {
+                icono:
+                    '<i class="far fa-circle"></i>',
+
+                clase:
+                    "attendance-empty",
+
+                titulo:
+                    "Sin registrar"
+            },
+
+            PRESENTE: {
+                icono:
+                    '<i class="fas fa-check"></i>',
+
+                clase:
+                    "attendance-present",
+
+                titulo:
+                    "Participó"
+            },
+
+            AUSENTE: {
+                icono:
+                    '<i class="fas fa-times"></i>',
+
+                clase:
+                    "attendance-absent",
+
+                titulo:
+                    "No participó"
+            },
+
+            NO_APLICA: {
+                icono:
+                    '<i class="fas fa-minus"></i>',
+
+                clase:
+                    "attendance-na",
+
+                titulo:
+                    "No aplicaba"
+            }
+        };
+
+        function actualizarContadores() {
+            let presentes = 0;
+            let pendientes = 0;
+
+            botones.forEach(function (boton) {
+                const estado =
+                    boton.dataset.estado;
+
+                if (estado === "PRESENTE") {
+                    presentes++;
+                }
+
+                if (estado === "SIN_REGISTRO") {
+                    pendientes++;
+                }
+            });
+
+            if (contadorPresentes) {
+                contadorPresentes.textContent =
+                    presentes;
+            }
+
+            if (contadorPendientes) {
+                contadorPendientes.textContent =
+                    pendientes;
+            }
         }
-    };
 
-    botones.forEach(function (boton) {
-        boton.addEventListener('click', async function () {
-            if (boton.disabled) {
+        function mostrarEstadoGuardado(
+            tipo,
+            mensaje
+        ) {
+            if (!estadoGuardado) {
                 return;
             }
 
-            const estadoActual = boton.dataset.estado;
-            const nuevoEstado = cicloEstados[estadoActual];
+            estadoGuardado.classList.remove(
+                "saving-state",
+                "error-state"
+            );
 
-            boton.disabled = true;
-            boton.classList.add('guardando');
-
-            try {
-                const respuesta = await fetch(
-                    "{{ url_for('actualizar_asistencia_ajax') }}",
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            nadador_id: boton.dataset.nadadorId,
-                            competencia_id: boton.dataset.competenciaId,
-                            estado: nuevoEstado
-                        })
-                    }
+            if (tipo === "guardando") {
+                estadoGuardado.classList.add(
+                    "saving-state"
                 );
 
-                const resultado = await respuesta.json();
+                estadoGuardado.innerHTML =
+                    '<i class="fas fa-spinner fa-spin"></i>' +
+                    mensaje;
 
-                if (!respuesta.ok || !resultado.ok) {
-                    throw new Error(
-                        resultado.mensaje ||
-                        'No fue posible guardar el estado'
-                    );
-                }
-
-                boton.dataset.estado = nuevoEstado;
-
-                boton.classList.remove(
-                    'asistencia-sin-registro',
-                    'asistencia-presente',
-                    'asistencia-ausente',
-                    'asistencia-no-aplica'
+            } else if (tipo === "error") {
+                estadoGuardado.classList.add(
+                    "error-state"
                 );
 
-                boton.classList.add(
-                    configuracion[nuevoEstado].clase
-                );
+                estadoGuardado.innerHTML =
+                    '<i class="fas fa-triangle-exclamation"></i>' +
+                    mensaje;
 
-                boton.querySelector('.simbolo-asistencia').innerHTML =
-                    configuracion[nuevoEstado].icono;
-
-            } catch (error) {
-                console.error(error);
-                alert('Error al guardar la asistencia: ' + error.message);
-            } finally {
-                boton.disabled = false;
-                boton.classList.remove('guardando');
+            } else {
+                estadoGuardado.innerHTML =
+                    '<i class="fas fa-cloud-check"></i>' +
+                    mensaje;
             }
+        }
+
+        botones.forEach(function (boton) {
+            boton.addEventListener(
+                "click",
+                async function () {
+                    if (boton.disabled) {
+                        return;
+                    }
+
+                    const estadoActual =
+                        boton.dataset.estado;
+
+                    const nuevoEstado =
+                        cicloEstados[estadoActual];
+
+                    boton.disabled = true;
+
+                    boton.classList.add(
+                        "saving"
+                    );
+
+                    mostrarEstadoGuardado(
+                        "guardando",
+                        " Guardando cambio..."
+                    );
+
+                    try {
+                        const respuesta =
+                            await fetch(
+                                "{{ url_for('actualizar_asistencia_ajax') }}",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body: JSON.stringify({
+                                        nadador_id:
+                                            boton.dataset.nadadorId,
+
+                                        competencia_id:
+                                            boton.dataset.competenciaId,
+
+                                        estado:
+                                            nuevoEstado
+                                    })
+                                }
+                            );
+
+                        const resultado =
+                            await respuesta.json();
+
+                        if (
+                            !respuesta.ok ||
+                            !resultado.ok
+                        ) {
+                            throw new Error(
+                                resultado.mensaje ||
+                                "No fue posible guardar el estado"
+                            );
+                        }
+
+                        boton.dataset.estado =
+                            nuevoEstado;
+
+                        boton.classList.remove(
+                            "attendance-empty",
+                            "attendance-present",
+                            "attendance-absent",
+                            "attendance-na"
+                        );
+
+                        boton.classList.add(
+                            configuracion[
+                                nuevoEstado
+                            ].clase
+                        );
+
+                        boton.title =
+                            configuracion[
+                                nuevoEstado
+                            ].titulo;
+
+                        boton
+                            .querySelector(
+                                ".attendance-symbol"
+                            )
+                            .innerHTML =
+                            configuracion[
+                                nuevoEstado
+                            ].icono;
+
+                        boton.classList.add(
+                            "saved"
+                        );
+
+                        window.setTimeout(
+                            function () {
+                                boton.classList.remove(
+                                    "saved"
+                                );
+                            },
+                            400
+                        );
+
+                        actualizarContadores();
+
+                        mostrarEstadoGuardado(
+                            "correcto",
+                            " Cambio guardado"
+                        );
+
+                        window.setTimeout(
+                            function () {
+                                mostrarEstadoGuardado(
+                                    "correcto",
+                                    " Los cambios se guardan automáticamente"
+                                );
+                            },
+                            1700
+                        );
+
+                    } catch (error) {
+                        console.error(error);
+
+                        mostrarEstadoGuardado(
+                            "error",
+                            " Error al guardar"
+                        );
+
+                        alert(
+                            "Error al guardar la asistencia: " +
+                            error.message
+                        );
+
+                    } finally {
+                        boton.disabled = false;
+
+                        boton.classList.remove(
+                            "saving"
+                        );
+                    }
+                }
+            );
         });
+
+        function aplicarBusqueda() {
+            if (!buscador) {
+                return;
+            }
+
+            const texto =
+                buscador.value
+                    .toLowerCase()
+                    .trim();
+
+            let visibles = 0;
+
+            filas.forEach(function (fila) {
+                const contenido =
+                    fila.textContent
+                        .toLowerCase()
+                        .trim();
+
+                const coincide =
+                    contenido.includes(texto);
+
+                fila.style.display =
+                    coincide ? "" : "none";
+
+                if (coincide) {
+                    visibles++;
+                }
+            });
+
+            if (cantidadVisible) {
+                cantidadVisible.textContent =
+                    visibles;
+            }
+
+            if (limpiarBusqueda) {
+                limpiarBusqueda.classList.toggle(
+                    "d-none",
+                    texto === ""
+                );
+            }
+
+            if (sinResultados) {
+                sinResultados.classList.toggle(
+                    "d-none",
+                    visibles > 0 || texto === ""
+                );
+            }
+        }
+
+        if (buscador) {
+            buscador.addEventListener(
+                "input",
+                aplicarBusqueda
+            );
+        }
+
+        if (limpiarBusqueda) {
+            limpiarBusqueda.addEventListener(
+                "click",
+                function () {
+                    buscador.value = "";
+                    buscador.focus();
+                    aplicarBusqueda();
+                }
+            );
+        }
+
+        actualizarContadores();
     });
-});
 </script>
-
-
 
 {% endblock %}
