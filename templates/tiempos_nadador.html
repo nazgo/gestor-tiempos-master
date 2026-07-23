@@ -1,86 +1,315 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
 
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-            <h2 class="mb-1">
-                Tiempos de {{ nadador.nombre }} {{ nadador.apellido }}
-            </h2>
+<div class="tiempos-page">
 
-            <p class="text-muted mb-0">
-                <strong>Categoría:</strong>
-                {{ nadador.categoria_master }}
-            </p>
+    <!-- Encabezado -->
+    <section class="tiempos-hero mb-4">
+
+        <div class="tiempos-hero-content">
+
+            <div>
+
+                <div class="tiempos-kicker">
+                    <i class="fas fa-stopwatch"></i>
+                    Historial competitivo
+                </div>
+
+                <h1 class="tiempos-title">
+                    Tiempos del Nadador
+                </h1>
+
+                <p class="tiempos-subtitle mb-0">
+                    Consulta, agrega, edita y administra las marcas registradas.
+                </p>
+
+            </div>
+
+            <div class="tiempos-hero-icon">
+                <i class="fas fa-business-time"></i>
+            </div>
+
         </div>
 
-        <a
-            href="{{ url_for('agregar', nadador_id=nadador.id) }}"
-            class="btn btn-success"
-        >
-            <i class="fas fa-plus"></i>
-            Agregar Tiempo
-        </a>
-    </div>
+    </section>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
+    <!-- Ficha del nadador -->
+    <section class="nadador-summary-card mb-4">
 
-            <div class="table-responsive">
-                <table class="table table-hover table-striped align-middle mb-0">
+        <div class="nadador-summary-content">
 
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Estilo</th>
-                            <th>Distancia</th>
-                            <th>Piscina</th>
-                            <th>Tiempo</th>
-                            <th>Fecha</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
+            <div class="nadador-identidad">
 
-                    <tbody>
-                        {% for t in tiempos %}
-                        <tr>
-                            <td>
-                                <strong>{{ t.estilo }}</strong>
-                            </td>
+                <div class="nadador-avatar">
+                    {{ nadador.nombre[:1]|upper }}
+                    {{ nadador.apellido[:1]|upper }}
+                </div>
 
-                            <td>
-                                {{ t.distancia }}m
-                            </td>
+                <div>
 
-                            <td>
-                                {{ t.piscina or 'Sin registrar' }}
-                            </td>
+                    <div class="nadador-summary-label">
+                        Historial de marcas de
+                    </div>
 
-                            <td>
-                                <span class="badge bg-success fs-6">
-                                    {{ t.tiempo }}
-                                </span>
-                            </td>
+                    <h2 class="nadador-summary-name">
+                        {{ nadador.nombre }}
+                        {{ nadador.apellido }}
+                    </h2>
 
-                            <td>
-                                {% if t.fecha and t.fecha.strftime is defined %}
+                    <div class="nadador-summary-badges">
+
+                        {% if nadador.categoria_master %}
+
+                        <span class="summary-badge badge-category">
+                            <i class="fas fa-layer-group"></i>
+                            {{ nadador.categoria_master }}
+                        </span>
+
+                        {% endif %}
+
+                        {% if nadador.genero %}
+
+                        <span class="summary-badge badge-gender">
+                            <i class="fas fa-user"></i>
+                            {{ nadador.genero }}
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="nadador-summary-actions">
+
+                <div class="summary-total">
+
+                    <span class="summary-total-number">
+                        {{ tiempos|length }}
+                    </span>
+
+                    <span class="summary-total-label">
+                        tiempos registrados
+                    </span>
+
+                </div>
+
+                <a
+                    href="{{ url_for(
+                        'agregar',
+                        nadador_id=nadador.id
+                    ) }}"
+                    class="btn btn-add-time"
+                >
+                    <i class="fas fa-plus me-1"></i>
+                    Agregar Tiempo
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Barra de búsqueda -->
+    {% if tiempos %}
+
+    <section class="toolbar-card mb-4">
+
+        <div class="toolbar-content">
+
+            <div>
+
+                <div class="toolbar-kicker">
+                    Registros deportivos
+                </div>
+
+                <h2 class="toolbar-title">
+                    Historial completo
+                </h2>
+
+                <p class="toolbar-description mb-0">
+                    Busca por estilo, distancia, piscina, fecha o tiempo.
+                </p>
+
+            </div>
+
+            <div class="tiempos-search">
+
+                <i class="fas fa-search"></i>
+
+                <input
+                    type="search"
+                    id="buscarTiempo"
+                    class="form-control"
+                    placeholder="Buscar en los tiempos..."
+                    autocomplete="off"
+                >
+
+                <button
+                    type="button"
+                    id="limpiarBusqueda"
+                    class="search-clear d-none"
+                    title="Limpiar búsqueda"
+                    aria-label="Limpiar búsqueda"
+                >
+                    <i class="fas fa-times"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+    <!-- Tabla -->
+    <section class="tiempos-card">
+
+        <div class="table-responsive">
+
+            <table
+                id="tablaTiempos"
+                class="table tiempos-table align-middle mb-0"
+            >
+
+                <thead>
+                    <tr>
+                        <th>Prueba</th>
+                        <th>Piscina</th>
+                        <th>Tiempo</th>
+                        <th>Fecha</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for t in tiempos %}
+
+                    <tr class="tiempo-row">
+
+                        <!-- Prueba -->
+                        <td>
+
+                            <div class="prueba-cell">
+
+                                <div class="prueba-icon">
+                                    <i class="fas fa-water"></i>
+                                </div>
+
+                                <div>
+
+                                    <strong class="prueba-title">
+                                        {{ t.distancia }} m
+                                        {{ t.estilo }}
+                                    </strong>
+
+                                    {% if t.categoria %}
+
+                                    <span class="prueba-category">
+                                        {{ t.categoria }}
+                                    </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                        <!-- Piscina -->
+                        <td>
+
+                            {% if t.piscina == '25 metros' %}
+
+                            <span class="pool-badge pool-25">
+                                <i class="fas fa-swimming-pool"></i>
+                                25 m
+                            </span>
+
+                            {% elif t.piscina == '50 metros' %}
+
+                            <span class="pool-badge pool-50">
+                                <i class="fas fa-swimming-pool"></i>
+                                50 m
+                            </span>
+
+                            {% elif t.piscina %}
+
+                            <span class="pool-badge pool-other">
+                                {{ t.piscina }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="data-empty">
+                                Sin registrar
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Tiempo -->
+                        <td>
+
+                            <span class="record-time">
+                                {{ t.tiempo }}
+                            </span>
+
+                        </td>
+
+                        <!-- Fecha -->
+                        <td>
+
+                            {% if t.fecha %}
+
+                            <span class="record-date">
+
+                                <i class="fas fa-calendar-day"></i>
+
+                                {% if t.fecha.strftime is defined %}
                                     {{ t.fecha.strftime('%d/%m/%Y') }}
                                 {% else %}
                                     {{ t.fecha }}
                                 {% endif %}
-                            </td>
 
-                            <td class="text-center text-nowrap">
+                            </span>
+
+                            {% else %}
+
+                            <span class="data-empty">
+                                Sin fecha
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Acciones -->
+                        <td class="text-center">
+
+                            <div class="desktop-actions">
 
                                 <a
                                     href="{{ url_for(
                                         'editar_tiempo',
                                         tiempo_id=t.id
                                     ) }}"
-                                    class="btn btn-warning btn-sm"
+                                    class="action-button action-edit"
+                                    title="Editar tiempo"
                                 >
-                                    <i class="fas fa-edit"></i>
-                                    Editar
+                                    <i class="fas fa-pen"></i>
                                 </a>
 
                                 <form
@@ -90,52 +319,1100 @@
                                         tiempo_id=t.id
                                     ) }}"
                                     class="d-inline"
-                                    onsubmit="return confirm(
-                                        '¿Eliminar definitivamente este tiempo?'
-                                    );"
+                                    onsubmit="return confirmarEliminacion();"
                                 >
+
                                     <button
                                         type="submit"
-                                        class="btn btn-danger btn-sm"
+                                        class="action-button action-delete"
+                                        title="Eliminar tiempo"
                                     >
-                                        <i class="fas fa-trash"></i>
-                                        Eliminar
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
+
                                 </form>
 
-                            </td>
-                        </tr>
+                            </div>
 
-                        {% else %}
-                        <tr>
-                            <td
-                                colspan="6"
-                                class="text-center text-muted py-5"
-                            >
-                                <i class="fas fa-stopwatch fa-2x mb-3"></i>
+                            <!-- Menú móvil -->
+                            <div class="dropdown mobile-actions">
 
-                                <p class="mb-0">
-                                    Este nadador todavía no tiene tiempos registrados.
+                                <button
+                                    type="button"
+                                    class="btn dropdown-toggle actions-dropdown"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                    <i class="fas fa-ellipsis-vertical"></i>
+                                    Acciones
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+
+                                    <li>
+
+                                        <a
+                                            href="{{ url_for(
+                                                'editar_tiempo',
+                                                tiempo_id=t.id
+                                            ) }}"
+                                            class="dropdown-item"
+                                        >
+                                            <i class="fas fa-pen"></i>
+                                            Editar tiempo
+                                        </a>
+
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+
+                                    <li>
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for(
+                                                'eliminar_tiempo',
+                                                tiempo_id=t.id
+                                            ) }}"
+                                            onsubmit="return confirmarEliminacion();"
+                                        >
+
+                                            <button
+                                                type="submit"
+                                                class="dropdown-item dropdown-delete"
+                                            >
+                                                <i class="fas fa-trash-alt"></i>
+                                                Eliminar tiempo
+                                            </button>
+
+                                        </form>
+
+                                    </li>
+
+                                </ul>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="5">
+
+                            <div class="empty-state">
+
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-stopwatch"></i>
+                                </div>
+
+                                <h3>
+                                    No hay tiempos registrados
+                                </h3>
+
+                                <p>
+                                    {{ nadador.nombre }} {{ nadador.apellido }}
+                                    todavía no tiene marcas disponibles.
                                 </p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
 
-                </table>
-            </div>
+                                <a
+                                    href="{{ url_for(
+                                        'agregar',
+                                        nadador_id=nadador.id
+                                    ) }}"
+                                    class="btn btn-empty-add"
+                                >
+                                    <i class="fas fa-plus me-1"></i>
+                                    Agregar primer tiempo
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
 
         </div>
-    </div>
 
-    <div class="mt-4">
+        <!-- Sin resultados de búsqueda -->
+        <div
+            id="sinResultadosBusqueda"
+            class="search-empty d-none"
+        >
+
+            <div class="search-empty-icon">
+                <i class="fas fa-search"></i>
+            </div>
+
+            <h3>
+                No se encontraron tiempos
+            </h3>
+
+            <p class="mb-0">
+                Intenta buscar utilizando otro estilo, distancia,
+                piscina, fecha o tiempo.
+            </p>
+
+        </div>
+
+        {% if tiempos %}
+
+        <div class="table-footer">
+
+            <span>
+                Mostrando
+                <strong id="cantidadVisible">
+                    {{ tiempos|length }}
+                </strong>
+                de
+                <strong>
+                    {{ tiempos|length }}
+                </strong>
+                registros
+            </span>
+
+            <span>
+                Los tiempos se muestran en formato de natación.
+            </span>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+    <!-- Aviso -->
+    {% if tiempos %}
+
+    <section class="tiempos-help mt-4">
+
+        <div class="tiempos-help-icon">
+            <i class="fas fa-circle-info"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                Administración de marcas
+            </strong>
+
+            <p class="mb-0">
+                Verifica cuidadosamente los datos antes de eliminar un tiempo.
+                Esta acción no se puede deshacer.
+            </p>
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+    <!-- Navegación -->
+    <div class="page-actions mt-4">
+
         <a
             href="{{ url_for('nadadores') }}"
-            class="btn btn-secondary"
+            class="btn btn-back"
         >
-            ← Volver a Nadadores
+            <i class="fas fa-arrow-left me-1"></i>
+            Volver a Nadadores
         </a>
+
+        <a
+            href="{{ url_for(
+                'ficha_nadador',
+                nadador_id=nadador.id
+            ) }}"
+            class="btn btn-profile"
+        >
+            <i class="fas fa-id-card me-1"></i>
+            Ver Ficha
+        </a>
+
     </div>
 
 </div>
+
+<style>
+    .tiempos-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
+    }
+
+    /* Hero */
+    .tiempos-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
+    }
+
+    .tiempos-hero::before {
+        position: absolute;
+        top: -100px;
+        right: 145px;
+        width: 250px;
+        height: 250px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
+    }
+
+    .tiempos-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .tiempos-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
+
+    .tiempos-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .tiempos-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .tiempos-subtitle {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
+
+    .tiempos-hero-icon {
+        display: inline-flex;
+        width: 100px;
+        height: 100px;
+        min-width: 100px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 27px;
+        background: rgba(255, 255, 255, 0.13);
+        font-size: 2.5rem;
+        backdrop-filter: blur(6px);
+    }
+
+    /* Resumen */
+    .nadador-summary-card,
+    .toolbar-card,
+    .tiempos-card {
+        overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .nadador-summary-card {
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #eefafa
+            );
+    }
+
+    .nadador-summary-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+        padding: 22px;
+    }
+
+    .nadador-identidad {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .nadador-avatar {
+        display: inline-flex;
+        width: 72px;
+        height: 72px;
+        min-width: 72px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border: 3px solid #ffffff;
+        border-radius: 20px;
+        background:
+            linear-gradient(
+                135deg,
+                #009294,
+                #00b4b6
+            );
+        box-shadow:
+            0 6px 16px
+            rgba(0, 126, 128, 0.18);
+        font-size: 1.3rem;
+        font-weight: 850;
+        letter-spacing: 0.06em;
+    }
+
+    .nadador-summary-label {
+        color: #7c8b8d;
+        font-size: 0.66rem;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .nadador-summary-name {
+        margin: 3px 0 8px;
+        color: #2d4041;
+        font-size: 1.55rem;
+        font-weight: 850;
+    }
+
+    .nadador-summary-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .summary-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0.42rem 0.58rem;
+        border-radius: 9px;
+        font-size: 0.67rem;
+        font-weight: 750;
+    }
+
+    .badge-category {
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        background: #eaf9f9;
+    }
+
+    .badge-gender {
+        color: #5c6c6e;
+        border: 1px solid #dce5e5;
+        background: #f4f6f6;
+    }
+
+    .nadador-summary-actions {
+        display: flex;
+        min-width: 180px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .summary-total {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 13px 18px;
+        border: 1px solid #cde7e7;
+        border-radius: 14px;
+        background: #ffffff;
+    }
+
+    .summary-total-number {
+        color: #009294;
+        font-size: 1.9rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .summary-total-label {
+        margin-top: 5px;
+        color: #7d8c8e;
+        font-size: 0.68rem;
+    }
+
+    .btn-add-time {
+        padding: 0.67rem 0.9rem;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.78rem;
+        font-weight: 750;
+    }
+
+    .btn-add-time:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Toolbar */
+    .toolbar-card {
+        padding: 18px 20px;
+    }
+
+    .toolbar-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+    }
+
+    .toolbar-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .toolbar-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.18rem;
+        font-weight: 850;
+    }
+
+    .toolbar-description {
+        color: #79898b;
+        font-size: 0.77rem;
+    }
+
+    .tiempos-search {
+        position: relative;
+        width: min(380px, 100%);
+    }
+
+    .tiempos-search > i {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        z-index: 2;
+        color: #829193;
+        transform: translateY(-50%);
+    }
+
+    .tiempos-search input {
+        min-height: 44px;
+        padding-right: 44px;
+        padding-left: 40px;
+        border-color: #d7e7e7;
+        border-radius: 12px;
+        font-size: 0.82rem;
+    }
+
+    .search-clear {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        z-index: 2;
+        width: 32px;
+        height: 32px;
+        color: #788789;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        transform: translateY(-50%);
+    }
+
+    .search-clear:hover {
+        color: #007d7f;
+        background: #eaf9f9;
+    }
+
+    /* Tabla */
+    .tiempos-table thead th {
+        padding: 12px 16px;
+        color: #68787a;
+        border-bottom: 1px solid #dce7e7;
+        background: #f5f9f9;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .tiempos-table tbody td {
+        padding: 13px 16px;
+        color: #526365;
+        border-color: #edf2f2;
+        font-size: 0.81rem;
+    }
+
+    .tiempo-row {
+        transition: background 0.15s ease;
+    }
+
+    .tiempo-row:hover {
+        background: #f8fdfd;
+    }
+
+    .prueba-cell {
+        display: flex;
+        min-width: 165px;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .prueba-icon {
+        display: inline-flex;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border-radius: 11px;
+        background: #eaf9f9;
+    }
+
+    .prueba-title {
+        display: block;
+        color: #354648;
+        font-size: 0.82rem;
+    }
+
+    .prueba-category {
+        display: block;
+        margin-top: 2px;
+        color: #899698;
+        font-size: 0.65rem;
+    }
+
+    .pool-badge {
+        display: inline-flex;
+        min-width: 58px;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 0.4rem 0.56rem;
+        color: #ffffff;
+        border-radius: 9px;
+        font-size: 0.68rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .pool-25 {
+        background: #2878c7;
+    }
+
+    .pool-50 {
+        background: #009294;
+    }
+
+    .pool-other {
+        color: #58686a;
+        background: #e8eeee;
+    }
+
+    .record-time {
+        display: inline-flex;
+        min-width: 84px;
+        justify-content: center;
+        padding: 0.44rem 0.6rem;
+        color: #ffffff;
+        border-radius: 9px;
+        background: #16875a;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .record-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .record-date i {
+        color: #009294;
+    }
+
+    .data-empty {
+        color: #9aa5a7;
+        font-size: 0.73rem;
+        font-style: italic;
+    }
+
+    /* Acciones */
+    .desktop-actions {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .action-button {
+        display: inline-flex;
+        width: 34px;
+        height: 34px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        background: transparent;
+        font-size: 0.76rem;
+        text-decoration: none;
+        transition:
+            transform 0.15s ease,
+            color 0.15s ease,
+            background 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+    .action-button:hover {
+        transform: translateY(-2px);
+    }
+
+    .action-edit {
+        color: #9b7112;
+        border-color: #ebd99f;
+        background: #fff8e4;
+    }
+
+    .action-edit:hover {
+        color: #ffffff;
+        border-color: #b9871b;
+        background: #b9871b;
+    }
+
+    .action-delete {
+        color: #bd3e3e;
+        border-color: #efcaca;
+        background: #fff0f0;
+    }
+
+    .action-delete:hover {
+        color: #ffffff;
+        border-color: #c84343;
+        background: #c84343;
+    }
+
+    .mobile-actions {
+        display: none;
+    }
+
+    .actions-dropdown {
+        padding: 0.4rem 0.65rem;
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        border-radius: 9px;
+        background: #eaf9f9;
+        font-size: 0.73rem;
+        font-weight: 750;
+    }
+
+    .mobile-actions .dropdown-menu {
+        min-width: 180px;
+        padding: 6px;
+        border: 1px solid #dce7e7;
+        border-radius: 12px;
+        box-shadow:
+            0 13px 30px
+            rgba(25, 68, 70, 0.14);
+    }
+
+    .mobile-actions .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 0.55rem 0.65rem;
+        border-radius: 8px;
+        color: #4d5e60;
+        font-size: 0.76rem;
+    }
+
+    .mobile-actions .dropdown-item i {
+        width: 16px;
+        color: #009294;
+        text-align: center;
+    }
+
+    .mobile-actions .dropdown-item:hover {
+        background: #edfafa;
+    }
+
+    .mobile-actions .dropdown-delete {
+        width: 100%;
+        color: #bd3e3e;
+        border: 0;
+        background: transparent;
+        text-align: left;
+    }
+
+    .mobile-actions .dropdown-delete i {
+        color: #bd3e3e;
+    }
+
+    /* Estados vacíos */
+    .empty-state,
+    .search-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 50px 20px;
+        color: #768688;
+        text-align: center;
+    }
+
+    .empty-state-icon,
+    .search-empty-icon {
+        display: inline-flex;
+        width: 68px;
+        height: 68px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        color: #009294;
+        border-radius: 50%;
+        background: #eaf9f9;
+        font-size: 1.6rem;
+    }
+
+    .empty-state h3,
+    .search-empty h3 {
+        margin-bottom: 6px;
+        color: #3f5153;
+        font-size: 1.05rem;
+        font-weight: 850;
+    }
+
+    .empty-state p,
+    .search-empty p {
+        max-width: 520px;
+        font-size: 0.79rem;
+    }
+
+    .btn-empty-add {
+        margin-top: 14px;
+        padding: 0.64rem 0.9rem;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.77rem;
+        font-weight: 750;
+    }
+
+    .btn-empty-add:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    .table-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 12px 17px;
+        color: #7b8a8c;
+        border-top: 1px solid #e3eded;
+        background: #f8fbfb;
+        font-size: 0.7rem;
+    }
+
+    .table-footer strong {
+        color: #007d7f;
+    }
+
+    /* Ayuda */
+    .tiempos-help {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 19px;
+        color: #667779;
+        border: 1px solid #bfe4e4;
+        border-radius: 15px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #eaf9f9
+            );
+    }
+
+    .tiempos-help-icon {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 11px;
+        background: #009294;
+    }
+
+    .tiempos-help strong {
+        color: #3d4f51;
+        font-size: 0.83rem;
+    }
+
+    .tiempos-help p {
+        margin-top: 3px;
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    /* Navegación */
+    .page-actions {
+        display: flex;
+        justify-content: center;
+        gap: 9px;
+    }
+
+    .btn-back,
+    .btn-profile {
+        padding: 0.68rem 1.1rem;
+        border-radius: 11px;
+        font-weight: 700;
+    }
+
+    .btn-back {
+        color: #ffffff;
+        border-color: #647477;
+        background: #647477;
+    }
+
+    .btn-back:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    .btn-profile {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .btn-profile:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .desktop-actions {
+            display: none;
+        }
+
+        .mobile-actions {
+            display: inline-block;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .tiempos-hero-content {
+            padding: 27px 22px;
+        }
+
+        .tiempos-hero-icon {
+            display: none;
+        }
+
+        .tiempos-title {
+            font-size: 2rem;
+        }
+
+        .nadador-summary-content {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .nadador-summary-actions {
+            width: 100%;
+        }
+
+        .toolbar-content {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .tiempos-search {
+            width: 100%;
+        }
+
+        .table-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .tiempos-hero {
+            border-radius: 18px;
+        }
+
+        .nadador-avatar {
+            width: 60px;
+            height: 60px;
+            min-width: 60px;
+            border-radius: 17px;
+            font-size: 1.05rem;
+        }
+
+        .nadador-summary-name {
+            font-size: 1.25rem;
+        }
+
+        .tiempos-table tbody td,
+        .tiempos-table thead th {
+            padding-right: 11px;
+            padding-left: 11px;
+        }
+
+        .page-actions {
+            flex-direction: column;
+        }
+
+        .page-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const buscador =
+            document.getElementById("buscarTiempo");
+
+        const limpiar =
+            document.getElementById("limpiarBusqueda");
+
+        const filas =
+            document.querySelectorAll(
+                "#tablaTiempos .tiempo-row"
+            );
+
+        const sinResultados =
+            document.getElementById(
+                "sinResultadosBusqueda"
+            );
+
+        const cantidadVisible =
+            document.getElementById(
+                "cantidadVisible"
+            );
+
+        function aplicarBusqueda() {
+            if (!buscador) {
+                return;
+            }
+
+            const texto =
+                buscador.value
+                    .toLowerCase()
+                    .trim();
+
+            let visibles = 0;
+
+            filas.forEach(function (fila) {
+                const contenido =
+                    fila.textContent
+                        .toLowerCase()
+                        .trim();
+
+                const coincide =
+                    contenido.includes(texto);
+
+                fila.style.display =
+                    coincide ? "" : "none";
+
+                if (coincide) {
+                    visibles++;
+                }
+            });
+
+            if (cantidadVisible) {
+                cantidadVisible.textContent =
+                    visibles;
+            }
+
+            if (limpiar) {
+                limpiar.classList.toggle(
+                    "d-none",
+                    texto === ""
+                );
+            }
+
+            if (sinResultados) {
+                sinResultados.classList.toggle(
+                    "d-none",
+                    visibles > 0 || texto === ""
+                );
+            }
+        }
+
+        if (buscador) {
+            buscador.addEventListener(
+                "input",
+                aplicarBusqueda
+            );
+        }
+
+        if (limpiar) {
+            limpiar.addEventListener(
+                "click",
+                function () {
+                    buscador.value = "";
+                    buscador.focus();
+                    aplicarBusqueda();
+                }
+            );
+        }
+    });
+
+    function confirmarEliminacion() {
+        return confirm(
+            "¿Eliminar definitivamente este tiempo?\n\n" +
+            "Esta acción no se puede deshacer."
+        );
+    }
+</script>
+
 {% endblock %}
