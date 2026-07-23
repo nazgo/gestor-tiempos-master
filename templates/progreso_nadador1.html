@@ -1,80 +1,1451 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Progreso de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
+{% endblock %}
+
 {% block content %}
-<h2>📈 Evolución de {{ nadador.nombre }} {{ nadador.apellido }}</h2>
-<p><strong>Categoría:</strong> {{ nadador.categoria_master }}</p>
 
-<div class="row g-4">
-    <!-- Gráfico General -->
-    <div class="col-lg-8">
-        <div class="card shadow">
-            <div class="card-header">
-                <h5>Evolución General de Tiempos</h5>
+<div class="progreso-general-page">
+
+    <!-- Encabezado -->
+    <section class="progreso-general-hero mb-4">
+
+        <div class="progreso-general-hero-content">
+
+            <div>
+
+                <div class="progreso-general-kicker">
+                    <i class="fas fa-chart-line"></i>
+                    Historial deportivo
+                </div>
+
+                <h1 class="progreso-general-title">
+                    Evolución General
+                </h1>
+
+                <p class="progreso-general-subtitle mb-0">
+                    Consulta cronológicamente todas las marcas registradas
+                    para el nadador.
+                </p>
+
             </div>
-            <div class="card-body">
-                <canvas id="generalChart" height="80"></canvas>
+
+            <div class="progreso-general-hero-icon">
+                <i class="fas fa-arrow-trend-up"></i>
             </div>
+
         </div>
+
+    </section>
+
+    <!-- Ficha del nadador -->
+    <section class="nadador-profile-card mb-4">
+
+        <div class="nadador-profile-content">
+
+            <div class="nadador-identidad">
+
+                <div class="nadador-avatar">
+                    {{ nadador.nombre[:1]|upper }}
+                    {{ nadador.apellido[:1]|upper }}
+                </div>
+
+                <div>
+
+                    <div class="nadador-profile-label">
+                        Historial completo de
+                    </div>
+
+                    <h2 class="nadador-profile-name">
+                        {{ nadador.nombre }}
+                        {{ nadador.apellido }}
+                    </h2>
+
+                    <div class="nadador-profile-badges">
+
+                        {% if nadador.categoria_master %}
+
+                        <span class="profile-badge badge-category">
+                            <i class="fas fa-layer-group"></i>
+                            {{ nadador.categoria_master }}
+                        </span>
+
+                        {% endif %}
+
+                        {% if nadador.genero %}
+
+                        <span class="profile-badge badge-gender">
+                            <i class="fas fa-user"></i>
+                            {{ nadador.genero }}
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="nadador-profile-total">
+
+                <span class="profile-total-number">
+                    {{ tiempos|length }}
+                </span>
+
+                <span class="profile-total-label">
+                    tiempos registrados
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    {% if tiempos %}
+
+    {% set primer_registro = tiempos|first %}
+    {% set ultimo_registro = tiempos|last %}
+
+    <!-- Indicadores -->
+    <section class="row g-3 mb-4">
+
+        <!-- Total -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="metric-card h-100">
+
+                <div class="metric-card-top">
+
+                    <div class="metric-icon">
+                        <i class="fas fa-stopwatch"></i>
+                    </div>
+
+                    <span class="metric-kicker">
+                        Registros
+                    </span>
+
+                </div>
+
+                <div class="metric-value">
+                    {{ tiempos|length }}
+                </div>
+
+                <div class="metric-description">
+                    Tiempos almacenados en el historial
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- Categoría -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="metric-card h-100">
+
+                <div class="metric-card-top">
+
+                    <div class="metric-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+
+                    <span class="metric-kicker">
+                        Categoría
+                    </span>
+
+                </div>
+
+                <div class="metric-value metric-text">
+                    {{ nadador.categoria_master or 'Sin categoría' }}
+                </div>
+
+                <div class="metric-description">
+                    Categoría Master actual
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- Primera fecha -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="metric-card h-100">
+
+                <div class="metric-card-top">
+
+                    <div class="metric-icon">
+                        <i class="fas fa-flag"></i>
+                    </div>
+
+                    <span class="metric-kicker">
+                        Primer registro
+                    </span>
+
+                </div>
+
+                <div class="metric-value metric-date">
+
+                    {% if primer_registro.fecha
+                          and primer_registro.fecha.strftime is defined %}
+
+                        {{ primer_registro.fecha.strftime('%d/%m/%Y') }}
+
+                    {% else %}
+
+                        {{ primer_registro.fecha or '—' }}
+
+                    {% endif %}
+
+                </div>
+
+                <div class="metric-description">
+                    Primera fecha mostrada en el historial
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- Última fecha -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="metric-card h-100">
+
+                <div class="metric-card-top">
+
+                    <div class="metric-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+
+                    <span class="metric-kicker">
+                        Último registro
+                    </span>
+
+                </div>
+
+                <div class="metric-value metric-date">
+
+                    {% if ultimo_registro.fecha
+                          and ultimo_registro.fecha.strftime is defined %}
+
+                        {{ ultimo_registro.fecha.strftime('%d/%m/%Y') }}
+
+                    {% else %}
+
+                        {{ ultimo_registro.fecha or '—' }}
+
+                    {% endif %}
+
+                </div>
+
+                <div class="metric-description">
+                    Fecha más reciente mostrada
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- Aviso -->
+    <section class="comparison-warning mb-4">
+
+        <div class="comparison-warning-icon">
+            <i class="fas fa-circle-info"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                Interpretación del gráfico
+            </strong>
+
+            <p class="mb-0">
+                Este gráfico reúne pruebas de diferentes estilos, distancias
+                y piscinas. Sirve para visualizar el historial general, pero
+                los puntos de pruebas distintas no deben compararse directamente.
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- Gráfico -->
+    <section class="chart-card mb-4">
+
+        <header class="chart-header">
+
+            <div>
+
+                <div class="chart-kicker">
+                    Línea de tiempo
+                </div>
+
+                <h2 class="chart-title">
+                    Historial general de marcas
+                </h2>
+
+                <p class="chart-description mb-0">
+                    Cada punto representa un tiempo registrado.
+                </p>
+
+            </div>
+
+            <div class="chart-legend">
+
+                <span class="chart-legend-line"></span>
+
+                <span>
+                    Tiempo registrado
+                </span>
+
+            </div>
+
+        </header>
+
+        <div class="chart-body">
+
+            <div class="chart-container">
+                <canvas id="generalChart"></canvas>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Tabla -->
+    <section class="history-card">
+
+        <header class="history-header">
+
+            <div>
+
+                <div class="history-kicker">
+                    Registros deportivos
+                </div>
+
+                <h2 class="history-title">
+                    Historial completo
+                </h2>
+
+                <p class="history-description mb-0">
+                    Detalle de fechas, pruebas, piscinas y tiempos.
+                </p>
+
+            </div>
+
+            <span class="history-count">
+                {{ tiempos|length }}
+                registros
+            </span>
+
+        </header>
+
+        <div class="table-responsive">
+
+            <table class="table history-table align-middle mb-0">
+
+                <thead>
+
+                    <tr>
+                        <th class="position-column">#</th>
+                        <th>Fecha</th>
+                        <th>Prueba</th>
+                        <th>Piscina</th>
+                        <th>Tiempo</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for t in tiempos %}
+
+                    <tr>
+
+                        <td class="position-column">
+
+                            <span class="record-position">
+                                {{ loop.index }}
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <span class="record-date">
+
+                                <i class="fas fa-calendar-day"></i>
+
+                                {% if t.fecha
+                                      and t.fecha.strftime is defined %}
+
+                                    {{ t.fecha.strftime('%d/%m/%Y') }}
+
+                                {% else %}
+
+                                    {{ t.fecha or '—' }}
+
+                                {% endif %}
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <div class="event-cell">
+
+                                <strong>
+                                    {{ t.distancia }} m
+                                    {{ t.estilo }}
+                                </strong>
+
+                                {% if t.categoria %}
+
+                                <small>
+                                    {{ t.categoria }}
+                                </small>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+                        <td>
+
+                            {% if t.piscina == '25 metros' %}
+
+                            <span class="pool-badge pool-25">
+                                25 m
+                            </span>
+
+                            {% elif t.piscina == '50 metros' %}
+
+                            <span class="pool-badge pool-50">
+                                50 m
+                            </span>
+
+                            {% else %}
+
+                            <span class="pool-badge pool-other">
+                                {{ t.piscina or '—' }}
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <span class="record-time">
+                                {{ t.tiempo }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="history-footer">
+
+            <span>
+                Total:
+                <strong>
+                    {{ tiempos|length }}
+                </strong>
+                registros
+            </span>
+
+            <span>
+                Los tiempos se muestran en formato de natación.
+            </span>
+
+        </div>
+
+    </section>
+
+    {% else %}
+
+    <!-- Sin registros -->
+    <section class="empty-state">
+
+        <div class="empty-state-icon">
+            <i class="fas fa-chart-line"></i>
+        </div>
+
+        <h2>
+            No hay tiempos registrados
+        </h2>
+
+        <p>
+            {{ nadador.nombre }} {{ nadador.apellido }}
+            todavía no tiene marcas disponibles para mostrar.
+        </p>
+
+        <a
+            href="{{ url_for(
+                'agregar',
+                nadador_id=nadador.id
+            ) }}"
+            class="btn btn-add-time"
+        >
+            <i class="fas fa-plus me-1"></i>
+            Agregar primer tiempo
+        </a>
+
+    </section>
+
+    {% endif %}
+
+    <!-- Navegación -->
+    <div class="page-actions mt-4">
+
+        <a
+            href="{{ url_for('nadadores') }}"
+            class="btn btn-back"
+        >
+            <i class="fas fa-arrow-left me-1"></i>
+            Volver a Nadadores
+        </a>
+
+        <a
+            href="{{ url_for(
+                'ficha_nadador',
+                nadador_id=nadador.id
+            ) }}"
+            class="btn btn-profile"
+        >
+            <i class="fas fa-id-card me-1"></i>
+            Ver Ficha
+        </a>
+
     </div>
 
-    <!-- Resumen -->
-    <div class="col-lg-4">
-        <div class="card shadow h-100">
-            <div class="card-body">
-                <h5>Resumen</h5>
-                <p><strong>Total tiempos:</strong> {{ tiempos|length }}</p>
-                <p><strong>Mejor tiempo:</strong> {{ tiempos[0].tiempo if tiempos else '—' }}</p>
-            </div>
-        </div>
-    </div>
 </div>
 
-<!-- Tabla -->
-<h5 class="mt-5">Historial Completo</h5>
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th>Fecha</th>
-            <th>Prueba</th>
-            <th>Tiempo</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for t in tiempos %}
-        <tr>
-            <td>{{ t.fecha }}</td>
-            <td>{{ t.estilo }} {{ t.distancia }}m</td>
-            <td><strong>{{ t.tiempo }}</strong></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% if tiempos %}
 
 <script>
-    const tiempos = {{ tiempos|tojson }};
-    
-    // Gráfico General
-    new Chart(document.getElementById('generalChart'), {
-        type: 'line',
-        data: {
-            labels: tiempos.map(t => t.fecha),
-            datasets: [{
-                label: 'Tiempo (segundos)',
-                data: tiempos.map(t => t.tiempo_segundos),
-                borderColor: '#0d6efd',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: { y: { reverse: true } }
+    document.addEventListener("DOMContentLoaded", function () {
+        const tiempos = {{ tiempos|tojson }};
+
+        const canvas =
+            document.getElementById("generalChart");
+
+        if (
+            !canvas ||
+            typeof Chart === "undefined"
+        ) {
+            return;
         }
-    }); 
+
+        function formatearTiempoNatacion(valor) {
+            const totalSegundos = Number(valor);
+
+            if (!Number.isFinite(totalSegundos)) {
+                return "—";
+            }
+
+            const minutos =
+                Math.floor(totalSegundos / 60);
+
+            const segundos =
+                totalSegundos % 60;
+
+            return (
+                String(minutos).padStart(2, "0") +
+                ":" +
+                segundos.toFixed(2).padStart(5, "0")
+            );
+        }
+
+        function formatearFecha(fecha) {
+            if (!fecha) {
+                return "Sin fecha";
+            }
+
+            const partes =
+                String(fecha).split("-");
+
+            if (partes.length === 3) {
+                return (
+                    partes[2] +
+                    "/" +
+                    partes[1] +
+                    "/" +
+                    partes[0]
+                );
+            }
+
+            return String(fecha);
+        }
+
+        const etiquetas = tiempos.map(function (t) {
+            return formatearFecha(t.fecha);
+        });
+
+        const valores = tiempos.map(function (t) {
+            return Number(t.tiempo_segundos);
+        });
+
+        const contexto = canvas.getContext("2d");
+
+        new Chart(contexto, {
+            type: "line",
+
+            data: {
+                labels: etiquetas,
+
+                datasets: [
+                    {
+                        label: "Tiempo",
+
+                        data: valores,
+
+                        borderColor: "#009294",
+
+                        backgroundColor:
+                            "rgba(0, 146, 148, 0.10)",
+
+                        pointBackgroundColor: "#ffffff",
+
+                        pointBorderColor: "#009294",
+
+                        pointHoverBackgroundColor: "#009294",
+
+                        pointHoverBorderColor: "#ffffff",
+
+                        pointBorderWidth: 3,
+
+                        pointRadius: 5,
+
+                        pointHoverRadius: 7,
+
+                        borderWidth: 3,
+
+                        tension: 0.30,
+
+                        fill: true
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+                    mode: "index",
+                    intersect: false
+                },
+
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+                        backgroundColor:
+                            "rgba(38, 56, 57, 0.95)",
+
+                        padding: 12,
+
+                        displayColors: false,
+
+                        callbacks: {
+                            title: function (items) {
+                                if (!items.length) {
+                                    return "";
+                                }
+
+                                return (
+                                    "Fecha: " +
+                                    items[0].label
+                                );
+                            },
+
+                            label: function (context) {
+                                const registro =
+                                    tiempos[
+                                        context.dataIndex
+                                    ];
+
+                                const prueba =
+                                    registro.distancia +
+                                    " m " +
+                                    registro.estilo;
+
+                                const piscina =
+                                    registro.piscina || "—";
+
+                                const tiempo =
+                                    formatearTiempoNatacion(
+                                        context.parsed.y
+                                    );
+
+                                return [
+                                    "Prueba: " + prueba,
+                                    "Piscina: " + piscina,
+                                    "Tiempo: " + tiempo
+                                ];
+                            }
+                        }
+                    }
+                },
+
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+
+                        ticks: {
+                            color: "#788789",
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 9
+                        },
+
+                        title: {
+                            display: true,
+                            text: "Fecha",
+                            color: "#6f7f81",
+                            font: {
+                                size: 11,
+                                weight: "bold"
+                            }
+                        }
+                    },
+
+                    y: {
+                        reverse: true,
+
+                        grace: "8%",
+
+                        grid: {
+                            color:
+                                "rgba(111, 135, 137, 0.12)"
+                        },
+
+                        ticks: {
+                            color: "#788789",
+
+                            callback: function (value) {
+                                return formatearTiempoNatacion(
+                                    value
+                                );
+                            }
+                        },
+
+                        title: {
+                            display: true,
+                            text: "Tiempo",
+                            color: "#6f7f81",
+                            font: {
+                                size: 11,
+                                weight: "bold"
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
 </script>
 
-<div class="text-center mt-4">
-            <a href="{{ url_for('nadadores') }}" class="btn btn-secondary">← Volver atrás</a>
-</div>
+{% endif %}
+
+<style>
+    .progreso-general-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
+    }
+
+    /* Hero */
+    .progreso-general-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
+    }
+
+    .progreso-general-hero::before {
+        position: absolute;
+        top: -100px;
+        right: 145px;
+        width: 250px;
+        height: 250px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
+    }
+
+    .progreso-general-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .progreso-general-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
+
+    .progreso-general-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .progreso-general-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .progreso-general-subtitle {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
+
+    .progreso-general-hero-icon {
+        display: inline-flex;
+        width: 100px;
+        height: 100px;
+        min-width: 100px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 27px;
+        background: rgba(255, 255, 255, 0.13);
+        font-size: 2.5rem;
+        backdrop-filter: blur(6px);
+    }
+
+    /* Ficha */
+    .nadador-profile-card,
+    .chart-card,
+    .history-card {
+        overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .nadador-profile-card {
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #eefafa
+            );
+    }
+
+    .nadador-profile-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+        padding: 22px;
+    }
+
+    .nadador-identidad {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .nadador-avatar {
+        display: inline-flex;
+        width: 72px;
+        height: 72px;
+        min-width: 72px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border: 3px solid #ffffff;
+        border-radius: 20px;
+        background:
+            linear-gradient(
+                135deg,
+                #009294,
+                #00b4b6
+            );
+        box-shadow:
+            0 6px 16px
+            rgba(0, 126, 128, 0.18);
+        font-size: 1.3rem;
+        font-weight: 850;
+        letter-spacing: 0.06em;
+    }
+
+    .nadador-profile-label {
+        color: #7c8b8d;
+        font-size: 0.66rem;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .nadador-profile-name {
+        margin: 3px 0 8px;
+        color: #2d4041;
+        font-size: 1.55rem;
+        font-weight: 850;
+    }
+
+    .nadador-profile-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .profile-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0.42rem 0.58rem;
+        border-radius: 9px;
+        font-size: 0.67rem;
+        font-weight: 750;
+    }
+
+    .badge-category {
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        background: #eaf9f9;
+    }
+
+    .badge-gender {
+        color: #5c6c6e;
+        border: 1px solid #dce5e5;
+        background: #f4f6f6;
+    }
+
+    .nadador-profile-total {
+        display: flex;
+        min-width: 145px;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px 18px;
+        border: 1px solid #cde7e7;
+        border-radius: 14px;
+        background: #ffffff;
+    }
+
+    .profile-total-number {
+        color: #009294;
+        font-size: 2rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .profile-total-label {
+        margin-top: 5px;
+        color: #7d8c8e;
+        font-size: 0.68rem;
+    }
+
+    /* Métricas */
+    .metric-card {
+        padding: 18px;
+        border: 1px solid #dceaea;
+        border-radius: 17px;
+        background: #ffffff;
+        box-shadow:
+            0 6px 17px
+            rgba(25, 68, 70, 0.06);
+    }
+
+    .metric-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .metric-icon {
+        display: inline-flex;
+        width: 40px;
+        height: 40px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border-radius: 12px;
+        background: #eaf9f9;
+    }
+
+    .metric-kicker {
+        color: #819092;
+        font-size: 0.64rem;
+        font-weight: 750;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .metric-value {
+        margin-top: 16px;
+        color: #2d4041;
+        font-size: 1.8rem;
+        font-weight: 850;
+        line-height: 1.1;
+    }
+
+    .metric-text,
+    .metric-date {
+        font-size: 1.15rem;
+    }
+
+    .metric-description {
+        margin-top: 7px;
+        color: #839193;
+        font-size: 0.69rem;
+    }
+
+    /* Advertencia */
+    .comparison-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 19px;
+        color: #667779;
+        border: 1px solid #bfe4e4;
+        border-radius: 15px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #eaf9f9
+            );
+    }
+
+    .comparison-warning-icon {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 11px;
+        background: #009294;
+    }
+
+    .comparison-warning strong {
+        color: #3d4f51;
+        font-size: 0.83rem;
+    }
+
+    .comparison-warning p {
+        margin-top: 3px;
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    /* Cabeceras */
+    .chart-header,
+    .history-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 19px 21px;
+        border-bottom: 1px solid #e3eded;
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #f2fbfb
+            );
+    }
+
+    .chart-kicker,
+    .history-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .chart-title,
+    .history-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.18rem;
+        font-weight: 850;
+    }
+
+    .chart-description,
+    .history-description {
+        color: #79898b;
+        font-size: 0.76rem;
+    }
+
+    .chart-legend {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #748486;
+        font-size: 0.7rem;
+    }
+
+    .chart-legend-line {
+        width: 24px;
+        height: 3px;
+        border-radius: 999px;
+        background: #009294;
+    }
+
+    .chart-body {
+        padding: 20px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 370px;
+    }
+
+    /* Tabla */
+    .history-count {
+        padding: 0.45rem 0.65rem;
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        border-radius: 9px;
+        background: #eaf9f9;
+        font-size: 0.7rem;
+        font-weight: 750;
+    }
+
+    .history-table thead th {
+        padding: 11px 15px;
+        color: #68787a;
+        border-bottom: 1px solid #dce7e7;
+        background: #f5f9f9;
+        font-size: 0.67rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .history-table tbody td {
+        padding: 12px 15px;
+        color: #526365;
+        border-color: #edf2f2;
+        font-size: 0.79rem;
+    }
+
+    .history-table tbody tr:hover {
+        background: #f8fdfd;
+    }
+
+    .position-column {
+        width: 48px;
+        text-align: center;
+    }
+
+    .record-position {
+        display: inline-flex;
+        width: 27px;
+        height: 27px;
+        align-items: center;
+        justify-content: center;
+        color: #617173;
+        border-radius: 8px;
+        background: #eef3f3;
+        font-size: 0.69rem;
+        font-weight: 850;
+    }
+
+    .record-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .record-date i {
+        color: #009294;
+    }
+
+    .event-cell {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .event-cell strong {
+        color: #354648;
+        font-size: 0.8rem;
+    }
+
+    .event-cell small {
+        margin-top: 2px;
+        color: #879496;
+        font-size: 0.65rem;
+    }
+
+    .pool-badge {
+        display: inline-flex;
+        min-width: 48px;
+        align-items: center;
+        justify-content: center;
+        padding: 0.39rem 0.55rem;
+        color: #ffffff;
+        border-radius: 9px;
+        font-size: 0.68rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .pool-25 {
+        background: #2878c7;
+    }
+
+    .pool-50 {
+        background: #009294;
+    }
+
+    .pool-other {
+        color: #58686a;
+        background: #e8eeee;
+    }
+
+    .record-time {
+        display: inline-flex;
+        min-width: 82px;
+        justify-content: center;
+        padding: 0.43rem 0.58rem;
+        color: #ffffff;
+        border-radius: 9px;
+        background: #16875a;
+        font-size: 0.78rem;
+        font-weight: 800;
+    }
+
+    .history-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 12px 17px;
+        color: #7b8a8c;
+        border-top: 1px solid #e3eded;
+        background: #f8fbfb;
+        font-size: 0.7rem;
+    }
+
+    .history-footer strong {
+        color: #007d7f;
+    }
+
+    /* Sin datos */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 55px 20px;
+        color: #758587;
+        border: 1px dashed #bfd9da;
+        border-radius: 19px;
+        background: #ffffff;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        display: inline-flex;
+        width: 70px;
+        height: 70px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        color: #009294;
+        border-radius: 50%;
+        background: #eaf9f9;
+        font-size: 1.7rem;
+    }
+
+    .empty-state h2 {
+        margin-bottom: 7px;
+        color: #3e5052;
+        font-size: 1.12rem;
+        font-weight: 850;
+    }
+
+    .empty-state p {
+        max-width: 560px;
+        font-size: 0.8rem;
+    }
+
+    .btn-add-time {
+        margin-top: 13px;
+        padding: 0.64rem 0.9rem;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.77rem;
+        font-weight: 750;
+    }
+
+    .btn-add-time:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Navegación */
+    .page-actions {
+        display: flex;
+        justify-content: center;
+        gap: 9px;
+    }
+
+    .btn-back,
+    .btn-profile {
+        padding: 0.68rem 1.1rem;
+        border-radius: 11px;
+        font-weight: 700;
+    }
+
+    .btn-back {
+        color: #ffffff;
+        border-color: #647477;
+        background: #647477;
+    }
+
+    .btn-back:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    .btn-profile {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .btn-profile:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .progreso-general-hero-content {
+            padding: 27px 22px;
+        }
+
+        .progreso-general-hero-icon {
+            display: none;
+        }
+
+        .progreso-general-title {
+            font-size: 2rem;
+        }
+
+        .nadador-profile-content {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .nadador-profile-total {
+            width: 100%;
+        }
+
+        .chart-container {
+            height: 310px;
+        }
+
+        .history-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .progreso-general-hero {
+            border-radius: 18px;
+        }
+
+        .nadador-avatar {
+            width: 60px;
+            height: 60px;
+            min-width: 60px;
+            border-radius: 17px;
+            font-size: 1.05rem;
+        }
+
+        .nadador-profile-name {
+            font-size: 1.25rem;
+        }
+
+        .chart-legend {
+            display: none;
+        }
+
+        .history-header {
+            align-items: flex-start;
+        }
+
+        .history-table tbody td,
+        .history-table thead th {
+            padding-right: 11px;
+            padding-left: 11px;
+        }
+
+        .page-actions {
+            flex-direction: column;
+        }
+
+        .page-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
 
 {% endblock %}
