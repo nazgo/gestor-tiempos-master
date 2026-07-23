@@ -1,163 +1,1175 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Calendario {{ anio }} | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-4">
 
-    <div class="text-center mb-5">
-        <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-4">
-            <img
-                src="{{ url_for('static', filename='fchmn_logo.png') }}"
-                alt="FCHMN"
-                style="height: 100px;"
-            >
+<div class="calendario-page">
 
-            <div>
-                <h2 class="display-5 fw-bold text-primary mb-1">
-                    Circuito de Natación Masters de Chile
-                </h2>
-                <p class="text-muted mb-0">
-                    Federación Chilena Master de Natación
-                </p>
+    <!-- Encabezado principal -->
+    <section class="calendario-hero mb-4">
+
+        <div class="calendario-hero-content">
+
+            <div class="calendario-brand">
+
+                <div class="fchmn-logo-wrapper">
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='fchmn_logo.png'
+                        ) }}"
+                        alt="Federación Chilena Master de Natación"
+                        class="fchmn-logo"
+                    >
+
+                </div>
+
+                <div>
+
+                    <div class="calendario-kicker">
+                        <i class="fas fa-flag-checkered"></i>
+                        Circuito nacional
+                    </div>
+
+                    <h1 class="calendario-title">
+                        Circuito de Natación Masters de Chile
+                    </h1>
+
+                    <p class="calendario-subtitle mb-0">
+                        Federación Chilena Master de Natación
+                    </p>
+
+                </div>
+
             </div>
-        </div>
-    </div>
 
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+            <div class="calendario-season">
+
+                <span class="season-label">
+                    Temporada
+                </span>
+
+                <span class="season-year">
+                    {{ anio }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Barra superior -->
+    <section class="calendario-toolbar mb-4">
+
         <div>
-            <h2 class="fw-bold text-center mb-4">
-    <i class="fas fa-calendar-alt"></i>
-    Calendario de Competencias {{ anio }}
-</h2>
-            <p class="text-muted mb-0">
-                Administra fechas, estados y datos de cada torneo.
+
+            <div class="toolbar-kicker">
+                Gestión de competencias
+            </div>
+
+            <h2 class="toolbar-title">
+                Calendario de Competencias
+            </h2>
+
+            <p class="toolbar-description mb-0">
+                Administra fechas, estados, lugares, organización
+                y tipo de piscina.
             </p>
+
         </div>
 
-        <a
-            href="{{ url_for('nueva_competencia',
-        anio=anio) }}"
-            class="btn btn-primary"
-        >
-            + Nueva competencia
-        </a>
-    </div>
+        <div class="toolbar-actions">
 
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered border-dark align-middle">
-            <thead class="table-primary">
-                <tr>
-                    <th style="width: 9%;">MES</th>
-                    <th style="width: 8%;">FECHA</th>
-                    <th style="width: 11%;">ESTADO</th>
-                    <th style="width: 9%;">LUGAR</th>
-                    <th style="width: 13%;">ORGANIZA</th>
-                    <th style="width: 24%;">NOMBRE TORNEO</th>
-                    <th style="width: 13%;">TIPO PISCINA</th>
-                    <th style="width: 9%;">ACCIONES</th>
-                </tr>
-            </thead>
+            <div class="competencias-total">
 
-            <tbody>
-                {% for competencia in competencias %}
-                <tr>
-                    <td>
-                        <strong class="text-primary">
-                            {{ competencia.mes }}
-                        </strong>
-                    </td>
+                <span class="competencias-total-number">
+                    {{ competencias|length }}
+                </span>
 
-                    <td class="text-nowrap">
-                        {% if competencia.fecha and competencia.fecha.strftime is defined %}
-                            {{ competencia.fecha.strftime('%d/%m/%Y') }}
-                        {% else %}
-                            {{ competencia.fecha }}
-                        {% endif %}
-                    </td>
+                <span class="competencias-total-label">
+                    competencias
+                </span>
 
-                    <td>
-                        <form
-                            method="POST"
-                            action="{{ url_for('actualizar_estado') }}"
-                            class="d-inline"
-                            onsubmit="return confirm('¿Cambiar el estado de esta competencia?');"
-                        >
-                            <input
-                                type="hidden"
-                                name="id"
-                                value="{{ competencia.id }}"
+            </div>
+
+            <a
+                href="{{ url_for(
+                    'nueva_competencia',
+                    anio=anio
+                ) }}"
+                class="btn btn-new-competition"
+            >
+                <i class="fas fa-plus me-1"></i>
+                Nueva competencia
+            </a>
+
+        </div>
+
+    </section>
+
+    <!-- Tabla -->
+    <section class="calendario-card">
+
+        <div class="table-responsive">
+
+            <table class="table calendario-table align-middle mb-0">
+
+                <thead>
+
+                    <tr>
+                        <th>Mes</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Lugar</th>
+                        <th>Organiza</th>
+                        <th>Nombre del torneo</th>
+                        <th>Tipo de piscina</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for competencia in competencias %}
+
+                    <tr>
+
+                        <!-- Mes -->
+                        <td>
+
+                            <span class="mes-badge">
+                                {{ competencia.mes or '—' }}
+                            </span>
+
+                        </td>
+
+                        <!-- Fecha -->
+                        <td>
+
+                            {% if competencia.fecha %}
+
+                            <span class="fecha-competencia">
+
+                                <i class="fas fa-calendar-day"></i>
+
+                                {% if competencia.fecha.strftime is defined %}
+
+                                    {{ competencia.fecha.strftime('%d/%m/%Y') }}
+
+                                {% else %}
+
+                                    {{ competencia.fecha }}
+
+                                {% endif %}
+
+                            </span>
+
+                            {% else %}
+
+                            <span class="dato-vacio">
+                                Sin fecha
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Estado -->
+                        <td>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('actualizar_estado') }}"
+                                class="estado-form"
+                                onsubmit="return confirmarCambioEstado(
+                                    '{{ competencia.nombre|e }}'
+                                );"
                             >
-                        
-                            <input
-                                type="hidden"
-                                name="anio"
-                                value="{{ anio }}"
-                            >
 
-                            {% if competencia.estado == 'REALIZADO' %}
+                                <input
+                                    type="hidden"
+                                    name="id"
+                                    value="{{ competencia.id }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="anio"
+                                    value="{{ anio }}"
+                                >
+
+                                {% if competencia.estado == 'REALIZADO' %}
+
                                 <button
                                     type="submit"
                                     name="estado"
                                     value="NO REALIZADO"
-                                    class="btn btn-success btn-sm"
+                                    class="estado-badge estado-realizado"
                                     title="Cambiar a NO REALIZADO"
                                 >
-                                    REALIZADO
+                                    <i class="fas fa-circle-check"></i>
+                                    Realizado
                                 </button>
-                            {% else %}
+
+                                {% else %}
+
                                 <button
                                     type="submit"
                                     name="estado"
                                     value="REALIZADO"
-                                    class="btn btn-primary btn-sm"
+                                    class="estado-badge estado-no-realizado"
                                     title="Cambiar a REALIZADO"
                                 >
-                                    NO REALIZADO
+                                    <i class="fas fa-clock"></i>
+                                    No realizado
                                 </button>
+
+                                {% endif %}
+
+                            </form>
+
+                        </td>
+
+                        <!-- Lugar -->
+                        <td>
+
+                            {% if competencia.lugar %}
+
+                            <span class="dato-con-icono">
+                                <i class="fas fa-location-dot"></i>
+                                {{ competencia.lugar }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="dato-vacio">
+                                Sin registrar
+                            </span>
+
                             {% endif %}
-                        </form>
-                    </td>
 
-                    <td>{{ competencia.lugar or '' }}</td>
-                    <td>{{ competencia.organiza or '' }}</td>
-                    <td>{{ competencia.nombre or '' }}</td>
-                    <td>{{ competencia.tipo_piscina or '' }}</td>
+                        </td>
 
-                    <td class="text-nowrap">
-                        <a href="{{ url_for('editar_competencia', competencia_id=competencia.id, anio=anio) }}" class="btn btn-warning btn-sm me-1" title="Editar Competencia">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <form
-                            method="POST"
-                            action="{{ url_for('eliminar_competencia', competencia_id=competencia.id) }}"
-                            class="d-inline"
-                            onsubmit="return confirm('¿Eliminar definitivamente esta competencia?');"
-                        >
-                            <button type="submit" class="btn btn-danger btn-sm" title="Eliminar Competencia">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
+                        <!-- Organiza -->
+                        <td>
 
-                {% else %}
-                <tr>
-                    <td colspan="8" class="text-center text-muted py-4">
-                        No hay competencias registradas.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                            {% if competencia.organiza %}
 
-    <div class="text-center mt-4">
-<a
-    href="{{ url_for('seleccionar_anio_calendario') }}"
-    class="btn btn-secondary"
->
-    ← Elegir otro año
-</a>
+                            <span class="dato-con-icono">
+                                <i class="fas fa-building"></i>
+                                {{ competencia.organiza }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="dato-vacio">
+                                Sin registrar
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Nombre -->
+                        <td>
+
+                            <div class="torneo-cell">
+
+                                <div class="torneo-icon">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+
+                                <strong>
+                                    {{ competencia.nombre or 'Sin nombre' }}
+                                </strong>
+
+                            </div>
+
+                        </td>
+
+                        <!-- Piscina -->
+                        <td>
+
+                            {% if competencia.tipo_piscina == '25 metros' %}
+
+                            <span class="piscina-badge piscina-25">
+                                <i class="fas fa-swimming-pool"></i>
+                                25 m
+                            </span>
+
+                            {% elif competencia.tipo_piscina == '50 metros' %}
+
+                            <span class="piscina-badge piscina-50">
+                                <i class="fas fa-swimming-pool"></i>
+                                50 m
+                            </span>
+
+                            {% elif competencia.tipo_piscina %}
+
+                            <span class="piscina-badge piscina-otra">
+                                {{ competencia.tipo_piscina }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="dato-vacio">
+                                Sin registrar
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Acciones -->
+                        <td class="text-center">
+
+                            <div class="acciones-competencia">
+
+                                <a
+                                    href="{{ url_for(
+                                        'editar_competencia',
+                                        competencia_id=competencia.id,
+                                        anio=anio
+                                    ) }}"
+                                    class="accion-btn accion-editar"
+                                    title="Editar competencia"
+                                >
+                                    <i class="fas fa-pen"></i>
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'eliminar_competencia',
+                                        competencia_id=competencia.id
+                                    ) }}"
+                                    class="d-inline"
+                                    onsubmit="return confirmarEliminacion(
+                                        '{{ competencia.nombre|e }}'
+                                    );"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="accion-btn accion-eliminar"
+                                        title="Eliminar competencia"
+                                    >
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="8">
+
+                            <div class="empty-state">
+
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-calendar-xmark"></i>
+                                </div>
+
+                                <h3>
+                                    No hay competencias registradas
+                                </h3>
+
+                                <p>
+                                    La temporada {{ anio }} todavía no tiene
+                                    competencias en el calendario.
+                                </p>
+
+                                <a
+                                    href="{{ url_for(
+                                        'nueva_competencia',
+                                        anio=anio
+                                    ) }}"
+                                    class="btn btn-empty-action"
+                                >
+                                    <i class="fas fa-plus me-1"></i>
+                                    Crear primera competencia
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% if competencias %}
+
+        <div class="calendario-footer">
+
+            <span>
+                Total:
+                <strong>
+                    {{ competencias|length }}
+                </strong>
+                competencias
+            </span>
+
+            <span>
+                Haz clic en el estado para cambiarlo.
+            </span>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+    <!-- Información -->
+    <section class="calendario-help mt-4">
+
+        <div class="calendario-help-icon">
+            <i class="fas fa-circle-info"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                Gestión del circuito
+            </strong>
+
+            <p class="mb-0">
+                Los estados pueden modificarse directamente desde la tabla.
+                El mes se calcula a partir de la fecha de la competencia.
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- Navegación -->
+    <div class="page-actions mt-4">
+
+        <a
+            href="{{ url_for('seleccionar_anio_calendario') }}"
+            class="btn btn-back"
+        >
+            <i class="fas fa-arrow-left me-1"></i>
+            Elegir otro año
+        </a>
+
+        <a
+            href="{{ url_for('index') }}"
+            class="btn btn-home"
+        >
+            <i class="fas fa-house me-1"></i>
+            Volver al Inicio
+        </a>
+
     </div>
 
 </div>
+
+<style>
+    .calendario-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
+    }
+
+    /* Hero */
+    .calendario-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
+    }
+
+    .calendario-hero::before {
+        position: absolute;
+        top: -100px;
+        right: 165px;
+        width: 250px;
+        height: 250px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
+    }
+
+    .calendario-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .calendario-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 30px 38px;
+        color: #ffffff;
+    }
+
+    .calendario-brand {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .fchmn-logo-wrapper {
+        display: inline-flex;
+        width: 105px;
+        height: 105px;
+        min-width: 105px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.30);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow:
+            0 8px 20px
+            rgba(0, 91, 93, 0.20);
+    }
+
+    .fchmn-logo {
+        width: 84px;
+        height: 84px;
+        object-fit: contain;
+    }
+
+    .calendario-kicker {
+        margin-bottom: 7px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.74rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .calendario-title {
+        max-width: 760px;
+        margin-bottom: 7px;
+        font-size: clamp(1.9rem, 4vw, 3rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .calendario-subtitle {
+        color: rgba(255, 255, 255, 0.84);
+    }
+
+    .calendario-season {
+        display: flex;
+        min-width: 150px;
+        flex-direction: column;
+        align-items: center;
+        padding: 17px 20px;
+        border: 1px solid rgba(255, 255, 255, 0.23);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .season-label {
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 0.67rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+    }
+
+    .season-year {
+        margin-top: 4px;
+        font-size: 2rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    /* Toolbar */
+    .calendario-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+        padding: 18px 20px;
+        border: 1px solid #dceaea;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .toolbar-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .toolbar-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.25rem;
+        font-weight: 850;
+    }
+
+    .toolbar-description {
+        color: #79898b;
+        font-size: 0.78rem;
+    }
+
+    .toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .competencias-total {
+        display: flex;
+        min-width: 105px;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 14px;
+        border: 1px solid #cde7e7;
+        border-radius: 12px;
+        background: #f8ffff;
+    }
+
+    .competencias-total-number {
+        color: #009294;
+        font-size: 1.55rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .competencias-total-label {
+        margin-top: 4px;
+        color: #7d8c8e;
+        font-size: 0.63rem;
+    }
+
+    .btn-new-competition {
+        padding: 0.67rem 0.9rem;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.78rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .btn-new-competition:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Tabla */
+    .calendario-card {
+        overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .calendario-table {
+        min-width: 1180px;
+    }
+
+    .calendario-table thead th {
+        padding: 12px 14px;
+        color: #ffffff;
+        border-bottom: 0;
+        background: #008f91;
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .calendario-table tbody td {
+        padding: 12px 14px;
+        color: #526365;
+        border-color: #edf2f2;
+        font-size: 0.78rem;
+    }
+
+    .calendario-table tbody tr:hover {
+        background: #f8fdfd;
+    }
+
+    .mes-badge {
+        display: inline-flex;
+        min-width: 74px;
+        justify-content: center;
+        padding: 0.42rem 0.56rem;
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        border-radius: 9px;
+        background: #eaf9f9;
+        font-size: 0.68rem;
+        font-weight: 800;
+    }
+
+    .fecha-competencia,
+    .dato-con-icono {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .fecha-competencia {
+        white-space: nowrap;
+    }
+
+    .fecha-competencia i,
+    .dato-con-icono i {
+        color: #009294;
+    }
+
+    .dato-vacio {
+        color: #9aa5a7;
+        font-size: 0.72rem;
+        font-style: italic;
+    }
+
+    .estado-form {
+        display: inline-block;
+    }
+
+    .estado-badge {
+        display: inline-flex;
+        min-width: 105px;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 0.43rem 0.58rem;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        font-size: 0.67rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .estado-realizado {
+        color: #11754d;
+        border-color: #bce4d0;
+        background: #e7f7ef;
+    }
+
+    .estado-realizado:hover {
+        color: #ffffff;
+        border-color: #16875a;
+        background: #16875a;
+    }
+
+    .estado-no-realizado {
+        color: #9b7112;
+        border-color: #ebd99f;
+        background: #fff8e4;
+    }
+
+    .estado-no-realizado:hover {
+        color: #ffffff;
+        border-color: #b9871b;
+        background: #b9871b;
+    }
+
+    .torneo-cell {
+        display: flex;
+        min-width: 240px;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .torneo-icon {
+        display: inline-flex;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        align-items: center;
+        justify-content: center;
+        color: #9b7112;
+        border-radius: 10px;
+        background: #fff5d8;
+    }
+
+    .torneo-cell strong {
+        color: #354648;
+        line-height: 1.35;
+    }
+
+    .piscina-badge {
+        display: inline-flex;
+        min-width: 62px;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 0.4rem 0.56rem;
+        color: #ffffff;
+        border-radius: 9px;
+        font-size: 0.67rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .piscina-25 {
+        background: #2878c7;
+    }
+
+    .piscina-50 {
+        background: #009294;
+    }
+
+    .piscina-otra {
+        color: #58686a;
+        background: #e8eeee;
+    }
+
+    .acciones-competencia {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .accion-btn {
+        display: inline-flex;
+        width: 34px;
+        height: 34px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        background: transparent;
+        font-size: 0.76rem;
+        text-decoration: none;
+        transition:
+            transform 0.15s ease,
+            color 0.15s ease,
+            background 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+    .accion-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .accion-editar {
+        color: #9b7112;
+        border-color: #ebd99f;
+        background: #fff8e4;
+    }
+
+    .accion-editar:hover {
+        color: #ffffff;
+        border-color: #b9871b;
+        background: #b9871b;
+    }
+
+    .accion-eliminar {
+        color: #bd3e3e;
+        border-color: #efcaca;
+        background: #fff0f0;
+    }
+
+    .accion-eliminar:hover {
+        color: #ffffff;
+        border-color: #c84343;
+        background: #c84343;
+    }
+
+    .calendario-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 12px 17px;
+        color: #7b8a8c;
+        border-top: 1px solid #e3eded;
+        background: #f8fbfb;
+        font-size: 0.7rem;
+    }
+
+    .calendario-footer strong {
+        color: #007d7f;
+    }
+
+    /* Estado vacío */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 50px 20px;
+        color: #768688;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        display: inline-flex;
+        width: 68px;
+        height: 68px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        color: #009294;
+        border-radius: 50%;
+        background: #eaf9f9;
+        font-size: 1.6rem;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 6px;
+        color: #3f5153;
+        font-size: 1.05rem;
+        font-weight: 850;
+    }
+
+    .empty-state p {
+        max-width: 520px;
+        font-size: 0.79rem;
+    }
+
+    .btn-empty-action {
+        margin-top: 14px;
+        padding: 0.64rem 0.9rem;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.77rem;
+        font-weight: 750;
+    }
+
+    .btn-empty-action:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Información */
+    .calendario-help {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 19px;
+        color: #667779;
+        border: 1px solid #bfe4e4;
+        border-radius: 15px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #eaf9f9
+            );
+    }
+
+    .calendario-help-icon {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 11px;
+        background: #009294;
+    }
+
+    .calendario-help strong {
+        color: #3d4f51;
+        font-size: 0.83rem;
+    }
+
+    .calendario-help p {
+        margin-top: 3px;
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    /* Navegación */
+    .page-actions {
+        display: flex;
+        justify-content: center;
+        gap: 9px;
+    }
+
+    .btn-back,
+    .btn-home {
+        padding: 0.68rem 1.1rem;
+        border-radius: 11px;
+        font-weight: 700;
+    }
+
+    .btn-back {
+        color: #ffffff;
+        border-color: #647477;
+        background: #647477;
+    }
+
+    .btn-back:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    .btn-home {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .btn-home:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .calendario-hero-content {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .calendario-season {
+            width: 100%;
+        }
+
+        .calendario-toolbar {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .toolbar-actions {
+            justify-content: space-between;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .calendario-hero-content {
+            padding: 27px 22px;
+        }
+
+        .calendario-brand {
+            align-items: flex-start;
+        }
+
+        .fchmn-logo-wrapper {
+            width: 84px;
+            height: 84px;
+            min-width: 84px;
+            border-radius: 18px;
+        }
+
+        .fchmn-logo {
+            width: 66px;
+            height: 66px;
+        }
+
+        .calendario-title {
+            font-size: 2rem;
+        }
+
+        .toolbar-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .competencias-total,
+        .btn-new-competition {
+            width: 100%;
+        }
+
+        .calendario-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .calendario-hero {
+            border-radius: 18px;
+        }
+
+        .calendario-brand {
+            flex-direction: column;
+        }
+
+        .fchmn-logo-wrapper {
+            width: 78px;
+            height: 78px;
+            min-width: 78px;
+        }
+
+        .fchmn-logo {
+            width: 61px;
+            height: 61px;
+        }
+
+        .page-actions {
+            flex-direction: column;
+        }
+
+        .page-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    function confirmarCambioEstado(nombre) {
+        return confirm(
+            '¿Cambiar el estado de la competencia "' +
+            nombre +
+            '"?'
+        );
+    }
+
+    function confirmarEliminacion(nombre) {
+        return confirm(
+            '¿Eliminar definitivamente la competencia "' +
+            nombre +
+            '"?\n\nEsta acción no se puede deshacer.'
+        );
+    }
+</script>
+
 {% endblock %}
