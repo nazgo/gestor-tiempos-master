@@ -1,120 +1,691 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Seleccionar Año del Calendario | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
 
-    <div class="text-center mb-5">
-        <h2 class="fw-bold text-primary">
-            <i class="fas fa-calendar-alt"></i>
-            Calendario de Competencias
-        </h2>
+<div class="selector-calendario-page">
 
-        <p class="text-muted">
-            Seleccione el año que desea consultar
-        </p>
-    </div>
+    <!-- Encabezado -->
+    <section class="selector-hero mb-4">
 
-    <div class="row justify-content-center g-4">
+        <div class="selector-hero-content">
 
-        <div class="col-md-5 col-lg-4">
+            <div>
+
+                <div class="selector-kicker">
+                    <i class="fas fa-calendar-alt"></i>
+                    Circuito competitivo
+                </div>
+
+                <h1 class="selector-title">
+                    Calendario de Competencias
+                </h1>
+
+                <p class="selector-subtitle mb-0">
+                    Selecciona la temporada que deseas consultar o administrar.
+                </p>
+
+            </div>
+
+            <div class="selector-hero-icon">
+                <i class="fas fa-calendar-days"></i>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Introducción -->
+    <section class="selector-intro mb-4">
+
+        <div>
+
+            <div class="selector-intro-kicker">
+                Temporadas disponibles
+            </div>
+
+            <h2 class="selector-intro-title">
+                Elige un año
+            </h2>
+
+            <p class="selector-intro-description mb-0">
+                Cada temporada contiene sus propias competencias, fechas,
+                ubicaciones, tipo de piscina y estado de realización.
+            </p>
+
+        </div>
+
+        <div class="selector-intro-total">
+
+            <span class="selector-intro-number">
+                2
+            </span>
+
+            <span class="selector-intro-label">
+                temporadas
+            </span>
+
+        </div>
+
+    </section>
+
+    <!-- Tarjetas -->
+    <section class="row justify-content-center g-4">
+
+        <!-- 2025 -->
+        <div class="col-md-6 col-xl-4">
+
             <a
                 href="{{ url_for(
                     'calendario_competencias',
                     anio=2025
                 ) }}"
-                class="text-decoration-none"
+                class="year-link"
             >
-                <div class="card tarjeta-anio shadow-sm border-0 h-100">
-                    <div class="card-body text-center py-5">
 
-                        <div class="icono-anio mb-3">
+                <article class="year-card h-100">
+
+                    <div class="year-card-top">
+
+                        <div class="year-icon">
                             <i class="fas fa-calendar-check"></i>
                         </div>
 
-                        <h2 class="fw-bold mb-2">
-                            2025
-                        </h2>
-
-                        <p class="text-muted mb-0">
-                            Ver calendario de competencias
-                        </p>
+                        <span class="year-status">
+                            Disponible
+                        </span>
 
                     </div>
-                </div>
+
+                    <div class="year-card-body">
+
+                        <div class="year-label">
+                            Temporada
+                        </div>
+
+                        <div class="year-number">
+                            2025
+                        </div>
+
+                        <p class="year-description">
+                            Consulta el calendario y administra las competencias
+                            registradas durante la temporada 2025.
+                        </p>
+
+                        <div class="year-features">
+
+                            <div class="year-feature">
+                                <i class="fas fa-flag-checkered"></i>
+                                Competencias
+                            </div>
+
+                            <div class="year-feature">
+                                <i class="fas fa-location-dot"></i>
+                                Lugares
+                            </div>
+
+                            <div class="year-feature">
+                                <i class="fas fa-swimming-pool"></i>
+                                Tipo de piscina
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="year-card-footer">
+
+                        <span>
+                            Abrir calendario
+                        </span>
+
+                        <i class="fas fa-arrow-right"></i>
+
+                    </div>
+
+                </article>
+
             </a>
+
         </div>
 
-        <div class="col-md-5 col-lg-4">
+        <!-- 2026 -->
+        <div class="col-md-6 col-xl-4">
+
             <a
                 href="{{ url_for(
                     'calendario_competencias',
                     anio=2026
                 ) }}"
-                class="text-decoration-none"
+                class="year-link"
             >
-                <div class="card tarjeta-anio shadow-sm border-0 h-100">
-                    <div class="card-body text-center py-5">
 
-                        <div class="icono-anio mb-3">
+                <article class="year-card year-current h-100">
+
+                    <div class="year-card-top">
+
+                        <div class="year-icon">
                             <i class="fas fa-calendar-check"></i>
                         </div>
 
-                        <h2 class="fw-bold mb-2">
-                            2026
-                        </h2>
-
-                        <p class="text-muted mb-0">
-                            Ver calendario de competencias
-                        </p>
+                        <span class="year-status year-status-current">
+                            Actual
+                        </span>
 
                     </div>
-                </div>
+
+                    <div class="year-card-body">
+
+                        <div class="year-label">
+                            Temporada
+                        </div>
+
+                        <div class="year-number">
+                            2026
+                        </div>
+
+                        <p class="year-description">
+                            Consulta el calendario y administra las competencias
+                            registradas durante la temporada 2026.
+                        </p>
+
+                        <div class="year-features">
+
+                            <div class="year-feature">
+                                <i class="fas fa-flag-checkered"></i>
+                                Competencias
+                            </div>
+
+                            <div class="year-feature">
+                                <i class="fas fa-location-dot"></i>
+                                Lugares
+                            </div>
+
+                            <div class="year-feature">
+                                <i class="fas fa-swimming-pool"></i>
+                                Tipo de piscina
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="year-card-footer">
+
+                        <span>
+                            Abrir calendario
+                        </span>
+
+                        <i class="fas fa-arrow-right"></i>
+
+                    </div>
+
+                </article>
+
             </a>
+
         </div>
 
-    </div>
+    </section>
 
-    <div class="text-center mt-5">
+    <!-- Información -->
+    <section class="selector-help mt-5">
+
+        <div class="selector-help-icon">
+            <i class="fas fa-circle-info"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                Organización por temporada
+            </strong>
+
+            <p class="mb-0">
+                Separar las competencias por año facilita la consulta del
+                circuito histórico y evita mezclar eventos de temporadas
+                diferentes.
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- Navegación -->
+    <div class="text-center mt-4">
+
         <a
             href="{{ url_for('index') }}"
-            class="btn btn-secondary"
+            class="btn btn-back"
         >
-            ← Volver al Inicio
+            <i class="fas fa-arrow-left me-1"></i>
+            Volver al Inicio
         </a>
+
     </div>
 
 </div>
 
 <style>
-    body {
-        background: #f6f7fb;
+    .selector-calendario-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
     }
 
-    .tarjeta-anio {
-        color: #2f3237;
+    /* Hero */
+    .selector-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
+    }
+
+    .selector-hero::before {
+        position: absolute;
+        top: -100px;
+        right: 145px;
+        width: 250px;
+        height: 250px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
+    }
+
+    .selector-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .selector-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
+
+    .selector-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .selector-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .selector-subtitle {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
+
+    .selector-hero-icon {
+        display: inline-flex;
+        width: 100px;
+        height: 100px;
+        min-width: 100px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 27px;
+        background: rgba(255, 255, 255, 0.13);
+        font-size: 2.5rem;
+        backdrop-filter: blur(6px);
+    }
+
+    /* Introducción */
+    .selector-intro {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 19px 21px;
+        border: 1px solid #dceaea;
         border-radius: 18px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .selector-intro-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .selector-intro-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.25rem;
+        font-weight: 850;
+    }
+
+    .selector-intro-description {
+        color: #79898b;
+        font-size: 0.78rem;
+    }
+
+    .selector-intro-total {
+        display: flex;
+        min-width: 120px;
+        flex-direction: column;
+        align-items: center;
+        padding: 13px 18px;
+        border: 1px solid #cde7e7;
+        border-radius: 14px;
+        background: #f8ffff;
+    }
+
+    .selector-intro-number {
+        color: #009294;
+        font-size: 1.8rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .selector-intro-label {
+        margin-top: 5px;
+        color: #7d8c8e;
+        font-size: 0.67rem;
+    }
+
+    /* Tarjetas de año */
+    .year-link {
+        display: block;
+        height: 100%;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .year-link:hover {
+        color: inherit;
+    }
+
+    .year-card {
+        position: relative;
+        display: flex;
+        overflow: hidden;
+        flex-direction: column;
+        border: 1px solid #dceaea;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow:
+            0 8px 22px
+            rgba(25, 68, 70, 0.08);
         transition:
             transform 0.18s ease,
+            border-color 0.18s ease,
             box-shadow 0.18s ease;
     }
 
-    .tarjeta-anio:hover {
-        transform: translateY(-6px);
-        box-shadow:
-            0 12px 28px
-            rgba(0, 0, 0, 0.13) !important;
+    .year-card::after {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        background: #009294;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease;
+        content: "";
     }
 
-    .icono-anio {
+    .year-link:hover .year-card {
+        transform: translateY(-7px);
+        border-color: #bfe4e4;
+        box-shadow:
+            0 16px 34px
+            rgba(0, 126, 128, 0.15);
+    }
+
+    .year-link:hover .year-card::after {
+        transform: scaleX(1);
+    }
+
+    .year-current {
+        border-color: #9ed7d8;
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f4fdfd
+            );
+    }
+
+    .year-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 21px 21px 0;
+    }
+
+    .year-icon {
         display: inline-flex;
-        width: 72px;
-        height: 72px;
+        width: 58px;
+        height: 58px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border: 1px solid #ccebec;
+        border-radius: 17px;
+        background: #eaf9f9;
+        font-size: 1.45rem;
+        transition:
+            color 0.18s ease,
+            background 0.18s ease,
+            transform 0.18s ease;
+    }
+
+    .year-link:hover .year-icon {
+        transform: scale(1.05);
+        color: #ffffff;
+        background: #009294;
+    }
+
+    .year-status {
+        padding: 0.38rem 0.6rem;
+        color: #08734d;
+        border-radius: 999px;
+        background: #e6f7ef;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .year-status-current {
+        color: #ffffff;
+        background: #009294;
+    }
+
+    .year-card-body {
+        flex: 1;
+        padding: 24px 21px;
+    }
+
+    .year-label {
+        color: #819092;
+        font-size: 0.67rem;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .year-number {
+        margin-top: 5px;
+        color: #2d4041;
+        font-size: 3.2rem;
+        font-weight: 850;
+        line-height: 1;
+        letter-spacing: -0.05em;
+    }
+
+    .year-description {
+        margin: 17px 0 20px;
+        color: #748486;
+        font-size: 0.82rem;
+        line-height: 1.6;
+    }
+
+    .year-features {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        padding-top: 16px;
+        border-top: 1px solid #edf3f3;
+    }
+
+    .year-feature {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #596a6c;
+        font-size: 0.76rem;
+        font-weight: 650;
+    }
+
+    .year-feature i {
+        width: 16px;
+        color: #009294;
+        text-align: center;
+    }
+
+    .year-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 21px;
+        color: #ffffff;
+        background: #009294;
+        font-size: 0.8rem;
+        font-weight: 750;
+        transition: background 0.18s ease;
+    }
+
+    .year-link:hover .year-card-footer {
+        background: #007d7f;
+    }
+
+    /* Información */
+    .selector-help {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 19px;
+        color: #667779;
+        border: 1px solid #bfe4e4;
+        border-radius: 15px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #eaf9f9
+            );
+    }
+
+    .selector-help-icon {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
         align-items: center;
         justify-content: center;
         color: #ffffff;
-        background: #00a8a8;
-        border-radius: 50%;
-        font-size: 2rem;
+        border-radius: 11px;
+        background: #009294;
+    }
+
+    .selector-help strong {
+        color: #3d4f51;
+        font-size: 0.83rem;
+    }
+
+    .selector-help p {
+        margin-top: 3px;
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    .btn-back {
+        padding: 0.68rem 1.1rem;
+        color: #ffffff;
+        border-color: #647477;
+        border-radius: 11px;
+        background: #647477;
+        font-weight: 700;
+    }
+
+    .btn-back:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .selector-hero-content {
+            padding: 27px 22px;
+        }
+
+        .selector-hero-icon {
+            display: none;
+        }
+
+        .selector-title {
+            font-size: 2rem;
+        }
+
+        .selector-intro {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .selector-intro-total {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .selector-hero {
+            border-radius: 18px;
+        }
+
+        .year-number {
+            font-size: 2.7rem;
+        }
     }
 </style>
+
 {% endblock %}
