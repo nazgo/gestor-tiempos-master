@@ -886,14 +886,13 @@ def editar_competencia(competencia_id):
             url_for('seleccionar_anio_calendario')
         )
 
-    # Primero intenta recibirlo por la URL.
+    # Año recibido por URL
     anio = request.args.get(
         'anio',
         type=int
     )
 
-    # Si no llegó por URL, se obtiene desde la fecha
-    # registrada en la competencia.
+    # Si no viene por URL lo obtiene desde la fecha de la competencia
     if not anio:
         fecha_competencia = competencia.get('fecha')
 
@@ -906,10 +905,11 @@ def editar_competencia(competencia_id):
                     '%Y-%m-%d'
                 ).year
             except (TypeError, ValueError):
-                anio = 2026
+                anio = datetime.now().year
 
     if request.method == 'POST':
         try:
+
             fecha_str = request.form.get(
                 'fecha',
                 ''
@@ -940,10 +940,14 @@ def editar_competencia(competencia_id):
                 'NO REALIZADO'
             ).strip()
 
-            if not fecha_str or not lugar or not nombre:
-                raise ValueError(
-                    'Fecha, lugar y nombre son obligatorios.'
-                )
+            if not fecha_str:
+                raise ValueError('La fecha es obligatoria.')
+
+            if not lugar:
+                raise ValueError('El lugar es obligatorio.')
+
+            if not nombre:
+                raise ValueError('El nombre de la competencia es obligatorio.')
 
             fecha_objeto = datetime.strptime(
                 fecha_str,
@@ -969,7 +973,7 @@ def editar_competencia(competencia_id):
 
             gestor_tiempos.editar_competencia(
                 competencia_id=competencia_id,
-                fecha=fecha,
+                fecha=fecha_str,
                 lugar=lugar,
                 organiza=organiza,
                 nombre=nombre,
@@ -991,6 +995,7 @@ def editar_competencia(competencia_id):
             )
 
         except Exception as e:
+
             print(
                 'Error editando competencia:',
                 repr(e)
@@ -1014,7 +1019,7 @@ def editar_competencia(competencia_id):
         titulo='Editar competencia',
         anio=anio
     )
-
+    
 @app.route('/competencias/<int:competencia_id>/eliminar', methods=['POST'])
 @login_required
 @editor_required
