@@ -211,6 +211,7 @@ def eliminar_nadador(nadador_id):
 # ==================== GESTIÓN DE TIEMPOS ====================
 @app.route('/agregar', methods=['GET', 'POST'])
 @login_required
+@editor_required
 def agregar():
 
     competencias = gestor_tiempos.listar_competencias()
