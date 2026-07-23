@@ -1,409 +1,1400 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Estadísticas del Club | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
 
-<div class="text-center mb-5">
-    <h2 class="display-5 fw-bold text-primary">
-        <i class="fas fa-chart-bar"></i>
-        Estadísticas del Club
-    </h2>
+<div class="estadisticas-page">
 
-    <p class="lead">
-        Ñuñoa Master - Resumen General
-    </p>
-</div>
+    <!-- Encabezado -->
+    <section class="estadisticas-hero mb-4">
 
-<!-- Tarjetas resumen -->
-<div class="row g-4 mb-5">
+        <div class="estadisticas-hero-content">
 
-    <div class="col-md-3">
-        <a
-            href="{{ url_for('todos_los_tiempos') }}"
-            class="text-decoration-none"
-        >
-            <div class="card text-center h-100 shadow-sm border-0 tarjeta-resumen tarjeta-clickeable">
-    
-                <div class="card-body">
-    
-                    <i class="fas fa-stopwatch fa-3x text-primary mb-3"></i>
-    
-                    <h2 class="text-primary fw-bold">
-                        {{ stats.general.total_tiempos }}
-                    </h2>
-    
-                    <p class="text-muted mb-0">
-                        Tiempos Registrados
-                    </p>
-    
-                    <small class="text-primary">
-                        Ver historial de tiempos
-                    </small>
-    
+            <div>
+
+                <div class="estadisticas-kicker">
+                    <i class="fas fa-chart-column"></i>
+                    Análisis institucional
                 </div>
-    
-            </div>
-        </a>
-    </div>
 
-    <div class="col-md-3">
-        <a
-            href="{{ url_for('nadadores') }}"
-            class="text-decoration-none"
-        >
-            <div class="card text-center h-100 shadow-sm border-0 tarjeta-resumen tarjeta-clickeable">
-                <div class="card-body">
-                    <i class="fas fa-users fa-3x text-success mb-3"></i>
-    
-                    <h2 class="text-success fw-bold">
-                        {{ stats.general.total_nadadores }}
-                    </h2>
-    
-                    <p class="text-muted mb-0">
-                        Total de Nadadores
-                    </p>
-    
-                    <small class="text-success">
-                        Ver gestión de nadadores
-                    </small>
-                </div>
-            </div>
-        </a>
-    </div>
+                <h1 class="estadisticas-title">
+                    Estadísticas del Club
+                </h1>
 
-    <div class="col-md-3">
-        <a
-            href="{{ url_for(
-                'estado_nadadores_anio',
-                anio=año_actual
-            ) }}"
-            class="text-decoration-none"
-        >
-            <div class="card text-center h-100 shadow-sm border-0 tarjeta-resumen tarjeta-clickeable">
-                <div class="card-body">
-                    <i class="fas fa-user-check fa-3x text-info mb-3"></i>
-    
-                    <h2 class="text-info fw-bold">
-                        {{ stats.activos_este_año }}
-                    </h2>
-    
-                    <p class="text-muted mb-0">
-                        Nadadores Activos en {{ año_actual }}
-                    </p>
-    
-                    <small class="text-info">
-                        Ver activos e inactivos
-                    </small>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <div class="col-md-3">
-        <a
-            href="{{ url_for('seleccionar_anio_calendario') }}"
-            class="text-decoration-none"
-        >
-            <div class="card text-center h-100 shadow-sm border-0 tarjeta-resumen tarjeta-clickeable">
-            <div class="card-body">
-                <i class="fas fa-calendar-alt fa-3x text-warning mb-3"></i>
-
-                <h2 class="text-warning fw-bold">
-                    {{ stats.temporadas }}
-                </h2>
-                
-                <p class="text-muted mb-0">
-                    Temporadas 
+                <p class="estadisticas-subtitle mb-0">
+                    Resumen de actividad, rendimiento y participación
+                    del Club Natación Ñuñoa Master.
                 </p>
-                <small class="text-warning">
-                    Ver circuito de competencias
-                    </small>
-                </div>
-            </div>
-        </a>
-    </div>
 
-</div>
-
-<div class="row g-4">
-
-    <!-- Nadadores más activos -->
-    <div class="col-lg-6">
-        <div class="card shadow-sm h-100 border-0">
-
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-fire"></i>
-                    Nadadores Más Activos en {{ año_actual }}
-                </h5>
             </div>
 
-            <div class="card-body p-0">
-                <div class="table-responsive">
+            <div class="estadisticas-hero-season">
 
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Nadador</th>
-                                <th>Categoría</th>
-                                <th class="text-end">
-                                    Tiempos Registrados
-                                </th>
-                            </tr>
-                        </thead>
+                <span class="season-label">
+                    Temporada actual
+                </span>
 
-                        <tbody>
-                            {% for n in stats.mas_activos %}
-                            <tr>
-                                <td>
-                                    <strong>{{ n.nombre_nadador }}</strong>
-                                </td>
-                        
-                                <td>
-                                   
-                                        {{ n.categoria_master or 'Sin categoría' }}
-                                    </span>
-                                </td>
-                        
-                                <td class="text-end fw-bold">
-                                    {{ n.total_tiempos }}
-                                </td>
-                            </tr>
-                        
-                            {% else %}
-                            <tr>
-                                <td
-                                    colspan="3"
-                                    class="text-center text-muted py-4"
-                                >
-                                    No hay registros disponibles.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <span class="season-year">
+                    {{ año_actual }}
+                </span>
 
-                </div>
             </div>
 
         </div>
-    </div>
 
-    <!-- Mejores tiempos -->
-    <div class="col-lg-6">
-        <div class="card shadow-sm h-100 border-0">
+    </section>
 
-            <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0">
-                    <i class="fas fa-trophy"></i>
-                    Mejores Tiempos en 50 metros
-                </h5>
-            </div>
+    <!-- Indicadores principales -->
+    <section class="row g-3 g-xl-4 mb-4">
 
-            <div class="card-body p-0">
-                <div class="table-responsive">
+        <!-- Tiempos -->
+        <div class="col-sm-6 col-xl-3">
 
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Nadador</th>
-                                <th>Estilo</th>
-                                <th>Piscina</th>
-                                <th>Tiempo</th>
-                                <th>Fecha</th>
-                            </tr>
-                        </thead>
+            <a
+                href="{{ url_for('todos_los_tiempos') }}"
+                class="stat-link"
+            >
 
-                    <tbody>
-                        {% for p in stats.por_prueba %}
-                        <tr>                
-                            <td>
-                                <strong>
-                                    {{ p.nombre_nadador or '—' }}
-                                </strong>
-                            </td>
-                    
-                            <td>
-                                {{ p.estilo }}
-                            </td>
-                    
-                            <td>
-                                   {{ p.piscina }}
-                            </td>
-                    
-                            <td>
-                                <span class="badge bg-success">
-                                    {{ p.tiempo }}
-                                </span>
-                            </td>
-                    
-                            <td>
-                                {{ p.fecha or '—' }}
-                            </td>
-                        </tr>
-                    
-                        {% else %}
-                        <tr>
-                            <td
-                                colspan="5"
-                                class="text-center text-muted py-4"
-                            >
-                                No hay tiempos disponibles.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                    </table>
+                <article class="stat-card h-100">
+
+                    <div class="stat-card-top">
+
+                        <div class="stat-icon">
+                            <i class="fas fa-stopwatch"></i>
+                        </div>
+
+                        <span class="stat-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ stats.general.total_tiempos }}
+                    </div>
+
+                    <div class="stat-label">
+                        Tiempos registrados
+                    </div>
+
+                    <div class="stat-detail">
+                        Consultar historial completo
+                    </div>
+
+                </article>
+
+            </a>
+
+        </div>
+
+        <!-- Nadadores -->
+        <div class="col-sm-6 col-xl-3">
+
+            <a
+                href="{{ url_for('nadadores') }}"
+                class="stat-link"
+            >
+
+                <article class="stat-card h-100">
+
+                    <div class="stat-card-top">
+
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+
+                        <span class="stat-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ stats.general.total_nadadores }}
+                    </div>
+
+                    <div class="stat-label">
+                        Nadadores registrados
+                    </div>
+
+                    <div class="stat-detail">
+                        Ver fichas y gestión
+                    </div>
+
+                </article>
+
+            </a>
+
+        </div>
+
+        <!-- Activos -->
+        <div class="col-sm-6 col-xl-3">
+
+            <a
+                href="{{ url_for(
+                    'estado_nadadores_anio',
+                    anio=año_actual
+                ) }}"
+                class="stat-link"
+            >
+
+                <article class="stat-card h-100">
+
+                    <div class="stat-card-top">
+
+                        <div class="stat-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+
+                        <span class="stat-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ stats.activos_este_año }}
+                    </div>
+
+                    <div class="stat-label">
+                        Nadadores activos
+                    </div>
+
+                    <div class="stat-detail">
+                        Actividad durante {{ año_actual }}
+                    </div>
+
+                </article>
+
+            </a>
+
+        </div>
+
+        <!-- Temporadas -->
+        <div class="col-sm-6 col-xl-3">
+
+            <a
+                href="{{ url_for('seleccionar_anio_calendario') }}"
+                class="stat-link"
+            >
+
+                <article class="stat-card h-100">
+
+                    <div class="stat-card-top">
+
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+
+                        <span class="stat-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ stats.temporadas }}
+                    </div>
+
+                    <div class="stat-label">
+                        Temporadas registradas
+                    </div>
+
+                    <div class="stat-detail">
+                        Consultar circuito anual
+                    </div>
+
+                </article>
+
+            </a>
+
+        </div>
+
+    </section>
+
+    <!-- Paneles principales -->
+    <section class="row g-4">
+
+        <!-- Nadadores activos -->
+        <div class="col-xl-5">
+
+            <article class="dashboard-panel h-100">
+
+                <header class="panel-header">
+
+                    <div>
+
+                        <div class="panel-kicker">
+                            Participación
+                        </div>
+
+                        <h2 class="panel-title">
+                            Nadadores más activos
+                        </h2>
+
+                        <p class="panel-subtitle mb-0">
+                            Mayor cantidad de tiempos durante {{ año_actual }}
+                        </p>
+
+                    </div>
+
+                    <div class="panel-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+
+                </header>
+
+                <div class="panel-body p-0">
+
+                    <div class="table-responsive">
+
+                        <table class="table dashboard-table align-middle mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th class="ranking-column">#</th>
+                                    <th>Nadador</th>
+                                    <th>Categoría</th>
+                                    <th class="text-end">Tiempos</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for n in stats.mas_activos %}
+
+                                <tr>
+
+                                    <td class="ranking-column">
+
+                                        <span class="
+                                            ranking-position
+                                            {% if loop.index == 1 %}
+                                                ranking-gold
+                                            {% elif loop.index == 2 %}
+                                                ranking-silver
+                                            {% elif loop.index == 3 %}
+                                                ranking-bronze
+                                            {% endif %}
+                                        ">
+                                            {{ loop.index }}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <div class="nadador-cell">
+
+                                            <div class="nadador-avatar">
+                                                {{ n.nombre_nadador[:1]|upper }}
+                                            </div>
+
+                                            <strong>
+                                                {{ n.nombre_nadador }}
+                                            </strong>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="categoria-badge">
+                                            {{ n.categoria_master or 'Sin categoría' }}
+                                        </span>
+
+                                    </td>
+
+                                    <td class="text-end">
+
+                                        <span class="total-tiempos-badge">
+                                            {{ n.total_tiempos }}
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+                                    <td colspan="4">
+
+                                        <div class="empty-state">
+
+                                            <i class="fas fa-user-clock"></i>
+
+                                            <strong>
+                                                Sin actividad registrada
+                                            </strong>
+
+                                            <span>
+                                                No existen tiempos para la temporada.
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
+
+            </article>
+
+        </div>
+
+        <!-- Mejores 50 metros -->
+        <div class="col-xl-7">
+
+            <article class="dashboard-panel h-100">
+
+                <header class="panel-header">
+
+                    <div>
+
+                        <div class="panel-kicker">
+                            Rendimiento
+                        </div>
+
+                        <h2 class="panel-title">
+                            Mejores tiempos en 50 metros
+                        </h2>
+
+                        <p class="panel-subtitle mb-0">
+                            Marcas destacadas por estilo y tipo de piscina
+                        </p>
+
+                    </div>
+
+                    <div class="panel-icon panel-icon-trophy">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+
+                </header>
+
+                <div class="panel-body p-0">
+
+                    <div class="table-responsive">
+
+                        <table class="table dashboard-table align-middle mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Nadador</th>
+                                    <th>Estilo</th>
+                                    <th>Piscina</th>
+                                    <th>Tiempo</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for p in stats.por_prueba %}
+
+                                <tr>
+
+                                    <td>
+                                        <strong class="nombre-destacado">
+                                            {{ p.nombre_nadador or '—' }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+
+                                        <span class="estilo-badge">
+                                            {{ p.estilo }}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        {% if p.piscina == '25 metros' %}
+
+                                        <span class="piscina-badge piscina-25">
+                                            25 m
+                                        </span>
+
+                                        {% elif p.piscina == '50 metros' %}
+
+                                        <span class="piscina-badge piscina-50">
+                                            50 m
+                                        </span>
+
+                                        {% else %}
+
+                                        <span class="piscina-badge piscina-otro">
+                                            {{ p.piscina or '—' }}
+                                        </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="tiempo-badge">
+                                            {{ p.tiempo }}
+                                        </span>
+
+                                    </td>
+
+                                    <td class="fecha-cell">
+
+                                        {% if p.fecha and p.fecha.strftime is defined %}
+                                            {{ p.fecha.strftime('%d/%m/%Y') }}
+                                        {% else %}
+                                            {{ p.fecha or '—' }}
+                                        {% endif %}
+
+                                    </td>
+
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+                                    <td colspan="5">
+
+                                        <div class="empty-state">
+
+                                            <i class="fas fa-stopwatch"></i>
+
+                                            <strong>
+                                                Sin tiempos disponibles
+                                            </strong>
+
+                                            <span>
+                                                Todavía no existen marcas para mostrar.
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- Acceso a rankings -->
+    <section class="rankings-banner mt-4">
+
+        <div class="rankings-banner-content">
+
+            <div class="rankings-banner-icon">
+                <i class="fas fa-medal"></i>
+            </div>
+
+            <div class="rankings-banner-text">
+
+                <div class="rankings-kicker">
+                    Clasificación deportiva
+                </div>
+
+                <h3>
+                    Mejores tiempos por categoría y estilo
+                </h3>
+
+                <p class="mb-0">
+                    Consulta los rankings del club organizados por prueba,
+                    género, categoría y piscina.
+                </p>
+
+            </div>
+
+            <a
+                href="{{ url_for('mejores_tiempos') }}"
+                class="btn btn-rankings"
+            >
+                Ver rankings
+                <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+
+        </div>
+
+    </section>
+
+    <!-- Temporadas -->
+    <section class="temporadas-section mt-5">
+
+        <div class="section-heading mb-3">
+
+            <div>
+
+                <div class="section-kicker">
+                    Historial deportivo
+                </div>
+
+                <h2 class="section-title">
+                    Registros por temporada
+                </h2>
+
+                <p class="section-description mb-0">
+                    Distribución histórica de los tiempos almacenados.
+                </p>
+
             </div>
 
         </div>
-    </div>
 
-</div>
+        <div class="row g-3">
 
-<!-- Botón mejores tiempos -->
-<div class="text-center mt-4">
-    <a
-        href="{{ url_for('mejores_tiempos') }}"
-        class="btn btn-lg btn-outline-primary"
-    >
-        <i class="fas fa-trophy"></i>
-        Ver Mejores Tiempos por Categoría y Estilo
-    </a>
-</div>
+            {% for t in registros_temporada %}
 
-<!-- Registros por temporada -->
-<div class="mt-5">
+            <div class="col-sm-6 col-lg-4 col-xl-3">
 
-    <h4 class="mb-3">
-        Registros por Temporada
-    </h4>
+                <article class="temporada-card h-100">
 
-    <div class="row g-3">
+                    <div class="temporada-card-top">
 
-        {% for t in registros_temporada %}
+                        <span class="temporada-label">
+                            Temporada
+                        </span>
 
-        <div class="col-md-6 col-lg-4">
+                        <i class="fas fa-calendar-check"></i>
 
-            <div class="card text-center border-0 shadow-sm tarjeta-temporada h-100">
+                    </div>
 
-                <div class="card-body py-4">
-
-                    <div class="anio-temporada">
+                    <div class="temporada-anio">
                         {{ t.anio }}
                     </div>
 
-                    <div class="total-temporada">
+                    <div class="temporada-total">
                         {{ t.total }}
                     </div>
 
-                    <div class="texto-temporada">
-                        tiempos
+                    <div class="temporada-description">
+                        tiempos registrados
+                    </div>
+
+                    <div class="temporada-progress">
+
+                        <div
+                            class="temporada-progress-bar"
+                            style="
+                                width:
+                                {% if stats.general.total_tiempos %}
+                                    {{ (
+                                        t.total
+                                        / stats.general.total_tiempos
+                                        * 100
+                                    )|round(0) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            "
+                        ></div>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+            {% else %}
+
+            <div class="col-12">
+
+                <div class="empty-seasons">
+
+                    <i class="fas fa-calendar-xmark"></i>
+
+                    <div>
+
+                        <strong>
+                            No hay temporadas disponibles
+                        </strong>
+
+                        <p class="mb-0">
+                            Los registros aparecerán cuando existan tiempos
+                            asociados a una fecha.
+                        </p>
+
                     </div>
 
                 </div>
 
             </div>
 
+            {% endfor %}
+
         </div>
 
-        {% else %}
+    </section>
 
-        <div class="col-12">
-            <div class="alert alert-info text-center">
-                No hay tiempos registrados por temporada.
-            </div>
-        </div>
+    <!-- Volver -->
+    <div class="text-center mt-5">
 
-        {% endfor %}
+        <a
+            href="{{ url_for('index') }}"
+            class="btn btn-volver"
+        >
+            <i class="fas fa-arrow-left me-1"></i>
+            Volver al Inicio
+        </a>
 
     </div>
 
 </div>
 
-<div class="text-center mt-5">
-    <a
-        href="{{ url_for('index') }}"
-        class="btn btn-secondary"
-    >
-        ← Volver al Inicio
-    </a>
-</div>
-
 <style>
-    .tarjeta-resumen,
-    .tarjeta-temporada {
-        border-radius: 18px;
-        background: #ffffff;
-        transition:
-            transform 0.18s ease,
-            box-shadow 0.18s ease;
+    .estadisticas-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
     }
 
-    .tarjeta-resumen:hover,
-    .tarjeta-temporada:hover {
-        transform: translateY(-4px);
+    /* Hero */
+    .estadisticas-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
         box-shadow:
-            0 10px 24px
-            rgba(0, 0, 0, 0.10) !important;
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
     }
 
-    .anio-temporada {
-        color: #12bdd9;
-        font-size: 1.35rem;
-        font-weight: 700;
+    .estadisticas-hero::before {
+        position: absolute;
+        top: -110px;
+        right: 170px;
+        width: 260px;
+        height: 260px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
+    }
+
+    .estadisticas-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .estadisticas-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 28px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
+
+    .estadisticas-kicker {
         margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.80);
+        font-size: 0.75rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
     }
 
-    .total-temporada {
-        color: #12bdd9;
-        font-size: 2.5rem;
-        font-weight: 800;
+    .estadisticas-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .estadisticas-subtitle {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
+
+    .estadisticas-hero-season {
+        display: flex;
+        min-width: 155px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 17px 20px;
+        border: 1px solid rgba(255, 255, 255, 0.23);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .season-label {
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 0.67rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+    }
+
+    .season-year {
+        margin-top: 4px;
+        font-size: 2rem;
+        font-weight: 850;
         line-height: 1;
     }
 
-    .texto-temporada {
-        margin-top: 8px;
-        color: #6c757d;
-        font-size: 0.9rem;
+    /* Métricas */
+    .stat-link {
+        display: block;
+        height: 100%;
+        color: inherit;
+        text-decoration: none;
     }
 
+    .stat-link:hover {
+        color: inherit;
+    }
+
+    .stat-card {
+        position: relative;
+        overflow: hidden;
+        padding: 20px;
+        border: 1px solid #dceaea;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow:
+            0 6px 18px
+            rgba(25, 65, 67, 0.07);
+        transition:
+            transform 0.18s ease,
+            border-color 0.18s ease,
+            box-shadow 0.18s ease;
+    }
+
+    .stat-card::after {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        background: #009294;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease;
+        content: "";
+    }
+
+    .stat-card:hover {
+        transform: translateY(-6px);
+        border-color: #bfe4e4;
+        box-shadow:
+            0 14px 30px
+            rgba(0, 126, 128, 0.14);
+    }
+
+    .stat-card:hover::after {
+        transform: scaleX(1);
+    }
+
+    .stat-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .stat-icon {
+        display: inline-flex;
+        width: 52px;
+        height: 52px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border: 1px solid #ccebec;
+        border-radius: 15px;
+        background: #eaf9f9;
+        font-size: 1.3rem;
+    }
+
+    .stat-arrow {
+        display: inline-flex;
+        width: 31px;
+        height: 31px;
+        align-items: center;
+        justify-content: center;
+        color: #819092;
+        border-radius: 50%;
+        background: #f0f6f6;
+        transition:
+            transform 0.18s ease,
+            color 0.18s ease,
+            background 0.18s ease;
+    }
+
+    .stat-card:hover .stat-arrow {
+        transform: translateX(3px);
+        color: #ffffff;
+        background: #009294;
+    }
+
+    .stat-value {
+        margin-top: 18px;
+        color: #263839;
+        font-size: 2.25rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .stat-label {
+        margin-top: 7px;
+        color: #405153;
+        font-size: 0.9rem;
+        font-weight: 800;
+    }
+
+    .stat-detail {
+        margin-top: 5px;
+        color: #829092;
+        font-size: 0.72rem;
+    }
+
+    /* Paneles */
+    .dashboard-panel {
+        overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 19px 20px;
+        border-bottom: 1px solid #e5eeee;
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #f2fbfb
+            );
+    }
+
+    .panel-kicker,
+    .section-kicker,
+    .rankings-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .panel-title {
+        margin: 3px 0;
+        color: #2c3d3e;
+        font-size: 1.16rem;
+        font-weight: 850;
+    }
+
+    .panel-subtitle {
+        color: #7a898b;
+        font-size: 0.76rem;
+    }
+
+    .panel-icon {
+        display: inline-flex;
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border-radius: 13px;
+        background: #e6f8f8;
+        font-size: 1.1rem;
+    }
+
+    .panel-icon-trophy {
+        color: #a87808;
+        background: #fff5d8;
+    }
+
+    /* Tablas */
+    .dashboard-table thead th {
+        padding: 11px 15px;
+        color: #69787a;
+        border-bottom: 1px solid #dde8e8;
+        background: #f7fafa;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .dashboard-table tbody td {
+        padding: 12px 15px;
+        border-color: #edf2f2;
+        color: #4e5f61;
+        font-size: 0.81rem;
+    }
+
+    .dashboard-table tbody tr:hover {
+        background: #f8fdfd;
+    }
+
+    .ranking-column {
+        width: 46px;
+        text-align: center;
+    }
+
+    .ranking-position {
+        display: inline-flex;
+        width: 27px;
+        height: 27px;
+        align-items: center;
+        justify-content: center;
+        color: #617173;
+        border-radius: 8px;
+        background: #eef3f3;
+        font-size: 0.72rem;
+        font-weight: 850;
+    }
+
+    .ranking-gold {
+        color: #8d670a;
+        background: #fff1bd;
+    }
+
+    .ranking-silver {
+        color: #657174;
+        background: #e9eeee;
+    }
+
+    .ranking-bronze {
+        color: #8b562a;
+        background: #f5dfca;
+    }
+
+    .nadador-cell {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        white-space: nowrap;
+    }
+
+    .nadador-avatar {
+        display: inline-flex;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 10px;
+        background:
+            linear-gradient(
+                135deg,
+                #009294,
+                #00b2b4
+            );
+        font-size: 0.8rem;
+        font-weight: 850;
+    }
+
+    .categoria-badge,
+    .estilo-badge,
+    .piscina-badge,
+    .total-tiempos-badge,
+    .tiempo-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .categoria-badge {
+        padding: 0.37rem 0.53rem;
+        color: #536466;
+        border: 1px solid #dce6e6;
+        background: #f3f6f6;
+        font-size: 0.68rem;
+    }
+
+    .total-tiempos-badge {
+        min-width: 42px;
+        padding: 0.38rem 0.55rem;
+        color: #ffffff;
+        background: #009294;
+        font-size: 0.76rem;
+    }
+
+    .nombre-destacado {
+        color: #344547;
+    }
+
+    .estilo-badge {
+        padding: 0.36rem 0.52rem;
+        color: #416063;
+        background: #edf5f5;
+        font-size: 0.7rem;
+    }
+
+    .piscina-badge {
+        min-width: 48px;
+        padding: 0.38rem 0.52rem;
+        color: #ffffff;
+        font-size: 0.68rem;
+    }
+
+    .piscina-25 {
+        background: #2878c7;
+    }
+
+    .piscina-50 {
+        background: #009294;
+    }
+
+    .piscina-otro {
+        color: #566668;
+        background: #e7eded;
+    }
+
+    .tiempo-badge {
+        min-width: 74px;
+        padding: 0.42rem 0.58rem;
+        color: #ffffff;
+        background: #16875a;
+        font-family:
+            "Segoe UI",
+            Arial,
+            sans-serif;
+        font-size: 0.74rem;
+    }
+
+    .fecha-cell {
+        color: #7a898b !important;
+        white-space: nowrap;
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px 15px;
+        color: #7c8b8d;
+        text-align: center;
+    }
+
+    .empty-state i {
+        margin-bottom: 10px;
+        color: #009294;
+        font-size: 1.7rem;
+    }
+
+    .empty-state strong {
+        color: #455658;
+        font-size: 0.86rem;
+    }
+
+    .empty-state span {
+        margin-top: 3px;
+        font-size: 0.73rem;
+    }
+
+    /* Banner rankings */
+    .rankings-banner {
+        overflow: hidden;
+        border: 1px solid #bfe4e4;
+        border-radius: 19px;
+        background:
+            linear-gradient(
+                135deg,
+                #f8ffff,
+                #eaf9f9
+            );
+    }
+
+    .rankings-banner-content {
+        display: flex;
+        align-items: center;
+        gap: 17px;
+        padding: 21px 24px;
+    }
+
+    .rankings-banner-icon {
+        display: inline-flex;
+        width: 58px;
+        height: 58px;
+        min-width: 58px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 16px;
+        background:
+            linear-gradient(
+                135deg,
+                #009294,
+                #00b0b2
+            );
+        font-size: 1.4rem;
+    }
+
+    .rankings-banner-text {
+        flex: 1;
+    }
+
+    .rankings-banner-text h3 {
+        margin: 3px 0;
+        color: #2e4041;
+        font-size: 1.08rem;
+        font-weight: 850;
+    }
+
+    .rankings-banner-text p {
+        color: #778789;
+        font-size: 0.77rem;
+    }
+
+    .btn-rankings {
+        padding: 0.68rem 1rem;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.8rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .btn-rankings:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Temporadas */
+    .section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .section-title {
+        margin: 3px 0;
+        color: #2c3d3e;
+        font-size: 1.4rem;
+        font-weight: 850;
+    }
+
+    .section-description {
+        color: #79898b;
+        font-size: 0.81rem;
+    }
+
+    .temporada-card {
+        overflow: hidden;
+        padding: 19px;
+        border: 1px solid #dceaea;
+        border-radius: 17px;
+        background: #ffffff;
+        box-shadow:
+            0 6px 17px
+            rgba(25, 68, 70, 0.06);
+        transition:
+            transform 0.18s ease,
+            border-color 0.18s ease,
+            box-shadow 0.18s ease;
+    }
+
+    .temporada-card:hover {
+        transform: translateY(-4px);
+        border-color: #bfe4e4;
+        box-shadow:
+            0 12px 25px
+            rgba(0, 126, 128, 0.12);
+    }
+
+    .temporada-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .temporada-label {
+        color: #7b8a8c;
+        font-size: 0.68rem;
+        font-weight: 750;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+    }
+
+    .temporada-card-top i {
+        color: #009294;
+    }
+
+    .temporada-anio {
+        margin-top: 13px;
+        color: #334547;
+        font-size: 1.12rem;
+        font-weight: 850;
+    }
+
+    .temporada-total {
+        margin-top: 6px;
+        color: #009294;
+        font-size: 2.25rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .temporada-description {
+        margin-top: 6px;
+        color: #829092;
+        font-size: 0.73rem;
+    }
+
+    .temporada-progress {
+        overflow: hidden;
+        height: 5px;
+        margin-top: 15px;
+        border-radius: 999px;
+        background: #e5eeee;
+    }
+
+    .temporada-progress-bar {
+        height: 100%;
+        border-radius: inherit;
+        background:
+            linear-gradient(
+                90deg,
+                #009294,
+                #00b4b6
+            );
+    }
+
+    .empty-seasons {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 22px;
+        color: #758587;
+        border: 1px dashed #bfd9da;
+        border-radius: 16px;
+        background: #f9fdfd;
+    }
+
+    .empty-seasons i {
+        color: #009294;
+        font-size: 1.5rem;
+    }
+
+    .empty-seasons strong {
+        color: #425355;
+        font-size: 0.87rem;
+    }
+
+    .empty-seasons p {
+        margin-top: 3px;
+        font-size: 0.75rem;
+    }
+
+    .btn-volver {
+        padding: 0.68rem 1.1rem;
+        color: #ffffff;
+        border-color: #647477;
+        border-radius: 11px;
+        background: #647477;
+        font-weight: 700;
+    }
+
+    .btn-volver:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
-        .display-5 {
+        .estadisticas-hero-content {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 27px 22px;
+        }
+
+        .estadisticas-hero-season {
+            width: 100%;
+        }
+
+        .estadisticas-title {
             font-size: 2rem;
         }
 
-        .total-temporada {
-            font-size: 2.1rem;
+        .rankings-banner-content {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .btn-rankings {
+            width: 100%;
         }
     }
 
+    @media (max-width: 575px) {
+        .estadisticas-hero {
+            border-radius: 18px;
+        }
 
+        .panel-header {
+            align-items: flex-start;
+        }
 
-    .tarjeta-clickeable {
-    cursor: pointer;
-}
+        .panel-icon {
+            display: none;
+        }
 
-.tarjeta-clickeable:hover {
-    transform: translateY(-5px);
-    box-shadow:
-        0 12px 26px
-        rgba(0, 0, 0, 0.13) !important;
-}
+        .dashboard-table tbody td,
+        .dashboard-table thead th {
+            padding-right: 11px;
+            padding-left: 11px;
+        }
 
-
-    .tarjeta-clickeable {
-    cursor: pointer;
-}
-
-.tarjeta-clickeable:hover {
-    transform: translateY(-5px);
-    box-shadow:
-        0 12px 26px
-        rgba(0, 0, 0, 0.13) !important;
-}
-    
+        .stat-value {
+            font-size: 2rem;
+        }
+    }
 </style>
 
 {% endblock %}
