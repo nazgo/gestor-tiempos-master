@@ -1,36 +1,735 @@
 {% extends "base.html" %}
+
+{% block title %}
+Iniciar Sesión | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-5">
-        <div class="card shadow-lg">
-            <div class="card-body p-5 text-center">
-                <img src="{{ url_for('static', filename='logo1.png') }}" 
-                     alt="Ñuñoa Master" style="height: 100px; margin-bottom: 20px;"
-                     onerror="this.style.display='none';">
-                
-                <h2 class="mb-4 text-primary">Iniciar Sesión</h2>
-                
-                <form method="POST">
+
+<div class="login-page">
+
+    <div class="login-layout">
+
+        <!-- Panel visual -->
+        <section class="login-brand-panel">
+
+            <div class="login-brand-decoration login-circle-one"></div>
+            <div class="login-brand-decoration login-circle-two"></div>
+
+            <div class="login-brand-content">
+
+                <div class="login-logo-wrapper">
+
+                    <img
+                        src="{{ url_for('static', filename='logo1.png') }}"
+                        alt="Club Ñuñoa Master"
+                        class="login-logo"
+                        onerror="this.style.display='none';"
+                    >
+
+                </div>
+
+                <div class="login-kicker">
+                    <i class="fas fa-water"></i>
+                    Club Natación Ñuñoa Master
+                </div>
+
+                <h1 class="login-brand-title">
+                    Gestión deportiva en un solo lugar
+                </h1>
+
+                <p class="login-brand-description">
+                    Consulta nadadores, tiempos, estadísticas, competencias
+                    y asistencias desde una plataforma centralizada.
+                </p>
+
+                <div class="login-features">
+
+                    <div class="login-feature">
+                        <i class="fas fa-stopwatch"></i>
+                        Gestión de tiempos
+                    </div>
+
+                    <div class="login-feature">
+                        <i class="fas fa-chart-line"></i>
+                        Seguimiento de progreso
+                    </div>
+
+                    <div class="login-feature">
+                        <i class="fas fa-calendar-check"></i>
+                        Calendario competitivo
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="login-brand-footer">
+                Ñuñoa Master · Chile
+            </div>
+
+        </section>
+
+        <!-- Formulario -->
+        <section class="login-form-panel">
+
+            <div class="login-form-card">
+
+                <div class="login-form-header">
+
+                    <div class="login-form-icon">
+                        <i class="fas fa-user-lock"></i>
+                    </div>
+
+                    <div>
+
+                        <div class="login-form-kicker">
+                            Acceso al sistema
+                        </div>
+
+                        <h2 class="login-form-title">
+                            Iniciar Sesión
+                        </h2>
+
+                        <p class="login-form-description mb-0">
+                            Ingresa tus credenciales para continuar.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <form
+                    method="POST"
+                    class="login-form"
+                    autocomplete="on"
+                >
+
+                    <!-- Usuario -->
                     <div class="mb-3">
-                        <input type="text" name="username" class="form-control form-control-lg" 
-                               placeholder="Usuario" required autofocus>
+
+                        <label
+                            for="username"
+                            class="form-label login-label"
+                        >
+                            Usuario
+                        </label>
+
+                        <div class="login-input-wrapper">
+
+                            <i class="fas fa-user login-input-icon"></i>
+
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                class="form-control form-control-lg login-input"
+                                placeholder="Ingresa tu usuario"
+                                autocomplete="username"
+                                required
+                                autofocus
+                            >
+
+                        </div>
+
                     </div>
+
+                    <!-- Contraseña -->
                     <div class="mb-4">
-                        <input type="password" name="password" class="form-control form-control-lg" 
-                               placeholder="Contraseña" required>
+
+                        <label
+                            for="password"
+                            class="form-label login-label"
+                        >
+                            Contraseña
+                        </label>
+
+                        <div class="login-input-wrapper">
+
+                            <i class="fas fa-lock login-input-icon"></i>
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="form-control form-control-lg login-input login-password-input"
+                                placeholder="Ingresa tu contraseña"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="passwordToggle"
+                                aria-label="Mostrar contraseña"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+
+                        </div>
+
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg w-100 py-3">
-                        <i class="fas fa-sign-in-alt"></i> Ingresar
+
+                    <button
+                        type="submit"
+                        class="btn btn-login w-100"
+                        id="loginButton"
+                    >
+                        <span class="login-button-content">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Ingresar
+                        </span>
+
+                        <span class="login-button-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            Ingresando...
+                        </span>
                     </button>
+
                 </form>
 
-                <hr class="my-4">
-                <small class="text-muted">
-                    <strong>Ñuñoa Master</strong><br>
-                    Chile · 2026                    
-                </small>
+                <div class="login-security">
+
+                    <i class="fas fa-shield-halved"></i>
+
+                    <span>
+                        Acceso restringido a usuarios autorizados.
+                    </span>
+
+                </div>
+
+                <div class="login-footer">
+
+                    <strong>
+                        Ñuñoa Master
+                    </strong>
+
+                    <span>
+                        Sistema de Gestión de Tiempos · 2026
+                    </span>
+
+                </div>
+
             </div>
-        </div>
+
+        </section>
+
     </div>
+
 </div>
+
+<style>
+    .login-page {
+        min-height: calc(100vh - 145px);
+        padding: 28px 0 38px;
+    }
+
+    .login-layout {
+        display: grid;
+        overflow: hidden;
+        max-width: 1080px;
+        min-height: 610px;
+        margin: 0 auto;
+        grid-template-columns: 1.08fr 0.92fr;
+        border: 1px solid #dceaea;
+        border-radius: 26px;
+        background: #ffffff;
+        box-shadow:
+            0 22px 55px
+            rgba(25, 68, 70, 0.14);
+    }
+
+    /* Panel visual */
+    .login-brand-panel {
+        position: relative;
+        display: flex;
+        overflow: hidden;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 44px;
+        color: #ffffff;
+        background:
+            linear-gradient(
+                145deg,
+                #007d7f 0%,
+                #009294 55%,
+                #00adaf 100%
+            );
+    }
+
+    .login-brand-decoration {
+        position: absolute;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .login-circle-one {
+        top: -105px;
+        right: -65px;
+        width: 300px;
+        height: 300px;
+    }
+
+    .login-circle-two {
+        right: 65px;
+        bottom: -155px;
+        width: 360px;
+        height: 360px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .login-brand-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .login-logo-wrapper {
+        display: inline-flex;
+        min-width: 118px;
+        min-height: 118px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.10);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.15),
+            0 10px 25px rgba(0, 70, 72, 0.18);
+        backdrop-filter: blur(6px);
+    }
+
+    .login-logo {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        filter:
+            drop-shadow(
+                0 4px 9px
+                rgba(0, 70, 72, 0.22)
+            );
+    }
+
+    .login-kicker {
+        margin-bottom: 10px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.72rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .login-brand-title {
+        max-width: 480px;
+        margin-bottom: 14px;
+        font-size: clamp(2.2rem, 4vw, 3.4rem);
+        font-weight: 850;
+        letter-spacing: -0.045em;
+        line-height: 1.05;
+    }
+
+    .login-brand-description {
+        max-width: 470px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.95rem;
+        line-height: 1.65;
+    }
+
+    .login-features {
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+        margin-top: 28px;
+    }
+
+    .login-feature {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 0.82rem;
+        font-weight: 650;
+    }
+
+    .login-feature i {
+        display: inline-flex;
+        width: 30px;
+        height: 30px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, 0.14);
+    }
+
+    .login-brand-footer {
+        position: relative;
+        z-index: 1;
+        color: rgba(255, 255, 255, 0.64);
+        font-size: 0.72rem;
+        letter-spacing: 0.05em;
+    }
+
+    /* Formulario */
+    .login-form-panel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 44px 38px;
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f8fdfd
+            );
+    }
+
+    .login-form-card {
+        width: 100%;
+        max-width: 390px;
+    }
+
+    .login-form-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 30px;
+    }
+
+    .login-form-icon {
+        display: inline-flex;
+        width: 54px;
+        height: 54px;
+        min-width: 54px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border: 1px solid #ccebec;
+        border-radius: 16px;
+        background: #eaf9f9;
+        font-size: 1.3rem;
+    }
+
+    .login-form-kicker {
+        color: #009294;
+        font-size: 0.64rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .login-form-title {
+        margin: 2px 0 3px;
+        color: #2d3f40;
+        font-size: 1.75rem;
+        font-weight: 850;
+        letter-spacing: -0.03em;
+    }
+
+    .login-form-description {
+        color: #7b8a8c;
+        font-size: 0.77rem;
+    }
+
+    .login-label {
+        color: #445557;
+        font-size: 0.77rem;
+        font-weight: 750;
+    }
+
+    .login-input-wrapper {
+        position: relative;
+    }
+
+    .login-input-icon {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        z-index: 2;
+        color: #829193;
+        transform: translateY(-50%);
+    }
+
+    .login-input {
+        min-height: 52px;
+        padding-left: 44px;
+        border-color: #d6e5e5;
+        border-radius: 12px;
+        background: #ffffff;
+        font-size: 0.88rem;
+    }
+
+    .login-input:focus {
+        border-color: #009294;
+        box-shadow:
+            0 0 0 0.2rem
+            rgba(0, 146, 148, 0.13);
+    }
+
+    .login-password-input {
+        padding-right: 48px;
+    }
+
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 9px;
+        z-index: 2;
+        display: inline-flex;
+        width: 34px;
+        height: 34px;
+        align-items: center;
+        justify-content: center;
+        color: #758587;
+        border: 0;
+        border-radius: 9px;
+        background: transparent;
+        transform: translateY(-50%);
+    }
+
+    .password-toggle:hover {
+        color: #007d7f;
+        background: #eaf9f9;
+    }
+
+    .btn-login {
+        min-height: 52px;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 12px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b,
+                #00a6a8
+            );
+        box-shadow:
+            0 8px 18px
+            rgba(0, 126, 128, 0.19);
+        font-size: 0.9rem;
+        font-weight: 800;
+        transition:
+            transform 0.15s ease,
+            box-shadow 0.15s ease,
+            background 0.15s ease;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        color: #ffffff;
+        border-color: #007d7f;
+        background:
+            linear-gradient(
+                135deg,
+                #007d7f,
+                #009294
+            );
+        box-shadow:
+            0 11px 23px
+            rgba(0, 126, 128, 0.24);
+    }
+
+    .btn-login:disabled {
+        transform: none;
+        cursor: wait;
+        opacity: 0.78;
+    }
+
+    .login-button-loading {
+        display: none;
+    }
+
+    .btn-login.loading .login-button-content {
+        display: none;
+    }
+
+    .btn-login.loading .login-button-loading {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .login-security {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        margin-top: 20px;
+        padding: 11px 12px;
+        color: #6e7f81;
+        border: 1px solid #dceaea;
+        border-radius: 11px;
+        background: #f5fbfb;
+        font-size: 0.7rem;
+    }
+
+    .login-security i {
+        color: #009294;
+    }
+
+    .login-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 25px;
+        color: #899698;
+        font-size: 0.68rem;
+    }
+
+    .login-footer strong {
+        color: #007d7f;
+        font-size: 0.8rem;
+    }
+
+    .login-footer span {
+        margin-top: 3px;
+    }
+
+    /* Ocultar navbar de sesión cuando no hay login */
+    body:has(.login-page) .watermark {
+        display: none;
+    }
+
+    body:has(.login-page) .site-footer {
+        margin-top: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .login-layout {
+            max-width: 720px;
+            grid-template-columns: 1fr;
+        }
+
+        .login-brand-panel {
+            min-height: 340px;
+            padding: 34px;
+        }
+
+        .login-logo-wrapper {
+            min-width: 92px;
+            min-height: 92px;
+            margin-bottom: 20px;
+        }
+
+        .login-logo {
+            width: 76px;
+            height: 76px;
+        }
+
+        .login-brand-title {
+            max-width: 580px;
+            font-size: 2.4rem;
+        }
+
+        .login-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .login-brand-footer {
+            margin-top: 28px;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .login-page {
+            padding: 12px 0 25px;
+        }
+
+        .login-layout {
+            border-radius: 19px;
+        }
+
+        .login-brand-panel {
+            min-height: 300px;
+            padding: 27px 22px;
+        }
+
+        .login-brand-title {
+            font-size: 2rem;
+        }
+
+        .login-brand-description {
+            font-size: 0.84rem;
+        }
+
+        .login-features {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .login-form-panel {
+            padding: 32px 22px;
+        }
+
+        .login-form-header {
+            align-items: flex-start;
+        }
+
+        .login-form-title {
+            font-size: 1.55rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const passwordInput =
+            document.getElementById("password");
+
+        const passwordToggle =
+            document.getElementById("passwordToggle");
+
+        const formulario =
+            document.querySelector(".login-form");
+
+        const loginButton =
+            document.getElementById("loginButton");
+
+        if (passwordInput && passwordToggle) {
+            passwordToggle.addEventListener(
+                "click",
+                function () {
+                    const icono =
+                        passwordToggle.querySelector("i");
+
+                    if (passwordInput.type === "password") {
+                        passwordInput.type = "text";
+
+                        icono.classList.remove("fa-eye");
+                        icono.classList.add("fa-eye-slash");
+
+                        passwordToggle.setAttribute(
+                            "aria-label",
+                            "Ocultar contraseña"
+                        );
+                    } else {
+                        passwordInput.type = "password";
+
+                        icono.classList.remove("fa-eye-slash");
+                        icono.classList.add("fa-eye");
+
+                        passwordToggle.setAttribute(
+                            "aria-label",
+                            "Mostrar contraseña"
+                        );
+                    }
+                }
+            );
+        }
+
+        if (formulario && loginButton) {
+            formulario.addEventListener(
+                "submit",
+                function () {
+                    loginButton.disabled = true;
+                    loginButton.classList.add("loading");
+                }
+            );
+        }
+    });
+</script>
+
 {% endblock %}
