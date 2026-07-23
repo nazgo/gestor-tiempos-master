@@ -1,8 +1,13 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Historial de Tiempos | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
 
 {% macro encabezado_ordenable(texto, columna) %}
+
     {% set nueva_direccion =
         'desc'
         if filtros.columna_orden == columna
@@ -23,80 +28,272 @@
             por_pagina=por_pagina,
             pagina=1
         ) }}"
-        class="enlace-orden"
+        class="sortable-link"
+        title="Ordenar por {{ texto }}"
     >
-        {{ texto }}
+
+        <span>
+            {{ texto }}
+        </span>
 
         {% if filtros.columna_orden == columna %}
+
             {% if filtros.direccion == 'asc' %}
-                <i class="fas fa-sort-up"></i>
+
+                <i class="fas fa-sort-up active-sort"></i>
+
             {% else %}
-                <i class="fas fa-sort-down"></i>
+
+                <i class="fas fa-sort-down active-sort"></i>
+
             {% endif %}
+
         {% else %}
-            <i class="fas fa-sort text-secondary"></i>
+
+            <i class="fas fa-sort neutral-sort"></i>
+
         {% endif %}
+
     </a>
+
 {% endmacro %}
 
-<div class="container-fluid py-4">
+<div class="historial-page">
 
-    <div class="text-center mb-4">
+    <!-- Encabezado -->
+    <section class="historial-hero mb-4">
 
-        <h2 class="fw-bold text-primary mb-1">
-            <i class="fas fa-stopwatch"></i>
-            Historial de Tiempos
-        </h2>
+        <div class="historial-hero-content">
 
-        <p class="text-muted mb-0">
-            Consulta y filtra todos los tiempos registrados
-        </p>
+            <div>
 
-    </div>
+                <div class="historial-kicker">
+                    <i class="fas fa-stopwatch"></i>
+                    Base deportiva institucional
+                </div>
 
-    <!-- Filtros -->
-    <div class="card shadow-sm border-0 mb-4">
+                <h1 class="historial-title">
+                    Historial General de Tiempos
+                </h1>
 
-        <div class="card-header bg-light border-0 py-3">
+                <p class="historial-subtitle mb-0">
+                    Consulta, filtra, ordena y exporta todas las marcas
+                    registradas por el Club Ñuñoa Master.
+                </p>
 
-            <h5 class="mb-0">
-                <i class="fas fa-filter"></i>
-                Filtros
-            </h5>
+            </div>
+
+            <div class="historial-hero-status">
+
+                <span class="hero-status-label">
+
+                    {% if filtros.anio %}
+                        Temporada
+                    {% else %}
+                        Cobertura
+                    {% endif %}
+
+                </span>
+
+                <span class="hero-status-value">
+
+                    {% if filtros.anio %}
+                        {{ filtros.anio }}
+                    {% else %}
+                        Completa
+                    {% endif %}
+
+                </span>
+
+            </div>
 
         </div>
 
-        <div class="card-body">
+    </section>
 
-            <form
-                method="GET"
-                action="{{ url_for('todos_los_tiempos') }}"
-                class="row g-3"
+    <!-- Indicadores -->
+    <section class="row g-3 mb-4">
+
+        <!-- Total registros -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="summary-card h-100">
+
+                <div class="summary-icon">
+                    <i class="fas fa-stopwatch"></i>
+                </div>
+
+                <div>
+
+                    <div class="summary-value">
+                        {{ total }}
+                    </div>
+
+                    <div class="summary-label">
+                        Tiempos encontrados
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- Página -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="summary-card h-100">
+
+                <div class="summary-icon">
+                    <i class="fas fa-file-lines"></i>
+                </div>
+
+                <div>
+
+                    <div class="summary-value">
+                        {{ pagina }}
+                    </div>
+
+                    <div class="summary-label">
+                        Página actual
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- Total páginas -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="summary-card h-100">
+
+                <div class="summary-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+
+                <div>
+
+                    <div class="summary-value">
+                        {{ total_paginas }}
+                    </div>
+
+                    <div class="summary-label">
+                        Páginas disponibles
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- Registros por página -->
+        <div class="col-sm-6 col-xl-3">
+
+            <article class="summary-card h-100">
+
+                <div class="summary-icon">
+                    <i class="fas fa-list-ol"></i>
+                </div>
+
+                <div>
+
+                    <div class="summary-value">
+                        {{ por_pagina }}
+                    </div>
+
+                    <div class="summary-label">
+                        Registros por página
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- Filtros -->
+    <section class="filters-card mb-4">
+
+        <header class="filters-header">
+
+            <div>
+
+                <div class="filters-kicker">
+                    Búsqueda avanzada
+                </div>
+
+                <h2 class="filters-title">
+                    Filtros del historial
+                </h2>
+
+                <p class="filters-description mb-0">
+                    Combina los criterios para localizar rápidamente
+                    tiempos específicos.
+                </p>
+
+            </div>
+
+            <div class="filters-header-icon">
+                <i class="fas fa-sliders"></i>
+            </div>
+
+        </header>
+
+        <form
+            method="GET"
+            action="{{ url_for('todos_los_tiempos') }}"
+            id="formularioFiltros"
+            class="filters-form"
+        >
+
+            <input
+                type="hidden"
+                name="columna_orden"
+                value="{{ filtros.columna_orden }}"
             >
 
-                <!-- Búsqueda -->
-                <div class="col-lg-4 col-md-6">
+            <input
+                type="hidden"
+                name="direccion"
+                value="{{ filtros.direccion }}"
+            >
+
+            <input
+                type="hidden"
+                name="pagina"
+                value="1"
+            >
+
+            <div class="row g-3">
+
+                <!-- Nadador -->
+                <div class="col-xl-4 col-lg-5 col-md-6">
 
                     <label
                         for="busqueda"
-                        class="form-label fw-semibold"
+                        class="form-label filter-label"
                     >
+                        <i class="fas fa-user"></i>
                         Nadador
                     </label>
 
-                    <div class="input-group">
+                    <div class="filter-input-wrapper">
 
-                        <span class="input-group-text">
-                            <i class="fas fa-search"></i>
-                        </span>
+                        <i class="fas fa-search filter-input-icon"></i>
 
                         <input
-                            type="text"
+                            type="search"
                             id="busqueda"
                             name="busqueda"
-                            class="form-control"
+                            class="form-control filter-control search-control"
                             value="{{ filtros.busqueda }}"
                             placeholder="Buscar por nombre..."
+                            autocomplete="off"
                         >
 
                     </div>
@@ -104,26 +301,28 @@
                 </div>
 
                 <!-- Año -->
-                <div class="col-lg-2 col-md-3">
+                <div class="col-xl-2 col-lg-3 col-md-3 col-sm-6">
 
                     <label
                         for="anio"
-                        class="form-label fw-semibold"
+                        class="form-label filter-label"
                     >
+                        <i class="fas fa-calendar-alt"></i>
                         Año
                     </label>
 
                     <select
                         id="anio"
                         name="anio"
-                        class="form-select"
+                        class="form-select filter-control auto-submit-filter"
                     >
 
                         <option value="">
-                            Todos
+                            Todas las temporadas
                         </option>
 
                         {% for anio in opciones.anios %}
+
                         <option
                             value="{{ anio }}"
                             {% if filtros.anio == anio %}
@@ -132,6 +331,7 @@
                         >
                             {{ anio }}
                         </option>
+
                         {% endfor %}
 
                     </select>
@@ -139,40 +339,45 @@
                 </div>
 
                 <!-- Piscina -->
-                <div class="col-lg-2 col-md-3">
+                <div class="col-xl-2 col-lg-4 col-md-3 col-sm-6">
 
                     <label
                         for="piscina"
-                        class="form-label fw-semibold"
+                        class="form-label filter-label"
                     >
+                        <i class="fas fa-swimming-pool"></i>
                         Piscina
                     </label>
 
                     <select
                         id="piscina"
                         name="piscina"
-                        class="form-select"
+                        class="form-select filter-control auto-submit-filter"
                     >
 
                         <option value="">
-                            Todas
+                            Todas las piscinas
                         </option>
 
                         {% for piscina in opciones.piscinas %}
+
                         <option
                             value="{{ piscina }}"
                             {% if filtros.piscina == piscina %}
                                 selected
                             {% endif %}
                         >
+
                             {% if piscina == '25 metros' %}
-                                25 metros
+                                Piscina 25 m
                             {% elif piscina == '50 metros' %}
-                                50 metros
+                                Piscina 50 m
                             {% else %}
                                 {{ piscina }}
                             {% endif %}
+
                         </option>
+
                         {% endfor %}
 
                     </select>
@@ -180,26 +385,28 @@
                 </div>
 
                 <!-- Estilo -->
-                <div class="col-lg-2 col-md-3">
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
 
                     <label
                         for="estilo"
-                        class="form-label fw-semibold"
+                        class="form-label filter-label"
                     >
+                        <i class="fas fa-water"></i>
                         Estilo
                     </label>
 
                     <select
                         id="estilo"
                         name="estilo"
-                        class="form-select"
+                        class="form-select filter-control auto-submit-filter"
                     >
 
                         <option value="">
-                            Todos
+                            Todos los estilos
                         </option>
 
                         {% for estilo in opciones.estilos %}
+
                         <option
                             value="{{ estilo }}"
                             {% if filtros.estilo == estilo %}
@@ -208,6 +415,7 @@
                         >
                             {{ estilo }}
                         </option>
+
                         {% endfor %}
 
                     </select>
@@ -215,19 +423,20 @@
                 </div>
 
                 <!-- Distancia -->
-                <div class="col-lg-2 col-md-3">
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
 
                     <label
                         for="distancia"
-                        class="form-label fw-semibold"
+                        class="form-label filter-label"
                     >
+                        <i class="fas fa-ruler-horizontal"></i>
                         Distancia
                     </label>
 
                     <select
                         id="distancia"
                         name="distancia"
-                        class="form-select"
+                        class="form-select filter-control auto-submit-filter"
                     >
 
                         <option value="">
@@ -235,6 +444,7 @@
                         </option>
 
                         {% for distancia in opciones.distancias %}
+
                         <option
                             value="{{ distancia }}"
                             {% if filtros.distancia == distancia %}
@@ -243,26 +453,28 @@
                         >
                             {{ distancia }} m
                         </option>
+
                         {% endfor %}
 
                     </select>
 
                 </div>
 
-                <!-- Orden -->
-                <div class="col-lg-3 col-md-4">
+                <!-- Orden fecha -->
+                <div class="col-xl-3 col-lg-4 col-md-4">
 
                     <label
                         for="orden"
-                        class="form-label fw-semibold"
+                        class="form-label filter-label"
                     >
-                        Orden por fecha
+                        <i class="fas fa-arrow-down-wide-short"></i>
+                        Orden cronológico
                     </label>
 
                     <select
                         id="orden"
                         name="orden"
-                        class="form-select"
+                        class="form-select filter-control auto-submit-filter"
                     >
 
                         <option
@@ -287,20 +499,21 @@
 
                 </div>
 
-                <!-- Registros por página -->
-                <div class="col-lg-2 col-md-4">
+                <!-- Por página -->
+                <div class="col-xl-2 col-lg-3 col-md-4">
 
                     <label
                         for="por_pagina"
-                        class="form-label fw-semibold"
+                        class="form-label filter-label"
                     >
+                        <i class="fas fa-list"></i>
                         Por página
                     </label>
 
                     <select
                         id="por_pagina"
                         name="por_pagina"
-                        class="form-select"
+                        class="form-select filter-control auto-submit-filter"
                     >
 
                         <option
@@ -309,7 +522,7 @@
                                 selected
                             {% endif %}
                         >
-                            20
+                            20 registros
                         </option>
 
                         <option
@@ -318,234 +531,506 @@
                                 selected
                             {% endif %}
                         >
-                            50
+                            50 registros
                         </option>
 
                     </select>
 
                 </div>
 
-                <div class="col-lg-7 col-md-4 d-flex align-items-end gap-2">
+                <!-- Acciones -->
+                <div class="col-xl-7 col-lg-5 col-md-4">
 
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        <i class="fas fa-search"></i>
-                        Aplicar filtros
-                    </button>
+                    <div class="filter-actions">
 
-                    <a
-                        href="{{ url_for('todos_los_tiempos') }}"
-                        class="btn btn-outline-secondary"
-                    >
-                        <i class="fas fa-eraser"></i>
-                        Limpiar
-                    </a>
+                        <button
+                            type="submit"
+                            class="btn btn-apply-filters"
+                        >
+                            <i class="fas fa-filter me-1"></i>
+                            Aplicar filtros
+                        </button>
 
-                    <a
-                        href="{{ url_for(
-                            'exportar_historial_tiempos',
-                            busqueda=filtros.busqueda,
-                            anio=filtros.anio,
-                            piscina=filtros.piscina,
-                            estilo=filtros.estilo,
-                            distancia=filtros.distancia,
-                            columna_orden=filtros.columna_orden,
-                            direccion=filtros.direccion
-                        ) }}"
-                        class="btn btn-success"
-                    >
-                        <i class="fas fa-file-csv"></i>
-                        Exportar CSV
-                    </a>
+                        <a
+                            href="{{ url_for('todos_los_tiempos') }}"
+                            class="btn btn-clear-filters"
+                        >
+                            <i class="fas fa-eraser me-1"></i>
+                            Limpiar
+                        </a>
+
+                        <a
+                            href="{{ url_for(
+                                'exportar_historial_tiempos',
+                                busqueda=filtros.busqueda,
+                                anio=filtros.anio,
+                                piscina=filtros.piscina,
+                                estilo=filtros.estilo,
+                                distancia=filtros.distancia,
+                                columna_orden=filtros.columna_orden,
+                                direccion=filtros.direccion
+                            ) }}"
+                            class="btn btn-export"
+                        >
+                            <i class="fas fa-file-csv me-1"></i>
+                            Exportar CSV
+                        </a>
+
+                    </div>
 
                 </div>
 
-            </form>
+            </div>
 
+        </form>
+
+    </section>
+
+    <!-- Filtros activos -->
+    {% if filtros.busqueda
+          or filtros.anio
+          or filtros.piscina
+          or filtros.estilo
+          or filtros.distancia %}
+
+    <section class="active-filters mb-4">
+
+        <div class="active-filters-label">
+            <i class="fas fa-filter"></i>
+            Filtros activos:
         </div>
-    </div>
 
-    <!-- Resumen -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div class="active-filter-list">
 
-        <div class="text-muted">
+            {% if filtros.busqueda %}
 
-            {% if total > 0 %}
+            <span class="active-filter-chip">
+                <i class="fas fa-user"></i>
+                {{ filtros.busqueda }}
+            </span>
 
-                Mostrando
-                <strong>{{ desde }}</strong>
-                a
-                <strong>{{ hasta }}</strong>
-                de
-                <strong>{{ total }}</strong>
-                registros
+            {% endif %}
 
-            {% else %}
+            {% if filtros.anio %}
 
-                No se encontraron registros
+            <span class="active-filter-chip">
+                <i class="fas fa-calendar-alt"></i>
+                {{ filtros.anio }}
+            </span>
+
+            {% endif %}
+
+            {% if filtros.piscina %}
+
+            <span class="active-filter-chip">
+                <i class="fas fa-swimming-pool"></i>
+
+                {% if filtros.piscina == '25 metros' %}
+                    Piscina 25 m
+                {% elif filtros.piscina == '50 metros' %}
+                    Piscina 50 m
+                {% else %}
+                    {{ filtros.piscina }}
+                {% endif %}
+
+            </span>
+
+            {% endif %}
+
+            {% if filtros.estilo %}
+
+            <span class="active-filter-chip">
+                <i class="fas fa-water"></i>
+                {{ filtros.estilo }}
+            </span>
+
+            {% endif %}
+
+            {% if filtros.distancia %}
+
+            <span class="active-filter-chip">
+                <i class="fas fa-ruler-horizontal"></i>
+                {{ filtros.distancia }} m
+            </span>
 
             {% endif %}
 
         </div>
 
-        <div class="badge bg-primary fs-6">
-            Página {{ pagina }} de {{ total_paginas }}
-        </div>
+    </section>
 
-    </div>
+    {% endif %}
 
-    <!-- Tabla -->
-    <div class="card shadow-sm border-0">
+    <!-- Resumen -->
+    <section class="results-toolbar mb-3">
 
-        <div class="card-body p-0">
+        <div>
 
-            <div class="table-responsive historial-tabla">
+            <div class="results-kicker">
+                Resultado de la consulta
+            </div>
 
-                <table class="table table-striped table-hover align-middle mb-0">
+            <div class="results-summary">
 
-                <thead class="table-dark">
-                    <tr>
-                        <th>
-                            {{ encabezado_ordenable('Fecha', 'fecha') }}
-                        </th>
-                
-                        <th>
-                            {{ encabezado_ordenable('Nadador', 'nombre') }}
-                        </th>
-                
-                        <th>
-                            {{ encabezado_ordenable('Categoría', 'categoria') }}
-                        </th>
-                
-                        <th>
-                            {{ encabezado_ordenable('Género', 'genero') }}
-                        </th>
-                
-                        <th>
-                            {{ encabezado_ordenable('Estilo', 'estilo') }}
-                        </th>
-                
-                        <th>
-                            {{ encabezado_ordenable('Distancia', 'distancia') }}
-                        </th>
-                
-                        <th>
-                            {{ encabezado_ordenable('Piscina', 'piscina') }}
-                        </th>
-                
-                        <th>
-                            {{ encabezado_ordenable('Tiempo', 'tiempo') }}
-                        </th>
-                    </tr>
-                </thead>
+                {% if total > 0 %}
 
-                    <tbody>
+                    Mostrando
+                    <strong>{{ desde }}</strong>
+                    a
+                    <strong>{{ hasta }}</strong>
+                    de
+                    <strong>{{ total }}</strong>
+                    registros
 
-                        {% for t in tiempos %}
+                {% else %}
 
-                        <tr>
+                    No se encontraron registros
 
-                            <td class="text-nowrap">
-
-                                {% if t.fecha and t.fecha.strftime is defined %}
-                                    {{ t.fecha.strftime('%d/%m/%Y') }}
-                                {% else %}
-                                    {{ t.fecha or '—' }}
-                                {% endif %}
-
-                            </td>
-
-                            <td>
-                                <strong>
-                                    {{ t.nombre_nadador or '—' }}
-                                </strong>
-                            </td>
-
-                            <td>
-                                <span class="badge bg-light text-dark border">
-                                    {{ t.categoria or '—' }}
-                                </span>
-                            </td>
-
-                            <td>
-                                {{ t.genero or '—' }}
-                            </td>
-
-                            <td>
-                                {{ t.estilo or '—' }}
-                            </td>
-                            
-                            <td>
-                                {{ t.distancia }}m
-                            </td>
-
-                            <td>
-
-                                {% if t.piscina == '25 metros' %}
-
-                                    <span class="badge piscina-25">
-                                        25m
-                                    </span>
-
-                                {% elif t.piscina == '50 metros' %}
-
-                                    <span class="badge piscina-50">
-                                        50m
-                                    </span>
-
-                                {% else %}
-
-                                    {{ t.piscina or '—' }}
-
-                                {% endif %}
-
-                            </td>
-
-                            <td>
-                                <span class="badge bg-success tiempo-badge">
-                                    {{ t.tiempo }}
-                                </span>
-                            </td>
-
-                        </tr>
-
-                        {% else %}
-
-                        <tr>
-                            <td
-                                colspan="8"
-                                class="text-center text-muted py-5"
-                            >
-                                <i class="fas fa-search fa-2x mb-3 d-block"></i>
-                                No hay tiempos que coincidan con los filtros.
-                            </td>
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
+                {% endif %}
 
             </div>
 
         </div>
-    </div>
+
+        <div class="page-indicator">
+            Página {{ pagina }} de {{ total_paginas }}
+        </div>
+
+    </section>
+
+    <!-- Tabla -->
+    <section class="history-card">
+
+        <div class="table-scroll-message">
+
+            <i class="fas fa-arrows-left-right"></i>
+            Desplázate horizontalmente para ver todas las columnas.
+        </div>
+
+        <div class="table-responsive history-table-container">
+
+            <table class="table history-table align-middle mb-0">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            {{ encabezado_ordenable('Fecha', 'fecha') }}
+                        </th>
+
+                        <th>
+                            {{ encabezado_ordenable('Nadador', 'nombre') }}
+                        </th>
+
+                        <th>
+                            {{ encabezado_ordenable('Categoría', 'categoria') }}
+                        </th>
+
+                        <th>
+                            {{ encabezado_ordenable('Género', 'genero') }}
+                        </th>
+
+                        <th>
+                            {{ encabezado_ordenable('Estilo', 'estilo') }}
+                        </th>
+
+                        <th>
+                            {{ encabezado_ordenable('Distancia', 'distancia') }}
+                        </th>
+
+                        <th>
+                            {{ encabezado_ordenable('Piscina', 'piscina') }}
+                        </th>
+
+                        <th>
+                            {{ encabezado_ordenable('Tiempo', 'tiempo') }}
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for t in tiempos %}
+
+                    <tr class="history-row">
+
+                        <!-- Fecha -->
+                        <td>
+
+                            <span class="date-cell">
+
+                                <i class="fas fa-calendar-day"></i>
+
+                                {% if t.fecha
+                                      and t.fecha.strftime is defined %}
+
+                                    {{ t.fecha.strftime('%d/%m/%Y') }}
+
+                                {% else %}
+
+                                    {{ t.fecha or '—' }}
+
+                                {% endif %}
+
+                            </span>
+
+                        </td>
+
+                        <!-- Nadador -->
+                        <td>
+
+                            <div class="swimmer-cell">
+
+                                <div class="swimmer-avatar">
+
+                                    {% if t.nombre_nadador %}
+                                        {{ t.nombre_nadador[:1]|upper }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+
+                                </div>
+
+                                <strong>
+                                    {{ t.nombre_nadador or '—' }}
+                                </strong>
+
+                            </div>
+
+                        </td>
+
+                        <!-- Categoría -->
+                        <td>
+
+                            {% if t.categoria %}
+
+                            <span class="category-badge">
+                                <i class="fas fa-layer-group"></i>
+                                {{ t.categoria }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="data-empty">
+                                Sin categoría
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Género -->
+                        <td>
+
+                            {% if t.genero == 'Masculino' %}
+
+                            <span class="gender-badge gender-male">
+                                <i class="fas fa-mars"></i>
+                                Masculino
+                            </span>
+
+                            {% elif t.genero == 'Femenino' %}
+
+                            <span class="gender-badge gender-female">
+                                <i class="fas fa-venus"></i>
+                                Femenino
+                            </span>
+
+                            {% elif t.genero %}
+
+                            <span class="gender-badge gender-other">
+                                {{ t.genero }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="data-empty">
+                                Sin género
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Estilo -->
+                        <td>
+
+                            {% set estilo_normalizado =
+                                (t.estilo or '')|lower
+                            %}
+
+                            <span class="
+                                style-badge
+
+                                {% if 'libre' in estilo_normalizado
+                                      or 'crol' in estilo_normalizado %}
+                                    style-freestyle
+
+                                {% elif 'espalda' in estilo_normalizado %}
+                                    style-backstroke
+
+                                {% elif 'pecho' in estilo_normalizado %}
+                                    style-breaststroke
+
+                                {% elif 'mariposa' in estilo_normalizado %}
+                                    style-butterfly
+
+                                {% elif 'combinado' in estilo_normalizado %}
+                                    style-medley
+
+                                {% else %}
+                                    style-other
+                                {% endif %}
+                            ">
+                                <i class="fas fa-water"></i>
+                                {{ t.estilo or '—' }}
+                            </span>
+
+                        </td>
+
+                        <!-- Distancia -->
+                        <td>
+
+                            {% if t.distancia %}
+
+                            <span class="distance-badge">
+                                {{ t.distancia }} m
+                            </span>
+
+                            {% else %}
+
+                            <span class="data-empty">
+                                —
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Piscina -->
+                        <td>
+
+                            {% if t.piscina == '25 metros' %}
+
+                            <span class="pool-badge pool-25">
+                                <i class="fas fa-swimming-pool"></i>
+                                25 m
+                            </span>
+
+                            {% elif t.piscina == '50 metros' %}
+
+                            <span class="pool-badge pool-50">
+                                <i class="fas fa-swimming-pool"></i>
+                                50 m
+                            </span>
+
+                            {% elif t.piscina %}
+
+                            <span class="pool-badge pool-other">
+                                {{ t.piscina }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="data-empty">
+                                Sin piscina
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Tiempo -->
+                        <td>
+
+                            <span class="time-badge">
+                                <i class="fas fa-stopwatch"></i>
+                                {{ t.tiempo }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="8">
+
+                            <div class="empty-state">
+
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+
+                                <h3>
+                                    No hay tiempos que coincidan
+                                </h3>
+
+                                <p>
+                                    Cambia los filtros de búsqueda para localizar
+                                    otros registros.
+                                </p>
+
+                                <a
+                                    href="{{ url_for('todos_los_tiempos') }}"
+                                    class="btn btn-empty-clear"
+                                >
+                                    <i class="fas fa-eraser me-1"></i>
+                                    Limpiar filtros
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% if tiempos %}
+
+        <div class="history-footer">
+
+            <span>
+                Mostrando
+                <strong>{{ tiempos|length }}</strong>
+                registros en esta página
+            </span>
+
+            <span>
+                Haz clic en los encabezados para ordenar.
+            </span>
+
+        </div>
+
+        {% endif %}
+
+    </section>
 
     <!-- Paginación -->
     {% if total_paginas > 1 %}
 
     <nav
-        class="mt-4"
+        class="pagination-wrapper mt-4"
         aria-label="Navegación de páginas"
     >
 
-        <ul class="pagination justify-content-center flex-wrap">
+        <ul class="pagination custom-pagination justify-content-center flex-wrap">
 
             <!-- Primera -->
             <li class="page-item {% if pagina <= 1 %}disabled{% endif %}">
+
                 <a
                     class="page-link"
                     href="{{ url_for(
@@ -560,15 +1045,19 @@
                         por_pagina=por_pagina,
                         pagina=1
                     ) }}"
+                    title="Primera página"
+                    aria-label="Primera página"
                 >
-                    «
+                    <i class="fas fa-angles-left"></i>
                 </a>
+
             </li>
 
             <!-- Anterior -->
             <li class="page-item {% if pagina <= 1 %}disabled{% endif %}">
+
                 <a
-                    class="page-link"
+                    class="page-link page-link-text"
                     href="{{ url_for(
                         'todos_los_tiempos',
                         busqueda=filtros.busqueda,
@@ -582,16 +1071,29 @@
                         pagina=pagina - 1
                     ) }}"
                 >
+                    <i class="fas fa-chevron-left"></i>
                     Anterior
                 </a>
+
             </li>
 
             {% set inicio = [1, pagina - 2]|max %}
             {% set fin = [total_paginas, pagina + 2]|min %}
 
+            {% if inicio > 1 %}
+
+            <li class="page-item disabled">
+                <span class="page-link pagination-ellipsis">
+                    …
+                </span>
+            </li>
+
+            {% endif %}
+
             {% for numero in range(inicio, fin + 1) %}
 
             <li class="page-item {% if numero == pagina %}active{% endif %}">
+
                 <a
                     class="page-link"
                     href="{{ url_for(
@@ -609,14 +1111,26 @@
                 >
                     {{ numero }}
                 </a>
+
             </li>
 
             {% endfor %}
 
+            {% if fin < total_paginas %}
+
+            <li class="page-item disabled">
+                <span class="page-link pagination-ellipsis">
+                    …
+                </span>
+            </li>
+
+            {% endif %}
+
             <!-- Siguiente -->
             <li class="page-item {% if pagina >= total_paginas %}disabled{% endif %}">
+
                 <a
-                    class="page-link"
+                    class="page-link page-link-text"
                     href="{{ url_for(
                         'todos_los_tiempos',
                         busqueda=filtros.busqueda,
@@ -631,11 +1145,14 @@
                     ) }}"
                 >
                     Siguiente
+                    <i class="fas fa-chevron-right"></i>
                 </a>
+
             </li>
 
             <!-- Última -->
             <li class="page-item {% if pagina >= total_paginas %}disabled{% endif %}">
+
                 <a
                     class="page-link"
                     href="{{ url_for(
@@ -650,9 +1167,12 @@
                         por_pagina=por_pagina,
                         pagina=total_paginas
                     ) }}"
+                    title="Última página"
+                    aria-label="Última página"
                 >
-                    »
+                    <i class="fas fa-angles-right"></i>
                 </a>
+
             </li>
 
         </ul>
@@ -661,13 +1181,46 @@
 
     {% endif %}
 
-    <div class="text-center mt-4">
+    <!-- Información -->
+    <section class="history-help mt-4">
+
+        <div class="history-help-icon">
+            <i class="fas fa-circle-info"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                Consulta del historial
+            </strong>
+
+            <p class="mb-0">
+                Los filtros, el ordenamiento y la exportación CSV utilizan
+                el mismo conjunto de criterios. El archivo exportado respetará
+                la selección actual.
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- Navegación -->
+    <div class="page-actions mt-4">
 
         <a
             href="{{ url_for('estadisticas_club') }}"
-            class="btn btn-secondary"
+            class="btn btn-back"
         >
-            ← Volver a Estadísticas
+            <i class="fas fa-arrow-left me-1"></i>
+            Volver a Estadísticas
+        </a>
+
+        <a
+            href="{{ url_for('index') }}"
+            class="btn btn-home"
+        >
+            <i class="fas fa-house me-1"></i>
+            Volver al Inicio
         </a>
 
     </div>
@@ -675,69 +1228,990 @@
 </div>
 
 <style>
-    .historial-tabla {
-        max-height: 68vh;
+    .historial-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
     }
 
-    .historial-tabla thead th {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-        white-space: nowrap;
+    /* Hero */
+    .historial-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
     }
 
-    .historial-tabla td,
-    .historial-tabla th {
-        padding: 0.55rem 0.7rem;
-        font-size: 0.9rem;
+    .historial-hero::before {
+        position: absolute;
+        top: -105px;
+        right: 155px;
+        width: 260px;
+        height: 260px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
     }
 
-    .tiempo-badge {
-        min-width: 76px;
-        padding: 0.45rem 0.6rem;
-        font-size: 0.85rem;
+    .historial-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
     }
 
-    .piscina-25 {
+    .historial-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
         color: #ffffff;
-        background: #0d6efd;
     }
 
-    .piscina-50 {
-        color: #ffffff;
-        background: #00a8a8;
+    .historial-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
     }
 
-    .pagination .page-link {
-        min-width: 40px;
+    .historial-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .historial-subtitle {
+        max-width: 700px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
+
+    .historial-hero-status {
+        display: flex;
+        min-width: 150px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 17px 20px;
+        border: 1px solid rgba(255, 255, 255, 0.23);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .hero-status-label {
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 0.67rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+    }
+
+    .hero-status-value {
+        margin-top: 5px;
+        font-size: 1.55rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    /* Resumen */
+    .summary-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 17px;
+        border: 1px solid #dceaea;
+        border-radius: 17px;
+        background: #ffffff;
+        box-shadow:
+            0 6px 17px
+            rgba(25, 68, 70, 0.06);
+    }
+
+    .summary-icon {
+        display: inline-flex;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border-radius: 14px;
+        background: #eaf9f9;
+        font-size: 1.1rem;
+    }
+
+    .summary-value {
+        color: #2e4041;
+        font-size: 1.55rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .summary-label {
+        margin-top: 5px;
+        color: #819092;
+        font-size: 0.69rem;
+    }
+
+    /* Filtros */
+    .filters-card {
+        overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .filters-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 19px 21px;
+        border-bottom: 1px solid #e3eded;
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #f2fbfb
+            );
+    }
+
+    .filters-kicker,
+    .results-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .filters-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.18rem;
+        font-weight: 850;
+    }
+
+    .filters-description {
+        color: #79898b;
+        font-size: 0.76rem;
+    }
+
+    .filters-header-icon {
+        display: inline-flex;
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border-radius: 13px;
+        background: #eaf9f9;
+        font-size: 1.1rem;
+    }
+
+    .filters-form {
+        padding: 21px;
+    }
+
+    .filter-label {
+        color: #455658;
+        font-size: 0.75rem;
+        font-weight: 750;
+    }
+
+    .filter-label i {
+        width: 16px;
+        margin-right: 3px;
+        color: #009294;
         text-align: center;
     }
 
-    @media (max-width: 768px) {
-        .historial-tabla td,
-        .historial-tabla th {
-            padding: 0.45rem;
-            font-size: 0.82rem;
-        }
+    .filter-control {
+        min-height: 45px;
+        border-color: #d7e6e6;
+        border-radius: 11px;
+        font-size: 0.81rem;
     }
 
-        .enlace-orden {
+    .filter-control:focus {
+        border-color: #009294;
+        box-shadow:
+            0 0 0 0.18rem
+            rgba(0, 146, 148, 0.12);
+    }
+
+    .filter-input-wrapper {
+        position: relative;
+    }
+
+    .filter-input-icon {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        z-index: 2;
+        color: #829193;
+        transform: translateY(-50%);
+    }
+
+    .search-control {
+        padding-left: 40px;
+    }
+
+    .filter-actions {
+        display: flex;
+        height: 100%;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    .btn-apply-filters,
+    .btn-clear-filters,
+    .btn-export {
+        min-height: 45px;
+        padding: 0.62rem 0.83rem;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .btn-apply-filters {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .btn-apply-filters:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    .btn-clear-filters {
+        color: #687779;
+        border: 1px solid #d5dede;
+        background: #ffffff;
+    }
+
+    .btn-clear-filters:hover {
+        color: #ffffff;
+        border-color: #667678;
+        background: #667678;
+    }
+
+    .btn-export {
+        color: #ffffff;
+        border-color: #16875a;
+        background: #16875a;
+    }
+
+    .btn-export:hover {
+        color: #ffffff;
+        border-color: #116d48;
+        background: #116d48;
+    }
+
+    /* Filtros activos */
+    .active-filters {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 13px 16px;
+        border: 1px solid #bfe4e4;
+        border-radius: 14px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #edfafa
+            );
+    }
+
+    .active-filters-label {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        color: inherit;
+        color: #405153;
+        font-size: 0.72rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .active-filters-label i {
+        color: #009294;
+    }
+
+    .active-filter-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .active-filter-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0.4rem 0.58rem;
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        border-radius: 999px;
+        background: #ffffff;
+        font-size: 0.67rem;
+        font-weight: 750;
+    }
+
+    /* Resultado */
+    .results-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .results-summary {
+        margin-top: 3px;
+        color: #68787a;
+        font-size: 0.79rem;
+    }
+
+    .results-summary strong {
+        color: #007d7f;
+    }
+
+    .page-indicator {
+        padding: 0.48rem 0.68rem;
+        color: #ffffff;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.72rem;
+        font-weight: 750;
+    }
+
+    /* Tabla */
+    .history-card {
+        overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .table-scroll-message {
+        display: none;
+        padding: 10px 14px;
+        color: #6f7f81;
+        border-bottom: 1px solid #e3eded;
+        background: #f7fbfb;
+        font-size: 0.7rem;
+        text-align: center;
+    }
+
+    .table-scroll-message i {
+        margin-right: 5px;
+        color: #009294;
+    }
+
+    .history-table-container {
+        max-height: 68vh;
+    }
+
+    .history-table {
+        min-width: 1050px;
+    }
+
+    .history-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        padding: 12px 14px;
+        color: #ffffff;
+        border-bottom: 0;
+        background: #008f91;
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .history-table tbody td {
+        padding: 12px 14px;
+        color: #526365;
+        border-color: #edf2f2;
+        font-size: 0.78rem;
+    }
+
+    .history-row {
+        position: relative;
+        transition:
+            background 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .history-row:hover {
+        background: #f4fbfb;
+        box-shadow:
+            inset 4px 0 0
+            #009294;
+    }
+
+    .sortable-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #ffffff;
         text-decoration: none;
         white-space: nowrap;
     }
-    
-    .enlace-orden:hover {
+
+    .sortable-link:hover {
         color: #ffffff;
         text-decoration: underline;
     }
-    
-    .enlace-orden i {
-        font-size: 0.78rem;
+
+    .sortable-link i {
+        font-size: 0.73rem;
+    }
+
+    .neutral-sort {
+        color: rgba(255, 255, 255, 0.55);
+    }
+
+    .active-sort {
+        color: #ffffff;
+    }
+
+    .date-cell {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .date-cell i {
+        color: #009294;
+    }
+
+    .swimmer-cell {
+        display: flex;
+        min-width: 180px;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .swimmer-avatar {
+        display: inline-flex;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 10px;
+        background:
+            linear-gradient(
+                135deg,
+                #009294,
+                #00b4b6
+            );
+        font-size: 0.75rem;
+        font-weight: 850;
+    }
+
+    .swimmer-cell strong {
+        color: #354648;
+        font-size: 0.79rem;
+    }
+
+    .category-badge,
+    .gender-badge,
+    .style-badge,
+    .distance-badge,
+    .pool-badge,
+    .time-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 0.4rem 0.57rem;
+        border-radius: 9px;
+        font-size: 0.67rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .category-badge {
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        background: #eaf9f9;
+    }
+
+    .gender-male {
+        color: #2465a8;
+        border: 1px solid #c9dcf2;
+        background: #edf5fd;
+    }
+
+    .gender-female {
+        color: #a54875;
+        border: 1px solid #efd2df;
+        background: #fff0f6;
+    }
+
+    .gender-other {
+        color: #5e6c6e;
+        border: 1px solid #dce4e4;
+        background: #f2f5f5;
+    }
+
+    .style-freestyle {
+        color: #11754d;
+        border: 1px solid #c5e8d8;
+        background: #eaf8f2;
+    }
+
+    .style-backstroke {
+        color: #2465a8;
+        border: 1px solid #c9dcf2;
+        background: #edf5fd;
+    }
+
+    .style-breaststroke {
+        color: #9b7112;
+        border: 1px solid #ebd99f;
+        background: #fff8e4;
+    }
+
+    .style-butterfly {
+        color: #79519c;
+        border: 1px solid #deceeb;
+        background: #f6effa;
+    }
+
+    .style-medley {
+        color: #5d6467;
+        border: 1px solid #d6dede;
+        background: #edf1f1;
+    }
+
+    .style-other {
+        color: #526365;
+        border: 1px solid #dce5e5;
+        background: #f2f6f6;
+    }
+
+    .distance-badge {
+        min-width: 54px;
+        color: #3f5153;
+        border: 1px solid #dbe5e5;
+        background: #f4f7f7;
+    }
+
+    .pool-badge {
+        min-width: 60px;
+        color: #ffffff;
+    }
+
+    .pool-25 {
+        background: #2878c7;
+    }
+
+    .pool-50 {
+        background: #009294;
+    }
+
+    .pool-other {
+        color: #58686a;
+        background: #e8eeee;
+    }
+
+    .time-badge {
+        min-width: 88px;
+        color: #ffffff;
+        background:
+            linear-gradient(
+                135deg,
+                #16875a,
+                #20a36e
+            );
+        box-shadow:
+            0 3px 8px
+            rgba(22, 135, 90, 0.17);
+        font-size: 0.76rem;
+        font-weight: 850;
+    }
+
+    .data-empty {
+        color: #9aa5a7;
+        font-size: 0.71rem;
+        font-style: italic;
+    }
+
+    .history-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 12px 17px;
+        color: #7b8a8c;
+        border-top: 1px solid #e3eded;
+        background: #f8fbfb;
+        font-size: 0.69rem;
+    }
+
+    .history-footer strong {
+        color: #007d7f;
+    }
+
+    /* Estado vacío */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 52px 20px;
+        color: #768688;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        display: inline-flex;
+        width: 68px;
+        height: 68px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        color: #009294;
+        border-radius: 50%;
+        background: #eaf9f9;
+        font-size: 1.6rem;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 6px;
+        color: #3f5153;
+        font-size: 1.05rem;
+        font-weight: 850;
+    }
+
+    .empty-state p {
+        max-width: 520px;
+        font-size: 0.79rem;
+    }
+
+    .btn-empty-clear {
+        margin-top: 14px;
+        padding: 0.64rem 0.9rem;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.77rem;
+        font-weight: 750;
+    }
+
+    .btn-empty-clear:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Paginación */
+    .custom-pagination {
+        gap: 5px;
+    }
+
+    .custom-pagination .page-link {
+        display: inline-flex;
+        min-width: 40px;
+        height: 40px;
+        align-items: center;
+        justify-content: center;
+        color: #526365;
+        border: 1px solid #d8e5e5;
+        border-radius: 10px !important;
+        background: #ffffff;
+        font-size: 0.73rem;
+        font-weight: 700;
+    }
+
+    .custom-pagination .page-link:hover {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .custom-pagination .page-item.active .page-link {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+        box-shadow:
+            0 5px 12px
+            rgba(0, 126, 128, 0.17);
+    }
+
+    .custom-pagination .page-item.disabled .page-link {
+        color: #a3adaf;
+        border-color: #e5ebeb;
+        background: #f5f7f7;
+    }
+
+    .page-link-text {
+        gap: 6px;
+        padding-right: 13px;
+        padding-left: 13px;
+    }
+
+    .pagination-ellipsis {
+        border-color: transparent !important;
+        background: transparent !important;
+    }
+
+    /* Información */
+    .history-help {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 19px;
+        color: #667779;
+        border: 1px solid #bfe4e4;
+        border-radius: 15px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #eaf9f9
+            );
+    }
+
+    .history-help-icon {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 11px;
+        background: #009294;
+    }
+
+    .history-help strong {
+        color: #3d4f51;
+        font-size: 0.83rem;
+    }
+
+    .history-help p {
+        margin-top: 3px;
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    /* Navegación */
+    .page-actions {
+        display: flex;
+        justify-content: center;
+        gap: 9px;
+    }
+
+    .btn-back,
+    .btn-home {
+        padding: 0.68rem 1.1rem;
+        border-radius: 11px;
+        font-weight: 700;
+    }
+
+    .btn-back {
+        color: #ffffff;
+        border-color: #647477;
+        background: #647477;
+    }
+
+    .btn-back:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    .btn-home {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .btn-home:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .table-scroll-message {
+            display: block;
+        }
+
+        .filter-actions {
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .historial-hero-content {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 27px 22px;
+        }
+
+        .historial-hero-status {
+            width: 100%;
+        }
+
+        .historial-title {
+            font-size: 2rem;
+        }
+
+        .filters-header-icon {
+            display: none;
+        }
+
+        .filter-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .filter-actions .btn {
+            width: 100%;
+        }
+
+        .active-filters {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .results-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .history-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .historial-hero {
+            border-radius: 18px;
+        }
+
+        .filters-form {
+            padding: 17px;
+        }
+
+        .history-table tbody td,
+        .history-table thead th {
+            padding-right: 11px;
+            padding-left: 11px;
+        }
+
+        .custom-pagination {
+            gap: 4px;
+        }
+
+        .custom-pagination .page-link {
+            min-width: 36px;
+            height: 36px;
+        }
+
+        .page-link-text {
+            font-size: 0;
+        }
+
+        .page-link-text i {
+            font-size: 0.73rem;
+        }
+
+        .page-actions {
+            flex-direction: column;
+        }
+
+        .page-actions .btn {
+            width: 100%;
+        }
     }
 </style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const formulario =
+            document.getElementById("formularioFiltros");
+
+        const busqueda =
+            document.getElementById("busqueda");
+
+        const filtrosAutomaticos =
+            document.querySelectorAll(
+                ".auto-submit-filter"
+            );
+
+        let temporizadorBusqueda = null;
+
+        filtrosAutomaticos.forEach(function (campo) {
+            campo.addEventListener(
+                "change",
+                function () {
+                    if (formulario) {
+                        formulario.submit();
+                    }
+                }
+            );
+        });
+
+        if (busqueda && formulario) {
+            busqueda.addEventListener(
+                "input",
+                function () {
+                    window.clearTimeout(
+                        temporizadorBusqueda
+                    );
+
+                    temporizadorBusqueda =
+                        window.setTimeout(
+                            function () {
+                                formulario.submit();
+                            },
+                            650
+                        );
+                }
+            );
+        }
+    });
+</script>
 
 {% endblock %}
