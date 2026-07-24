@@ -1971,31 +1971,58 @@ class GestorTiemposMaster:
             if fila
         ]
 
-    def obtener_todos_los_tiempos(self):
+    def obtener_todos_los_tiempos(self, filtro_nombre=None):
+        """
+        Obtiene todos los tiempos registrados.
     
-        cursor = self._execute("""
+        Si se recibe filtro_nombre, filtra los resultados
+        por el nombre del nadador.
+        """
+    
+        if filtro_nombre:
+            filtro_nombre = filtro_nombre.strip()
+    
+            return self._fetchall(
+                """
+                SELECT
+                    id,
+                    nadador,
+                    genero,
+                    estilo,
+                    piscina,
+                    distancia,
+                    categoria,
+                    tiempo,
+                    tiempo_segundos,
+                    fecha,
+                    competencia_id
+                FROM tiempos
+                WHERE LOWER(nadador) LIKE LOWER(?)
+                ORDER BY fecha DESC, id DESC
+                """,
+                (
+                    f'%{filtro_nombre}%',
+                )
+            )
+    
+        return self._fetchall(
+            """
             SELECT
-                nombre_nadador,
-                categoria,
+                id,
+                nadador,
                 genero,
                 estilo,
-                distancia,
                 piscina,
+                distancia,
+                categoria,
                 tiempo,
-                fecha
+                tiempo_segundos,
+                fecha,
+                competencia_id
             FROM tiempos
-            ORDER BY
-                fecha DESC,
-                nombre_nadador ASC,
-                estilo ASC,
-                distancia ASC
-        """, commit=False)
-    
-        return [
-            self._row_to_dict(row, cursor)
-            for row in cursor.fetchall()
-            if row
-        ]
+            ORDER BY fecha DESC, id DESC
+            """
+        )
 
 
 
