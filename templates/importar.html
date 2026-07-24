@@ -1,88 +1,1302 @@
 {% extends "base.html" %}
+
+{% block title %}
+Importar Tiempos | Gestor Ñuñoa Master
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-xl-8 col-lg-9">
-        <div class="card shadow-lg border-0">
-            
-            <!-- Header elegante -->
-            <div class="card-header text-white text-center py-4" 
-                 style="background: linear-gradient(#00a8a8);">
-                <i class="fas fa-file-import fa-2x mb-2 opacity-75"></i>
-                <h2 class="mb-1">Importar Tiempos desde CSV</h2>
-                <p class="mb-0 opacity-90">Carga masiva de tiempos de manera rápida y eficiente</p>
-            </div>
 
-            <div class="card-body p-5">
+<div class="importar-page">
 
-                <!-- Alerta informativa -->
-                <div class="alert alert-primary border-0 mb-4">
-                    <div class="d-flex">
-                        <i class="fas fa-info-circle fa-2x me-3"></i>
-                        <div>
-                            <strong>Formato requerido:</strong><br>
-                            El archivo debe contener las columnas: 
-                            <strong>Nadador, Género, Estilo, Distancia (m), Piscina (m), Categoría Edad, Tiempo, Fecha, Competencia</strong>
-                        </div>
-                    </div>
+    <!-- Encabezado -->
+    <section class="importar-hero mb-4">
+
+        <div class="importar-hero-content">
+
+            <div>
+
+                <div class="importar-kicker">
+                    <i class="fas fa-file-import"></i>
+                    Carga masiva de datos
                 </div>
 
-                <!-- Formulario de subida -->
-                <form method="POST" enctype="multipart/form-data" class="mb-5">
-                    <div class="mb-4">
-                        <label class="form-label fw-bold fs-5">Seleccionar archivo CSV</label>
-                        <input type="file" name="file" class="form-control form-control-lg" 
-                               accept=".csv" required>
-                        <small class="text-muted d-block mt-2">
-                            Solo archivos con extensión .csv • Recomendado máximo 500 registros
-                        </small>
-                    </div>
+                <h1 class="importar-title">
+                    Importar Tiempos desde CSV
+                </h1>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                        <button type="submit" class="btn btn-success btn-lg px-5 py-3">
-                            <i class="fas fa-upload me-2"></i>
-                            Importar Tiempos Ahora
-                        </button>
-                        <a href="/" class="btn btn-outline-secondary btn-lg px-5 py-3">
-                            Cancelar
-                        </a>
-                    </div>
-                </form>
-
-                <hr class="my-5">
-
-                <!-- Sección de ayuda / plantilla -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5 class="mb-3"><i class="fas fa-download text-primary"></i> Descargar Plantilla</h5>
-                        <p class="text-muted small">
-                            Recomendamos descargar primero la plantilla para asegurar el formato correcto.
-                        </p>
-                        <a href="/descargar_plantilla" class="btn btn-outline-primary w-100">
-                            <i class="fas fa-download"></i> Descargar Plantilla CSV
-                        </a>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <h5 class="mb-3"><i class="fas fa-lightbulb text-warning"></i> Consejos importantes</h5>
-                        <ul class="list-unstyled small text-muted">
-                            <li class="mb-2">• Usa el formato exacto de tiempo: <strong>MM:SS.cc</strong></li>
-                            <li class="mb-2">• La fecha debe estar en formato <strong>YYYY-MM-DD</strong></li>
-                            <li class="mb-2">• Los nombres de columnas deben coincidir exactamente</li>
-                            <li>• Puedes importar cientos de tiempos en pocos segundos</li>
-                        </ul>
-                    </div>
-                </div>
+                <p class="importar-subtitle mb-0">
+                    Registra múltiples marcas deportivas de forma rápida,
+                    segura y validada.
+                </p>
 
             </div>
 
-            <!-- Footer -->
-            <div class="card-footer bg-light py-3 text-center">
-                <small class="text-muted">
-                    <i class="fas fa-shield-alt"></i> 
-                    Los tiempos importados se validarán automáticamente
-                </small>
+            <div class="importar-hero-icon">
+                <i class="fas fa-cloud-arrow-up"></i>
             </div>
+
         </div>
+
+    </section>
+
+    <div class="row g-4">
+
+        <!-- Formulario principal -->
+        <div class="col-xl-8">
+
+            <section class="importar-card h-100">
+
+                <header class="importar-card-header">
+
+                    <div>
+
+                        <div class="section-kicker">
+                            Archivo de importación
+                        </div>
+
+                        <h2 class="section-title">
+                            Selecciona el archivo CSV
+                        </h2>
+
+                        <p class="section-description mb-0">
+                            El sistema validará la estructura y los datos
+                            antes de guardar los tiempos.
+                        </p>
+
+                    </div>
+
+                    <div class="section-icon">
+                        <i class="fas fa-file-csv"></i>
+                    </div>
+
+                </header>
+
+                <div class="importar-card-body">
+
+                    <!-- Formato requerido -->
+                    <section class="format-box mb-4">
+
+                        <div class="format-icon">
+                            <i class="fas fa-circle-info"></i>
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Formato requerido
+                            </strong>
+
+                            <p class="mb-2">
+                                El archivo debe contener estas columnas:
+                            </p>
+
+                            <div class="column-list">
+
+                                <span>Nadador</span>
+                                <span>Género</span>
+                                <span>Estilo</span>
+                                <span>Distancia</span>
+                                <span>Piscina</span>
+                                <span>Categoría</span>
+                                <span>Tiempo</span>
+                                <span>Fecha</span>
+                                <span>Competencia</span>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- Formulario -->
+                    <form
+                        method="POST"
+                        enctype="multipart/form-data"
+                        id="formImportar"
+                    >
+
+                        <div class="upload-zone mb-4">
+
+                            <input
+                                type="file"
+                                id="file"
+                                name="file"
+                                class="upload-input"
+                                accept=".csv,text/csv"
+                                required
+                            >
+
+                            <label
+                                for="file"
+                                class="upload-label"
+                                id="uploadLabel"
+                            >
+
+                                <div class="upload-icon">
+                                    <i class="fas fa-file-arrow-up"></i>
+                                </div>
+
+                                <div class="upload-title">
+                                    Selecciona un archivo CSV
+                                </div>
+
+                                <div class="upload-description">
+                                    Haz clic aquí para buscar el archivo
+                                    en tu equipo.
+                                </div>
+
+                                <div class="upload-requirements">
+                                    Solo archivos .csv
+                                </div>
+
+                            </label>
+
+                        </div>
+
+                        <!-- Archivo seleccionado -->
+                        <div
+                            id="archivoSeleccionado"
+                            class="selected-file d-none mb-4"
+                        >
+
+                            <div class="selected-file-icon">
+                                <i class="fas fa-file-csv"></i>
+                            </div>
+
+                            <div class="selected-file-data">
+
+                                <strong id="nombreArchivo">
+                                    Archivo CSV
+                                </strong>
+
+                                <span id="tamanoArchivo">
+                                    —
+                                </span>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                id="quitarArchivo"
+                                class="remove-file"
+                                title="Quitar archivo"
+                                aria-label="Quitar archivo"
+                            >
+                                <i class="fas fa-times"></i>
+                            </button>
+
+                        </div>
+
+                        <div class="import-actions">
+
+                            <button
+                                type="submit"
+                                class="btn btn-import"
+                                id="botonImportar"
+                            >
+
+                                <span class="button-normal">
+                                    <i class="fas fa-upload me-1"></i>
+                                    Importar Tiempos
+                                </span>
+
+                                <span class="button-loading">
+                                    <i class="fas fa-spinner fa-spin me-1"></i>
+                                    Importando...
+                                </span>
+
+                            </button>
+
+                            <a
+                                href="{{ url_for('import_export') }}"
+                                class="btn btn-cancel"
+                            >
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Volver
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <footer class="importar-card-footer">
+
+                    <span>
+                        <i class="fas fa-shield-halved"></i>
+                        Los registros se validarán automáticamente.
+                    </span>
+
+                    <span>
+                        Recomendado: máximo 500 registros por archivo.
+                    </span>
+
+                </footer>
+
+            </section>
+
+        </div>
+
+        <!-- Panel lateral -->
+        <div class="col-xl-4">
+
+            <div class="d-flex flex-column gap-4 h-100">
+
+                <!-- Plantilla -->
+                <section class="side-card">
+
+                    <div class="side-card-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+
+                    <div class="side-card-kicker">
+                        Formato oficial
+                    </div>
+
+                    <h2 class="side-card-title">
+                        Descargar plantilla
+                    </h2>
+
+                    <p class="side-card-description">
+                        Usa la plantilla para evitar errores de encabezados,
+                        orden de columnas o formato.
+                    </p>
+
+                    <a
+                        href="/descargar_plantilla"
+                        class="btn btn-template w-100"
+                    >
+                        <i class="fas fa-file-csv me-1"></i>
+                        Descargar Plantilla CSV
+                    </a>
+
+                </section>
+
+                <!-- Consejos -->
+                <section class="side-card flex-grow-1">
+
+                    <div class="side-card-icon side-card-icon-warning">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+
+                    <div class="side-card-kicker">
+                        Antes de importar
+                    </div>
+
+                    <h2 class="side-card-title">
+                        Recomendaciones
+                    </h2>
+
+                    <div class="tips-list">
+
+                        <div class="tip-item">
+
+                            <div class="tip-number">
+                                1
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Formato del tiempo
+                                </strong>
+
+                                <span>
+                                    Usa el formato de natación
+                                    <b>MM:SS.cc</b>.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="tip-item">
+
+                            <div class="tip-number">
+                                2
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Formato de fecha
+                                </strong>
+
+                                <span>
+                                    Utiliza
+                                    <b>YYYY-MM-DD</b>.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="tip-item">
+
+                            <div class="tip-number">
+                                3
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Encabezados
+                                </strong>
+
+                                <span>
+                                    No cambies los nombres ni el orden
+                                    de las columnas.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="tip-item">
+
+                            <div class="tip-number">
+                                4
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Competencia
+                                </strong>
+
+                                <span>
+                                    Puedes usar el nombre o el identificador,
+                                    según la lógica de tu importador.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
     </div>
+
+    <!-- Estructura de ejemplo -->
+    <section class="example-card mt-4">
+
+        <header class="example-header">
+
+            <div>
+
+                <div class="section-kicker">
+                    Vista de referencia
+                </div>
+
+                <h2 class="section-title">
+                    Ejemplo de estructura
+                </h2>
+
+                <p class="section-description mb-0">
+                    Revisa cómo debe quedar cada registro antes de cargarlo.
+                </p>
+
+            </div>
+
+            <div class="section-icon">
+                <i class="fas fa-table"></i>
+            </div>
+
+        </header>
+
+        <div class="table-responsive">
+
+            <table class="table example-table align-middle mb-0">
+
+                <thead>
+                    <tr>
+                        <th>Nadador</th>
+                        <th>Género</th>
+                        <th>Estilo</th>
+                        <th>Distancia</th>
+                        <th>Piscina</th>
+                        <th>Categoría</th>
+                        <th>Tiempo</th>
+                        <th>Fecha</th>
+                        <th>Competencia</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Carlos Gómez</td>
+                        <td>Masculino</td>
+                        <td>Libre</td>
+                        <td>
+                            <span class="distance-badge">
+                                100 m
+                            </span>
+                        </td>
+                        <td>
+                            <span class="pool-badge pool-25">
+                                25 m
+                            </span>
+                        </td>
+                        <td>40-44</td>
+                        <td>
+                            <span class="time-badge">
+                                01:03.25
+                            </span>
+                        </td>
+                        <td>2026-05-10</td>
+                        <td>8</td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
 </div>
+
+<style>
+    .importar-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
+    }
+
+    /* Hero */
+    .importar-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
+    }
+
+    .importar-hero::before {
+        position: absolute;
+        top: -100px;
+        right: 145px;
+        width: 250px;
+        height: 250px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
+    }
+
+    .importar-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .importar-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
+
+    .importar-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .importar-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .importar-subtitle {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
+
+    .importar-hero-icon {
+        display: inline-flex;
+        width: 100px;
+        height: 100px;
+        min-width: 100px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 27px;
+        background: rgba(255, 255, 255, 0.13);
+        font-size: 2.5rem;
+        backdrop-filter: blur(6px);
+    }
+
+    /* Contenedores */
+    .importar-card,
+    .side-card,
+    .example-card {
+        overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .importar-card {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .importar-card-header,
+    .example-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 19px 21px;
+        border-bottom: 1px solid #e3eded;
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #f2fbfb
+            );
+    }
+
+    .section-kicker,
+    .side-card-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .section-title,
+    .side-card-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.18rem;
+        font-weight: 850;
+    }
+
+    .section-description,
+    .side-card-description {
+        color: #79898b;
+        font-size: 0.76rem;
+        line-height: 1.55;
+    }
+
+    .section-icon,
+    .side-card-icon {
+        display: inline-flex;
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border-radius: 13px;
+        background: #eaf9f9;
+        font-size: 1.1rem;
+    }
+
+    .importar-card-body {
+        flex: 1;
+        padding: 22px;
+    }
+
+    .importar-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 12px 17px;
+        color: #7b8a8c;
+        border-top: 1px solid #e3eded;
+        background: #f8fbfb;
+        font-size: 0.7rem;
+    }
+
+    .importar-card-footer i {
+        margin-right: 4px;
+        color: #009294;
+    }
+
+    /* Formato */
+    .format-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 18px;
+        color: #667779;
+        border: 1px solid #bfe4e4;
+        border-radius: 15px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #eaf9f9
+            );
+    }
+
+    .format-icon {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 11px;
+        background: #009294;
+    }
+
+    .format-box strong {
+        color: #3d4f51;
+        font-size: 0.84rem;
+    }
+
+    .format-box p {
+        margin-top: 3px;
+        color: #6f7f81;
+        font-size: 0.74rem;
+    }
+
+    .column-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .column-list span {
+        padding: 0.38rem 0.55rem;
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        border-radius: 999px;
+        background: #ffffff;
+        font-size: 0.66rem;
+        font-weight: 750;
+    }
+
+    /* Carga */
+    .upload-zone {
+        position: relative;
+    }
+
+    .upload-input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .upload-label {
+        display: flex;
+        min-height: 260px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 32px 20px;
+        border: 2px dashed #b9dddd;
+        border-radius: 17px;
+        background:
+            linear-gradient(
+                180deg,
+                #fbffff,
+                #f3fbfb
+            );
+        cursor: pointer;
+        text-align: center;
+        transition:
+            border-color 0.18s ease,
+            background 0.18s ease,
+            transform 0.18s ease;
+    }
+
+    .upload-label:hover {
+        transform: translateY(-2px);
+        border-color: #009294;
+        background: #effafa;
+    }
+
+    .upload-zone.dragging .upload-label {
+        border-color: #009294;
+        background: #e8f9f9;
+    }
+
+    .upload-icon {
+        display: inline-flex;
+        width: 72px;
+        height: 72px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        color: #009294;
+        border-radius: 20px;
+        background: #e4f7f7;
+        font-size: 1.8rem;
+    }
+
+    .upload-title {
+        color: #344648;
+        font-size: 1.1rem;
+        font-weight: 850;
+    }
+
+    .upload-description {
+        margin-top: 6px;
+        color: #7c8b8d;
+        font-size: 0.8rem;
+    }
+
+    .upload-requirements {
+        margin-top: 12px;
+        padding: 0.4rem 0.62rem;
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        border-radius: 999px;
+        background: #ffffff;
+        font-size: 0.67rem;
+        font-weight: 750;
+    }
+
+    /* Archivo elegido */
+    .selected-file {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 14px 15px;
+        border: 1px solid #bfe4e4;
+        border-radius: 13px;
+        background: #f4fdfd;
+    }
+
+    .selected-file-icon {
+        display: inline-flex;
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        align-items: center;
+        justify-content: center;
+        color: #16875a;
+        border-radius: 12px;
+        background: #e9f8f1;
+        font-size: 1.1rem;
+    }
+
+    .selected-file-data {
+        display: flex;
+        min-width: 0;
+        flex: 1;
+        flex-direction: column;
+    }
+
+    .selected-file-data strong {
+        overflow: hidden;
+        color: #354648;
+        font-size: 0.8rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .selected-file-data span {
+        margin-top: 3px;
+        color: #819092;
+        font-size: 0.67rem;
+    }
+
+    .remove-file {
+        display: inline-flex;
+        width: 34px;
+        height: 34px;
+        align-items: center;
+        justify-content: center;
+        color: #bd3e3e;
+        border: 0;
+        border-radius: 9px;
+        background: #fff0f0;
+    }
+
+    .remove-file:hover {
+        color: #ffffff;
+        background: #c84343;
+    }
+
+    /* Botones */
+    .import-actions {
+        display: flex;
+        justify-content: center;
+        gap: 9px;
+    }
+
+    .btn-import,
+    .btn-cancel,
+    .btn-template {
+        min-height: 46px;
+        padding: 0.65rem 0.95rem;
+        border-radius: 10px;
+        font-size: 0.78rem;
+        font-weight: 750;
+    }
+
+    .btn-import {
+        min-width: 180px;
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .btn-import:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    .btn-import:disabled {
+        cursor: wait;
+        opacity: 0.75;
+    }
+
+    .button-loading {
+        display: none;
+    }
+
+    .btn-import.loading .button-normal {
+        display: none;
+    }
+
+    .btn-import.loading .button-loading {
+        display: inline;
+    }
+
+    .btn-cancel {
+        color: #657577;
+        border: 1px solid #d5dede;
+        background: #ffffff;
+    }
+
+    .btn-cancel:hover {
+        color: #ffffff;
+        border-color: #657577;
+        background: #657577;
+    }
+
+    .btn-template {
+        color: #ffffff;
+        border-color: #16875a;
+        background: #16875a;
+    }
+
+    .btn-template:hover {
+        color: #ffffff;
+        border-color: #116d48;
+        background: #116d48;
+    }
+
+    /* Panel lateral */
+    .side-card {
+        padding: 21px;
+    }
+
+    .side-card-icon {
+        margin-bottom: 15px;
+    }
+
+    .side-card-icon-warning {
+        color: #9b7112;
+        background: #fff5d8;
+    }
+
+    .side-card-description {
+        margin: 10px 0 18px;
+    }
+
+    .tips-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-top: 17px;
+    }
+
+    .tip-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+    }
+
+    .tip-number {
+        display: inline-flex;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 8px;
+        background: #009294;
+        font-size: 0.68rem;
+        font-weight: 850;
+    }
+
+    .tip-item > div:last-child {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tip-item strong {
+        color: #425355;
+        font-size: 0.75rem;
+    }
+
+    .tip-item span {
+        margin-top: 2px;
+        color: #7b898b;
+        font-size: 0.68rem;
+        line-height: 1.45;
+    }
+
+    /* Ejemplo */
+    .example-table {
+        min-width: 1050px;
+    }
+
+    .example-table thead th {
+        padding: 11px 14px;
+        color: #ffffff;
+        border-bottom: 0;
+        background: #008f91;
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .example-table tbody td {
+        padding: 13px 14px;
+        color: #526365;
+        border-color: #edf2f2;
+        font-size: 0.77rem;
+    }
+
+    .distance-badge,
+    .pool-badge,
+    .time-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.4rem 0.56rem;
+        border-radius: 9px;
+        font-size: 0.68rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .distance-badge {
+        color: #3f5153;
+        border: 1px solid #dbe5e5;
+        background: #f4f7f7;
+    }
+
+    .pool-badge {
+        color: #ffffff;
+    }
+
+    .pool-25 {
+        background: #2878c7;
+    }
+
+    .time-badge {
+        color: #ffffff;
+        background: #16875a;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .importar-hero-content {
+            padding: 27px 22px;
+        }
+
+        .importar-hero-icon {
+            display: none;
+        }
+
+        .importar-title {
+            font-size: 2rem;
+        }
+
+        .importar-card-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .import-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .import-actions .btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .importar-hero {
+            border-radius: 18px;
+        }
+
+        .importar-card-header,
+        .example-header {
+            align-items: flex-start;
+        }
+
+        .section-icon {
+            display: none;
+        }
+
+        .importar-card-body {
+            padding: 17px;
+        }
+
+        .format-box {
+            flex-direction: column;
+        }
+
+        .upload-label {
+            min-height: 220px;
+            padding: 26px 15px;
+        }
+
+        .upload-icon {
+            width: 62px;
+            height: 62px;
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const formulario =
+            document.getElementById("formImportar");
+
+        const inputArchivo =
+            document.getElementById("file");
+
+        const zonaCarga =
+            document.querySelector(".upload-zone");
+
+        const archivoSeleccionado =
+            document.getElementById("archivoSeleccionado");
+
+        const nombreArchivo =
+            document.getElementById("nombreArchivo");
+
+        const tamanoArchivo =
+            document.getElementById("tamanoArchivo");
+
+        const quitarArchivo =
+            document.getElementById("quitarArchivo");
+
+        const botonImportar =
+            document.getElementById("botonImportar");
+
+        function formatearTamano(bytes) {
+            if (!Number.isFinite(bytes)) {
+                return "—";
+            }
+
+            if (bytes < 1024) {
+                return bytes + " bytes";
+            }
+
+            if (bytes < 1024 * 1024) {
+                return (
+                    (bytes / 1024).toFixed(1) +
+                    " KB"
+                );
+            }
+
+            return (
+                (bytes / (1024 * 1024)).toFixed(1) +
+                " MB"
+            );
+        }
+
+        function mostrarArchivo(archivo) {
+            if (!archivo) {
+                archivoSeleccionado.classList.add(
+                    "d-none"
+                );
+                return;
+            }
+
+            nombreArchivo.textContent =
+                archivo.name;
+
+            tamanoArchivo.textContent =
+                formatearTamano(
+                    archivo.size
+                );
+
+            archivoSeleccionado.classList.remove(
+                "d-none"
+            );
+        }
+
+        if (inputArchivo) {
+            inputArchivo.addEventListener(
+                "change",
+                function () {
+                    const archivo =
+                        inputArchivo.files[0];
+
+                    if (
+                        archivo &&
+                        !archivo.name
+                            .toLowerCase()
+                            .endsWith(".csv")
+                    ) {
+                        alert(
+                            "Solo se permiten archivos CSV."
+                        );
+
+                        inputArchivo.value = "";
+                        mostrarArchivo(null);
+                        return;
+                    }
+
+                    mostrarArchivo(archivo);
+                }
+            );
+        }
+
+        if (quitarArchivo) {
+            quitarArchivo.addEventListener(
+                "click",
+                function () {
+                    inputArchivo.value = "";
+                    mostrarArchivo(null);
+                }
+            );
+        }
+
+        if (zonaCarga) {
+            ["dragenter", "dragover"].forEach(
+                function (evento) {
+                    zonaCarga.addEventListener(
+                        evento,
+                        function (e) {
+                            e.preventDefault();
+                            zonaCarga.classList.add(
+                                "dragging"
+                            );
+                        }
+                    );
+                }
+            );
+
+            ["dragleave", "drop"].forEach(
+                function (evento) {
+                    zonaCarga.addEventListener(
+                        evento,
+                        function (e) {
+                            e.preventDefault();
+                            zonaCarga.classList.remove(
+                                "dragging"
+                            );
+                        }
+                    );
+                }
+            );
+
+            zonaCarga.addEventListener(
+                "drop",
+                function (e) {
+                    const archivos =
+                        e.dataTransfer.files;
+
+                    if (!archivos.length) {
+                        return;
+                    }
+
+                    const archivo =
+                        archivos[0];
+
+                    if (
+                        !archivo.name
+                            .toLowerCase()
+                            .endsWith(".csv")
+                    ) {
+                        alert(
+                            "Solo se permiten archivos CSV."
+                        );
+                        return;
+                    }
+
+                    const transferencia =
+                        new DataTransfer();
+
+                    transferencia.items.add(
+                        archivo
+                    );
+
+                    inputArchivo.files =
+                        transferencia.files;
+
+                    mostrarArchivo(archivo);
+                }
+            );
+        }
+
+        if (formulario && botonImportar) {
+            formulario.addEventListener(
+                "submit",
+                function () {
+                    if (
+                        !inputArchivo.files ||
+                        !inputArchivo.files.length
+                    ) {
+                        return;
+                    }
+
+                    botonImportar.disabled = true;
+                    botonImportar.classList.add(
+                        "loading"
+                    );
+                }
+            );
+        }
+    });
+</script>
+
 {% endblock %}
