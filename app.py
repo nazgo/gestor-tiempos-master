@@ -322,7 +322,7 @@ def agregar():
             )
 
             return redirect(
-                url_for('listar_tiempos')
+                url_for('todos_los_tiempos')
             )
 
         except Exception as e:
@@ -342,13 +342,6 @@ def agregar():
     )
 
 
-@app.route('/listar')
-@login_required
-def listar_tiempos():
-    filtro_nombre = request.args.get('filtro', '')
-    tiempos = gestor_tiempos.obtener_todos_los_tiempos(filtro_nombre)
-    return render_template('listar_tiempos.html', tiempos=tiempos, filtro=filtro_nombre)
-
 
 @app.route('/tiempo/<int:tiempo_id>/editar', methods=['GET', 'POST'])
 @login_required
@@ -360,7 +353,7 @@ def editar_tiempo(tiempo_id):
 
     if not tiempo_registro:
         flash('Tiempo no encontrado.', 'danger')
-        return redirect(url_for('listar_tiempos'))
+        return redirect(url_for('todos_los_tiempos'))
 
     competencias = gestor_tiempos.listar_competencias()
 
@@ -437,7 +430,7 @@ def editar_tiempo(tiempo_id):
             )
 
             return redirect(
-                url_for('listar_tiempos')
+                url_for('todos_los_tiempos')
             )
 
         except Exception as e:
@@ -467,7 +460,7 @@ def eliminar_tiempo(tiempo_id):
         flash('✅ Tiempo eliminado correctamente', 'success')
     except Exception as e:
         flash(f'❌ Error: {str(e)}', 'danger')
-    return redirect(url_for('listar_tiempos'))
+    return redirect(url_for('todos_los_tiempos'))
 
 
 @app.route('/estadisticas')
@@ -1339,7 +1332,7 @@ def importar_tiempos():
                     'success'
                 )
 
-                return redirect(url_for('listar_tiempos'))
+                return redirect(url_for('todos_los_tiempos'))
 
             except Exception as e:
                 print("❌ ERROR COMPLETO AL IMPORTAR:", repr(e))
@@ -1626,7 +1619,7 @@ def editar_tiempo_nadador(tiempo_id):
 
     if not tiempo_registro:
         flash('Tiempo no encontrado.', 'danger')
-        return redirect(url_for('listar_tiempos'))
+        return redirect(url_for('todos_los_tiempos'))
 
     competencias = gestor_tiempos.listar_competencias()
 
@@ -1670,7 +1663,7 @@ def editar_tiempo_nadador(tiempo_id):
             )
 
             return redirect(
-                url_for('listar_tiempos')
+                url_for('todos_los_tiempos')
             )
 
         except Exception as e:
@@ -1699,7 +1692,7 @@ def eliminar_tiempo_nadador(tiempo_id):
 
     if not tiempo_registro:
         flash('Tiempo no encontrado.', 'danger')
-        return redirect(url_for('listar_tiempos'))
+        return redirect(url_for('todos_los_tiempos'))
 
     try:
         gestor_tiempos.eliminar_tiempo(tiempo_id)
@@ -1716,7 +1709,7 @@ def eliminar_tiempo_nadador(tiempo_id):
             'danger'
         )
 
-    return redirect(url_for('listar_tiempos'))
+    return redirect(url_for('todos_los_tiempos'))
 
 #@app.route('/nadadores/importar', methods=['GET', 'POST'])
 #@login_required
