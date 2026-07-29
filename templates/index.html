@@ -1,797 +1,164 @@
 {% extends 'base.html' %}
 
+{% block title %}Resumen | Gestor Ñuñoa Master{% endblock %}
+
 {% block content %}
-
-<div class="dashboard-home">
-
-    <!-- Encabezado principal -->
-    <section class="home-hero mb-5">
-
-        <div class="home-hero-content">
-
-            <div>
-
-                <div class="home-kicker">
-                    <i class="fas fa-water"></i>
-                    Club Natación Ñuñoa Master
-                </div>
-
-                <h1 class="home-title">
-                    Sistema de Gestión de Tiempos
-                </h1>
-
-                <p class="home-subtitle mb-0">
-                    Nadadores, tiempos, estadísticas, competencias y rendimiento
-                    en un solo lugar.
-                </p>
-
-            </div>
-
-            <div class="home-hero-logo">
-                <img
-                    src="{{ url_for('static', filename='logo.png') }}"
-                    alt="Club Ñuñoa Master"
-                >
-            </div>
-
-        </div>
-
-    </section>
-
-    <!-- Encabezado de módulos -->
-    <div class="section-heading mb-3">
-
+<div class="executive-dashboard">
+    <section class="executive-welcome">
         <div>
-
-            <h2 class="section-title mb-1">
-                Panel principal
-            </h2>
-
-            <p class="section-subtitle mb-0">
-                Selecciona el módulo que deseas consultar
-            </p>
-
+            <span class="executive-eyebrow"><i class="fas fa-wave-square"></i> Centro de rendimiento</span>
+            <h1>Resumen del club</h1>
+            <p>Actividad, rendimiento y próximos eventos de Ñuñoa Master en una sola vista.</p>
         </div>
-
-    </div>
-
-    <!-- Módulos -->
-    <div class="row g-4">
-
-        <!-- Gestión de Nadadores -->
-        <div class="col-sm-6 col-xl-3">
-
-            <a
-                href="{{ url_for('nadadores') }}"
-                class="modulo-link"
-            >
-
-                <article class="modulo-card h-100">
-
-                    <div class="modulo-top">
-
-                        <div class="modulo-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-
-                        <span class="modulo-flecha">
-                            <i class="fas fa-arrow-right"></i>
-                        </span>
-
-                    </div>
-
-                    <div class="modulo-body">
-
-                        <h3 class="modulo-title">
-                            Gestión de Nadadores
-                        </h3>
-
-                        <p class="modulo-description">
-                            Registra, edita y consulta la ficha completa de cada nadador.
-                        </p>
-
-                    </div>
-
-                </article>
-
-            </a>
-
-        </div>
-
-        <!-- Season Best -->
-        <div class="col-sm-6 col-xl-3">
-
-            <a
-                href="{{ url_for('season_best') }}"
-                class="modulo-link"
-            >
-
-                <article class="modulo-card h-100">
-
-                    <div class="modulo-top">
-
-                        <div class="modulo-icon">
-                            <i class="fas fa-trophy"></i>
-                        </div>
-
-                        <span class="modulo-flecha">
-                            <i class="fas fa-arrow-right"></i>
-                        </span>
-
-                    </div>
-
-                    <div class="modulo-body">
-
-                        <h3 class="modulo-title">
-                            Season Best
-                        </h3>
-
-                        <p class="modulo-description">
-                            Consulta las mejores marcas personales por prueba y piscina.
-                        </p>
-
-                    </div>
-
-                </article>
-
-            </a>
-
-        </div>
-
-        <!-- Estadísticas -->
-        <div class="col-sm-6 col-xl-3">
-
-            <a
-                href="{{ url_for('estadisticas_club') }}"
-                class="modulo-link"
-            >
-
-                <article class="modulo-card h-100">
-
-                    <div class="modulo-top">
-
-                        <div class="modulo-icon">
-                            <i class="fas fa-chart-bar"></i>
-                        </div>
-
-                        <span class="modulo-flecha">
-                            <i class="fas fa-arrow-right"></i>
-                        </span>
-
-                    </div>
-
-                    <div class="modulo-body">
-
-                        <h3 class="modulo-title">
-                            Estadísticas del Club
-                        </h3>
-
-                        <p class="modulo-description">
-                            Revisa métricas generales, rankings y actividad por temporada.
-                        </p>
-
-                    </div>
-
-                </article>
-
-            </a>
-
-        </div>
-
-        <!-- Asistencias -->
-        <div class="col-sm-6 col-xl-3">
-
-            <a
-                href="{{ url_for('seleccionar_anio_asistencias') }}"
-                class="modulo-link"
-            >
-
-                <article class="modulo-card h-100">
-
-                    <div class="modulo-top">
-
-                        <div class="modulo-icon">
-                            <i class="fas fa-clipboard-check"></i>
-                        </div>
-
-                        <span class="modulo-flecha">
-                            <i class="fas fa-arrow-right"></i>
-                        </span>
-
-                    </div>
-
-                    <div class="modulo-body">
-
-                        <h3 class="modulo-title">
-                            Asistencia a Competencias
-                        </h3>
-
-                        <p class="modulo-description">
-                            Marca y consulta la participación de los nadadores por año.
-                        </p>
-
-                    </div>
-
-                </article>
-
-            </a>
-
-        </div>
-
-        <!-- Importar / Exportar -->
-        <div class="col-sm-6 col-xl-3">
-
-            <a
-                href="{{ url_for('import_export') }}"
-                class="modulo-link"
-            >
-
-                <article class="modulo-card h-100">
-
-                    <div class="modulo-top">
-
-                        <div class="modulo-icon">
-                            <i class="fas fa-file-import"></i>
-                        </div>
-
-                        <span class="modulo-flecha">
-                            <i class="fas fa-arrow-right"></i>
-                        </span>
-
-                    </div>
-
-                    <div class="modulo-body">
-
-                        <h3 class="modulo-title">
-                            Centro de Datos
-                        </h3>
-
-                        <p class="modulo-description">
-                            Importa, exporta y administra la información deportiva.
-                        </p>
-
-                    </div>
-
-                </article>
-
-            </a>
-
-        </div>
-
-        <!-- Progreso -->
-        <div class="col-sm-6 col-xl-3">
-
-            <a
-                href="{{ url_for('progreso_nadador') }}"
-                class="modulo-link"
-            >
-
-                <article class="modulo-card h-100">
-
-                    <div class="modulo-top">
-
-                        <div class="modulo-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-
-                        <span class="modulo-flecha">
-                            <i class="fas fa-arrow-right"></i>
-                        </span>
-
-                    </div>
-
-                    <div class="modulo-body">
-
-                        <h3 class="modulo-title">
-                            Progreso del Nadador
-                        </h3>
-
-                        <p class="modulo-description">
-                            Analiza la evolución de tiempos y rendimiento individual.
-                        </p>
-
-                    </div>
-
-                </article>
-
-            </a>
-
-        </div>
-
-        <!-- Comparación -->
-        <div class="col-sm-6 col-xl-3">
-
-            <a
-                href="{{ url_for('comparacion_25_50') }}"
-                class="modulo-link"
-            >
-
-                <article class="modulo-card h-100">
-
-                    <div class="modulo-top">
-
-                        <div class="modulo-icon">
-                            <i class="fas fa-balance-scale"></i>
-                        </div>
-
-                        <span class="modulo-flecha">
-                            <i class="fas fa-arrow-right"></i>
-                        </span>
-
-                    </div>
-
-                    <div class="modulo-body">
-
-                        <h3 class="modulo-title">
-                            Comparativa 25 m vs 50 m
-                        </h3>
-
-                        <p class="modulo-description">
-                            Compara las mejores marcas entre piscina corta y olímpica.
-                        </p>
-
-                    </div>
-
-                </article>
-
-            </a>
-
-        </div>
-
-        <!-- Calendario -->
-        <div class="col-sm-6 col-xl-3">
-
-            <a
-                href="{{ url_for('seleccionar_anio_calendario') }}"
-                class="modulo-link"
-            >
-
-                <article class="modulo-card h-100">
-
-                    <div class="modulo-top">
-
-                        <div class="modulo-icon">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-
-                        <span class="modulo-flecha">
-                            <i class="fas fa-arrow-right"></i>
-                        </span>
-
-                    </div>
-
-                    <div class="modulo-body">
-
-                        <h3 class="modulo-title">
-                            Circuito de Competencias
-                        </h3>
-
-                        <p class="modulo-description">
-                            Consulta el calendario anual y administra cada competencia.
-                        </p>
-
-                    </div>
-
-                </article>
-
-            </a>
-
-        </div>
-
-    </div>
-
-    <!-- Pie del panel -->
-    <section class="home-footer-card mt-5">
-
-        <div class="home-footer-content">
-
-            <div>
-
-                <div class="home-footer-label">
-                    Gestión deportiva
-                </div>
-
-                <h3 class="home-footer-title">
-                    Ñuñoa Master
-                </h3>
-
-                <p class="home-footer-text mb-0">
-                    Información centralizada para apoyar el rendimiento,
-                    la participación y el crecimiento del equipo.
-                </p>
-
-            </div>
-
-            <div class="home-footer-symbol">
-                ÑM
-            </div>
-
-        </div>
-
+        <div class="executive-season"><span>Temporada</span><strong>{{ dashboard.anio_actual }}</strong></div>
     </section>
 
+    <section class="row g-3 mb-4">
+        {% set metricas = [
+            ('Nadadores', dashboard.metricas.total_nadadores, 'fa-users', url_for('nadadores'), 'Plantel registrado'),
+            ('Activos', dashboard.metricas.activos, 'fa-user-check', url_for('estado_nadadores_anio', anio=dashboard.anio_actual), 'Con tiempos este año'),
+            ('Tiempos', dashboard.metricas.total_tiempos, 'fa-stopwatch', url_for('todos_los_tiempos'), 'Historial completo'),
+            ('Competencias', dashboard.metricas.competencias_anio, 'fa-flag-checkered', url_for('seleccionar_anio_calendario'), 'Eventos de la temporada')
+        ] %}
+        {% for titulo, valor, icono, enlace, detalle in metricas %}
+        <div class="col-6 col-xl-3">
+            <a href="{{ enlace }}" class="executive-metric-link">
+                <article class="executive-metric h-100">
+                    <div class="executive-metric-icon"><i class="fas {{ icono }}"></i></div>
+                    <div class="executive-metric-value">{{ valor }}</div>
+                    <div class="executive-metric-title">{{ titulo }}</div>
+                    <div class="executive-metric-detail">{{ detalle }}</div>
+                </article>
+            </a>
+        </div>
+        {% endfor %}
+    </section>
+
+    <section class="row g-4 mb-4">
+        <div class="col-xl-8">
+            <article class="executive-panel h-100">
+                <header class="executive-panel-header">
+                    <div><span>Actividad anual</span><h2>Tiempos registrados por mes</h2></div>
+                    <i class="fas fa-chart-line"></i>
+                </header>
+                <div class="executive-chart executive-chart-large"><canvas id="chartMeses"></canvas></div>
+            </article>
+        </div>
+        <div class="col-xl-4">
+            <article class="executive-panel h-100">
+                <header class="executive-panel-header">
+                    <div><span>Estado del plantel</span><h2>Activos e inactivos</h2></div>
+                    <i class="fas fa-chart-pie"></i>
+                </header>
+                <div class="executive-chart executive-chart-donut"><canvas id="chartActividad"></canvas></div>
+                <div class="activity-legend">
+                    <span><i class="activity-dot active"></i> Activos <strong>{{ dashboard.metricas.activos }}</strong></span>
+                    <span><i class="activity-dot inactive"></i> Inactivos <strong>{{ dashboard.metricas.inactivos }}</strong></span>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-4 mb-4">
+        <div class="col-xl-6">
+            <article class="executive-panel h-100">
+                <header class="executive-panel-header">
+                    <div><span>Distribución deportiva</span><h2>Registros por estilo</h2></div>
+                    <i class="fas fa-water"></i>
+                </header>
+                <div class="executive-chart"><canvas id="chartEstilos"></canvas></div>
+            </article>
+        </div>
+        <div class="col-xl-6">
+            <article class="executive-panel h-100">
+                <header class="executive-panel-header">
+                    <div><span>Participación {{ dashboard.anio_actual }}</span><h2>Nadadores más activos</h2></div>
+                    <i class="fas fa-ranking-star"></i>
+                </header>
+                <div class="executive-chart"><canvas id="chartTop"></canvas></div>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-4 mb-4">
+        <div class="col-xl-7">
+            <article class="executive-panel h-100">
+                <header class="executive-panel-header">
+                    <div><span>Actividad reciente</span><h2>Últimos tiempos registrados</h2></div>
+                    <a href="{{ url_for('todos_los_tiempos') }}" class="executive-panel-action">Ver historial <i class="fas fa-arrow-right"></i></a>
+                </header>
+                <div class="table-responsive">
+                    <table class="table executive-table align-middle mb-0">
+                        <thead><tr><th>Nadador</th><th>Prueba</th><th>Piscina</th><th>Tiempo</th><th>Fecha</th></tr></thead>
+                        <tbody>
+                        {% for t in dashboard.ultimos_tiempos %}
+                            <tr>
+                                <td><strong>{{ t.nombre_nadador }}</strong></td>
+                                <td>{{ t.estilo }} · {{ t.distancia }} m</td>
+                                <td><span class="executive-chip">{{ t.piscina or '—' }}</span></td>
+                                <td><span class="executive-time">{{ t.tiempo }}</span></td>
+                                <td>{% if t.fecha and t.fecha.strftime is defined %}{{ t.fecha.strftime('%d/%m/%Y') }}{% else %}{{ t.fecha or '—' }}{% endif %}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="5" class="text-center py-5 text-muted">No hay tiempos registrados.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+        <div class="col-xl-5">
+            <article class="executive-panel h-100">
+                <header class="executive-panel-header">
+                    <div><span>Agenda competitiva</span><h2>Próximas competencias</h2></div>
+                    <a href="{{ url_for('seleccionar_anio_calendario') }}" class="executive-panel-action">Calendario <i class="fas fa-arrow-right"></i></a>
+                </header>
+                <div class="competition-list">
+                    {% for c in dashboard.proximas_competencias_lista %}
+                    <div class="competition-item">
+                        <div class="competition-date-box">
+                            {% if c.fecha and c.fecha.strftime is defined %}<strong>{{ c.fecha.strftime('%d') }}</strong><span>{{ c.fecha.strftime('%b')|upper }}</span>{% else %}<strong>—</strong><span>FECHA</span>{% endif %}
+                        </div>
+                        <div class="competition-copy"><strong>{{ c.nombre }}</strong><span><i class="fas fa-location-dot"></i> {{ c.lugar or 'Lugar por confirmar' }}</span></div>
+                        <span class="competition-pool">{{ c.tipo_piscina or '—' }}</span>
+                    </div>
+                    {% else %}
+                    <div class="dashboard-empty"><i class="fas fa-calendar-check"></i><strong>Sin competencias próximas</strong><span>La agenda futura aparecerá aquí.</span></div>
+                    {% endfor %}
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="executive-panel mb-2">
+        <header class="executive-panel-header">
+            <div><span>Crecimiento histórico</span><h2>Evolución por temporada</h2></div>
+            <i class="fas fa-arrow-trend-up"></i>
+        </header>
+        <div class="executive-chart"><canvas id="chartTemporadas"></canvas></div>
+    </section>
 </div>
+{% endblock %}
 
+{% block extra_css %}
 <style>
-    :root {
-        --nm-primary: #009294;
-        --nm-primary-dark: #007e80;
-        --nm-primary-light: #eaf9f9;
-        --nm-primary-soft: #f3fcfc;
-        --nm-border: #bfe4e4;
-        --nm-background: #f7fbfb;
-        --nm-text: #2c3a3b;
-        --nm-muted: #758587;
-        --nm-white: #ffffff;
-    }
-
-    .dashboard-home {
-        min-height: 100vh;
-        padding: 1rem 0 2rem;
-        background:
-            linear-gradient(
-                180deg,
-                var(--nm-primary-soft) 0,
-                var(--nm-white) 480px
-            );
-    }
-
-    /* Encabezado */
-    .home-hero {
-        position: relative;
-        overflow: hidden;
-        border-radius: 24px;
-        background:
-            linear-gradient(
-                135deg,
-                #00898b 0%,
-                #009c9e 55%,
-                #00adaf 100%
-            );
-        box-shadow:
-            0 16px 38px
-            rgba(0, 126, 128, 0.22);
-    }
-
-    .home-hero::before {
-        position: absolute;
-        top: -80px;
-        right: 100px;
-        width: 220px;
-        height: 220px;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        border-radius: 50%;
-        content: "";
-    }
-
-    .home-hero::after {
-        position: absolute;
-        right: -70px;
-        bottom: -120px;
-        width: 290px;
-        height: 290px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.08);
-        content: "";
-    }
-
-    .home-hero-content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 30px;
-        padding: 38px 42px;
-        color: var(--nm-white);
-    }
-
-    .home-kicker {
-        margin-bottom: 8px;
-        color: rgba(255, 255, 255, 0.82);
-        font-size: 0.78rem;
-        font-weight: 750;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-    }
-
-    .home-kicker i {
-        margin-right: 5px;
-    }
-
-    .home-title {
-        max-width: 760px;
-        margin-bottom: 8px;
-        font-size: clamp(2.2rem, 5vw, 3.6rem);
-        font-weight: 850;
-        letter-spacing: -0.045em;
-    }
-
-    .home-subtitle {
-        max-width: 720px;
-        color: rgba(255, 255, 255, 0.86);
-        font-size: 1rem;
-        line-height: 1.6;
-    }
-
-.home-hero-logo{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    width:170px;
-    height:170px;
-
-    border-radius:30px;
-
-    background:rgba(255,255,255,.10);
-
-    backdrop-filter:blur(8px);
-
-    border:1px solid rgba(255,255,255,.18);
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.15),
-        0 10px 30px rgba(0,0,0,.12);
-}
-
-.home-hero-logo img{
-
-    width:125px;
-    height:auto;
-
-    object-fit:contain;
-
-    filter:
-        drop-shadow(
-            0 3px 8px
-            rgba(0,0,0,.18)
-        );
-}
-    /* Sección */
-    .section-heading {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .section-title {
-        color: var(--nm-text);
-        font-size: 1.55rem;
-        font-weight: 850;
-    }
-
-    .section-subtitle {
-        color: var(--nm-muted);
-    }
-
-    /* Tarjetas */
-    .modulo-link {
-        display: block;
-        height: 100%;
-        color: inherit;
-        text-decoration: none;
-    }
-
-    .modulo-link:hover {
-        color: inherit;
-    }
-
-    .modulo-card {
-        position: relative;
-        overflow: hidden;
-        padding: 20px;
-        border: 1px solid #dfeaea;
-        border-radius: 18px;
-        background: var(--nm-white);
-        box-shadow:
-            0 6px 18px
-            rgba(25, 65, 67, 0.07);
-        transition:
-            transform 0.18s ease,
-            box-shadow 0.18s ease,
-            border-color 0.18s ease;
-    }
-
-    .modulo-card::after {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        height: 4px;
-        background: var(--nm-primary);
-        transform: scaleX(0);
-        transform-origin: left;
-        transition: transform 0.2s ease;
-        content: "";
-    }
-
-    .modulo-card:hover {
-        transform: translateY(-6px);
-        border-color: var(--nm-border);
-        box-shadow:
-            0 14px 30px
-            rgba(0, 126, 128, 0.14);
-    }
-
-    .modulo-card:hover::after {
-        transform: scaleX(1);
-    }
-
-    .modulo-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 20px;
-    }
-
-    .modulo-icon {
-        display: inline-flex;
-        width: 58px;
-        height: 58px;
-        align-items: center;
-        justify-content: center;
-        color: var(--nm-primary);
-        border: 1px solid #d1eeee;
-        border-radius: 16px;
-        background: var(--nm-primary-light);
-        font-size: 1.45rem;
-        transition:
-            transform 0.18s ease,
-            color 0.18s ease,
-            background 0.18s ease;
-    }
-
-    .modulo-card:hover .modulo-icon {
-        transform: scale(1.05);
-        color: var(--nm-white);
-        background: var(--nm-primary);
-    }
-
-    .modulo-flecha {
-        display: inline-flex;
-        width: 32px;
-        height: 32px;
-        align-items: center;
-        justify-content: center;
-        color: #7a9192;
-        border-radius: 50%;
-        background: #f0f6f6;
-        transition:
-            transform 0.18s ease,
-            color 0.18s ease,
-            background 0.18s ease;
-    }
-
-    .modulo-card:hover .modulo-flecha {
-        transform: translateX(3px);
-        color: var(--nm-white);
-        background: var(--nm-primary-dark);
-    }
-
-    .modulo-title {
-        margin-bottom: 8px;
-        color: var(--nm-text);
-        font-size: 1.02rem;
-        font-weight: 800;
-    }
-
-    .modulo-description {
-        margin-bottom: 0;
-        color: var(--nm-muted);
-        font-size: 0.86rem;
-        line-height: 1.55;
-    }
-
-    /* Pie */
-    .home-footer-card {
-        overflow: hidden;
-        border: 1px solid var(--nm-border);
-        border-radius: 20px;
-        background:
-            linear-gradient(
-                135deg,
-                #f8ffff 0%,
-                var(--nm-primary-light) 100%
-            );
-    }
-
-    .home-footer-content {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 24px;
-        padding: 28px 32px;
-    }
-
-    .home-footer-label {
-        color: var(--nm-primary-dark);
-        font-size: 0.72rem;
-        font-weight: 750;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-    }
-
-    .home-footer-title {
-        margin: 3px 0 5px;
-        color: var(--nm-text);
-        font-size: 1.55rem;
-        font-weight: 850;
-    }
-
-    .home-footer-text {
-        max-width: 650px;
-        color: var(--nm-muted);
-    }
-
-    .home-footer-symbol {
-        display: inline-flex;
-        width: 76px;
-        height: 76px;
-        min-width: 76px;
-        align-items: center;
-        justify-content: center;
-        color: var(--nm-white);
-        border: 4px solid rgba(255, 255, 255, 0.85);
-        border-radius: 50%;
-        background:
-            linear-gradient(
-                135deg,
-                var(--nm-primary),
-                #00b4b6
-            );
-        box-shadow:
-            0 7px 18px
-            rgba(0, 126, 128, 0.22);
-        font-size: 1.3rem;
-        font-weight: 850;
-        letter-spacing: 0.05em;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .dashboard-home {
-            padding-top: 0.4rem;
-        }
-
-        .home-hero-content {
-            padding: 28px 22px;
-        }
-
-        .home-hero-logo{
-            display:none;
-        }
-
-        .home-title {
-            font-size: 2.2rem;
-        }
-
-        .home-subtitle {
-            font-size: 0.94rem;
-        }
-
-        .home-footer-content {
-            padding: 24px 20px;
-        }
-
-        .home-footer-symbol {
-            display: none;
-        }
-    }
-
-    @media (max-width: 575px) {
-        .home-hero {
-            border-radius: 18px;
-        }
-
-        .home-title {
-            font-size: 1.85rem;
-        }
-
-        .modulo-card {
-            padding: 18px;
-        }
-    }
+.executive-dashboard{padding:.1rem 0 1.5rem}.executive-welcome{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px;padding:30px 32px;overflow:hidden;color:#fff;border-radius:22px;background:linear-gradient(135deg,#007f81,#00a8aa);box-shadow:0 18px 40px rgba(0,127,129,.18)}.executive-welcome:after{position:absolute;right:-80px;bottom:-170px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.08);content:""}.executive-eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.82}.executive-welcome h1{margin:8px 0 6px;font-family:Manrope,sans-serif;font-size:clamp(2rem,4vw,3.1rem);font-weight:800;letter-spacing:-.045em}.executive-welcome p{margin:0;max-width:680px;opacity:.84}.executive-season{position:relative;z-index:1;display:flex;min-width:138px;flex-direction:column;align-items:center;padding:15px 18px;border:1px solid rgba(255,255,255,.24);border-radius:16px;background:rgba(255,255,255,.12)}.executive-season span{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.76}.executive-season strong{font-size:1.9rem}.executive-metric-link{display:block;height:100%;color:inherit;text-decoration:none}.executive-metric{padding:18px;border:1px solid var(--border-color);border-radius:17px;background:var(--bg-surface);box-shadow:0 7px 20px rgba(25,68,70,.06);transition:.18s ease}.executive-metric:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 14px 28px rgba(0,126,128,.12)}.executive-metric-icon{display:flex;width:43px;height:43px;align-items:center;justify-content:center;color:var(--accent);border-radius:13px;background:rgba(0,155,157,.10)}.executive-metric-value{margin-top:15px;color:var(--text-primary);font-size:2rem;font-weight:800;line-height:1}.executive-metric-title{margin-top:7px;color:var(--text-primary);font-size:.83rem;font-weight:800}.executive-metric-detail{margin-top:4px;color:var(--text-secondary);font-size:.66rem}.executive-panel{overflow:hidden;border:1px solid var(--border-color);border-radius:18px;background:var(--bg-surface);box-shadow:0 7px 20px rgba(25,68,70,.06)}.executive-panel-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 19px;border-bottom:1px solid var(--border-color)}.executive-panel-header span{color:var(--accent);font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.executive-panel-header h2{margin:3px 0 0;color:var(--text-primary);font-size:1rem;font-weight:800}.executive-panel-header>i{display:flex;width:39px;height:39px;align-items:center;justify-content:center;color:var(--accent);border-radius:11px;background:rgba(0,155,157,.10)}.executive-panel-action{color:var(--accent);font-size:.7rem;font-weight:750;text-decoration:none}.executive-chart{position:relative;height:310px;padding:18px}.executive-chart-large{height:340px}.executive-chart-donut{height:270px}.activity-legend{display:flex;justify-content:center;gap:18px;padding:0 16px 17px;color:var(--text-secondary);font-size:.69rem}.activity-legend span{display:flex;align-items:center;gap:6px}.activity-dot{width:8px;height:8px;border-radius:50%}.activity-dot.active{background:#00a8aa}.activity-dot.inactive{background:#d5e0e1}.executive-table{min-width:700px}.executive-table thead th{padding:10px 14px;color:var(--text-secondary);background:rgba(0,155,157,.045);font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.executive-table tbody td{padding:11px 14px;color:var(--text-secondary);border-color:var(--border-color);font-size:.72rem}.executive-table strong{color:var(--text-primary)}.executive-chip{padding:.32rem .48rem;color:var(--accent);border-radius:7px;background:rgba(0,155,157,.10);font-size:.62rem;font-weight:750}.executive-time{padding:.35rem .53rem;color:#fff;border-radius:8px;background:#16875a;font-size:.68rem;font-weight:800}.competition-list{padding:6px 17px 12px}.competition-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border-color)}.competition-item:last-child{border-bottom:0}.competition-date-box{display:flex;width:48px;height:51px;min-width:48px;flex-direction:column;align-items:center;justify-content:center;color:#fff;border-radius:12px;background:linear-gradient(135deg,#008b8d,#00aaac)}.competition-date-box strong{font-size:1rem;line-height:1}.competition-date-box span{margin-top:3px;font-size:.52rem;font-weight:800}.competition-copy{display:flex;min-width:0;flex:1;flex-direction:column}.competition-copy strong{overflow:hidden;color:var(--text-primary);font-size:.74rem;text-overflow:ellipsis;white-space:nowrap}.competition-copy span{margin-top:4px;color:var(--text-secondary);font-size:.62rem}.competition-pool{padding:.33rem .44rem;color:var(--accent);border-radius:7px;background:rgba(0,155,157,.10);font-size:.57rem;font-weight:750;white-space:nowrap}.dashboard-empty{display:flex;flex-direction:column;align-items:center;padding:40px 15px;color:var(--text-secondary);text-align:center}.dashboard-empty i{margin-bottom:10px;color:var(--accent);font-size:1.5rem}.dashboard-empty strong{color:var(--text-primary);font-size:.78rem}.dashboard-empty span{margin-top:4px;font-size:.65rem}@media(max-width:768px){.executive-welcome{align-items:flex-start;flex-direction:column;padding:24px 20px}.executive-season{width:100%}.executive-metric{padding:15px}.executive-metric-value{font-size:1.65rem}.executive-chart,.executive-chart-large{height:280px}.executive-chart-donut{height:245px}}@media(max-width:575px){.executive-welcome{border-radius:18px}.executive-welcome h1{font-size:1.9rem}.executive-panel-header{align-items:flex-start}.executive-panel-header>i{display:none}.executive-chart{padding:12px}.activity-legend{flex-direction:column;align-items:center;gap:7px}.competition-pool{display:none}}
 </style>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+ const g={{ dashboard.graficos|tojson }};
+ const dark=document.documentElement.dataset.theme==='dark';
+ const text=dark?'#a9b8ba':'#728184', grid=dark?'rgba(255,255,255,.07)':'rgba(30,70,72,.08)', accent='#009b9d';
+ Chart.defaults.font.family='Inter, sans-serif'; Chart.defaults.color=text;
+ const common={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:text}},y:{beginAtZero:true,grid:{color:grid},ticks:{color:text,precision:0}}}};
+ new Chart(document.getElementById('chartMeses'),{type:'line',data:{labels:g.meses.labels,datasets:[{data:g.meses.values,borderColor:accent,backgroundColor:'rgba(0,155,157,.12)',fill:true,tension:.38,pointRadius:3,pointHoverRadius:5}]},options:common});
+ new Chart(document.getElementById('chartActividad'),{type:'doughnut',data:{labels:g.actividad.labels,datasets:[{data:g.actividad.values,backgroundColor:['#00a8aa','#d5e0e1'],borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false}}}});
+ new Chart(document.getElementById('chartEstilos'),{type:'bar',data:{labels:g.estilos.labels,datasets:[{data:g.estilos.values,backgroundColor:['#009b9d','#2878c7','#e0a72f','#79519c','#16875a','#7d8b8d'],borderRadius:7}]},options:common});
+ new Chart(document.getElementById('chartTop'),{type:'bar',data:{labels:g.top_nadadores.labels,datasets:[{data:g.top_nadadores.values,backgroundColor:'rgba(0,155,157,.82)',borderRadius:7}]},options:{...common,indexAxis:'y'}});
+ new Chart(document.getElementById('chartTemporadas'),{type:'bar',data:{labels:g.temporadas.labels,datasets:[{data:g.temporadas.values,backgroundColor:'rgba(0,155,157,.82)',borderRadius:8,maxBarThickness:54}]},options:common});
+});
+</script>
 {% endblock %}
