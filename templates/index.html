@@ -75,7 +75,7 @@
                     <div><span>Participación {{ dashboard.anio_actual }}</span><h2>Nadadores más activos</h2></div>
                     <i class="fas fa-ranking-star"></i>
                 </header>
-                <div class="executive-chart"><canvas id="chartTop"></canvas></div>
+                <div class="executive-chart executive-chart-ranking"><canvas id="chartTop"></canvas></div>
             </article>
         </div>
     </section>
@@ -142,7 +142,7 @@
 
 {% block extra_css %}
 <style>
-.executive-dashboard{padding:.1rem 0 1.5rem}.executive-welcome{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px;padding:30px 32px;overflow:hidden;color:#fff;border-radius:22px;background:linear-gradient(135deg,#007f81,#00a8aa);box-shadow:0 18px 40px rgba(0,127,129,.18)}.executive-welcome:after{position:absolute;right:-80px;bottom:-170px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.08);content:""}.executive-eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.82}.executive-welcome h1{margin:8px 0 6px;font-family:Manrope,sans-serif;font-size:clamp(2rem,4vw,3.1rem);font-weight:800;letter-spacing:-.045em}.executive-welcome p{margin:0;max-width:680px;opacity:.84}.executive-season{position:relative;z-index:1;display:flex;min-width:138px;flex-direction:column;align-items:center;padding:15px 18px;border:1px solid rgba(255,255,255,.24);border-radius:16px;background:rgba(255,255,255,.12)}.executive-season span{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.76}.executive-season strong{font-size:1.9rem}.executive-metric-link{display:block;height:100%;color:inherit;text-decoration:none}.executive-metric{padding:18px;border:1px solid var(--border-color);border-radius:17px;background:var(--bg-surface);box-shadow:0 7px 20px rgba(25,68,70,.06);transition:.18s ease}.executive-metric:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 14px 28px rgba(0,126,128,.12)}.executive-metric-icon{display:flex;width:43px;height:43px;align-items:center;justify-content:center;color:var(--accent);border-radius:13px;background:rgba(0,155,157,.10)}.executive-metric-value{margin-top:15px;color:var(--text-primary);font-size:2rem;font-weight:800;line-height:1}.executive-metric-title{margin-top:7px;color:var(--text-primary);font-size:.83rem;font-weight:800}.executive-metric-detail{margin-top:4px;color:var(--text-secondary);font-size:.66rem}.executive-panel{overflow:hidden;border:1px solid var(--border-color);border-radius:18px;background:var(--bg-surface);box-shadow:0 7px 20px rgba(25,68,70,.06)}.executive-panel-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 19px;border-bottom:1px solid var(--border-color)}.executive-panel-header span{color:var(--accent);font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.executive-panel-header h2{margin:3px 0 0;color:var(--text-primary);font-size:1rem;font-weight:800}.executive-panel-header>i{display:flex;width:39px;height:39px;align-items:center;justify-content:center;color:var(--accent);border-radius:11px;background:rgba(0,155,157,.10)}.executive-panel-action{color:var(--accent);font-size:.7rem;font-weight:750;text-decoration:none}.executive-chart{position:relative;height:310px;padding:18px}.executive-chart-large{height:340px}.executive-chart-donut{height:270px}.activity-legend{display:flex;justify-content:center;gap:18px;padding:0 16px 17px;color:var(--text-secondary);font-size:.69rem}.activity-legend span{display:flex;align-items:center;gap:6px}.activity-dot{width:8px;height:8px;border-radius:50%}.activity-dot.active{background:#00a8aa}.activity-dot.inactive{background:#d5e0e1}.executive-table{min-width:700px}.executive-table thead th{padding:10px 14px;color:var(--text-secondary);background:rgba(0,155,157,.045);font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.executive-table tbody td{padding:11px 14px;color:var(--text-secondary);border-color:var(--border-color);font-size:.72rem}.executive-table strong{color:var(--text-primary)}.executive-chip{padding:.32rem .48rem;color:var(--accent);border-radius:7px;background:rgba(0,155,157,.10);font-size:.62rem;font-weight:750}.executive-time{padding:.35rem .53rem;color:#fff;border-radius:8px;background:#16875a;font-size:.68rem;font-weight:800}.competition-list{padding:6px 17px 12px}.competition-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border-color)}.competition-item:last-child{border-bottom:0}.competition-date-box{display:flex;width:48px;height:51px;min-width:48px;flex-direction:column;align-items:center;justify-content:center;color:#fff;border-radius:12px;background:linear-gradient(135deg,#008b8d,#00aaac)}.competition-date-box strong{font-size:1rem;line-height:1}.competition-date-box span{margin-top:3px;font-size:.52rem;font-weight:800}.competition-copy{display:flex;min-width:0;flex:1;flex-direction:column}.competition-copy strong{overflow:hidden;color:var(--text-primary);font-size:.74rem;text-overflow:ellipsis;white-space:nowrap}.competition-copy span{margin-top:4px;color:var(--text-secondary);font-size:.62rem}.competition-pool{padding:.33rem .44rem;color:var(--accent);border-radius:7px;background:rgba(0,155,157,.10);font-size:.57rem;font-weight:750;white-space:nowrap}.dashboard-empty{display:flex;flex-direction:column;align-items:center;padding:40px 15px;color:var(--text-secondary);text-align:center}.dashboard-empty i{margin-bottom:10px;color:var(--accent);font-size:1.5rem}.dashboard-empty strong{color:var(--text-primary);font-size:.78rem}.dashboard-empty span{margin-top:4px;font-size:.65rem}@media(max-width:768px){.executive-welcome{align-items:flex-start;flex-direction:column;padding:24px 20px}.executive-season{width:100%}.executive-metric{padding:15px}.executive-metric-value{font-size:1.65rem}.executive-chart,.executive-chart-large{height:280px}.executive-chart-donut{height:245px}}@media(max-width:575px){.executive-welcome{border-radius:18px}.executive-welcome h1{font-size:1.9rem}.executive-panel-header{align-items:flex-start}.executive-panel-header>i{display:none}.executive-chart{padding:12px}.activity-legend{flex-direction:column;align-items:center;gap:7px}.competition-pool{display:none}}
+.executive-dashboard{padding:.1rem 0 1.5rem}.executive-welcome{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px;padding:30px 32px;overflow:hidden;color:#fff;border-radius:22px;background:linear-gradient(135deg,#007f81,#00a8aa);box-shadow:0 18px 40px rgba(0,127,129,.18)}.executive-welcome:after{position:absolute;right:-80px;bottom:-170px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.08);content:""}.executive-eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.82}.executive-welcome h1{margin:8px 0 6px;font-family:Manrope,sans-serif;font-size:clamp(2rem,4vw,3.1rem);font-weight:800;letter-spacing:-.045em}.executive-welcome p{margin:0;max-width:680px;opacity:.84}.executive-season{position:relative;z-index:1;display:flex;min-width:138px;flex-direction:column;align-items:center;padding:15px 18px;border:1px solid rgba(255,255,255,.24);border-radius:16px;background:rgba(255,255,255,.12)}.executive-season span{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.76}.executive-season strong{font-size:1.9rem}.executive-metric-link{display:block;height:100%;color:inherit;text-decoration:none}.executive-metric{padding:18px;border:1px solid var(--border-color);border-radius:17px;background:var(--bg-surface);box-shadow:0 7px 20px rgba(25,68,70,.06);transition:.18s ease}.executive-metric:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 14px 28px rgba(0,126,128,.12)}.executive-metric-icon{display:flex;width:43px;height:43px;align-items:center;justify-content:center;color:var(--accent);border-radius:13px;background:rgba(0,155,157,.10)}.executive-metric-value{margin-top:15px;color:var(--text-primary);font-size:2rem;font-weight:800;line-height:1}.executive-metric-title{margin-top:7px;color:var(--text-primary);font-size:.83rem;font-weight:800}.executive-metric-detail{margin-top:4px;color:var(--text-secondary);font-size:.66rem}.executive-panel{overflow:hidden;border:1px solid var(--border-color);border-radius:18px;background:var(--bg-surface);box-shadow:0 7px 20px rgba(25,68,70,.06)}.executive-panel-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 19px;border-bottom:1px solid var(--border-color)}.executive-panel-header span{color:var(--accent);font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.executive-panel-header h2{margin:3px 0 0;color:var(--text-primary);font-size:1rem;font-weight:800}.executive-panel-header>i{display:flex;width:39px;height:39px;align-items:center;justify-content:center;color:var(--accent);border-radius:11px;background:rgba(0,155,157,.10)}.executive-panel-action{color:var(--accent);font-size:.7rem;font-weight:750;text-decoration:none}.executive-chart{position:relative;height:310px;padding:18px}.executive-chart-large{height:340px}.executive-chart-donut{height:270px}.executive-chart-ranking{height:390px}.activity-legend{display:flex;justify-content:center;gap:18px;padding:0 16px 17px;color:var(--text-secondary);font-size:.69rem}.activity-legend span{display:flex;align-items:center;gap:6px}.activity-dot{width:8px;height:8px;border-radius:50%}.activity-dot.active{background:#00a8aa}.activity-dot.inactive{background:#d5e0e1}.executive-table{min-width:700px}.executive-table thead th{padding:10px 14px;color:var(--text-secondary);background:rgba(0,155,157,.045);font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.executive-table tbody td{padding:11px 14px;color:var(--text-secondary);border-color:var(--border-color);font-size:.72rem}.executive-table strong{color:var(--text-primary)}.executive-chip{padding:.32rem .48rem;color:var(--accent);border-radius:7px;background:rgba(0,155,157,.10);font-size:.62rem;font-weight:750}.executive-time{padding:.35rem .53rem;color:#fff;border-radius:8px;background:#16875a;font-size:.68rem;font-weight:800}.competition-list{padding:6px 17px 12px}.competition-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border-color)}.competition-item:last-child{border-bottom:0}.competition-date-box{display:flex;width:48px;height:51px;min-width:48px;flex-direction:column;align-items:center;justify-content:center;color:#fff;border-radius:12px;background:linear-gradient(135deg,#008b8d,#00aaac)}.competition-date-box strong{font-size:1rem;line-height:1}.competition-date-box span{margin-top:3px;font-size:.52rem;font-weight:800}.competition-copy{display:flex;min-width:0;flex:1;flex-direction:column}.competition-copy strong{overflow:hidden;color:var(--text-primary);font-size:.74rem;text-overflow:ellipsis;white-space:nowrap}.competition-copy span{margin-top:4px;color:var(--text-secondary);font-size:.62rem}.competition-pool{padding:.33rem .44rem;color:var(--accent);border-radius:7px;background:rgba(0,155,157,.10);font-size:.57rem;font-weight:750;white-space:nowrap}.dashboard-empty{display:flex;flex-direction:column;align-items:center;padding:40px 15px;color:var(--text-secondary);text-align:center}.dashboard-empty i{margin-bottom:10px;color:var(--accent);font-size:1.5rem}.dashboard-empty strong{color:var(--text-primary);font-size:.78rem}.dashboard-empty span{margin-top:4px;font-size:.65rem}@media(max-width:768px){.executive-chart-ranking{height:430px}.executive-welcome{align-items:flex-start;flex-direction:column;padding:24px 20px}.executive-season{width:100%}.executive-metric{padding:15px}.executive-metric-value{font-size:1.65rem}.executive-chart,.executive-chart-large{height:280px}.executive-chart-donut{height:245px}}@media(max-width:575px){.executive-welcome{border-radius:18px}.executive-welcome h1{font-size:1.9rem}.executive-panel-header{align-items:flex-start}.executive-panel-header>i{display:none}.executive-chart{padding:12px}.activity-legend{flex-direction:column;align-items:center;gap:7px}.competition-pool{display:none}}
 </style>
 {% endblock %}
 
@@ -157,7 +157,58 @@ document.addEventListener('DOMContentLoaded',()=>{
  new Chart(document.getElementById('chartMeses'),{type:'line',data:{labels:g.meses.labels,datasets:[{data:g.meses.values,borderColor:accent,backgroundColor:'rgba(0,155,157,.12)',fill:true,tension:.38,pointRadius:3,pointHoverRadius:5}]},options:common});
  new Chart(document.getElementById('chartActividad'),{type:'doughnut',data:{labels:g.actividad.labels,datasets:[{data:g.actividad.values,backgroundColor:['#00a8aa','#d5e0e1'],borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false}}}});
  new Chart(document.getElementById('chartEstilos'),{type:'bar',data:{labels:g.estilos.labels,datasets:[{data:g.estilos.values,backgroundColor:['#009b9d','#2878c7','#e0a72f','#79519c','#16875a','#7d8b8d'],borderRadius:7}]},options:common});
- new Chart(document.getElementById('chartTop'),{type:'bar',data:{labels:g.top_nadadores.labels,datasets:[{data:g.top_nadadores.values,backgroundColor:'rgba(0,155,157,.82)',borderRadius:7}]},options:{...common,indexAxis:'y'}});
+ const topLabels=(g.top_nadadores?.labels||[]).map(v=>String(v||'Sin nombre'));
+ const topValues=(g.top_nadadores?.values||[]).map(v=>Number(v)||0);
+ const topCanvas=document.getElementById('chartTop');
+ if(topCanvas){
+   new Chart(topCanvas,{
+     type:'bar',
+     data:{
+       labels:topLabels,
+       datasets:[{
+         label:'Tiempos registrados',
+         data:topValues,
+         backgroundColor:topValues.map((_,i)=>i===0?'#d4a017':i===1?'#9aa5a8':i===2?'#b87333':'rgba(0,155,157,.86)'),
+         hoverBackgroundColor:topValues.map((_,i)=>i===0?'#e1ad16':i===1?'#aeb8bb':i===2?'#ca8144':'#007f81'),
+         borderRadius:9,
+         borderSkipped:false,
+         barThickness:24,
+         maxBarThickness:28
+       }]
+     },
+     options:{
+       indexAxis:'y',
+       responsive:true,
+       maintainAspectRatio:false,
+       animation:{duration:750,easing:'easeOutQuart'},
+       interaction:{mode:'nearest',intersect:false},
+       plugins:{
+         legend:{display:false},
+         tooltip:{callbacks:{label:(ctx)=>`${ctx.raw} ${ctx.raw===1?'tiempo':'tiempos'} registrados`}}
+       },
+       scales:{
+         x:{
+           type:'linear',
+           beginAtZero:true,
+           suggestedMax:Math.max(...topValues,1),
+           grid:{color:grid},
+           ticks:{color:text,precision:0,stepSize:1},
+           title:{display:true,text:'Cantidad de tiempos',color:text}
+         },
+         y:{
+           type:'category',
+           grid:{display:false},
+           ticks:{
+             color:text,
+             autoSkip:false,
+             font:{size:11,weight:'600'},
+             callback:function(value){const label=this.getLabelForValue(value);return label.length>24?label.slice(0,24)+'…':label;}
+           }
+         }
+       }
+     }
+   });
+ }
  new Chart(document.getElementById('chartTemporadas'),{type:'bar',data:{labels:g.temporadas.labels,datasets:[{data:g.temporadas.values,backgroundColor:'rgba(0,155,157,.82)',borderRadius:8,maxBarThickness:54}]},options:common});
 });
 </script>
