@@ -27,12 +27,14 @@ from gestor_tiempos_nadadores_master import GestorTiemposMaster
 from gestor_nadadores import GestorNadadores
 from gestor_usuarios import GestorUsuarios
 from services.performance_service import PerformanceService
+from services.coach_service import CoachService
 
 # Instancias
 gestor_tiempos = GestorTiemposMaster()
 gestor_nadadores = GestorNadadores()
 gestor_usuarios = GestorUsuarios()
 performance_service = PerformanceService(gestor_tiempos, gestor_nadadores)
+coach_service = CoachService(gestor_tiempos, gestor_nadadores)
 
 def login_required(f):
     @wraps(f)
@@ -183,6 +185,26 @@ def performance_center():
             'next_competition': None,
         }
     return render_template('performance_center.html', performance=performance)
+
+
+@app.route('/coach-tools')
+@login_required
+def coach_tools():
+    def parse_id(value):
+        try:
+            return int(value) if value else None
+        except (TypeError, ValueError):
+            return None
+
+    athlete_a = parse_id(request.args.get('a'))
+    athlete_b = parse_id(request.args.get('b'))
+    try:
+        coach = coach_service.build(athlete_a, athlete_b)
+    except Exception as e:
+        print('Error cargando Coach Tools:', repr(e))
+        flash('No fue posible cargar todas las herramientas del entrenador.', 'warning')
+        coach = {'athletes': [], 'selected_a': athlete_a, 'selected_b': athlete_b, 'comparison': None, 'attention': [], 'generated_at': datetime.now()}
+    return render_template('coach_tools.html', coach=coach)
 
 
 # ==================== GESTIÓN DE NADADORES ====================
