@@ -136,7 +136,32 @@ def logout():
 @app.route('/')
 @login_required
 def index():
-    return render_template('index.html')
+    try:
+        dashboard = gestor_tiempos.obtener_dashboard_inicio()
+    except Exception as e:
+        print('Error cargando dashboard:', repr(e))
+        dashboard = {
+            'anio_actual': datetime.now().year,
+            'metricas': {
+                'total_nadadores': 0,
+                'activos': 0,
+                'inactivos': 0,
+                'total_tiempos': 0,
+                'competencias_anio': 0,
+                'proximas_competencias': 0,
+            },
+            'graficos': {
+                'temporadas': {'labels': [], 'values': []},
+                'meses': {'labels': [], 'values': []},
+                'estilos': {'labels': [], 'values': []},
+                'actividad': {'labels': ['Activos', 'Inactivos'], 'values': [0, 0]},
+                'top_nadadores': {'labels': [], 'values': []},
+            },
+            'ultimos_tiempos': [],
+            'proximas_competencias_lista': [],
+        }
+
+    return render_template('index.html', dashboard=dashboard)
 
 
 # ==================== GESTIÓN DE NADADORES ====================

@@ -1904,6 +1904,167 @@ class GestorTiemposMaster:
             estado
         ))
 
+    def obtener_dashboard_inicio(self):
+        """Datos resumidos para la portada ejecutiva del sistema."""
+        anio_actual = datetime.now().year
+
+        def una_fila(query, params=()):
+            cursor = self._execute(query, params, commit=False)
+            fila = cursor.fetchone()
+            return self._row_to_dict(fila, cursor) or {}
+
+        def varias_filas(query, params=()):
+            cursor = self._execute(query, params, commit=False)
+            return [
+                self._row_to_dict(fila, cursor)
+                for fila in cursor.fetchall()
+                if fila
+            ]
+
+        resumen_tiempos = una_fila("""
+            SELECT
+                COUNT(*) AS total_tiempos,
+                COUNT(DISTINCT nombre_nadador) AS nadadores_con_tiempos
+            FROM tiempos
+        """)
+
+        resumen_nadadores = una_fila("""
+            SELECT COUNT(*) AS total_nadadores
+            FROM nadadores
+        """)
+
+        resumen_competencias = una_fila("""
+            SELECT
+                COUNT(*) AS total_competencias,
+                COUNT(*) FILTER (
+                    WHERE EXTRACT(YEAR FROM fecha) = ?
+                ) AS competencias_anio,
+                COUNT(*) FILTER (
+                    WHERE fecha >= CURRENT_DATE
+                ) AS proximas_competencias
+            FROM competencias
+        """, (anio_actual,))
+
+        activos = una_fila("""
+            SELECT COUNT(DISTINCT nombre_nadador) AS total
+            FROM tiempos
+            WHERE EXTRACT(YEAR FROM fecha) = ?
+        """, (anio_actual,)).get('total', 0) or 0
+
+        total_nadadores = resumen_nadadores.get('total_nadadores', 0) or 0
+        inactivos = max(total_nadadores - activos, 0)
+
+        registros_temporada = varias_filas("""
+            SELECT
+                EXTRACT(YEAR FROM fecha)::INTEGER AS anio,
+                COUNT(*) AS total
+            FROM tiempos
+            WHERE fecha IS NOT NULL
+            GROUP BY EXTRACT(YEAR FROM fecha)
+            ORDER BY anio ASC
+        """)
+
+        registros_mes_raw = varias_filas("""
+            SELECT
+                EXTRACT(MONTH FROM fecha)::INTEGER AS mes,
+                COUNT(*) AS total
+            FROM tiempos
+            WHERE EXTRACT(YEAR FROM fecha) = ?
+            GROUP BY EXTRACT(MONTH FROM fecha)
+            ORDER BY mes
+        """, (anio_actual,))
+
+        registros_por_mes = {int(f['mes']): int(f['total']) for f in registros_mes_raw}
+        meses = [
+            'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+            'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+        ]
+
+        estilos = varias_filas("""
+            SELECT
+                COALESCE(NULLIF(TRIM(estilo), ''), 'Sin estilo') AS estilo,
+                COUNT(*) AS total
+            FROM tiempos
+            GROUP BY COALESCE(NULLIF(TRIM(estilo), ''), 'Sin estilo')
+            ORDER BY total DESC
+            LIMIT 6
+        """)
+
+        ultimos_tiempos = varias_filas("""
+            SELECT
+                id,
+                nombre_nadador,
+                estilo,
+                distancia,
+                piscina,
+                tiempo,
+                fecha
+            FROM tiempos
+            ORDER BY fecha DESC, id DESC
+            LIMIT 7
+        """)
+
+        proximas_competencias = varias_filas("""
+            SELECT
+                id,
+                nombre,
+                fecha,
+                lugar,
+                tipo_piscina,
+                estado
+            FROM competencias
+            WHERE fecha >= CURRENT_DATE
+            ORDER BY fecha ASC
+            LIMIT 5
+        """)
+
+        top_nadadores = varias_filas("""
+            SELECT
+                nombre_nadador,
+                COUNT(*) AS total
+            FROM tiempos
+            WHERE EXTRACT(YEAR FROM fecha) = ?
+            GROUP BY nombre_nadador
+            ORDER BY total DESC, nombre_nadador ASC
+            LIMIT 7
+        """, (anio_actual,))
+
+        return {
+            'anio_actual': anio_actual,
+            'metricas': {
+                'total_nadadores': total_nadadores,
+                'activos': activos,
+                'inactivos': inactivos,
+                'total_tiempos': resumen_tiempos.get('total_tiempos', 0) or 0,
+                'competencias_anio': resumen_competencias.get('competencias_anio', 0) or 0,
+                'proximas_competencias': resumen_competencias.get('proximas_competencias', 0) or 0,
+            },
+            'graficos': {
+                'temporadas': {
+                    'labels': [str(f['anio']) for f in registros_temporada],
+                    'values': [int(f['total']) for f in registros_temporada],
+                },
+                'meses': {
+                    'labels': meses,
+                    'values': [registros_por_mes.get(i, 0) for i in range(1, 13)],
+                },
+                'estilos': {
+                    'labels': [f['estilo'] for f in estilos],
+                    'values': [int(f['total']) for f in estilos],
+                },
+                'actividad': {
+                    'labels': ['Activos', 'Inactivos'],
+                    'values': [activos, inactivos],
+                },
+                'top_nadadores': {
+                    'labels': [f['nombre_nadador'] for f in top_nadadores],
+                    'values': [int(f['total']) for f in top_nadadores],
+                },
+            },
+            'ultimos_tiempos': ultimos_tiempos,
+            'proximas_competencias_lista': proximas_competencias,
+        }
+
     def obtener_registros_por_temporada(self):
         cursor = self._execute("""
             SELECT
