@@ -1,0 +1,674 @@
+.dashboard-v3 {
+    padding: 0.1rem 0 1.5rem;
+}
+
+.dashboard-hero {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    margin-bottom: 24px;
+    padding: 34px 36px;
+    color: #fff;
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 78% 20%, rgba(255, 255, 255, 0.14), transparent 29%),
+        linear-gradient(135deg, #006f72 0%, #008f92 48%, #00afb1 100%);
+    box-shadow: 0 20px 45px rgba(0, 127, 129, 0.22);
+}
+
+.dashboard-hero::before,
+.dashboard-hero::after {
+    position: absolute;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 50%;
+    content: "";
+}
+
+.dashboard-hero::before {
+    top: -145px;
+    right: 250px;
+    width: 330px;
+    height: 330px;
+}
+
+.dashboard-hero::after {
+    right: -130px;
+    bottom: -230px;
+    width: 450px;
+    height: 450px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dashboard-hero-copy,
+.dashboard-season-card {
+    position: relative;
+    z-index: 1;
+}
+
+.dashboard-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.82;
+}
+
+.dashboard-hero h1 {
+    margin: 9px 0 7px;
+    font-family: Manrope, Inter, sans-serif;
+    font-size: clamp(2.2rem, 4vw, 3.35rem);
+    font-weight: 850;
+    letter-spacing: -0.05em;
+}
+
+.dashboard-hero p {
+    max-width: 680px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.84);
+    line-height: 1.6;
+}
+
+.dashboard-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.dashboard-primary-action,
+.dashboard-secondary-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 43px;
+    padding: 0.7rem 1rem;
+    border-radius: 11px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.dashboard-primary-action {
+    color: #007d7f;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(0, 70, 72, 0.16);
+}
+
+.dashboard-secondary-action {
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.27);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-primary-action:hover,
+.dashboard-secondary-action:hover {
+    transform: translateY(-2px);
+}
+
+.dashboard-primary-action:hover {
+    color: #006f72;
+    background: #f5ffff;
+}
+
+.dashboard-secondary-action:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.17);
+}
+
+.dashboard-season-card {
+    display: flex;
+    min-width: 160px;
+    flex-direction: column;
+    align-items: center;
+    padding: 18px 22px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 19px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+}
+
+.dashboard-season-card span,
+.dashboard-season-card small {
+    font-size: 0.63rem;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.76;
+}
+
+.dashboard-season-card strong {
+    margin: 3px 0;
+    font-size: 2.15rem;
+    line-height: 1;
+}
+
+.metric-card-link {
+    display: block;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+}
+
+.metric-card {
+    position: relative;
+    overflow: hidden;
+    padding: 19px;
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    background: var(--bg-surface);
+    box-shadow: 0 8px 22px rgba(25, 68, 70, 0.065);
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.metric-card::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), #00c3c5);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s ease;
+    content: "";
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    box-shadow: 0 15px 30px rgba(0, 126, 128, 0.14);
+}
+
+.metric-card:hover::after {
+    transform: scaleX(1);
+}
+
+.metric-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.metric-card-icon {
+    display: inline-flex;
+    width: 46px;
+    height: 46px;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    border-radius: 14px;
+    background: rgba(0, 155, 157, 0.1);
+    font-size: 1.08rem;
+}
+
+.metric-card-arrow {
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    opacity: 0.65;
+}
+
+.metric-card-value {
+    margin-top: 16px;
+    color: var(--text-primary);
+    font-size: 2.15rem;
+    font-weight: 850;
+    line-height: 1;
+}
+
+.metric-card-title {
+    margin-top: 7px;
+    color: var(--text-primary);
+    font-size: 0.84rem;
+    font-weight: 800;
+}
+
+.metric-card-detail {
+    margin-top: 4px;
+    color: var(--text-secondary);
+    font-size: 0.66rem;
+}
+
+.dashboard-panel {
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 19px;
+    background: var(--bg-surface);
+    box-shadow: 0 8px 22px rgba(25, 68, 70, 0.065);
+}
+
+.dashboard-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(135deg, transparent, rgba(0, 155, 157, 0.035));
+}
+
+.dashboard-panel-header > div:first-child > span {
+    color: var(--accent);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.dashboard-panel-header h2 {
+    margin: 3px 0 0;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 850;
+}
+
+.dashboard-panel-header p {
+    margin: 4px 0 0;
+    color: var(--text-secondary);
+    font-size: 0.66rem;
+}
+
+.panel-icon {
+    display: inline-flex;
+    width: 41px;
+    height: 41px;
+    min-width: 41px;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    border-radius: 12px;
+    background: rgba(0, 155, 157, 0.1);
+}
+
+.panel-action {
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.panel-action:hover {
+    color: var(--accent-hover);
+}
+
+.dashboard-chart {
+    position: relative;
+    height: 310px;
+    padding: 18px;
+}
+
+.dashboard-chart-large {
+    height: 350px;
+}
+
+.dashboard-chart-donut {
+    height: 270px;
+}
+
+.dashboard-chart-styles {
+    height: 350px;
+}
+
+.dashboard-chart-ranking {
+    height: 410px;
+}
+
+.dashboard-chart-evolution {
+    height: 390px;
+    padding: 24px 28px 18px;
+}
+
+.donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.donut-center strong {
+    color: var(--text-primary);
+    font-size: 1.8rem;
+    line-height: 1;
+}
+
+.donut-center span {
+    margin-top: 4px;
+    color: var(--text-secondary);
+    font-size: 0.62rem;
+    font-weight: 750;
+    text-transform: uppercase;
+}
+
+.activity-legend {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    padding: 0 16px 17px;
+    color: var(--text-secondary);
+    font-size: 0.69rem;
+}
+
+.activity-legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.activity-dot.active {
+    background: #00a8aa;
+}
+
+.activity-dot.inactive {
+    background: #d5e0e1;
+}
+
+.dashboard-table {
+    min-width: 700px;
+}
+
+.dashboard-table thead th {
+    padding: 10px 14px;
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+    background: rgba(0, 155, 157, 0.045);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.dashboard-table tbody td {
+    padding: 12px 14px;
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+    font-size: 0.72rem;
+}
+
+.dashboard-table tbody tr:hover {
+    background: rgba(0, 155, 157, 0.035);
+}
+
+.dashboard-table strong {
+    color: var(--text-primary);
+}
+
+.data-chip,
+.time-chip {
+    display: inline-flex;
+    padding: 0.34rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.63rem;
+    font-weight: 800;
+}
+
+.data-chip {
+    color: var(--accent);
+    background: rgba(0, 155, 157, 0.1);
+}
+
+.time-chip {
+    color: #fff;
+    background: #16875a;
+}
+
+.competition-list {
+    padding: 6px 17px 12px;
+}
+
+.competition-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.competition-item:last-child {
+    border-bottom: 0;
+}
+
+.competition-date-box {
+    display: flex;
+    width: 49px;
+    height: 52px;
+    min-width: 49px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #008b8d, #00aaac);
+}
+
+.competition-date-box strong {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.competition-date-box span {
+    margin-top: 3px;
+    font-size: 0.52rem;
+    font-weight: 800;
+}
+
+.competition-copy {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+}
+
+.competition-copy strong {
+    overflow: hidden;
+    color: var(--text-primary);
+    font-size: 0.74rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.competition-copy span {
+    margin-top: 4px;
+    color: var(--text-secondary);
+    font-size: 0.62rem;
+}
+
+.competition-pool {
+    padding: 0.34rem 0.46rem;
+    color: var(--accent);
+    border-radius: 7px;
+    background: rgba(0, 155, 157, 0.1);
+    font-size: 0.57rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.dashboard-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 15px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.dashboard-empty i {
+    margin-bottom: 10px;
+    color: var(--accent);
+    font-size: 1.5rem;
+}
+
+.dashboard-empty strong {
+    color: var(--text-primary);
+    font-size: 0.78rem;
+}
+
+.dashboard-empty span {
+    margin-top: 4px;
+    font-size: 0.65rem;
+}
+
+.season-evolution-header {
+    align-items: center;
+}
+
+.season-variation-card {
+    display: flex;
+    min-width: 125px;
+    flex-direction: column;
+    align-items: center;
+    padding: 11px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 13px;
+    background: rgba(0, 155, 157, 0.07);
+}
+
+.season-variation-card span {
+    color: var(--text-secondary) !important;
+    font-size: 0.57rem !important;
+    letter-spacing: 0.08em;
+}
+
+.season-variation-card strong {
+    margin-top: 3px;
+    color: var(--accent);
+    font-size: 1.18rem;
+    font-weight: 850;
+}
+
+.season-evolution-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 18px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-color);
+    background: rgba(0, 155, 157, 0.025);
+    font-size: 0.66rem;
+}
+
+.season-evolution-footer i {
+    margin-right: 4px;
+    color: var(--accent);
+}
+
+.season-evolution-footer strong {
+    color: var(--text-primary);
+}
+
+@media (max-width: 991px) {
+    .dashboard-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .dashboard-season-card {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-hero {
+        padding: 27px 22px;
+    }
+
+    .dashboard-hero h1 {
+        font-size: 2.05rem;
+    }
+
+    .metric-card {
+        padding: 15px;
+    }
+
+    .metric-card-value {
+        font-size: 1.7rem;
+    }
+
+    .dashboard-chart,
+    .dashboard-chart-large {
+        height: 290px;
+    }
+
+    .dashboard-chart-donut {
+        height: 250px;
+    }
+
+    .dashboard-chart-styles {
+        height: 320px;
+    }
+
+    .dashboard-chart-ranking {
+        height: 450px;
+    }
+
+    .dashboard-chart-evolution {
+        height: 330px;
+        padding: 18px 14px;
+    }
+
+    .season-evolution-header,
+    .season-evolution-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .season-variation-card {
+        width: 100%;
+    }
+}
+
+@media (max-width: 575px) {
+    .dashboard-hero {
+        border-radius: 18px;
+    }
+
+    .dashboard-hero-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .dashboard-primary-action,
+    .dashboard-secondary-action {
+        width: 100%;
+    }
+
+    .dashboard-panel-header {
+        align-items: flex-start;
+    }
+
+    .panel-icon {
+        display: none;
+    }
+
+    .dashboard-chart {
+        padding: 12px;
+    }
+
+    .activity-legend {
+        align-items: center;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .competition-pool {
+        display: none;
+    }
+}
