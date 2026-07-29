@@ -1,630 +1,68 @@
 <!DOCTYPE html>
-<html lang="es">
-
+<html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>{% block title %}Gestor Ñuñoa Master{% endblock %}</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>
-        {% block title %}
-            Gestor Ñuñoa Master
-        {% endblock %}
-    </title>
-
-    <!-- Bootstrap -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-    <!-- Font Awesome -->
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-        rel="stylesheet"
-    >
-
-    <!-- PWA -->
-    <link
-        rel="manifest"
-        href="{{ url_for('static', filename='manifest.json') }}"
-    >
-
-    <meta
-        name="theme-color"
-        content="#009294"
-    >
-
-    <meta
-        name="apple-mobile-web-app-capable"
-        content="yes"
-    >
-
-    <meta
-        name="apple-mobile-web-app-status-bar-style"
-        content="black-translucent"
-    >
-
-    <meta
-        name="apple-mobile-web-app-title"
-        content="Ñuñoa Master"
-    >
-
-    <link
-        rel="apple-touch-icon"
-        sizes="180x180"
-        href="{{ url_for('static', filename='icon-180.png') }}"
-    >
-
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        :root {
-            --nm-primary: #009294;
-            --nm-primary-dark: #007d7f;
-            --nm-primary-hover: #008789;
-            --nm-primary-light: #eaf9f9;
-            --nm-primary-soft: #f4fcfc;
-            --nm-border: #bfe4e4;
-            --nm-background: #f7fbfb;
-            --nm-text: #29393a;
-            --nm-muted: #748486;
-            --nm-white: #ffffff;
-            --nm-danger: #d64545;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html {
-            min-height: 100%;
-            scroll-behavior: smooth;
-        }
-
-        body {
-            min-height: 100vh;
-            margin: 0;
-            color: var(--nm-text);
-            background:
-                linear-gradient(
-                    180deg,
-                    #f1fbfb 0,
-                    #ffffff 340px
-                );
-            font-family:
-                "Segoe UI",
-                system-ui,
-                -apple-system,
-                BlinkMacSystemFont,
-                Arial,
-                sans-serif;
-        }
-
-        /* Navbar */
-        .nm-navbar {
-            position: relative;
-            z-index: 1030;
-            min-height: 72px;
-            padding: 0.55rem 0;
-            background:
-                linear-gradient(
-                    135deg,
-                    #008b8d 0%,
-                    var(--nm-primary) 55%,
-                    #00a9ab 100%
-                );
-            box-shadow:
-                0 4px 18px
-                rgba(0, 126, 128, 0.25);
-        }
-
-        .nm-navbar::after {
-            position: absolute;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.16);
-            content: "";
-        }
-
-        .navbar-brand-nm {
-            display: inline-flex;
-            align-items: center;
-            min-width: 0;
-            color: var(--nm-white);
-            text-decoration: none;
-        }
-
-        .navbar-brand-nm:hover {
-            color: var(--nm-white);
-        }
-
-        .logo-img {
-            width: auto;
-            height: 62px;
-            max-width: 110px;
-            object-fit: contain;
-            border: 0;
-            border-radius: 0;
-            background: transparent;
-            box-shadow: none;
-            filter:
-                drop-shadow(
-                    0 2px 4px
-                    rgba(0, 70, 72, 0.25)
-                );
-        }
-
-        .brand-text {
-            display: flex;
-            min-width: 0;
-            flex-direction: column;
-            margin-left: 12px;
-            line-height: 1.15;
-        }
-
-        .brand-title {
-            overflow: hidden;
-            color: var(--nm-white);
-            font-size: 1.18rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .brand-subtitle {
-            margin-top: 3px;
-            color: rgba(255, 255, 255, 0.76);
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        .navbar-toggler {
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: none !important;
-        }
-
-        .navbar-toggler:focus {
-            box-shadow:
-                0 0 0 0.18rem
-                rgba(255, 255, 255, 0.18) !important;
-        }
-
-        .navbar-user {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 0.45rem 0.75rem;
-            color: var(--nm-white);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.11);
-            font-size: 0.86rem;
-            font-weight: 650;
-        }
-
-        .navbar-action {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            min-height: 36px;
-            padding: 0.42rem 0.75rem;
-            color: var(--nm-white);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            border-radius: 10px;
-            background: transparent;
-            font-size: 0.82rem;
-            font-weight: 700;
-            text-decoration: none;
-            transition:
-                color 0.16s ease,
-                background 0.16s ease,
-                border-color 0.16s ease,
-                transform 0.16s ease;
-        }
-
-        .navbar-action:hover {
-            transform: translateY(-1px);
-            color: var(--nm-primary-dark);
-            border-color: var(--nm-white);
-            background: var(--nm-white);
-        }
-
-        .navbar-action-danger:hover {
-            color: var(--nm-danger);
-        }
-
-        /* Contenido principal */
-        .main-content {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 1440px;
-            margin: 0 auto;
-            padding: 18px 22px 36px;
-        }
-
-        /* Marca de agua */
-        .watermark {
-            position: fixed;
-            top: 54%;
-            left: 50%;
-            z-index: 0;
-            width: min(600px, 80vw);
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            opacity: 0.035;
-            text-align: center;
-        }
-
-        .watermark img {
-            width: 100%;
-            height: auto;
-            filter: grayscale(100%);
-        }
-
-        /* Alertas */
-        .alerts-container {
-            position: relative;
-            z-index: 2;
-            margin-bottom: 16px;
-        }
-
-        .nm-alert {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            border: 0;
-            border-radius: 14px;
-            box-shadow:
-                0 7px 18px
-                rgba(34, 70, 72, 0.08);
-        }
-
-        .nm-alert-content {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .nm-alert-icon {
-            margin-top: 2px;
-        }
-
-        /* Enlaces y botones Bootstrap */
-        a {
-            text-underline-offset: 3px;
-        }
-
-        .btn-primary {
-            color: var(--nm-white);
-            border-color: var(--nm-primary);
-            background: var(--nm-primary);
-        }
-
-        .btn-primary:hover,
-        .btn-primary:focus {
-            color: var(--nm-white);
-            border-color: var(--nm-primary-dark);
-            background: var(--nm-primary-dark);
-        }
-
-        .btn-outline-primary {
-            color: var(--nm-primary);
-            border-color: var(--nm-primary);
-        }
-
-        .btn-outline-primary:hover {
-            color: var(--nm-white);
-            border-color: var(--nm-primary);
-            background: var(--nm-primary);
-        }
-
-        .text-primary {
-            color: var(--nm-primary) !important;
-        }
-
-        .bg-primary {
-            background-color: var(--nm-primary) !important;
-        }
-
-        .border-primary {
-            border-color: var(--nm-primary) !important;
-        }
-
-        .form-control:focus,
-        .form-select:focus {
-            border-color: var(--nm-primary);
-            box-shadow:
-                0 0 0 0.2rem
-                rgba(0, 146, 148, 0.15);
-        }
-
-        /* Footer */
-        .site-footer {
-            position: relative;
-            z-index: 1;
-            margin-top: 18px;
-            padding: 18px 20px;
-            color: var(--nm-muted);
-            border-top: 1px solid #deebeb;
-            background: rgba(255, 255, 255, 0.72);
-            font-size: 0.78rem;
-            text-align: center;
-        }
-
-        .site-footer strong {
-            color: var(--nm-primary-dark);
-        }
-
-        /* Móvil */
-        @media (max-width: 991px) {
-            .navbar-collapse {
-                margin-top: 12px;
-                padding: 12px;
-                border: 1px solid rgba(255, 255, 255, 0.18);
-                border-radius: 14px;
-                background: rgba(0, 105, 107, 0.26);
-                backdrop-filter: blur(7px);
-            }
-
-            .navbar-controls {
-                align-items: stretch !important;
-                flex-direction: column;
-                gap: 8px !important;
-            }
-
-            .navbar-user,
-            .navbar-action {
-                width: 100%;
-                justify-content: flex-start;
-            }
-        }
-
-        @media (max-width: 575px) {
-            .nm-navbar {
-                min-height: 64px;
-            }
-
-            .logo-img {
-                height: 52px;
-                max-width: 88px;
-            }
-
-            .brand-text {
-                margin-left: 9px;
-            }
-
-            .brand-title {
-                max-width: 190px;
-                font-size: 0.98rem;
-            }
-
-            .brand-subtitle {
-                font-size: 0.61rem;
-            }
-
-            .main-content {
-                padding: 12px 12px 28px;
-            }
-
-            .watermark {
-                width: 90vw;
-            }
-        }
-    </style>
-
-    {% block extra_css %}{% endblock %}
-</head>
-
-<body>
-
-    <!-- Barra de navegación -->
-    <nav class="navbar navbar-expand-lg navbar-dark nm-navbar">
-
-        <div class="container-fluid px-3 px-lg-4">
-
-            <a
-                href="{{ url_for('index') }}"
-                class="navbar-brand-nm"
-            >
-                <img
-                    <img src="{{ url_for('static', filename='logo.png') }}"
-                    alt="Logo Ñuñoa Master" class="logo-img me-3">
-
-                <span class="brand-text">
-
-                    <span class="brand-title">
-                        Gestor Ñuñoa Master
-                    </span>
-
-                    <span class="brand-subtitle">
-                        Gestión deportiva
-                    </span>
-
-                </span>
-            </a>
-
-            {% if session.username %}
-
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarUsuario"
-                aria-controls="navbarUsuario"
-                aria-expanded="false"
-                aria-label="Mostrar navegación"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div
-                class="collapse navbar-collapse"
-                id="navbarUsuario"
-            >
-
-                <div class="navbar-controls ms-auto d-flex align-items-center gap-2">
-
-                    <span class="navbar-user">
-                        <i class="fas fa-user-circle"></i>
-                        {{ session.username }}
-                    </span>
-
-                    <a
-                        href="{{ url_for('admin_usuarios') }}"
-                        class="navbar-action"
-                    >
-                        <i class="fas fa-users-cog"></i>
-                        Usuarios
-                    </a>
-
-                    <a
-                        href="{{ url_for('logout') }}"
-                        class="navbar-action navbar-action-danger"
-                    >
-                        <i class="fas fa-sign-out-alt"></i>
-                        Cerrar sesión
-                    </a>
-
-                </div>
-
-            </div>
-
-            {% endif %}
-
-        </div>
-
-    </nav>
-
-    <!-- Marca de agua -->
-    <div class="watermark">
-        <img
-            src="{{ url_for('static', filename='logo.png') }}"
-            alt=""
-            aria-hidden="true"
-        >
-    </div>
-
-    <!-- Contenido -->
-    <main class="main-content">
-
-        <!-- Mensajes flash -->
-        <div class="alerts-container">
-
-            {% with messages = get_flashed_messages(with_categories=true) %}
-
-                {% if messages %}
-
-                    {% for category, message in messages %}
-
-                        {% set alert_category =
-                            category
-                            if category in [
-                                'success',
-                                'danger',
-                                'warning',
-                                'info',
-                                'primary',
-                                'secondary',
-                                'light',
-                                'dark'
-                            ]
-                            else 'info'
-                        %}
-
-                        <div
-                            class="alert alert-{{ alert_category }} nm-alert alert-dismissible fade show"
-                            role="alert"
-                        >
-
-                            <div class="nm-alert-content">
-
-                                <span class="nm-alert-icon">
-
-                                    {% if alert_category == 'success' %}
-                                        <i class="fas fa-circle-check"></i>
-
-                                    {% elif alert_category == 'danger' %}
-                                        <i class="fas fa-circle-exclamation"></i>
-
-                                    {% elif alert_category == 'warning' %}
-                                        <i class="fas fa-triangle-exclamation"></i>
-
-                                    {% else %}
-                                        <i class="fas fa-circle-info"></i>
-                                    {% endif %}
-
-                                </span>
-
-                                <span>
-                                    {{ message }}
-                                </span>
-
-                            </div>
-
-                            <button
-                                type="button"
-                                class="btn-close"
-                                data-bs-dismiss="alert"
-                                aria-label="Cerrar"
-                            ></button>
-
-                        </div>
-
-                    {% endfor %}
-
-                {% endif %}
-
-            {% endwith %}
-
-        </div>
-
-        {% block content %}{% endblock %}
-
-    </main>
-
-    <footer class="site-footer">
-        <strong>Ñuñoa Master</strong>
-        · Sistema de Gestión de Tiempos
-    </footer>
-
-    <!-- Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Service Worker -->
     <script>
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", function () {
-                navigator.serviceWorker
-                    .register(
-                        "{{ url_for('static', filename='sw.js') }}"
-                    )
-                    .then(function (registration) {
-                        console.log(
-                            "Service Worker registrado:",
-                            registration.scope
-                        );
-                    })
-                    .catch(function (error) {
-                        console.error(
-                            "Error al registrar Service Worker:",
-                            error
-                        );
-                    });
-            });
-        }
+        (function () {
+            const savedTheme = localStorage.getItem('nm-theme');
+            const preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.dataset.theme = savedTheme || (preferredDark ? 'dark' : 'light');
+        })();
     </script>
 
-    {% block extra_js %}{% endblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
 
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#009b9d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ñuñoa Master">
+    <link rel="apple-touch-icon" sizes="192x192" href="{{ url_for('static', filename='icon-192.png') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% set rendered_content %}{% block content %}{% endblock %}{% endset %}
+
+    {% if session.username %}
+        <div class="app-shell" id="appShell">
+            {% include 'components/sidebar.html' %}
+
+            <div class="app-main">
+                {% include 'components/topbar.html' %}
+
+                <main class="app-content">
+                    {% include 'components/flash_messages.html' %}
+                    <div class="page-enter">{{ rendered_content }}</div>
+                </main>
+
+                <footer class="app-footer">
+                    <span>Ñuñoa Master</span>
+                    <span class="app-footer-dot"></span>
+                    <span>Gestión deportiva de alto rendimiento</span>
+                </footer>
+            </div>
+        </div>
+        <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+    {% else %}
+        <main class="public-shell">
+            {% include 'components/flash_messages.html' %}
+            <div class="public-content page-enter">{{ rendered_content }}</div>
+        </main>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
