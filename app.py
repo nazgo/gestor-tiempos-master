@@ -26,11 +26,13 @@ print("==================================")
 from gestor_tiempos_nadadores_master import GestorTiemposMaster
 from gestor_nadadores import GestorNadadores
 from gestor_usuarios import GestorUsuarios
+from services.performance_service import PerformanceService
 
 # Instancias
 gestor_tiempos = GestorTiemposMaster()
 gestor_nadadores = GestorNadadores()
 gestor_usuarios = GestorUsuarios()
+performance_service = PerformanceService(gestor_tiempos, gestor_nadadores)
 
 def login_required(f):
     @wraps(f)
@@ -162,6 +164,25 @@ def index():
         }
 
     return render_template('index.html', dashboard=dashboard)
+
+
+@app.route('/performance-center')
+@login_required
+def performance_center():
+    try:
+        performance = performance_service.build_center()
+    except Exception as e:
+        print('Error cargando Performance Center:', repr(e))
+        flash('No fue posible calcular todos los indicadores del Performance Center.', 'warning')
+        performance = {
+            'generated_at': datetime.now(),
+            'club': {'score': 0, 'status': 'Sin datos', 'active_rate': 0, 'attendance_rate': 0, 'active_athletes': 0, 'total_athletes': 0, 'recent_pbs': 0, 'competitions_year': 0},
+            'top_performers': [], 'recent_pbs': [], 'inactive': [], 'insights': [],
+            'heatmap': [], 'trends': [],
+            'monthly': {'labels': ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'], 'values': [0]*12},
+            'next_competition': None,
+        }
+    return render_template('performance_center.html', performance=performance)
 
 
 # ==================== GESTIÓN DE NADADORES ====================
