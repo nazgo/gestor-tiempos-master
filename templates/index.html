@@ -130,13 +130,63 @@
         </div>
     </section>
 
-    <section class="executive-panel mb-2">
-        <header class="executive-panel-header">
-            <div><span>Crecimiento histórico</span><h2>Evolución por temporada</h2></div>
-            <i class="fas fa-arrow-trend-up"></i>
-        </header>
-        <div class="executive-chart"><canvas id="chartTemporadas"></canvas></div>
-    </section>
+<section class="executive-panel mb-2">
+
+    <header class="executive-panel-header evolution-header">
+
+        <div>
+
+            <span>
+                Crecimiento histórico
+            </span>
+
+            <h2>
+                Evolución por temporada
+            </h2>
+
+            <p class="evolution-description mb-0">
+                Comparación de los tiempos registrados entre temporadas.
+            </p>
+
+        </div>
+
+        <div class="evolution-summary">
+
+            <div class="evolution-summary-label">
+                Variación
+            </div>
+
+            <div
+                class="evolution-summary-value"
+                id="variacionTemporadas"
+            >
+                —
+            </div>
+
+        </div>
+
+    </header>
+
+    <div class="executive-chart executive-chart-evolution">
+
+        <canvas id="chartTemporadas"></canvas>
+
+    </div>
+
+    <div class="evolution-footer">
+
+        <span>
+            <i class="fas fa-circle-info"></i>
+            Cada barra representa el total de tiempos registrados por año.
+        </span>
+
+        <span id="resumenTemporadas">
+            Comparación histórica
+        </span>
+
+    </div>
+
+</section>
 </div>
 {% endblock %}
 
