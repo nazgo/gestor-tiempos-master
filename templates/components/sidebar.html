@@ -3,8 +3,8 @@
         <a href="{{ url_for('index') }}" class="sidebar-brand-link">
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Ñuñoa Master" class="sidebar-logo">
             <span class="sidebar-brand-copy">
-                <strong>Ñuñoa Master</strong>
-                <small>Gestión deportiva</small>
+                <strong>ÑM Performance</strong>
+                <small>Sport Analytics</small>
             </span>
         </a>
         <button type="button" class="sidebar-collapse-button" id="sidebarCollapse" aria-label="Contraer menú" title="Contraer menú">
@@ -16,7 +16,7 @@
         <div class="sidebar-section">
             <span class="sidebar-section-label">Resumen</span>
             <a href="{{ url_for('index') }}" class="sidebar-link {% if request.endpoint == 'index' %}active{% endif %}">
-                <i class="fas fa-grid-2"></i><span>Inicio</span>
+                <i class="fas fa-grid-2"></i><span>Dashboard</span>
             </a>
             <a href="{{ url_for('estadisticas_club') }}" class="sidebar-link {% if request.endpoint in ['estadisticas_club', 'estado_nadadores_anio', 'todos_los_tiempos'] %}active{% endif %}">
                 <i class="fas fa-chart-pie"></i><span>Estadísticas</span>
