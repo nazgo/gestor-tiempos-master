@@ -3,31 +3,60 @@
 {% block title %}Resumen | Gestor Ñuñoa Master{% endblock %}
 
 {% block content %}
-<div class="executive-dashboard">
-    <section class="executive-welcome">
-        <div>
-            <span class="executive-eyebrow"><i class="fas fa-wave-square"></i> Centro de rendimiento</span>
+<div class="dashboard-v3">
+    <section class="dashboard-hero">
+        <div class="dashboard-hero-copy">
+            <span class="dashboard-eyebrow">
+                <i class="fas fa-wave-square"></i>
+                Centro de rendimiento
+            </span>
             <h1>Resumen del club</h1>
-            <p>Actividad, rendimiento y próximos eventos de Ñuñoa Master en una sola vista.</p>
+            <p>
+                Actividad, rendimiento y próximos eventos de Ñuñoa Master
+                en una sola vista.
+            </p>
+            <div class="dashboard-hero-actions">
+                <a href="{{ url_for('todos_los_tiempos') }}" class="dashboard-primary-action">
+                    <i class="fas fa-chart-line"></i>
+                    Ver rendimiento
+                </a>
+                <a href="{{ url_for('seleccionar_anio_calendario') }}" class="dashboard-secondary-action">
+                    <i class="fas fa-calendar-days"></i>
+                    Calendario
+                </a>
+            </div>
         </div>
-        <div class="executive-season"><span>Temporada</span><strong>{{ dashboard.anio_actual }}</strong></div>
+
+        <div class="dashboard-season-card">
+            <span>Temporada</span>
+            <strong>{{ dashboard.anio_actual }}</strong>
+            <small>Panel ejecutivo</small>
+        </div>
     </section>
 
-    <section class="row g-3 mb-4">
+    <section class="row g-3 mb-4 dashboard-metrics">
         {% set metricas = [
             ('Nadadores', dashboard.metricas.total_nadadores, 'fa-users', url_for('nadadores'), 'Plantel registrado'),
             ('Activos', dashboard.metricas.activos, 'fa-user-check', url_for('estado_nadadores_anio', anio=dashboard.anio_actual), 'Con tiempos este año'),
             ('Tiempos', dashboard.metricas.total_tiempos, 'fa-stopwatch', url_for('todos_los_tiempos'), 'Historial completo'),
             ('Competencias', dashboard.metricas.competencias_anio, 'fa-flag-checkered', url_for('seleccionar_anio_calendario'), 'Eventos de la temporada')
         ] %}
+
         {% for titulo, valor, icono, enlace, detalle in metricas %}
         <div class="col-6 col-xl-3">
-            <a href="{{ enlace }}" class="executive-metric-link">
-                <article class="executive-metric h-100">
-                    <div class="executive-metric-icon"><i class="fas {{ icono }}"></i></div>
-                    <div class="executive-metric-value">{{ valor }}</div>
-                    <div class="executive-metric-title">{{ titulo }}</div>
-                    <div class="executive-metric-detail">{{ detalle }}</div>
+            <a href="{{ enlace }}" class="metric-card-link">
+                <article class="metric-card h-100">
+                    <div class="metric-card-top">
+                        <div class="metric-card-icon">
+                            <i class="fas {{ icono }}"></i>
+                        </div>
+                        <i class="fas fa-arrow-up-right-from-square metric-card-arrow"></i>
+                    </div>
+                    <div class="metric-card-value" data-count="{{ valor or 0 }}">
+                        {{ valor or 0 }}
+                    </div>
+                    <div class="metric-card-title">{{ titulo }}</div>
+                    <div class="metric-card-detail">{{ detalle }}</div>
                 </article>
             </a>
         </div>
@@ -36,21 +65,38 @@
 
     <section class="row g-4 mb-4">
         <div class="col-xl-8">
-            <article class="executive-panel h-100">
-                <header class="executive-panel-header">
-                    <div><span>Actividad anual</span><h2>Tiempos registrados por mes</h2></div>
-                    <i class="fas fa-chart-line"></i>
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Actividad anual</span>
+                        <h2>Tiempos registrados por mes</h2>
+                        <p>Volumen de marcas cargadas durante {{ dashboard.anio_actual }}.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-chart-line"></i></div>
                 </header>
-                <div class="executive-chart executive-chart-large"><canvas id="chartMeses"></canvas></div>
+                <div class="dashboard-chart dashboard-chart-large">
+                    <canvas id="chartMeses"></canvas>
+                </div>
             </article>
         </div>
+
         <div class="col-xl-4">
-            <article class="executive-panel h-100">
-                <header class="executive-panel-header">
-                    <div><span>Estado del plantel</span><h2>Activos e inactivos</h2></div>
-                    <i class="fas fa-chart-pie"></i>
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Estado del plantel</span>
+                        <h2>Activos e inactivos</h2>
+                        <p>Participación deportiva en la temporada actual.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-chart-pie"></i></div>
                 </header>
-                <div class="executive-chart executive-chart-donut"><canvas id="chartActividad"></canvas></div>
+                <div class="dashboard-chart dashboard-chart-donut">
+                    <canvas id="chartActividad"></canvas>
+                    <div class="donut-center">
+                        <strong>{{ dashboard.metricas.activos }}</strong>
+                        <span>activos</span>
+                    </div>
+                </div>
                 <div class="activity-legend">
                     <span><i class="activity-dot active"></i> Activos <strong>{{ dashboard.metricas.activos }}</strong></span>
                     <span><i class="activity-dot inactive"></i> Inactivos <strong>{{ dashboard.metricas.inactivos }}</strong></span>
@@ -60,206 +106,168 @@
     </section>
 
     <section class="row g-4 mb-4">
-        <div class="col-xl-6">
-            <article class="executive-panel h-100">
-                <header class="executive-panel-header">
-                    <div><span>Distribución deportiva</span><h2>Registros por estilo</h2></div>
-                    <i class="fas fa-water"></i>
+        <div class="col-xl-5">
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Distribución deportiva</span>
+                        <h2>Registros por estilo</h2>
+                        <p>Pruebas más frecuentes del historial.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-water"></i></div>
                 </header>
-                <div class="executive-chart"><canvas id="chartEstilos"></canvas></div>
+                <div class="dashboard-chart dashboard-chart-styles">
+                    <canvas id="chartEstilos"></canvas>
+                </div>
             </article>
         </div>
-        <div class="col-xl-6">
-            <article class="executive-panel h-100">
-                <header class="executive-panel-header">
-                    <div><span>Participación {{ dashboard.anio_actual }}</span><h2>Nadadores más activos</h2></div>
-                    <i class="fas fa-ranking-star"></i>
+
+        <div class="col-xl-7">
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Participación {{ dashboard.anio_actual }}</span>
+                        <h2>Nadadores más activos</h2>
+                        <p>Ranking por cantidad de tiempos registrados.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-ranking-star"></i></div>
                 </header>
-                <div class="executive-chart executive-chart-ranking"><canvas id="chartTop"></canvas></div>
+                <div class="dashboard-chart dashboard-chart-ranking">
+                    <canvas id="chartTop"></canvas>
+                </div>
             </article>
         </div>
     </section>
 
     <section class="row g-4 mb-4">
         <div class="col-xl-7">
-            <article class="executive-panel h-100">
-                <header class="executive-panel-header">
-                    <div><span>Actividad reciente</span><h2>Últimos tiempos registrados</h2></div>
-                    <a href="{{ url_for('todos_los_tiempos') }}" class="executive-panel-action">Ver historial <i class="fas fa-arrow-right"></i></a>
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Actividad reciente</span>
+                        <h2>Últimos tiempos registrados</h2>
+                    </div>
+                    <a href="{{ url_for('todos_los_tiempos') }}" class="panel-action">
+                        Ver historial <i class="fas fa-arrow-right"></i>
+                    </a>
                 </header>
+
                 <div class="table-responsive">
-                    <table class="table executive-table align-middle mb-0">
-                        <thead><tr><th>Nadador</th><th>Prueba</th><th>Piscina</th><th>Tiempo</th><th>Fecha</th></tr></thead>
+                    <table class="table dashboard-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nadador</th>
+                                <th>Prueba</th>
+                                <th>Piscina</th>
+                                <th>Tiempo</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
                         <tbody>
                         {% for t in dashboard.ultimos_tiempos %}
                             <tr>
                                 <td><strong>{{ t.nombre_nadador }}</strong></td>
                                 <td>{{ t.estilo }} · {{ t.distancia }} m</td>
-                                <td><span class="executive-chip">{{ t.piscina or '—' }}</span></td>
-                                <td><span class="executive-time">{{ t.tiempo }}</span></td>
-                                <td>{% if t.fecha and t.fecha.strftime is defined %}{{ t.fecha.strftime('%d/%m/%Y') }}{% else %}{{ t.fecha or '—' }}{% endif %}</td>
+                                <td><span class="data-chip">{{ t.piscina or '—' }}</span></td>
+                                <td><span class="time-chip">{{ t.tiempo }}</span></td>
+                                <td>
+                                    {% if t.fecha and t.fecha.strftime is defined %}
+                                        {{ t.fecha.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        {{ t.fecha or '—' }}
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% else %}
-                            <tr><td colspan="5" class="text-center py-5 text-muted">No hay tiempos registrados.</td></tr>
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    No hay tiempos registrados.
+                                </td>
+                            </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </article>
         </div>
+
         <div class="col-xl-5">
-            <article class="executive-panel h-100">
-                <header class="executive-panel-header">
-                    <div><span>Agenda competitiva</span><h2>Próximas competencias</h2></div>
-                    <a href="{{ url_for('seleccionar_anio_calendario') }}" class="executive-panel-action">Calendario <i class="fas fa-arrow-right"></i></a>
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Agenda competitiva</span>
+                        <h2>Próximas competencias</h2>
+                    </div>
+                    <a href="{{ url_for('seleccionar_anio_calendario') }}" class="panel-action">
+                        Calendario <i class="fas fa-arrow-right"></i>
+                    </a>
                 </header>
+
                 <div class="competition-list">
                     {% for c in dashboard.proximas_competencias_lista %}
                     <div class="competition-item">
                         <div class="competition-date-box">
-                            {% if c.fecha and c.fecha.strftime is defined %}<strong>{{ c.fecha.strftime('%d') }}</strong><span>{{ c.fecha.strftime('%b')|upper }}</span>{% else %}<strong>—</strong><span>FECHA</span>{% endif %}
+                            {% if c.fecha and c.fecha.strftime is defined %}
+                                <strong>{{ c.fecha.strftime('%d') }}</strong>
+                                <span>{{ c.fecha.strftime('%b')|upper }}</span>
+                            {% else %}
+                                <strong>—</strong>
+                                <span>FECHA</span>
+                            {% endif %}
                         </div>
-                        <div class="competition-copy"><strong>{{ c.nombre }}</strong><span><i class="fas fa-location-dot"></i> {{ c.lugar or 'Lugar por confirmar' }}</span></div>
+                        <div class="competition-copy">
+                            <strong>{{ c.nombre }}</strong>
+                            <span><i class="fas fa-location-dot"></i> {{ c.lugar or 'Lugar por confirmar' }}</span>
+                        </div>
                         <span class="competition-pool">{{ c.tipo_piscina or '—' }}</span>
                     </div>
                     {% else %}
-                    <div class="dashboard-empty"><i class="fas fa-calendar-check"></i><strong>Sin competencias próximas</strong><span>La agenda futura aparecerá aquí.</span></div>
+                    <div class="dashboard-empty">
+                        <i class="fas fa-calendar-check"></i>
+                        <strong>Sin competencias próximas</strong>
+                        <span>La agenda futura aparecerá aquí.</span>
+                    </div>
                     {% endfor %}
                 </div>
             </article>
         </div>
     </section>
 
-<section class="executive-panel mb-2">
+    <section class="dashboard-panel season-evolution-panel mb-2">
+        <header class="dashboard-panel-header season-evolution-header">
+            <div>
+                <span>Crecimiento histórico</span>
+                <h2>Evolución por temporada</h2>
+                <p>Comparación de los tiempos registrados entre temporadas.</p>
+            </div>
+            <div class="season-variation-card">
+                <span>Variación</span>
+                <strong id="variacionTemporadas">—</strong>
+            </div>
+        </header>
 
-    <header class="executive-panel-header evolution-header">
+        <div class="dashboard-chart dashboard-chart-evolution">
+            <canvas id="chartTemporadas"></canvas>
+        </div>
 
-        <div>
-
+        <footer class="season-evolution-footer">
             <span>
-                Crecimiento histórico
+                <i class="fas fa-circle-info"></i>
+                Cada barra representa el total de tiempos registrados por año.
             </span>
-
-            <h2>
-                Evolución por temporada
-            </h2>
-
-            <p class="evolution-description mb-0">
-                Comparación de los tiempos registrados entre temporadas.
-            </p>
-
-        </div>
-
-        <div class="evolution-summary">
-
-            <div class="evolution-summary-label">
-                Variación
-            </div>
-
-            <div
-                class="evolution-summary-value"
-                id="variacionTemporadas"
-            >
-                —
-            </div>
-
-        </div>
-
-    </header>
-
-    <div class="executive-chart executive-chart-evolution">
-
-        <canvas id="chartTemporadas"></canvas>
-
-    </div>
-
-    <div class="evolution-footer">
-
-        <span>
-            <i class="fas fa-circle-info"></i>
-            Cada barra representa el total de tiempos registrados por año.
-        </span>
-
-        <span id="resumenTemporadas">
-            Comparación histórica
-        </span>
-
-    </div>
-
-</section>
+            <strong id="resumenTemporadas">Comparación histórica</strong>
+        </footer>
+    </section>
 </div>
 {% endblock %}
 
 {% block extra_css %}
-<style>
-.executive-dashboard{padding:.1rem 0 1.5rem}.executive-welcome{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px;padding:30px 32px;overflow:hidden;color:#fff;border-radius:22px;background:linear-gradient(135deg,#007f81,#00a8aa);box-shadow:0 18px 40px rgba(0,127,129,.18)}.executive-welcome:after{position:absolute;right:-80px;bottom:-170px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.08);content:""}.executive-eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.82}.executive-welcome h1{margin:8px 0 6px;font-family:Manrope,sans-serif;font-size:clamp(2rem,4vw,3.1rem);font-weight:800;letter-spacing:-.045em}.executive-welcome p{margin:0;max-width:680px;opacity:.84}.executive-season{position:relative;z-index:1;display:flex;min-width:138px;flex-direction:column;align-items:center;padding:15px 18px;border:1px solid rgba(255,255,255,.24);border-radius:16px;background:rgba(255,255,255,.12)}.executive-season span{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.76}.executive-season strong{font-size:1.9rem}.executive-metric-link{display:block;height:100%;color:inherit;text-decoration:none}.executive-metric{padding:18px;border:1px solid var(--border-color);border-radius:17px;background:var(--bg-surface);box-shadow:0 7px 20px rgba(25,68,70,.06);transition:.18s ease}.executive-metric:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 14px 28px rgba(0,126,128,.12)}.executive-metric-icon{display:flex;width:43px;height:43px;align-items:center;justify-content:center;color:var(--accent);border-radius:13px;background:rgba(0,155,157,.10)}.executive-metric-value{margin-top:15px;color:var(--text-primary);font-size:2rem;font-weight:800;line-height:1}.executive-metric-title{margin-top:7px;color:var(--text-primary);font-size:.83rem;font-weight:800}.executive-metric-detail{margin-top:4px;color:var(--text-secondary);font-size:.66rem}.executive-panel{overflow:hidden;border:1px solid var(--border-color);border-radius:18px;background:var(--bg-surface);box-shadow:0 7px 20px rgba(25,68,70,.06)}.executive-panel-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 19px;border-bottom:1px solid var(--border-color)}.executive-panel-header span{color:var(--accent);font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.executive-panel-header h2{margin:3px 0 0;color:var(--text-primary);font-size:1rem;font-weight:800}.executive-panel-header>i{display:flex;width:39px;height:39px;align-items:center;justify-content:center;color:var(--accent);border-radius:11px;background:rgba(0,155,157,.10)}.executive-panel-action{color:var(--accent);font-size:.7rem;font-weight:750;text-decoration:none}.executive-chart{position:relative;height:310px;padding:18px}.executive-chart-large{height:340px}.executive-chart-donut{height:270px}.executive-chart-ranking{height:390px}.activity-legend{display:flex;justify-content:center;gap:18px;padding:0 16px 17px;color:var(--text-secondary);font-size:.69rem}.activity-legend span{display:flex;align-items:center;gap:6px}.activity-dot{width:8px;height:8px;border-radius:50%}.activity-dot.active{background:#00a8aa}.activity-dot.inactive{background:#d5e0e1}.executive-table{min-width:700px}.executive-table thead th{padding:10px 14px;color:var(--text-secondary);background:rgba(0,155,157,.045);font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.executive-table tbody td{padding:11px 14px;color:var(--text-secondary);border-color:var(--border-color);font-size:.72rem}.executive-table strong{color:var(--text-primary)}.executive-chip{padding:.32rem .48rem;color:var(--accent);border-radius:7px;background:rgba(0,155,157,.10);font-size:.62rem;font-weight:750}.executive-time{padding:.35rem .53rem;color:#fff;border-radius:8px;background:#16875a;font-size:.68rem;font-weight:800}.competition-list{padding:6px 17px 12px}.competition-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border-color)}.competition-item:last-child{border-bottom:0}.competition-date-box{display:flex;width:48px;height:51px;min-width:48px;flex-direction:column;align-items:center;justify-content:center;color:#fff;border-radius:12px;background:linear-gradient(135deg,#008b8d,#00aaac)}.competition-date-box strong{font-size:1rem;line-height:1}.competition-date-box span{margin-top:3px;font-size:.52rem;font-weight:800}.competition-copy{display:flex;min-width:0;flex:1;flex-direction:column}.competition-copy strong{overflow:hidden;color:var(--text-primary);font-size:.74rem;text-overflow:ellipsis;white-space:nowrap}.competition-copy span{margin-top:4px;color:var(--text-secondary);font-size:.62rem}.competition-pool{padding:.33rem .44rem;color:var(--accent);border-radius:7px;background:rgba(0,155,157,.10);font-size:.57rem;font-weight:750;white-space:nowrap}.dashboard-empty{display:flex;flex-direction:column;align-items:center;padding:40px 15px;color:var(--text-secondary);text-align:center}.dashboard-empty i{margin-bottom:10px;color:var(--accent);font-size:1.5rem}.dashboard-empty strong{color:var(--text-primary);font-size:.78rem}.dashboard-empty span{margin-top:4px;font-size:.65rem}@media(max-width:768px){.executive-chart-ranking{height:430px}.executive-welcome{align-items:flex-start;flex-direction:column;padding:24px 20px}.executive-season{width:100%}.executive-metric{padding:15px}.executive-metric-value{font-size:1.65rem}.executive-chart,.executive-chart-large{height:280px}.executive-chart-donut{height:245px}}@media(max-width:575px){.executive-welcome{border-radius:18px}.executive-welcome h1{font-size:1.9rem}.executive-panel-header{align-items:flex-start}.executive-panel-header>i{display:none}.executive-chart{padding:12px}.activity-legend{flex-direction:column;align-items:center;gap:7px}.competition-pool{display:none}}
-</style>
+<link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded',()=>{
- const g={{ dashboard.graficos|tojson }};
- const dark=document.documentElement.dataset.theme==='dark';
- const text=dark?'#a9b8ba':'#728184', grid=dark?'rgba(255,255,255,.07)':'rgba(30,70,72,.08)', accent='#009b9d';
- Chart.defaults.font.family='Inter, sans-serif'; Chart.defaults.color=text;
- const common={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:text}},y:{beginAtZero:true,grid:{color:grid},ticks:{color:text,precision:0}}}};
- new Chart(document.getElementById('chartMeses'),{type:'line',data:{labels:g.meses.labels,datasets:[{data:g.meses.values,borderColor:accent,backgroundColor:'rgba(0,155,157,.12)',fill:true,tension:.38,pointRadius:3,pointHoverRadius:5}]},options:common});
- new Chart(document.getElementById('chartActividad'),{type:'doughnut',data:{labels:g.actividad.labels,datasets:[{data:g.actividad.values,backgroundColor:['#00a8aa','#d5e0e1'],borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false}}}});
- new Chart(document.getElementById('chartEstilos'),{type:'bar',data:{labels:g.estilos.labels,datasets:[{data:g.estilos.values,backgroundColor:['#009b9d','#2878c7','#e0a72f','#79519c','#16875a','#7d8b8d'],borderRadius:7}]},options:common});
- const topLabels=(g.top_nadadores?.labels||[]).map(v=>String(v||'Sin nombre'));
- const topValues=(g.top_nadadores?.values||[]).map(v=>Number(v)||0);
- const topCanvas=document.getElementById('chartTop');
- if(topCanvas){
-   new Chart(topCanvas,{
-     type:'bar',
-     data:{
-       labels:topLabels,
-       datasets:[{
-         label:'Tiempos registrados',
-         data:topValues,
-         backgroundColor:topValues.map((_,i)=>i===0?'#d4a017':i===1?'#9aa5a8':i===2?'#b87333':'rgba(0,155,157,.86)'),
-         hoverBackgroundColor:topValues.map((_,i)=>i===0?'#e1ad16':i===1?'#aeb8bb':i===2?'#ca8144':'#007f81'),
-         borderRadius:9,
-         borderSkipped:false,
-         barThickness:24,
-         maxBarThickness:28
-       }]
-     },
-     options:{
-       indexAxis:'y',
-       responsive:true,
-       maintainAspectRatio:false,
-       animation:{duration:750,easing:'easeOutQuart'},
-       interaction:{mode:'nearest',intersect:false},
-       plugins:{
-         legend:{display:false},
-         tooltip:{callbacks:{label:(ctx)=>`${ctx.raw} ${ctx.raw===1?'tiempo':'tiempos'} registrados`}}
-       },
-       scales:{
-         x:{
-           type:'linear',
-           beginAtZero:true,
-           suggestedMax:Math.max(...topValues,1),
-           grid:{color:grid},
-           ticks:{color:text,precision:0,stepSize:1},
-           title:{display:true,text:'Cantidad de tiempos',color:text}
-         },
-         y:{
-           type:'category',
-           grid:{display:false},
-           ticks:{
-             color:text,
-             autoSkip:false,
-             font:{size:11,weight:'600'},
-             callback:function(value){const label=this.getLabelForValue(value);return label.length>24?label.slice(0,24)+'…':label;}
-           }
-         }
-       }
-     }
-   });
- }
- new Chart(document.getElementById('chartTemporadas'),{type:'bar',data:{labels:g.temporadas.labels,datasets:[{data:g.temporadas.values,backgroundColor:'rgba(0,155,157,.82)',borderRadius:8,maxBarThickness:54}]},options:common});
-});
+    window.dashboardData = {{ dashboard.graficos|tojson }};
 </script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}
