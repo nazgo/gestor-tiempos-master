@@ -18,6 +18,10 @@
             <a href="{{ url_for('index') }}" class="sidebar-link {% if request.endpoint == 'index' %}active{% endif %}">
                 <i class="fas fa-grid-2"></i><span>Dashboard</span>
             </a>
+            <a href="{{ url_for('performance_center') }}" class="sidebar-link {% if request.endpoint == 'performance_center' %}active{% endif %}">
+                <i class="fas fa-brain"></i><span>Performance Center</span>
+                <small class="sidebar-new-badge">NEW</small>
+            </a>
             <a href="{{ url_for('estadisticas_club') }}" class="sidebar-link {% if request.endpoint in ['estadisticas_club', 'estado_nadadores_anio', 'todos_los_tiempos'] %}active{% endif %}">
                 <i class="fas fa-chart-pie"></i><span>Estadísticas</span>
             </a>
