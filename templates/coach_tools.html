@@ -39,7 +39,7 @@
 
   {% if coach.comparison %}
   {% set c = coach.comparison %}
-  <section class="athlete-duel">
+  <section class="athlete-duel" aria-label="Comparación de atletas">
     {% for athlete, side in [(c.a, 'a'), (c.b, 'b')] %}
     <article class="duel-card side-{{ side }}">
       <div class="athlete-avatar">{{ athlete.nombre[:1]|upper }}</div>
@@ -75,7 +75,12 @@
     <div class="section-heading"><div><span class="section-kicker">Cara a cara</span><h2>Mejores marcas en pruebas compartidas</h2></div><span class="count-chip">{{ c.common_events|length }} pruebas</span></div>
     {% if c.common_events %}
     <div class="event-table-wrap"><table class="event-table"><thead><tr><th>Prueba</th><th>{{ c.a.nombre }}</th><th>Diferencia</th><th>{{ c.b.nombre }}</th></tr></thead><tbody>
-      {% for row in c.common_events %}<tr><td><strong>{{ row.event }}</strong></td><td class="{% if row.winner == 'a' %}winner{% endif %}">{{ row.a.time }} {% if row.winner == 'a' %}<i class="fas fa-crown"></i>{% endif %}</td><td><span class="difference-chip">{{ row.difference }} s</span></td><td class="{% if row.winner == 'b' %}winner{% endif %}">{{ row.b.time }} {% if row.winner == 'b' %}<i class="fas fa-crown"></i>{% endif %}</td></tr>{% endfor %}
+      {% for row in c.common_events %}<tr>
+        <td data-label="Prueba"><strong>{{ row.event }}</strong></td>
+        <td data-label="{{ c.a.nombre }}" class="{% if row.winner == 'a' %}winner{% endif %}">{{ row.a.time }} {% if row.winner == 'a' %}<i class="fas fa-crown"></i>{% endif %}</td>
+        <td data-label="Diferencia"><span class="difference-chip">{{ row.difference }} s</span></td>
+        <td data-label="{{ c.b.nombre }}" class="{% if row.winner == 'b' %}winner{% endif %}">{{ row.b.time }} {% if row.winner == 'b' %}<i class="fas fa-crown"></i>{% endif %}</td>
+      </tr>{% endfor %}
     </tbody></table></div>
     {% else %}<div class="empty-coach"><i class="fas fa-water"></i><h3>No hay pruebas comparables</h3><p>Los dos nadadores aún no comparten registros en la misma prueba y piscina.</p></div>{% endif %}
   </section>
