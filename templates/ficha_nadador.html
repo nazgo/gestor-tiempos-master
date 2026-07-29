@@ -1,515 +1,208 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ nombre_completo }} | ÑM Performance{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/athlete-profile.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
+{% set total_tiempos = ficha.resumen.total_tiempos or 0 %}
+{% set total_competencias = ficha.resumen.total_competencias or 0 %}
+{% set total_marcas = ficha.mejores_marcas|length %}
+{% set total_temporadas = ficha.temporadas|length %}
 
-<div class="container-fluid py-4">
+<div class="athlete-profile-page">
+    <nav class="profile-breadcrumb" aria-label="Navegación">
+        <a href="{{ url_for('nadadores') }}"><i class="fas fa-users"></i> Plantel</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>{{ nombre_completo }}</span>
+    </nav>
 
-    <!-- Encabezado de la ficha -->
-    <div class="card shadow-sm border-0 ficha-header mb-4">
-        <div class="card-body p-4">
-
-            <div class="row align-items-center">
-
-                <div class="col-md-auto text-center mb-3 mb-md-0">
-                    <div class="avatar-nadador">
-                        {{ nadador.nombre[:1]|upper }}
-                        {{ nadador.apellido[:1]|upper }}
-                    </div>
+    <section class="athlete-cover">
+        <div class="athlete-cover-pattern" aria-hidden="true"></div>
+        <div class="athlete-cover-content">
+            <div class="athlete-identity">
+                <div class="athlete-avatar" aria-label="Iniciales de {{ nombre_completo }}">
+                    {{ nadador.nombre[:1]|upper }}{{ nadador.apellido[:1]|upper }}
+                    <span class="athlete-status-dot" title="Nadador registrado"></span>
                 </div>
 
-                <div class="col-md">
-
-                    <h2 class="fw-bold mb-1">
-                        {{ nombre_completo }}
-                    </h2>
-
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                
-                    <span class="badge bg-primary ficha-badge">
-                        {{ nadador.categoria_master or 'Sin categoría' }}
-                    </span>
-                
-                    <span class="badge bg-light text-dark border ficha-badge">
-                        {{ nadador.genero or 'Sin género' }}
-                    </span>
-                
-                    {% if nadador.fecha_nacimiento %}
-                    <span class="badge bg-light text-dark border ficha-badge">
-                        <i class="fas fa-birthday-cake me-1"></i>
-                        Nacimiento:
-                        {% if nadador.fecha_nacimiento.strftime is defined %}
-                            {{ nadador.fecha_nacimiento.strftime('%d/%m/%Y') }}
-                        {% else %}
-                            {{ nadador.fecha_nacimiento }}
-                        {% endif %}
-                    </span>
-                    {% endif %}
-                
-                    {% if nadador.rut %}
-                    <span class="badge bg-light text-dark border ficha-badge">
-                        RUT: {{ nadador.rut }}
-                    </span>
-                    {% endif %}
-                
-                </div>
-
-                </div>
-
-                <div class="col-md-auto mt-3 mt-md-0">
-                    <div class="d-flex flex-wrap gap-2">
-
-                        <a
-                            href="{{ url_for(
-                                'progreso_nadador1',
-                                nadador_id=nadador.id
-                            ) }}"
-                            class="btn btn-outline-primary"
-                        >
-                            <i class="fas fa-chart-line"></i>
-                            Ver progreso
-                        </a>
-
-                        <a
-                            href="{{ url_for(
-                                'tiempos_nadador',
-                                nadador_id=nadador.id
-                            ) }}"
-                            class="btn btn-primary"
-                        >
-                            <i class="fas fa-stopwatch"></i>
-                            Todos sus tiempos
-                        </a>
-
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Resumen -->
-    <div class="row g-3 mb-4">
-
-        <div class="col-md-3">
-            <div class="card tarjeta-resumen border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-stopwatch icono-resumen text-primary"></i>
-
-                    <div class="numero-resumen text-primary">
-                        {{ ficha.resumen.total_tiempos or 0 }}
-                    </div>
-
-                    <div class="texto-resumen">
-                        Tiempos registrados
+                <div class="athlete-main-info">
+                    <span class="athlete-eyebrow"><i class="fas fa-water"></i> Perfil deportivo</span>
+                    <h1>{{ nombre_completo }}</h1>
+                    <div class="athlete-tags">
+                        <span><i class="fas fa-layer-group"></i> {{ nadador.categoria_master or 'Sin categoría' }}</span>
+                        <span><i class="fas fa-user"></i> {{ nadador.genero or 'Sin género' }}</span>
+                        {% if nadador.rut %}<span><i class="fas fa-id-card"></i> {{ nadador.rut }}</span>{% endif %}
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-3">
-            <div class="card tarjeta-resumen border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-calendar-check icono-resumen text-success"></i>
-
-                    <div class="numero-resumen text-success">
-                        {{ ficha.resumen.total_competencias or 0 }}
-                    </div>
-
-                    <div class="texto-resumen">
-                        Competencias
-                    </div>
-                </div>
+            <div class="athlete-cover-actions">
+                <a href="{{ url_for('agregar', nadador_id=nadador.id) }}" class="btn-profile btn-profile-light">
+                    <i class="fas fa-plus"></i> Registrar tiempo
+                </a>
+                <a href="{{ url_for('progreso_nadador1', nadador_id=nadador.id) }}" class="btn-profile btn-profile-ghost">
+                    <i class="fas fa-chart-line"></i> Ver progreso
+                </a>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card tarjeta-resumen border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-medal icono-resumen text-warning"></i>
+        <div class="athlete-cover-metrics">
+            <div><strong>{{ total_tiempos }}</strong><span>Tiempos</span></div>
+            <div><strong>{{ total_competencias }}</strong><span>Competencias</span></div>
+            <div><strong>{{ total_marcas }}</strong><span>Mejores marcas</span></div>
+            <div><strong>{{ total_temporadas }}</strong><span>Temporadas</span></div>
+        </div>
+    </section>
 
-                    <div class="numero-resumen text-warning">
-                        {{ ficha.mejores_marcas|length }}
-                    </div>
+    <nav class="profile-tabs" aria-label="Secciones del perfil">
+        <button class="profile-tab active" data-target="profile-overview"><i class="fas fa-grid-2"></i> Resumen</button>
+        <button class="profile-tab" data-target="profile-records"><i class="fas fa-medal"></i> Marcas</button>
+        <button class="profile-tab" data-target="profile-seasons"><i class="fas fa-calendar-alt"></i> Temporadas</button>
+        <button class="profile-tab" data-target="profile-history"><i class="fas fa-clock-rotate-left"></i> Actividad</button>
+        <a class="profile-tab profile-tab-link" href="{{ url_for('tiempos_nadador', nadador_id=nadador.id) }}"><i class="fas fa-list"></i> Historial completo</a>
+    </nav>
 
-                    <div class="texto-resumen">
-                        Mejores marcas
-                    </div>
+    <section id="profile-overview" class="profile-section profile-section-active">
+        <div class="profile-kpi-grid">
+            <article class="profile-kpi">
+                <span class="kpi-icon kpi-icon-primary"><i class="fas fa-stopwatch"></i></span>
+                <div><small>Total registrado</small><strong>{{ total_tiempos }}</strong><span>marcas deportivas</span></div>
+            </article>
+            <article class="profile-kpi">
+                <span class="kpi-icon kpi-icon-success"><i class="fas fa-trophy"></i></span>
+                <div><small>Pruebas con PB</small><strong>{{ total_marcas }}</strong><span>combinaciones únicas</span></div>
+            </article>
+            <article class="profile-kpi">
+                <span class="kpi-icon kpi-icon-warning"><i class="fas fa-calendar-check"></i></span>
+                <div><small>Participación</small><strong>{{ total_competencias }}</strong><span>competencias registradas</span></div>
+            </article>
+            <article class="profile-kpi">
+                <span class="kpi-icon kpi-icon-info"><i class="fas fa-chart-line"></i></span>
+                <div><small>Trayectoria</small><strong>{{ total_temporadas }}</strong><span>temporadas con actividad</span></div>
+            </article>
+        </div>
+
+        <div class="profile-dashboard-grid">
+            <article class="profile-panel profile-panel-wide">
+                <header class="profile-panel-header">
+                    <div><span class="panel-kicker">Actividad deportiva</span><h2>Registros por temporada</h2></div>
+                    <span class="panel-icon"><i class="fas fa-chart-column"></i></span>
+                </header>
+                {% if ficha.temporadas %}
+                    <div class="profile-chart-wrap"><canvas id="seasonActivityChart"></canvas></div>
+                {% else %}
+                    <div class="profile-empty"><i class="fas fa-chart-column"></i><h3>Sin temporadas</h3><p>Aún no hay actividad suficiente para construir el gráfico.</p></div>
+                {% endif %}
+            </article>
+
+            <article class="profile-panel">
+                <header class="profile-panel-header">
+                    <div><span class="panel-kicker">Perfil de pruebas</span><h2>Distribución por estilo</h2></div>
+                    <span class="panel-icon"><i class="fas fa-chart-pie"></i></span>
+                </header>
+                {% if ficha.mejores_marcas %}
+                    <div class="profile-chart-wrap profile-chart-radar"><canvas id="styleProfileChart"></canvas></div>
+                    <p class="chart-note">Representa cuántas mejores marcas posee en cada estilo; no compara velocidades entre pruebas.</p>
+                {% else %}
+                    <div class="profile-empty"><i class="fas fa-chart-pie"></i><h3>Sin datos por estilo</h3><p>Registra tiempos para construir el perfil.</p></div>
+                {% endif %}
+            </article>
+        </div>
+
+        <article class="profile-panel featured-records-panel">
+            <header class="profile-panel-header">
+                <div><span class="panel-kicker">Destacados</span><h2>Mejores marcas personales</h2></div>
+                <button class="text-action profile-jump" data-target="profile-records">Ver todas <i class="fas fa-arrow-right"></i></button>
+            </header>
+            <div class="featured-records-grid">
+                {% for marca in ficha.mejores_marcas[:4] %}
+                <div class="featured-record">
+                    <span class="record-medal"><i class="fas fa-medal"></i></span>
+                    <small>{{ marca.piscina or 'Piscina no indicada' }}</small>
+                    <h3>{{ marca.distancia }}m {{ marca.estilo }}</h3>
+                    <strong>{{ marca.tiempo }}</strong>
+                    <span>{% if marca.fecha and marca.fecha.strftime is defined %}{{ marca.fecha.strftime('%d/%m/%Y') }}{% else %}{{ marca.fecha or 'Sin fecha' }}{% endif %}</span>
                 </div>
+                {% else %}
+                <div class="profile-empty profile-empty-inline"><i class="fas fa-medal"></i><div><h3>Sin mejores marcas</h3><p>Los récords personales aparecerán aquí al registrar resultados.</p></div></div>
+                {% endfor %}
             </div>
-        </div>
+        </article>
+    </section>
 
-        <div class="col-md-3">
-            <div class="card tarjeta-resumen border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-layer-group icono-resumen text-info"></i>
-
-                    <div class="numero-resumen text-info">
-                        {{ ficha.temporadas|length }}
-                    </div>
-
-                    <div class="texto-resumen">
-                        Temporadas
-                    </div>
-                </div>
+    <section id="profile-records" class="profile-section">
+        <article class="profile-panel">
+            <header class="profile-panel-header">
+                <div><span class="panel-kicker">Personal bests</span><h2>Mejores marcas por prueba y piscina</h2></div>
+                <span class="panel-count">{{ total_marcas }} registros</span>
+            </header>
+            <div class="records-cards-grid">
+                {% for marca in ficha.mejores_marcas %}
+                <article class="record-card">
+                    <div class="record-card-top"><span class="record-style-icon"><i class="fas fa-person-swimming"></i></span><span class="pool-chip">{{ marca.piscina or '—' }}</span></div>
+                    <p>{{ marca.distancia }} metros</p>
+                    <h3>{{ marca.estilo }}</h3>
+                    <strong>{{ marca.tiempo }}</strong>
+                    <footer><span><i class="fas fa-calendar-day"></i> {% if marca.fecha and marca.fecha.strftime is defined %}{{ marca.fecha.strftime('%d/%m/%Y') }}{% else %}{{ marca.fecha or 'Sin fecha' }}{% endif %}</span><span class="pb-chip">PB</span></footer>
+                </article>
+                {% else %}
+                <div class="profile-empty profile-empty-full"><i class="fas fa-medal"></i><h3>Sin marcas personales</h3><p>No existen tiempos válidos para calcular mejores marcas.</p></div>
+                {% endfor %}
             </div>
+        </article>
+    </section>
+
+    <section id="profile-seasons" class="profile-section">
+        <div class="profile-dashboard-grid">
+            <article class="profile-panel profile-panel-wide">
+                <header class="profile-panel-header"><div><span class="panel-kicker">Evolución</span><h2>Actividad histórica</h2></div><span class="panel-icon"><i class="fas fa-wave-square"></i></span></header>
+                {% if ficha.temporadas %}<div class="profile-chart-wrap profile-chart-large"><canvas id="seasonTrendChart"></canvas></div>{% else %}<div class="profile-empty"><i class="fas fa-calendar-xmark"></i><h3>Sin temporadas registradas</h3></div>{% endif %}
+            </article>
+            <article class="profile-panel">
+                <header class="profile-panel-header"><div><span class="panel-kicker">Resumen</span><h2>Trayectoria</h2></div></header>
+                <div class="career-summary">
+                    <div><span>Primer registro</span><strong>{{ ficha.resumen.primer_registro or '—' }}</strong></div>
+                    <div><span>Último registro</span><strong>{{ ficha.resumen.ultimo_registro or '—' }}</strong></div>
+                    <div><span>Temporadas activas</span><strong>{{ total_temporadas }}</strong></div>
+                    <div><span>Promedio por temporada</span><strong>{% if total_temporadas %}{{ (total_tiempos / total_temporadas)|round(1) }}{% else %}0{% endif %}</strong></div>
+                </div>
+            </article>
         </div>
-
-    </div>
-
-    <div class="row g-4">
-
-        <!-- Mejores marcas -->
-        <div class="col-xl-7">
-
-            <div class="card shadow-sm border-0 h-100">
-
-                <div class="card-header encabezado-turquesa text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-trophy"></i>
-                        Mejores marcas personales
-                    </h5>
-                </div>
-
-                <div class="card-body p-0">
-
-                    <div class="table-responsive">
-
-                        <table class="table table-hover align-middle mb-0">
-
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Prueba</th>
-                                    <th>Piscina</th>
-                                    <th>Mejor tiempo</th>
-                                    <th>Fecha</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                {% for marca in ficha.mejores_marcas %}
-                                <tr>
-                                    <td>
-                                        <strong>
-                                            {{ marca.distancia }}m
-                                            {{ marca.estilo }}
-                                        </strong>
-                                    </td>
-
-                                    <td>
-                                        {% if marca.piscina == '25 metros' %}
-                                            <span class="badge piscina-25">
-                                                25m
-                                            </span>
-                                        {% elif marca.piscina == '50 metros' %}
-                                            <span class="badge piscina-50">
-                                                50m
-                                            </span>
-                                        {% else %}
-                                            {{ marca.piscina or '—' }}
-                                        {% endif %}
-                                    </td>
-
-                                    <td>
-                                        <span class="badge bg-success tiempo-badge">
-                                            {{ marca.tiempo }}
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        {% if marca.fecha and marca.fecha.strftime is defined %}
-                                            {{ marca.fecha.strftime('%d/%m/%Y') }}
-                                        {% else %}
-                                            {{ marca.fecha or '—' }}
-                                        {% endif %}
-                                    </td>
-                                </tr>
-
-                                {% else %}
-                                <tr>
-                                    <td
-                                        colspan="4"
-                                        class="text-center text-muted py-5"
-                                    >
-                                        No existen marcas registradas.
-                                    </td>
-                                </tr>
-                                {% endfor %}
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
+        <article class="profile-panel season-list-panel">
+            <header class="profile-panel-header"><div><span class="panel-kicker">Detalle anual</span><h2>Temporadas registradas</h2></div></header>
+            <div class="season-cards">
+                {% set max_season = ficha.temporadas|map(attribute='total')|max if ficha.temporadas else 1 %}
+                {% for temporada in ficha.temporadas %}
+                <div class="season-card"><div><strong>{{ temporada.anio }}</strong><span>{{ temporada.total }} tiempos</span></div><div class="season-progress"><span style="width: {{ ((temporada.total / max_season) * 100)|round(0) }}%"></span></div></div>
+                {% else %}<div class="profile-empty profile-empty-full"><i class="fas fa-calendar"></i><h3>Sin actividad anual</h3></div>{% endfor %}
             </div>
+        </article>
+    </section>
 
-        </div>
-
-        <!-- Temporadas -->
-        <div class="col-xl-5">
-
-            <div class="card shadow-sm border-0 h-100">
-
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-calendar-alt"></i>
-                        Registros por temporada
-                    </h5>
-                </div>
-
-                <div class="card-body">
-
-                    {% for temporada in ficha.temporadas %}
-
-                    <div class="temporada-fila">
-
-                        <span class="temporada-anio">
-                            {{ temporada.anio }}
-                        </span>
-
-                        <div class="progress flex-grow-1">
-                            <div
-                                class="progress-bar"
-                                role="progressbar"
-                                style="width: 100%;"
-                            >
-                                {{ temporada.total }} tiempos
-                            </div>
-                        </div>
-
+    <section id="profile-history" class="profile-section">
+        <article class="profile-panel">
+            <header class="profile-panel-header"><div><span class="panel-kicker">Actividad reciente</span><h2>Últimos tiempos registrados</h2></div><a class="text-action" href="{{ url_for('tiempos_nadador', nadador_id=nadador.id) }}">Abrir historial <i class="fas fa-arrow-up-right-from-square"></i></a></header>
+            <div class="activity-timeline">
+                {% for tiempo in ficha.ultimos_tiempos %}
+                <article class="timeline-entry">
+                    <div class="timeline-marker"><i class="fas fa-water"></i></div>
+                    <div class="timeline-card">
+                        <div class="timeline-main"><div><span class="timeline-date">{% if tiempo.fecha and tiempo.fecha.strftime is defined %}{{ tiempo.fecha.strftime('%d/%m/%Y') }}{% else %}{{ tiempo.fecha or 'Sin fecha' }}{% endif %}</span><h3>{{ tiempo.distancia }}m {{ tiempo.estilo }}</h3><p>{{ tiempo.piscina or 'Piscina no indicada' }} · {{ tiempo.categoria or nadador.categoria_master or 'Sin categoría' }}</p></div><strong>{{ tiempo.tiempo }}</strong></div>
                     </div>
-
-                    {% else %}
-
-                    <div class="text-center text-muted py-5">
-                        No existen temporadas registradas.
-                    </div>
-
-                    {% endfor %}
-
-                    <hr>
-
-                    <div class="small text-muted">
-                        <strong>Primer registro:</strong>
-                        {{ ficha.resumen.primer_registro or '—' }}
-                    </div>
-
-                    <div class="small text-muted mt-2">
-                        <strong>Último registro:</strong>
-                        {{ ficha.resumen.ultimo_registro or '—' }}
-                    </div>
-
-                </div>
+                </article>
+                {% else %}<div class="profile-empty profile-empty-full"><i class="fas fa-clock-rotate-left"></i><h3>Sin actividad reciente</h3><p>No hay tiempos registrados para este nadador.</p></div>{% endfor %}
             </div>
-
-        </div>
-
-    </div>
-
-    <!-- Últimos tiempos -->
-    <div class="card shadow-sm border-0 mt-4">
-
-        <div class="card-header bg-dark text-white">
-            <h5 class="mb-0">
-                <i class="fas fa-history"></i>
-                Últimos tiempos registrados
-            </h5>
-        </div>
-
-        <div class="card-body p-0">
-
-            <div class="table-responsive">
-
-                <table class="table table-striped table-hover align-middle mb-0">
-
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Prueba</th>
-                            <th>Piscina</th>
-                            <th>Tiempo</th>
-                            <th>Categoría</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        {% for tiempo in ficha.ultimos_tiempos %}
-                        <tr>
-                            <td>
-                                {% if tiempo.fecha and tiempo.fecha.strftime is defined %}
-                                    {{ tiempo.fecha.strftime('%d/%m/%Y') }}
-                                {% else %}
-                                    {{ tiempo.fecha or '—' }}
-                                {% endif %}
-                            </td>
-
-                            <td>
-                                {{ tiempo.distancia }}m
-                                {{ tiempo.estilo }}
-                            </td>
-
-                            <td>
-                                {{ tiempo.piscina or '—' }}
-                            </td>
-
-                            <td>
-                                <span class="badge bg-success tiempo-badge">
-                                    {{ tiempo.tiempo }}
-                                </span>
-                            </td>
-
-                            <td>
-                                {{ tiempo.categoria or nadador.categoria_master or '—' }}
-                            </td>
-                        </tr>
-
-                        {% else %}
-                        <tr>
-                            <td
-                                colspan="5"
-                                class="text-center text-muted py-5"
-                            >
-                                No hay tiempos registrados.
-                            </td>
-                        </tr>
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-    </div>
-
-    <div class="text-center mt-4">
-        <a
-            href="{{ url_for('nadadores') }}"
-            class="btn btn-secondary"
-        >
-            ← Volver a Gestión de Nadadores
-        </a>
-    </div>
-
+        </article>
+    </section>
 </div>
 
-<style>
-    .ficha-header {
-        border-radius: 18px;
-        background:
-            linear-gradient(
-                135deg,
-                #ffffff,
-                #f4fbfc
-            );
-    }
+<script id="athlete-profile-data" type="application/json">{{ {'temporadas': ficha.temporadas, 'mejores_marcas': ficha.mejores_marcas}|tojson }}</script>
+{% endblock %}
 
-    .avatar-nadador {
-    
-        display:flex;
-        align-items:center;
-        justify-content:center;
-    
-        width:90px;
-        height:90px;
-    
-        border-radius:50%;
-    
-        background:linear-gradient(
-            135deg,
-            #00a8a8,
-            #007b7b
-        );
-    
-        color:white;
-    
-        font-family:'Segoe UI',sans-serif;
-    
-        font-size:2.15rem;
-    
-        font-weight:700;
-    
-        letter-spacing:3px;
-    
-        box-shadow:0 4px 15px rgba(0,0,0,.20);
-    
-        border:3px solid white;
-    }
-
-    .ficha-badge {
-        padding: 0.55rem 0.75rem;
-        font-size: 0.85rem;
-    }
-
-    .tarjeta-resumen {
-        border-radius: 16px;
-    }
-
-    .icono-resumen {
-        margin-bottom: 10px;
-        font-size: 2rem;
-    }
-
-    .numero-resumen {
-        font-size: 2rem;
-        font-weight: 800;
-        line-height: 1;
-    }
-
-    .texto-resumen {
-        margin-top: 8px;
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-
-    .encabezado-turquesa {
-        background: #00a8a8;
-    }
-
-    .piscina-25 {
-        color: #ffffff;
-        background: #0d6efd;
-    }
-
-    .piscina-50 {
-        color: #ffffff;
-        background: #00a8a8;
-    }
-
-    .tiempo-badge {
-        min-width: 80px;
-        padding: 0.45rem 0.65rem;
-        font-size: 0.85rem;
-    }
-
-    .temporada-fila {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 18px;
-    }
-
-    .temporada-anio {
-        min-width: 52px;
-        color: #00a8a8;
-        font-weight: 800;
-    }
-
-    .temporada-fila .progress {
-        height: 28px;
-        background: #e9ecef;
-    }
-
-    .temporada-fila .progress-bar {
-        background: #00a8a8;
-        font-size: 0.82rem;
-        font-weight: 700;
-    }
-</style>
-
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/athlete-profile.js') }}"></script>
 {% endblock %}
