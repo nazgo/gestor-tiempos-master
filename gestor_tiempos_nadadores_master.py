@@ -2020,13 +2020,16 @@ class GestorTiemposMaster:
 
         top_nadadores = varias_filas("""
             SELECT
-                nombre_nadador,
-                COUNT(*) AS total
+                TRIM(nombre_nadador) AS nombre_nadador,
+                COUNT(*)::INTEGER AS total_tiempos
             FROM tiempos
-            WHERE EXTRACT(YEAR FROM fecha) = ?
-            GROUP BY nombre_nadador
-            ORDER BY total DESC, nombre_nadador ASC
-            LIMIT 7
+            WHERE fecha IS NOT NULL
+              AND EXTRACT(YEAR FROM fecha) = ?
+              AND nombre_nadador IS NOT NULL
+              AND TRIM(nombre_nadador) <> ''
+            GROUP BY TRIM(nombre_nadador)
+            ORDER BY total_tiempos DESC, nombre_nadador ASC
+            LIMIT 8
         """, (anio_actual,))
 
         return {
@@ -2058,7 +2061,7 @@ class GestorTiemposMaster:
                 },
                 'top_nadadores': {
                     'labels': [f['nombre_nadador'] for f in top_nadadores],
-                    'values': [int(f['total']) for f in top_nadadores],
+                    'values': [int(f.get('total_tiempos') or 0) for f in top_nadadores],
                 },
             },
             'ultimos_tiempos': ultimos_tiempos,
