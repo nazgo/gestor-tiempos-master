@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Performance Center · ÑM Performance{% endblock %}
+{% block extra_css %}<link href="{{ url_for('static', filename='css/performance-center.css') }}" rel="stylesheet">{% endblock %}
+
+{% block content %}
+<section class="pc-page" data-performance='{{ performance|tojson }}'>
+  <header class="pc-hero">
+    <div>
+      <span class="pc-eyebrow"><i class="fas fa-brain"></i> Intelligence Layer</span>
+      <h1>Performance Center</h1>
+      <p>Actividad, progreso y señales relevantes del club en una sola vista.</p>
+    </div>
+    <div class="pc-generated"><i class="far fa-clock"></i> Actualizado {{ performance.generated_at.strftime('%d/%m/%Y · %H:%M') }}</div>
+  </header>
+
+  <section class="pc-score-grid">
+    <article class="pc-health-card">
+      <div class="pc-health-copy">
+        <span>Club Health Score</span>
+        <strong>{{ performance.club.status }}</strong>
+        <p>Índice interno basado en actividad, asistencia, PB y competencias.</p>
+      </div>
+      <div class="pc-score-ring" style="--score: {{ performance.club.score }}">
+        <div><strong>{{ performance.club.score }}</strong><small>/100</small></div>
+      </div>
+    </article>
+
+    <article class="pc-metric-card"><i class="fas fa-person-swimming"></i><div><span>Plantel activo</span><strong>{{ performance.club.active_athletes }}/{{ performance.club.total_athletes }}</strong><small>{{ performance.club.active_rate }}% en 120 días</small></div></article>
+    <article class="pc-metric-card"><i class="fas fa-medal"></i><div><span>PB recientes</span><strong>{{ performance.club.recent_pbs }}</strong><small>Últimos 90 días</small></div></article>
+    <article class="pc-metric-card"><i class="fas fa-calendar-check"></i><div><span>Competencias</span><strong>{{ performance.club.competitions_year }}</strong><small>Realizadas este año</small></div></article>
+    <article class="pc-metric-card"><i class="fas fa-clipboard-check"></i><div><span>Asistencia</span><strong>{{ performance.club.attendance_rate }}%</strong><small>Sobre registros confirmados</small></div></article>
+  </section>
+
+  <section class="pc-main-grid">
+    <article class="pc-panel pc-activity-panel">
+      <div class="pc-panel-head"><div><span class="pc-kicker">Pulso del club</span><h2>Actividad anual</h2></div><span class="pc-chip">{{ performance.club.active_athletes }} activos</span></div>
+      <div class="pc-chart-wrap"><canvas id="pcMonthlyChart"></canvas></div>
+    </article>
+
+    <article class="pc-panel pc-next-panel">
+      <div class="pc-panel-head"><div><span class="pc-kicker">Calendario</span><h2>Próxima competencia</h2></div></div>
+      {% if performance.next_competition %}
+      <div class="pc-next-date"><strong>{{ performance.next_competition.dias }}</strong><span>días</span></div>
+      <h3>{{ performance.next_competition.nombre or 'Competencia' }}</h3>
+      <p><i class="far fa-calendar"></i> {{ performance.next_competition.fecha.strftime('%d/%m/%Y') if performance.next_competition.fecha else '' }}</p>
+      <p><i class="fas fa-location-dot"></i> {{ performance.next_competition.lugar or 'Lugar por confirmar' }}</p>
+      <a href="{{ url_for('seleccionar_anio_calendario') }}" class="pc-text-link">Ver calendario <i class="fas fa-arrow-right"></i></a>
+      {% else %}
+      <div class="pc-empty"><i class="far fa-calendar-xmark"></i><strong>Sin próximas competencias</strong><span>Agrega una fecha al calendario para verla aquí.</span></div>
+      {% endif %}
+    </article>
+  </section>
+
+  <section class="pc-main-grid pc-balanced-grid">
+    <article class="pc-panel">
+      <div class="pc-panel-head"><div><span class="pc-kicker">Ranking inteligente</span><h2>Top performers</h2></div><span class="pc-info" title="Indicador interno de actividad, participación, progreso y constancia"><i class="fas fa-circle-info"></i></span></div>
+      <div class="pc-performers">
+        {% for athlete in performance.top_performers %}
+        <a class="pc-athlete-row" href="{{ url_for('ficha_nadador', nadador_id=athlete.id) }}">
+          <span class="pc-rank">{{ loop.index }}</span>
+          <span class="pc-avatar">{{ athlete.nombre[:1]|upper }}</span>
+          <span class="pc-athlete-copy"><strong>{{ athlete.nombre }}</strong><small>{{ athlete.categoria }} · {{ athlete.pbs }} PB</small></span>
+          <span class="pc-athlete-progress"><span><i class="fas fa-arrow-trend-up"></i> {{ '%+.1f'|format(athlete.improvement_pct) }}%</span><b>{{ athlete.score }}</b></span>
+        </a>
+        {% else %}<div class="pc-empty compact"><i class="fas fa-users-slash"></i><strong>Sin datos suficientes</strong></div>{% endfor %}
+      </div>
+    </article>
+
+    <article class="pc-panel">
+      <div class="pc-panel-head"><div><span class="pc-kicker">Análisis automático</span><h2>Insights del entrenador</h2></div><span class="pc-ai-badge"><i class="fas fa-wand-magic-sparkles"></i> Auto</span></div>
+      <div class="pc-insights">
+        {% for insight in performance.insights %}
+        <div class="pc-insight pc-insight-{{ insight.type }}"><i class="fas {{ insight.icon }}"></i><p>{{ insight.text }}</p></div>
+        {% endfor %}
+      </div>
+      <p class="pc-disclaimer">Los insights describen los datos registrados y no reemplazan el criterio técnico del entrenador.</p>
+    </article>
+  </section>
+
+  <section class="pc-panel pc-heatmap-panel">
+    <div class="pc-panel-head"><div><span class="pc-kicker">Últimas 12 semanas</span><h2>Mapa de actividad</h2></div><div class="pc-heat-legend"><span>Menos</span>{% for n in range(5) %}<i data-level="{{ n }}"></i>{% endfor %}<span>Más</span></div></div>
+    <div class="pc-heatmap" aria-label="Actividad diaria">
+      {% for day in performance.heatmap %}<span class="pc-heat-day" data-level="{{ day.level }}" title="{{ day.label }} · {{ day.count }} registros"></span>{% endfor %}
+    </div>
+  </section>
+
+  <section class="pc-main-grid pc-balanced-grid">
+    <article class="pc-panel">
+      <div class="pc-panel-head"><div><span class="pc-kicker">Comparación de 90 días</span><h2>Tendencias por estilo</h2></div></div>
+      <div class="pc-trends">
+        {% for trend in performance.trends %}
+        <div class="pc-trend-row"><span class="pc-style-icon"><i class="fas fa-water"></i></span><strong>{{ trend.style }}</strong><div class="pc-trend-bar"><span style="width: {{ [trend.recent * 8, 100]|min }}%"></span></div><span class="pc-trend-value {{ trend.direction }}"><i class="fas fa-arrow-{{ 'up' if trend.direction == 'up' else 'down' if trend.direction == 'down' else 'right' }}"></i> {{ '%+.0f'|format(trend.change) }}%</span></div>
+        {% else %}<div class="pc-empty compact"><i class="fas fa-chart-line"></i><strong>Sin actividad reciente</strong></div>{% endfor %}
+      </div>
+    </article>
+
+    <article class="pc-panel">
+      <div class="pc-panel-head"><div><span class="pc-kicker">Seguimiento</span><h2>Sin actividad reciente</h2></div><span class="pc-chip warning">60+ días</span></div>
+      <div class="pc-inactive-list">
+        {% for athlete in performance.inactive %}
+        <a href="{{ url_for('ficha_nadador', nadador_id=athlete.id) }}"><span class="pc-avatar small">{{ athlete.nombre[:1]|upper }}</span><span><strong>{{ athlete.nombre }}</strong><small>{{ athlete.categoria }}</small></span><b>{{ athlete.days ~ ' días' if athlete.days is not none else 'Sin registros' }}</b></a>
+        {% else %}<div class="pc-empty compact"><i class="fas fa-circle-check"></i><strong>Todo el plantel está activo</strong></div>{% endfor %}
+      </div>
+    </article>
+  </section>
+
+  <section class="pc-panel">
+    <div class="pc-panel-head"><div><span class="pc-kicker">Logros detectados</span><h2>Récords personales recientes</h2></div></div>
+    <div class="pc-pb-grid">
+      {% for pb in performance.recent_pbs %}
+      <article><span class="pc-pb-icon"><i class="fas fa-medal"></i></span><div><small>PERSONAL BEST</small><h3>{{ pb.nombre }}</h3><p>{{ pb.distancia }} m {{ pb.estilo }} · {{ pb.piscina }}</p></div><div class="pc-pb-time"><strong>{{ pb.tiempo }}</strong><span>{{ pb.fecha.strftime('%d/%m/%Y') }}</span></div></article>
+      {% else %}<div class="pc-empty"><i class="fas fa-stopwatch"></i><strong>No hay PB recientes detectados</strong><span>Aparecerán automáticamente al registrar nuevas marcas.</span></div>{% endfor %}
+    </div>
+  </section>
+</section>
+{% endblock %}
+
+{% block extra_js %}<script src="{{ url_for('static', filename='js/performance-center.js') }}"></script>{% endblock %}
