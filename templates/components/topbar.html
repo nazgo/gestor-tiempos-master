@@ -1,0 +1,53 @@
+{% set endpoint_titles = {
+    'index': ('Resumen', 'Vista general del club'),
+    'nadadores': ('Nadadores', 'Gestión del plantel deportivo'),
+    'estadisticas_club': ('Estadísticas', 'Análisis institucional y rendimiento'),
+    'season_best': ('Season Best', 'Mejores marcas personales'),
+    'progreso_nadador': ('Progreso', 'Evolución individual de nadadores'),
+    'comparacion_25_50': ('Comparación de piscinas', 'Rendimiento en 25 y 50 metros'),
+    'mejores_tiempos': ('Rankings', 'Clasificación deportiva del club'),
+    'seleccionar_anio_calendario': ('Calendario', 'Circuito de competencias'),
+    'calendario_competencias': ('Calendario', 'Circuito de competencias'),
+    'seleccionar_anio_asistencias': ('Asistencia', 'Participación en competencias'),
+    'tabla_asistencias': ('Asistencia', 'Participación en competencias'),
+    'import_export': ('Datos', 'Importación, exportación y respaldo'),
+    'admin_usuarios': ('Usuarios', 'Administración de accesos')
+} %}
+{% set current_title = endpoint_titles.get(request.endpoint, ('Gestor deportivo', 'Club Natación Ñuñoa Master')) %}
+
+<header class="app-topbar">
+    <div class="topbar-left">
+        <button type="button" class="topbar-menu-button" id="mobileMenuButton" aria-label="Abrir menú">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="topbar-heading">
+            <span class="topbar-eyebrow">Ñuñoa Master</span>
+            <h1>{{ current_title[0] }}</h1>
+            <p>{{ current_title[1] }}</p>
+        </div>
+    </div>
+
+    <div class="topbar-actions">
+        <button type="button" class="topbar-icon-button" id="themeToggle" title="Cambiar tema" aria-label="Cambiar tema">
+            <i class="fas fa-moon theme-icon-dark"></i>
+            <i class="fas fa-sun theme-icon-light"></i>
+        </button>
+
+        <div class="dropdown">
+            <button class="topbar-user-button dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="topbar-user-avatar">{{ session.username[:1]|upper }}</span>
+                <span class="topbar-user-copy">
+                    <strong>{{ session.username }}</strong>
+                    <small>{{ session.rol|default('usuario')|capitalize }}</small>
+                </span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end app-dropdown-menu">
+                {% if session.rol == 'admin' %}
+                <li><a class="dropdown-item" href="{{ url_for('admin_usuarios') }}"><i class="fas fa-user-shield"></i> Gestionar usuarios</a></li>
+                <li><hr class="dropdown-divider"></li>
+                {% endif %}
+                <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="fas fa-arrow-right-from-bracket"></i> Cerrar sesión</a></li>
+            </ul>
+        </div>
+    </div>
+</header>
