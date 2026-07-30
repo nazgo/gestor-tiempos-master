@@ -16,7 +16,7 @@
         <div class="sidebar-section">
             <span class="sidebar-section-label">Resumen</span>
             <a href="{{ url_for('index') }}" class="sidebar-link {% if request.endpoint == 'index' %}active{% endif %}">
-                <i class="fas fa-grid-2"></i><span>Dashboard</span>
+                <i class="fas fa-house"></i><span>Dashboard</span>
             </a>
             <a href="{{ url_for('performance_center') }}" class="sidebar-link {% if request.endpoint == 'performance_center' %}active{% endif %}">
                 <i class="fas fa-brain"></i><span>Performance Center</span>
