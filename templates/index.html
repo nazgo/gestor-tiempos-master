@@ -264,7 +264,7 @@
 
     <!-- STAFF DEPORTIVO, DIRECTIVA Y VALORES -->
     {% set staff_deportivo = [
-        {'nombre': 'Esteban Canto', 'cargo': 'Coach principal', 'descripcion': 'Dirección técnica, planificación deportiva y coordinación general de entrenamientos.', 'iniciales': 'CP', 'icono': 'fa-person-swimming'},
+        {'nombre': 'Esteban Canto', 'cargo': 'Coach principal', 'descripcion': 'Dirección técnica, planificación deportiva y coordinación general de entrenamientos.', 'foto': 'EstebanC.png','iniciales': 'EC', 'icono': 'fa-person-swimming'},
         {'nombre': 'Pedro Olivares', 'cargo': 'Coach asistente', 'descripcion': 'Apoyo técnico, seguimiento de nadadores y asistencia durante las sesiones.', 'iniciales': 'CA', 'icono': 'fa-stopwatch'},
         {'nombre': 'Natalia Rusowsky', 'cargo': 'Coach asistente', 'descripcion': 'Apoyo técnico, corrección de estilos y acompañamiento del plantel.', 'iniciales': 'CA', 'icono': 'fa-water'},
         {'nombre': 'Larry Lucena', 'cargo': 'Delegado deportivo', 'descripcion': 'Coordinación de competencias, inscripciones y comunicación con el equipo.', 'iniciales': 'DD', 'icono': 'fa-clipboard-check'},
@@ -291,7 +291,13 @@
             {% for persona in staff_deportivo %}
             <article class="staff-card">
                 <div class="staff-card-top">
-                    <div class="staff-avatar">{{ persona.iniciales }}</div>
+                    <div class="staff-avatar">
+                        <img
+                            src="{{ url_for('static', filename='img/staff/' ~ persona.foto) }}"
+                            alt="{{ persona.nombre }}"
+                            loading="lazy"
+                        >
+                    </div>
                     <div class="staff-role-icon"><i class="fas {{ persona.icono }}"></i></div>
                 </div>
                 <div class="staff-card-copy">
@@ -465,6 +471,34 @@
 @media (max-width:1199px){.staff-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:991px){.staff-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:767px){.club-people-section,.club-board-section{padding:20px;border-radius:20px}.club-people-heading{align-items:flex-start;flex-direction:column;gap:12px}.club-people-heading h2{font-size:1.3rem}.staff-grid,.club-values-section{grid-template-columns:1fr}.club-motto{justify-content:flex-start;padding:20px}}
 @media (max-width:480px){.board-grid{grid-template-columns:1fr}.staff-card{padding:17px}.club-motto img{width:60px;height:48px}.club-motto strong{font-size:.92rem}}
+
+
+
+.staff-avatar,
+.board-avatar {
+    overflow: hidden;
+    padding: 0;
+}
+
+.staff-avatar img,
+.board-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.staff-avatar img {
+    border-radius: 18px;
+}
+
+.board-avatar img {
+    border-radius: 14px;
+}
+
+    
+
 </style>
 
 {% endblock %}
