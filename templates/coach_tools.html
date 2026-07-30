@@ -6,16 +6,16 @@
 <section class="coach-page">
   <header class="coach-hero">
     <div>
-      <span class="eyebrow"><i class="fas fa-whistle"></i> Centro del entrenador</span>
+      <span class="eyebrow"><i class="fas fa-user-group"></i> Centro del entrenador</span>
       <h1>Coach Tools</h1>
-      <p>Compara atletas, detecta fortalezas y encuentra nadadores que requieren seguimiento.</p>
+      <p>Compara atletas, detecta fortalezas y convierte los datos del club en decisiones claras.</p>
     </div>
-    <div class="hero-mark"><i class="fas fa-code-compare"></i></div>
+    <div class="hero-mark"><i class="fas fa-user-group"></i></div>
   </header>
 
   <section class="compare-builder card-shell">
     <div class="section-heading">
-      <div><span class="section-kicker">Comparador</span><h2>Dos atletas, una lectura clara</h2></div>
+      <div><span class="section-kicker">Comparador de atletas</span><h2>Dos perfiles, una lectura clara</h2></div>
       <span class="data-note"><i class="fas fa-circle-info"></i> Indicadores calculados con datos registrados</span>
     </div>
     <form method="get" action="{{ url_for('coach_tools') }}" class="compare-form" id="compareForm">
@@ -25,7 +25,13 @@
           {% for athlete in coach.athletes %}<option value="{{ athlete.id }}" {% if coach.selected_a == athlete.id %}selected{% endif %}>{{ athlete.nombre }} · {{ athlete.categoria }}</option>{% endfor %}
         </select>
       </label>
-      <div class="versus">VS</div>
+      <div class="versus-block">
+        <div class="versus">VS</div>
+        {% if coach.comparison %}
+          {% set gap = coach.comparison.a.overall - coach.comparison.b.overall %}
+          <small>{{ gap|abs }} puntos</small>
+        {% endif %}
+      </div>
       <label><span>Nadador B</span>
         <select name="b" id="athleteB" required>
           <option value="">Seleccionar atleta</option>
@@ -39,11 +45,17 @@
 
   {% if coach.comparison %}
   {% set c = coach.comparison %}
+  {% set gap = c.a.overall - c.b.overall %}
   <section class="athlete-duel" aria-label="Comparación de atletas">
     {% for athlete, side in [(c.a, 'a'), (c.b, 'b')] %}
-    <article class="duel-card side-{{ side }}">
-      <div class="athlete-avatar">{{ athlete.nombre[:1]|upper }}</div>
-      <div class="athlete-main"><span>{{ athlete.categoria }}</span><h2>{{ athlete.nombre }}</h2><p>{{ athlete.records }} registros · {{ athlete.competitions }} competencias</p></div>
+    <article class="duel-card side-{{ side }} {% if (side == 'a' and gap > 0) or (side == 'b' and gap < 0) %}duel-leader{% endif %}">
+      <div class="athlete-avatar"><span>{{ side|upper }}</span></div>
+      <div class="athlete-main">
+        <span>{{ athlete.categoria }}</span>
+        <h2>{{ athlete.nombre }}</h2>
+        <p>{{ athlete.records }} registros · {{ athlete.competitions }} competencias</p>
+        {% if (side == 'a' and gap > 0) or (side == 'b' and gap < 0) %}<em><i class="fas fa-star"></i> Mejor performance</em>{% endif %}
+      </div>
       <div class="score-orbit"><strong>{{ athlete.overall }}</strong><small>/100</small></div>
       <div class="duel-stats">
         <div><small>Progreso</small><strong>+{{ athlete.average_progress }}%</strong></div>
@@ -54,37 +66,76 @@
     {% endfor %}
   </section>
 
-  <section class="coach-grid">
-    <article class="card-shell radar-card">
-      <div class="section-heading compact"><div><span class="section-kicker">Perfil comparado</span><h2>Radar de rendimiento</h2></div></div>
+  <nav class="coach-tabs" aria-label="Secciones del comparador">
+    <button class="active" data-coach-tab="summary"><i class="fas fa-house"></i><span>Resumen</span></button>
+    <button data-coach-tab="radar"><i class="fas fa-dharmachakra"></i><span>Radar</span></button>
+    <button data-coach-tab="events"><i class="fas fa-table-cells"></i><span>Pruebas</span></button>
+    <button data-coach-tab="dna"><i class="fas fa-dna"></i><span>ADN</span></button>
+    <button data-coach-tab="insight"><i class="fas fa-wand-magic-sparkles"></i><span>Análisis</span></button>
+  </nav>
+
+  <section class="coach-dashboard" id="summary">
+    <article class="card-shell score-card">
+      <div class="module-title"><span>Performance Score</span><i class="fas fa-circle-info" title="Promedio de actividad, constancia, progreso, competencias y variedad"></i></div>
+      {% for athlete, side in [(c.a, 'a'), (c.b, 'b')] %}
+      <div class="performance-row side-{{ side }}-row">
+        <div><strong>{{ athlete.nombre }}</strong><span>{{ athlete.overall }}/100</span></div>
+        <div class="performance-track"><i style="--score:{{ athlete.overall }}%"></i></div>
+      </div>
+      {% endfor %}
+      <div class="score-verdict"><i class="fas fa-trophy"></i><span>{% if gap == 0 %}La comparación está empatada.{% elif gap > 0 %}{{ c.a.nombre }} lidera por {{ gap|abs }} puntos.{% else %}{{ c.b.nombre }} lidera por {{ gap|abs }} puntos.{% endif %}</span></div>
+    </article>
+
+    <article class="card-shell radar-card" id="radar">
+      <div class="module-title"><span>Radar comparativo</span><i class="fas fa-circle-info"></i></div>
       <div class="chart-wrap"><canvas id="coachRadar"></canvas></div>
     </article>
-    <article class="card-shell verdict-card">
-      <span class="verdict-icon"><i class="fas fa-lightbulb"></i></span>
-      <span class="section-kicker">Lectura automática</span>
-      <h2>{{ c.verdict.title }}</h2>
-      <p>{{ c.verdict.text }}</p>
-      <div class="score-bars">
-        <div><span>{{ c.a.nombre }}</span><i style="--value: {{ c.a.overall }}%"></i><b>{{ c.a.overall }}</b></div>
-        <div><span>{{ c.b.nombre }}</span><i style="--value: {{ c.b.overall }}%"></i><b>{{ c.b.overall }}</b></div>
-      </div>
+
+    <article class="card-shell strength-card">
+      <div class="module-title"><span>Fortalezas principales</span><i class="fas fa-circle-info"></i></div>
+      {% set labels = {'activity':'Actividad','consistency':'Constancia','progress':'Progreso','competitions':'Participación','variety':'Versatilidad'} %}
+      {% for athlete, side in [(c.a, 'a'), (c.b, 'b')] %}
+        {% set strongest = athlete.scores|dictsort(false, 'value')|last %}
+        <div class="strength-item side-{{ side }}-accent"><i class="fas {% if strongest[0] == 'progress' %}fa-arrow-trend-up{% elif strongest[0] == 'consistency' %}fa-bullseye{% elif strongest[0] == 'activity' %}fa-fire{% elif strongest[0] == 'competitions' %}fa-medal{% else %}fa-shuffle{% endif %}"></i><div><strong>{{ athlete.nombre }}</strong><span>Destaca en {{ labels[strongest[0]] }} con {{ strongest[1] }}/100.</span></div></div>
+      {% endfor %}
+      <div class="strength-item neutral"><i class="fas fa-scale-balanced"></i><div><strong>Lectura general</strong><span>{{ c.verdict.text }}</span></div></div>
     </article>
   </section>
 
-  <section class="card-shell event-table-card">
-    <div class="section-heading"><div><span class="section-kicker">Cara a cara</span><h2>Mejores marcas en pruebas compartidas</h2></div><span class="count-chip">{{ c.common_events|length }} pruebas</span></div>
-    {% if c.common_events %}
-    <div class="event-table-wrap"><table class="event-table"><thead><tr><th>Prueba</th><th>{{ c.a.nombre }}</th><th>Diferencia</th><th>{{ c.b.nombre }}</th></tr></thead><tbody>
-      {% for row in c.common_events %}<tr>
-        <td data-label="Prueba"><strong>{{ row.event }}</strong></td>
-        <td data-label="{{ c.a.nombre }}" class="{% if row.winner == 'a' %}winner{% endif %}">{{ row.a.time }} {% if row.winner == 'a' %}<i class="fas fa-crown"></i>{% endif %}</td>
-        <td data-label="Diferencia"><span class="difference-chip">{{ row.difference }} s</span></td>
-        <td data-label="{{ c.b.nombre }}" class="{% if row.winner == 'b' %}winner{% endif %}">{{ row.b.time }} {% if row.winner == 'b' %}<i class="fas fa-crown"></i>{% endif %}</td>
-      </tr>{% endfor %}
-    </tbody></table></div>
-    {% else %}<div class="empty-coach"><i class="fas fa-water"></i><h3>No hay pruebas comparables</h3><p>Los dos nadadores aún no comparten registros en la misma prueba y piscina.</p></div>{% endif %}
+  <section class="coach-lower-grid">
+    <article class="card-shell head-to-head" id="events">
+      <div class="module-title"><span>Enfrentamiento cara a cara</span><small>{{ c.common_events|length }} pruebas</small></div>
+      {% if c.common_events %}
+      <div class="event-cards">
+        {% for row in c.common_events[:6] %}
+        <div class="event-card">
+          <div class="event-name"><i class="fas fa-person-swimming"></i><strong>{{ row.event }}</strong></div>
+          <div class="event-result {% if row.winner == 'a' %}winner{% endif %}"><span>{{ c.a.nombre.split(' ')[0] }}</span><b>{{ row.a.time }}</b>{% if row.winner == 'a' %}<i class="fas fa-trophy"></i>{% endif %}</div>
+          <div class="event-diff">{{ row.difference }} s</div>
+          <div class="event-result {% if row.winner == 'b' %}winner{% endif %}"><span>{{ c.b.nombre.split(' ')[0] }}</span><b>{{ row.b.time }}</b>{% if row.winner == 'b' %}<i class="fas fa-trophy"></i>{% endif %}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}<div class="empty-coach"><i class="fas fa-water"></i><h3>No hay pruebas comparables</h3><p>Los dos nadadores aún no comparten registros en la misma prueba y piscina.</p></div>{% endif %}
+    </article>
+
+    <article class="card-shell dna-card" id="dna">
+      <div class="module-title"><span>ADN de rendimiento</span><i class="fas fa-dna"></i></div>
+      {% for key, label in [('activity','Actividad'),('consistency','Constancia'),('progress','Progreso'),('competitions','Competencia'),('variety','Versatilidad')] %}
+      <div class="dna-row"><span>{{ label }}</span><div class="dna-bars"><i class="dna-a" style="--score:{{ c.a.scores[key] }}%"></i><i class="dna-b" style="--score:{{ c.b.scores[key] }}%"></i></div><small>{{ c.a.scores[key] }} / {{ c.b.scores[key] }}</small></div>
+      {% endfor %}
+      <div class="dna-legend"><span><i class="dot-a"></i>{{ c.a.nombre }}</span><span><i class="dot-b"></i>{{ c.b.nombre }}</span></div>
+    </article>
   </section>
+
+  <article class="card-shell insight-panel" id="insight">
+    <div class="insight-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+    <div><span class="section-kicker">Coach Insight</span><h2>{{ c.verdict.title }}</h2><p>{{ c.verdict.text }} {% if gap != 0 %}El foco recomendado es mantener la fortaleza del líder y trabajar el indicador más bajo del otro atleta.{% endif %}</p></div>
+    <button type="button" class="insight-action" disabled title="Disponible próximamente"><i class="fas fa-sparkles"></i> Recomendaciones</button>
+  </article>
+
   <script id="coachChartData" type="application/json">{{ c.radar|tojson }}</script>
+  <script id="coachNames" type="application/json">{{ {'a': c.a.nombre, 'b': c.b.nombre}|tojson }}</script>
   {% else %}
   <section class="coach-empty-state"><div class="empty-visual"><i class="fas fa-people-arrows-left-right"></i></div><div><span class="section-kicker">Comienza aquí</span><h2>Selecciona dos nadadores</h2><p>Obtendrás una comparación de actividad, constancia, progreso, competencias, variedad y mejores marcas compartidas.</p></div></section>
   {% endif %}
