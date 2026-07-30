@@ -322,7 +322,13 @@
         <div class="board-grid">
             {% for persona in directiva_club %}
             <article class="board-card">
-                <div class="board-avatar">{{ persona.iniciales }}</div>
+                <div class="board-avatar">
+    <img
+        src="{{ url_for('static', filename='img/staff/' ~ persona.foto) }}"
+        alt="{{ persona.nombre }}"
+        loading="lazy"
+    >
+</div>
                 <div>
                     <span>{{ persona.cargo }}</span>
                     <h3>{{ persona.nombre }}</h3>
