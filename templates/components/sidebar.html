@@ -23,7 +23,7 @@
                 <small class="sidebar-new-badge">NEW</small>
             </a>
             <a href="{{ url_for('coach_tools') }}" class="sidebar-link {% if request.endpoint == 'coach_tools' %}active{% endif %}">
-                <i class="fas fa-whistle"></i><span>Coach Tools</span>
+                <i class="fas fa-user-group"></i><span>Coach Tools</span>
                 <small class="sidebar-new-badge">NEW</small>
             </a>
             <a href="{{ url_for('estadisticas_club') }}" class="sidebar-link {% if request.endpoint in ['estadisticas_club', 'estado_nadadores_anio', 'todos_los_tiempos'] %}active{% endif %}">
