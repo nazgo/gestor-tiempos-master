@@ -27,11 +27,13 @@
             </div>
         </div>
 
-<div class="dashboard-club-logo" aria-label="Logo Club Ñuñoa Master">
+<div class="hero-logo">
+
     <img
         src="{{ url_for('static', filename='logo.png') }}"
         alt="Club Ñuñoa Master"
     >
+
 </div>
     </section>
 
@@ -259,11 +261,129 @@
             <strong id="resumenTemporadas">Comparación histórica</strong>
         </footer>
     </section>
+
+    <!-- STAFF DEPORTIVO, DIRECTIVA Y VALORES -->
+    {% set staff_deportivo = [
+        {'nombre': 'Nombre del Coach', 'cargo': 'Coach principal', 'descripcion': 'Planificación deportiva, dirección técnica y acompañamiento del plantel.', 'iniciales': 'CP', 'icono': 'fa-person-swimming'},
+        {'nombre': 'Nombre del Delegado', 'cargo': 'Delegado deportivo', 'descripcion': 'Coordinación de competencias, inscripciones y comunicación con el equipo.', 'iniciales': 'DD', 'icono': 'fa-clipboard-check'},
+        {'nombre': 'Nombre de la Delegada', 'cargo': 'Delegada de competencias', 'descripcion': 'Apoyo logístico, seguimiento de eventos y organización del plantel.', 'iniciales': 'DC', 'icono': 'fa-calendar-check'}
+    ] %}
+
+    {% set directiva_club = [
+        {'nombre': 'Nombre Presidente', 'cargo': 'Presidencia', 'iniciales': 'PR'},
+        {'nombre': 'Nombre Vicepresidente', 'cargo': 'Vicepresidencia', 'iniciales': 'VP'},
+        {'nombre': 'Nombre Secretario', 'cargo': 'Secretaría', 'iniciales': 'SE'},
+        {'nombre': 'Nombre Tesorero', 'cargo': 'Tesorería', 'iniciales': 'TE'}
+    ] %}
+
+    <section class="club-people-section mt-4">
+        <header class="club-people-heading">
+            <div>
+                <span class="club-people-eyebrow"><i class="fas fa-people-group"></i> Las personas detrás del club</span>
+                <h2>Staff deportivo</h2>
+                <p>El equipo que acompaña, organiza y potencia el rendimiento de Ñuñoa Master.</p>
+            </div>
+            <span class="club-people-count">{{ staff_deportivo|length }} integrantes</span>
+        </header>
+
+        <div class="staff-grid">
+            {% for persona in staff_deportivo %}
+            <article class="staff-card">
+                <div class="staff-card-top">
+                    <div class="staff-avatar">{{ persona.iniciales }}</div>
+                    <div class="staff-role-icon"><i class="fas {{ persona.icono }}"></i></div>
+                </div>
+                <div class="staff-card-copy">
+                    <span>{{ persona.cargo }}</span>
+                    <h3>{{ persona.nombre }}</h3>
+                    <p>{{ persona.descripcion }}</p>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="club-board-section mt-4">
+        <header class="club-people-heading compact">
+            <div>
+                <span class="club-people-eyebrow"><i class="fas fa-landmark"></i> Organización institucional</span>
+                <h2>Directiva</h2>
+                <p>Responsables de la conducción y administración del Club Ñuñoa Master.</p>
+            </div>
+        </header>
+
+        <div class="board-grid">
+            {% for persona in directiva_club %}
+            <article class="board-card">
+                <div class="board-avatar">{{ persona.iniciales }}</div>
+                <div>
+                    <span>{{ persona.cargo }}</span>
+                    <h3>{{ persona.nombre }}</h3>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="club-values-section mt-4">
+        <div class="club-value-card"><i class="fas fa-handshake"></i><div><strong>Compañerismo</strong><span>Crecemos y competimos como equipo.</span></div></div>
+        <div class="club-value-card"><i class="fas fa-medal"></i><div><strong>Superación</strong><span>Cada marca es una oportunidad para avanzar.</span></div></div>
+        <div class="club-value-card"><i class="fas fa-heart"></i><div><strong>Pasión</strong><span>La natación nos une dentro y fuera de la piscina.</span></div></div>
+    </section>
+
+    <section class="club-motto mt-4">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Ñuñoa Master">
+        <div>
+            <span>Club Ñuñoa Master</span>
+            <strong>Más que un equipo… una hermandad.</strong>
+        </div>
+    </section>
+
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+
+<style>
+.club-people-section,.club-board-section{padding:28px;border:1px solid var(--border);border-radius:24px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.club-people-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;margin-bottom:22px}
+.club-people-heading.compact{align-items:center}
+.club-people-eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--accent);font-size:.69rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.club-people-heading h2{margin:7px 0 4px;color:var(--text-primary);font-size:1.55rem;font-weight:800;letter-spacing:-.03em}
+.club-people-heading p{max-width:720px;margin:0;color:var(--text-secondary);font-size:.84rem}
+.club-people-count{flex:0 0 auto;padding:8px 12px;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));border-radius:999px;background:var(--accent-soft);font-size:.7rem;font-weight:800}
+.staff-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.staff-card{min-width:0;padding:20px;border:1px solid var(--border);border-radius:20px;background:radial-gradient(circle at 100% 0,color-mix(in srgb,var(--accent) 13%,transparent),transparent 42%),var(--surface-soft);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.staff-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 38%,var(--border));box-shadow:var(--shadow-md)}
+.staff-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.staff-avatar,.board-avatar{display:inline-flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,var(--accent-dark),#22c5c7);font-family:"Manrope","Inter",sans-serif;font-weight:800;box-shadow:0 10px 24px rgba(0,155,157,.18)}
+.staff-avatar{width:58px;height:58px;border-radius:18px;font-size:1rem}
+.staff-role-icon{display:inline-flex;width:40px;height:40px;align-items:center;justify-content:center;color:var(--accent);border-radius:13px;background:var(--accent-soft)}
+.staff-card-copy span,.board-card span{color:var(--accent);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.staff-card-copy h3,.board-card h3{margin:5px 0 0;color:var(--text-primary);font-size:1rem;font-weight:800}
+.staff-card-copy p{margin:9px 0 0;color:var(--text-secondary);font-size:.76rem;line-height:1.55}
+.board-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.board-card{display:flex;min-width:0;align-items:center;gap:13px;padding:16px;border:1px solid var(--border);border-radius:17px;background:var(--surface-soft);transition:transform .18s ease,border-color .18s ease}
+.board-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 35%,var(--border))}
+.board-avatar{width:44px;height:44px;flex:0 0 44px;border-radius:14px;font-size:.75rem}
+.board-card h3{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.club-values-section{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.club-value-card{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid var(--border);border-radius:18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.club-value-card>i{display:inline-flex;width:44px;height:44px;flex:0 0 44px;align-items:center;justify-content:center;color:var(--accent);border-radius:14px;background:var(--accent-soft);font-size:1rem}
+.club-value-card div{display:flex;min-width:0;flex-direction:column}
+.club-value-card strong{color:var(--text-primary);font-size:.83rem}
+.club-value-card span{margin-top:3px;color:var(--text-secondary);font-size:.69rem}
+.club-motto{display:flex;align-items:center;justify-content:center;gap:18px;padding:24px;overflow:hidden;color:#fff;border-radius:22px;background:radial-gradient(circle at 90% 10%,rgba(255,255,255,.13),transparent 32%),linear-gradient(135deg,#073b3c,#009b9d);box-shadow:var(--shadow-md)}
+.club-motto img{width:76px;height:58px;object-fit:contain;filter:drop-shadow(0 7px 14px rgba(0,0,0,.22))}
+.club-motto div{display:flex;flex-direction:column}
+.club-motto span{color:rgba(255,255,255,.72);font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.club-motto strong{margin-top:4px;font-family:"Manrope","Inter",sans-serif;font-size:1.05rem;font-weight:800}
+@media (max-width:991px){.staff-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:767px){.club-people-section,.club-board-section{padding:20px;border-radius:20px}.club-people-heading{align-items:flex-start;flex-direction:column;gap:12px}.club-people-heading h2{font-size:1.3rem}.staff-grid,.club-values-section{grid-template-columns:1fr}.club-motto{justify-content:flex-start;padding:20px}}
+@media (max-width:480px){.board-grid{grid-template-columns:1fr}.staff-card{padding:17px}.club-motto img{width:60px;height:48px}.club-motto strong{font-size:.92rem}}
+</style>
+
 {% endblock %}
 
 {% block extra_js %}
