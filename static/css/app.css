@@ -245,3 +245,204 @@ html[data-theme="dark"] .theme-icon-light { display: inline-block; }
         }
     }
 }
+/* =========================================================
+   SIDEBAR BRAND — ÑM PERFORMANCE
+   ========================================================= */
+
+.sidebar-brand {
+    min-height: 126px;
+    padding: 20px 18px 20px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.sidebar-brand-link {
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.sidebar-brand-link:hover,
+.sidebar-brand-link:focus {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/*
+ La imagen conserva sus proporciones.
+ Aumentamos el ancho para que se vea como el ejemplo 2.
+*/
+.sidebar-logo {
+    display: block;
+    flex: 0 0 auto;
+
+    width: 92px;
+    height: auto;
+    max-height: 68px;
+
+    object-fit: contain;
+    object-position: center;
+}
+
+.sidebar-brand-copy {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    line-height: 1;
+}
+
+.sidebar-brand-copy strong {
+    display: block;
+
+    margin: 0;
+
+    color: #ffffff;
+    font-size: 1.12rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+
+    white-space: nowrap;
+}
+
+.sidebar-brand-copy small {
+    display: block;
+
+    margin-top: 9px;
+
+    color: rgba(184, 222, 222, 0.76);
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+
+    white-space: nowrap;
+}
+
+.sidebar-collapse-button {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+    border-radius: 16px;
+
+    color: rgba(190, 226, 226, 0.72);
+    background: rgba(255, 255, 255, 0.07);
+
+    cursor: pointer;
+    transition:
+        color 160ms ease,
+        background-color 160ms ease,
+        transform 160ms ease;
+}
+
+.sidebar-collapse-button:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.13);
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   ÍCONOS DEL MENÚ
+   ========================================================= */
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.sidebar-link > i {
+    width: 22px;
+    min-width: 22px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1rem;
+    line-height: 1;
+
+    color: rgba(185, 221, 221, 0.74);
+}
+
+.sidebar-link:hover > i,
+.sidebar-link.active > i {
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   SIDEBAR CONTRAÍDO
+   ========================================================= */
+
+.app-sidebar.is-collapsed .sidebar-brand-copy {
+    display: none;
+}
+
+.app-sidebar.is-collapsed .sidebar-brand-link {
+    justify-content: center;
+}
+
+.app-sidebar.is-collapsed .sidebar-logo {
+    width: 48px;
+    max-height: 48px;
+}
+
+.app-sidebar.is-collapsed .sidebar-brand {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+
+/* =========================================================
+   AJUSTE PARA TELÉFONOS
+   ========================================================= */
+
+@media (max-width: 767px) {
+    .sidebar-brand {
+        min-height: 112px;
+        padding: max(18px, env(safe-area-inset-top)) 16px 18px;
+    }
+
+    .sidebar-logo {
+        width: 82px;
+        max-height: 62px;
+    }
+
+    .sidebar-brand-copy strong {
+        font-size: 1.05rem;
+    }
+
+    .sidebar-brand-copy small {
+        font-size: 0.68rem;
+    }
+
+    .sidebar-collapse-button {
+        width: 44px;
+        height: 44px;
+        flex-basis: 44px;
+        border-radius: 14px;
+    }
+}
