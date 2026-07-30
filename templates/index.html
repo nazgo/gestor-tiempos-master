@@ -27,7 +27,7 @@
             </div>
         </div>
 
-<div class="hero-logo">
+<div class="dashboard-club-logo">
 
     <img
         src="{{ url_for('static', filename='logo.png') }}"
@@ -264,16 +264,17 @@
 
     <!-- STAFF DEPORTIVO, DIRECTIVA Y VALORES -->
     {% set staff_deportivo = [
-        {'nombre': 'Nombre del Coach', 'cargo': 'Coach principal', 'descripcion': 'Planificación deportiva, dirección técnica y acompañamiento del plantel.', 'iniciales': 'CP', 'icono': 'fa-person-swimming'},
-        {'nombre': 'Nombre del Delegado', 'cargo': 'Delegado deportivo', 'descripcion': 'Coordinación de competencias, inscripciones y comunicación con el equipo.', 'iniciales': 'DD', 'icono': 'fa-clipboard-check'},
-        {'nombre': 'Nombre de la Delegada', 'cargo': 'Delegada de competencias', 'descripcion': 'Apoyo logístico, seguimiento de eventos y organización del plantel.', 'iniciales': 'DC', 'icono': 'fa-calendar-check'}
+        {'nombre': 'Nombre Coach Principal', 'cargo': 'Coach principal', 'descripcion': 'Dirección técnica, planificación deportiva y coordinación general de entrenamientos.', 'iniciales': 'CP', 'icono': 'fa-person-swimming'},
+        {'nombre': 'Nombre Coach Asistente 1', 'cargo': 'Coach asistente', 'descripcion': 'Apoyo técnico, seguimiento de nadadores y asistencia durante las sesiones.', 'iniciales': 'CA', 'icono': 'fa-stopwatch'},
+        {'nombre': 'Nombre Coach Asistente 2', 'cargo': 'Coach asistente', 'descripcion': 'Apoyo técnico, corrección de estilos y acompañamiento del plantel.', 'iniciales': 'CA', 'icono': 'fa-water'},
+        {'nombre': 'Nombre Delegado Deportivo 1', 'cargo': 'Delegado deportivo', 'descripcion': 'Coordinación de competencias, inscripciones y comunicación con el equipo.', 'iniciales': 'DD', 'icono': 'fa-clipboard-check'},
+        {'nombre': 'Nombre Delegado Deportivo 2', 'cargo': 'Delegado deportivo', 'descripcion': 'Apoyo logístico, seguimiento de eventos y organización competitiva.', 'iniciales': 'DD', 'icono': 'fa-calendar-check'}
     ] %}
 
     {% set directiva_club = [
-        {'nombre': 'Nombre Presidente', 'cargo': 'Presidencia', 'iniciales': 'PR'},
-        {'nombre': 'Nombre Vicepresidente', 'cargo': 'Vicepresidencia', 'iniciales': 'VP'},
-        {'nombre': 'Nombre Secretario', 'cargo': 'Secretaría', 'iniciales': 'SE'},
-        {'nombre': 'Nombre Tesorero', 'cargo': 'Tesorería', 'iniciales': 'TE'}
+        {'nombre': 'Nombre Presidente', 'cargo': 'Presidente', 'iniciales': 'PR'},
+        {'nombre': 'Nombre Secretario', 'cargo': 'Secretario', 'iniciales': 'SE'},
+        {'nombre': 'Nombre Tesorero', 'cargo': 'Tesorero', 'iniciales': 'TE'}
     ] %}
 
     <section class="club-people-section mt-4">
@@ -346,6 +347,88 @@
 <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
 
 <style>
+
+/* =========================================================
+   LOGO DEL CLUB EN EL HERO DEL DASHBOARD
+   Clase exclusiva para evitar conflictos con .hero-logo
+   ========================================================= */
+.dashboard-club-logo {
+    position: relative;
+    z-index: 3;
+    width: 164px;
+    height: 142px;
+    flex: 0 0 164px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    padding: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.20);
+    border-radius: 24px;
+    background: rgba(255,255,255,.09);
+    box-shadow: 0 14px 34px rgba(0,0,0,.10);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.dashboard-club-logo img {
+    display: block !important;
+    width: 112px !important;
+    max-width: 112px !important;
+    height: 94px !important;
+    max-height: 94px !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    transform: none !important;
+}
+
+@media (max-width: 991px) {
+    .dashboard-club-logo {
+        width: 132px;
+        height: 114px;
+        flex-basis: 132px;
+        padding: 14px;
+    }
+
+    .dashboard-club-logo img {
+        width: 92px !important;
+        max-width: 92px !important;
+        height: 76px !important;
+        max-height: 76px !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .dashboard-hero {
+        position: relative;
+    }
+
+    .dashboard-club-logo {
+        position: absolute;
+        top: 18px;
+        right: 16px;
+        width: 92px;
+        height: 80px;
+        padding: 10px;
+        opacity: .28;
+        pointer-events: none;
+    }
+
+    .dashboard-club-logo img {
+        width: 68px !important;
+        max-width: 68px !important;
+        height: 56px !important;
+        max-height: 56px !important;
+    }
+
+    .dashboard-hero-copy {
+        position: relative;
+        z-index: 4;
+        max-width: calc(100% - 20px);
+    }
+}
+
 .club-people-section,.club-board-section{padding:28px;border:1px solid var(--border);border-radius:24px;background:var(--surface);box-shadow:var(--shadow-sm)}
 .club-people-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;margin-bottom:22px}
 .club-people-heading.compact{align-items:center}
@@ -353,7 +436,7 @@
 .club-people-heading h2{margin:7px 0 4px;color:var(--text-primary);font-size:1.55rem;font-weight:800;letter-spacing:-.03em}
 .club-people-heading p{max-width:720px;margin:0;color:var(--text-secondary);font-size:.84rem}
 .club-people-count{flex:0 0 auto;padding:8px 12px;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));border-radius:999px;background:var(--accent-soft);font-size:.7rem;font-weight:800}
-.staff-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.staff-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
 .staff-card{min-width:0;padding:20px;border:1px solid var(--border);border-radius:20px;background:radial-gradient(circle at 100% 0,color-mix(in srgb,var(--accent) 13%,transparent),transparent 42%),var(--surface-soft);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
 .staff-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 38%,var(--border));box-shadow:var(--shadow-md)}
 .staff-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
@@ -363,7 +446,7 @@
 .staff-card-copy span,.board-card span{color:var(--accent);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
 .staff-card-copy h3,.board-card h3{margin:5px 0 0;color:var(--text-primary);font-size:1rem;font-weight:800}
 .staff-card-copy p{margin:9px 0 0;color:var(--text-secondary);font-size:.76rem;line-height:1.55}
-.board-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.board-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .board-card{display:flex;min-width:0;align-items:center;gap:13px;padding:16px;border:1px solid var(--border);border-radius:17px;background:var(--surface-soft);transition:transform .18s ease,border-color .18s ease}
 .board-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 35%,var(--border))}
 .board-avatar{width:44px;height:44px;flex:0 0 44px;border-radius:14px;font-size:.75rem}
@@ -379,7 +462,7 @@
 .club-motto div{display:flex;flex-direction:column}
 .club-motto span{color:rgba(255,255,255,.72);font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
 .club-motto strong{margin-top:4px;font-family:"Manrope","Inter",sans-serif;font-size:1.05rem;font-weight:800}
-@media (max-width:991px){.staff-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1199px){.staff-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:991px){.staff-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:767px){.club-people-section,.club-board-section{padding:20px;border-radius:20px}.club-people-heading{align-items:flex-start;flex-direction:column;gap:12px}.club-people-heading h2{font-size:1.3rem}.staff-grid,.club-values-section{grid-template-columns:1fr}.club-motto{justify-content:flex-start;padding:20px}}
 @media (max-width:480px){.board-grid{grid-template-columns:1fr}.staff-card{padding:17px}.club-motto img{width:60px;height:48px}.club-motto strong{font-size:.92rem}}
 </style>
