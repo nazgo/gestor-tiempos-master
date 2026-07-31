@@ -163,6 +163,12 @@ def index():
             },
             'ultimos_tiempos': [],
             'proximas_competencias_lista': [],
+            'proxima_competencia_destacada': None,
+            'proximos_cumpleanos': [],
+            'cumpleanos_hoy': [],
+            'alertas': [],
+            'actividad_semana': {'tiempos': 0, 'nadadores': 0, 'pb': 0},
+            'pb_recientes': [],
         }
 
     return render_template('index.html', dashboard=dashboard)
