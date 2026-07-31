@@ -66,6 +66,199 @@
         {% endfor %}
     </section>
 
+
+    {% if dashboard.cumpleanos_hoy %}
+    <section class="birthday-celebration mb-4">
+        <div class="birthday-confetti" aria-hidden="true"></div>
+        <div class="birthday-celebration-icon"><i class="fas fa-cake-candles"></i></div>
+        <div class="birthday-celebration-copy">
+            <span>Celebración del día</span>
+            <h2>
+                {% if dashboard.cumpleanos_hoy|length == 1 %}
+                    ¡Hoy es el cumpleaños de {{ dashboard.cumpleanos_hoy[0].nombre }}!
+                {% else %}
+                    ¡Hoy celebramos {{ dashboard.cumpleanos_hoy|length }} cumpleaños!
+                {% endif %}
+            </h2>
+            <p>
+                {% for persona in dashboard.cumpleanos_hoy %}
+                    {{ persona.nombre }} cumple {{ persona.edad }} años{% if not loop.last %} · {% endif %}
+                {% endfor %}
+            </p>
+        </div>
+        {% if dashboard.cumpleanos_hoy|length == 1 %}
+        <a href="{{ url_for('ficha_nadador', nadador_id=dashboard.cumpleanos_hoy[0].id) }}" class="birthday-celebration-action">
+            Ver perfil <i class="fas fa-arrow-right"></i>
+        </a>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    <section class="dashboard-intelligence-grid mb-4">
+        <article class="dashboard-smart-card birthdays-card">
+            <header class="smart-card-header">
+                <div>
+                    <span>Próximos 30 días</span>
+                    <h2><i class="fas fa-cake-candles"></i> Cumpleaños</h2>
+                </div>
+                <strong>{{ dashboard.proximos_cumpleanos|length }}</strong>
+            </header>
+
+            <div class="birthday-list">
+                {% for persona in dashboard.proximos_cumpleanos %}
+                <a href="{{ url_for('ficha_nadador', nadador_id=persona.id) }}" class="birthday-item">
+                    <div class="birthday-date">
+                        <strong>{{ persona.fecha.strftime('%d') if persona.fecha and persona.fecha.strftime is defined else '—' }}</strong>
+                        <span>{{ persona.fecha.strftime('%b')|upper if persona.fecha and persona.fecha.strftime is defined else 'FECHA' }}</span>
+                    </div>
+                    <div class="birthday-person">
+                        <strong>{{ persona.nombre }}</strong>
+                        <span>
+                            {% if persona.dias == 0 %}
+                                Cumple hoy · {{ persona.edad }} años
+                            {% elif persona.dias == 1 %}
+                                Mañana · cumple {{ persona.edad }} años
+                            {% else %}
+                                En {{ persona.dias }} días · cumple {{ persona.edad }} años
+                            {% endif %}
+                        </span>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% else %}
+                <div class="smart-empty-state">
+                    <i class="fas fa-calendar-check"></i>
+                    <strong>Sin cumpleaños próximos</strong>
+                    <span>No hay celebraciones durante los siguientes 30 días.</span>
+                </div>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="dashboard-smart-card alerts-card">
+            <header class="smart-card-header">
+                <div>
+                    <span>Gestión del club</span>
+                    <h2><i class="fas fa-triangle-exclamation"></i> Atención requerida</h2>
+                </div>
+                <strong>{{ dashboard.alertas|length }}</strong>
+            </header>
+
+            <div class="alert-list">
+                {% for alerta in dashboard.alertas %}
+                <div class="dashboard-alert-item alert-{{ alerta.tipo }}">
+                    <div class="dashboard-alert-icon"><i class="fas {{ alerta.icono }}"></i></div>
+                    <div class="dashboard-alert-copy">
+                        <strong>{{ alerta.titulo }}</strong>
+                        <span>{{ alerta.detalle }}</span>
+                    </div>
+                    <span class="dashboard-alert-value">{{ alerta.valor }}</span>
+                </div>
+                {% else %}
+                <div class="smart-empty-state success">
+                    <i class="fas fa-circle-check"></i>
+                    <strong>Todo al día</strong>
+                    <span>No hay alertas que requieran atención en este momento.</span>
+                </div>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="dashboard-smart-card next-event-card">
+            <header class="smart-card-header">
+                <div>
+                    <span>Agenda competitiva</span>
+                    <h2><i class="fas fa-flag-checkered"></i> Próxima competencia</h2>
+                </div>
+            </header>
+
+            {% set proxima = dashboard.proxima_competencia_destacada %}
+            {% if proxima %}
+            <div class="next-event-main">
+                <div class="next-event-countdown">
+                    <strong>{{ proxima.dias_restantes if proxima.dias_restantes is not none else '—' }}</strong>
+                    <span>días</span>
+                </div>
+                <div class="next-event-copy">
+                    <span class="next-event-date">
+                        {% if proxima.fecha and proxima.fecha.strftime is defined %}
+                            {{ proxima.fecha.strftime('%d/%m/%Y') }}
+                        {% else %}
+                            {{ proxima.fecha or 'Fecha pendiente' }}
+                        {% endif %}
+                    </span>
+                    <h3>{{ proxima.nombre }}</h3>
+                    <p><i class="fas fa-location-dot"></i> {{ proxima.lugar or 'Lugar por confirmar' }}</p>
+                    <span class="next-event-pool">{{ proxima.tipo_piscina or 'Piscina por confirmar' }}</span>
+                </div>
+            </div>
+            <a href="{{ url_for('seleccionar_anio_calendario') }}" class="smart-card-action">
+                Abrir calendario <i class="fas fa-arrow-right"></i>
+            </a>
+            {% else %}
+            <div class="smart-empty-state">
+                <i class="fas fa-calendar-plus"></i>
+                <strong>Sin competencia próxima</strong>
+                <span>La siguiente competencia aparecerá aquí cuando sea registrada.</span>
+            </div>
+            {% endif %}
+        </article>
+    </section>
+
+    <section class="row g-4 mb-4 dashboard-weekly-section">
+        <div class="col-xl-5">
+            <article class="dashboard-panel h-100 weekly-pulse-panel">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Pulso semanal</span>
+                        <h2>Actividad de los últimos 7 días</h2>
+                        <p>Resumen de movimiento reciente en la plataforma.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-heart-pulse"></i></div>
+                </header>
+                <div class="weekly-pulse-grid">
+                    <div class="weekly-stat"><i class="fas fa-stopwatch"></i><strong>{{ dashboard.actividad_semana.tiempos }}</strong><span>Tiempos</span></div>
+                    <div class="weekly-stat"><i class="fas fa-person-swimming"></i><strong>{{ dashboard.actividad_semana.nadadores }}</strong><span>Nadadores</span></div>
+                    <div class="weekly-stat"><i class="fas fa-medal"></i><strong>{{ dashboard.actividad_semana.pb }}</strong><span>Nuevos PB</span></div>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-xl-7">
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Últimos 30 días</span>
+                        <h2>Récords personales recientes</h2>
+                        <p>Marcas que superaron el mejor registro anterior del nadador.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-medal"></i></div>
+                </header>
+                <div class="recent-pb-list">
+                    {% for pb in dashboard.pb_recientes %}
+                    <div class="recent-pb-item">
+                        <div class="recent-pb-medal"><i class="fas fa-trophy"></i></div>
+                        <div class="recent-pb-copy">
+                            <strong>{{ pb.nombre_nadador }}</strong>
+                            <span>{{ pb.estilo }} · {{ pb.distancia }} m · {{ pb.piscina }}</span>
+                        </div>
+                        <div class="recent-pb-result">
+                            <strong>{{ pb.tiempo }}</strong>
+                            <span>{% if pb.fecha and pb.fecha.strftime is defined %}{{ pb.fecha.strftime('%d/%m/%Y') }}{% else %}{{ pb.fecha }}{% endif %}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="smart-empty-state compact">
+                        <i class="fas fa-stopwatch"></i>
+                        <strong>Sin PB recientes</strong>
+                        <span>Los nuevos récords personales de los últimos 30 días aparecerán aquí.</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </article>
+        </div>
+    </section>
+
     <section class="row g-4 mb-4">
         <div class="col-xl-8">
             <article class="dashboard-panel h-100">
