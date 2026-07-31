@@ -770,3 +770,212 @@
         height: 54px;
     }
 }
+
+/* =========================================================
+   DASHBOARD INTELIGENTE 4.0
+   Cumpleaños, alertas, próxima competencia y actividad
+   ========================================================= */
+.dashboard-intelligence-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:18px;
+}
+.dashboard-smart-card{
+    overflow:hidden;
+    border:1px solid var(--border);
+    border-radius:22px;
+    background:var(--surface);
+    box-shadow:var(--shadow-sm);
+}
+.smart-card-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:18px 20px;
+    border-bottom:1px solid var(--border);
+}
+.smart-card-header>div{min-width:0}
+.smart-card-header span{
+    color:var(--accent);
+    font-size:.62rem;
+    font-weight:800;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+}
+.smart-card-header h2{
+    margin:4px 0 0;
+    color:var(--text-primary);
+    font-size:1rem;
+    font-weight:800;
+}
+.smart-card-header h2 i{margin-right:6px;color:var(--accent)}
+.smart-card-header>strong{
+    display:inline-flex;
+    min-width:34px;
+    height:34px;
+    align-items:center;
+    justify-content:center;
+    color:var(--accent);
+    border-radius:11px;
+    background:var(--accent-soft);
+    font-size:.8rem;
+}
+.birthday-list,.alert-list,.recent-pb-list{padding:8px 16px 14px}
+.birthday-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 0;
+    color:inherit;
+    border-bottom:1px solid var(--border);
+    text-decoration:none;
+}
+.birthday-item:last-child{border-bottom:0}
+.birthday-item:hover .birthday-person strong{color:var(--accent)}
+.birthday-date{
+    display:flex;
+    width:48px;
+    height:52px;
+    flex:0 0 48px;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    border-radius:13px;
+    background:linear-gradient(135deg,#e0a72f,#f2c96b);
+    box-shadow:0 8px 20px rgba(224,167,47,.22);
+}
+.birthday-date strong{font-size:1rem;line-height:1}
+.birthday-date span{margin-top:4px;font-size:.52rem;font-weight:850;letter-spacing:.06em}
+.birthday-person{display:flex;min-width:0;flex:1;flex-direction:column}
+.birthday-person strong{overflow:hidden;color:var(--text-primary);font-size:.77rem;text-overflow:ellipsis;white-space:nowrap;transition:color .16s ease}
+.birthday-person span{margin-top:4px;color:var(--text-secondary);font-size:.64rem}
+.birthday-item>i{color:var(--text-secondary);font-size:.7rem}
+.dashboard-alert-item{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    margin:8px 0;
+    padding:11px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:var(--surface-soft);
+}
+.dashboard-alert-icon{
+    display:inline-flex;
+    width:38px;
+    height:38px;
+    flex:0 0 38px;
+    align-items:center;
+    justify-content:center;
+    border-radius:12px;
+}
+.dashboard-alert-copy{display:flex;min-width:0;flex:1;flex-direction:column}
+.dashboard-alert-copy strong{color:var(--text-primary);font-size:.72rem}
+.dashboard-alert-copy span{margin-top:3px;color:var(--text-secondary);font-size:.62rem;line-height:1.35}
+.dashboard-alert-value{
+    display:inline-flex;
+    min-width:30px;
+    height:30px;
+    align-items:center;
+    justify-content:center;
+    border-radius:9px;
+    font-size:.7rem;
+    font-weight:850;
+}
+.alert-warning .dashboard-alert-icon,.alert-warning .dashboard-alert-value{color:#9b6d0c;background:#fff3d2}
+.alert-danger .dashboard-alert-icon,.alert-danger .dashboard-alert-value{color:#b63d3d;background:#ffe4e4}
+.alert-info .dashboard-alert-icon,.alert-info .dashboard-alert-value{color:#2878c7;background:#e6f2ff}
+html[data-theme="dark"] .alert-warning .dashboard-alert-icon,html[data-theme="dark"] .alert-warning .dashboard-alert-value{background:#3a2d0b}
+html[data-theme="dark"] .alert-danger .dashboard-alert-icon,html[data-theme="dark"] .alert-danger .dashboard-alert-value{background:#3a1818}
+html[data-theme="dark"] .alert-info .dashboard-alert-icon,html[data-theme="dark"] .alert-info .dashboard-alert-value{background:#152a3f}
+.next-event-main{display:flex;align-items:center;gap:16px;padding:22px 20px 16px}
+.next-event-countdown{
+    display:flex;
+    width:78px;
+    height:78px;
+    flex:0 0 78px;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    border-radius:22px;
+    background:linear-gradient(135deg,#007f81,#00b8ba);
+    box-shadow:0 12px 26px rgba(0,127,129,.22);
+}
+.next-event-countdown strong{font-size:1.65rem;line-height:1}
+.next-event-countdown span{margin-top:5px;font-size:.6rem;font-weight:800;text-transform:uppercase}
+.next-event-copy{min-width:0}
+.next-event-date{color:var(--accent);font-size:.62rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.next-event-copy h3{margin:5px 0 6px;color:var(--text-primary);font-size:1rem;font-weight:800}
+.next-event-copy p{margin:0;color:var(--text-secondary);font-size:.68rem}
+.next-event-pool{display:inline-flex;margin-top:9px;padding:.34rem .5rem;color:var(--accent);border-radius:8px;background:var(--accent-soft);font-size:.62rem;font-weight:750}
+.smart-card-action{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    margin:0 16px 16px;
+    padding:10px;
+    color:var(--accent);
+    border:1px solid var(--border);
+    border-radius:11px;
+    background:var(--surface-soft);
+    font-size:.7rem;
+    font-weight:800;
+    text-decoration:none;
+}
+.smart-card-action:hover{color:#fff;border-color:var(--accent);background:var(--accent)}
+.smart-empty-state{
+    display:flex;
+    min-height:180px;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    color:var(--text-secondary);
+    text-align:center;
+}
+.smart-empty-state.compact{min-height:150px}
+.smart-empty-state i{margin-bottom:11px;color:var(--accent);font-size:1.45rem}
+.smart-empty-state strong{color:var(--text-primary);font-size:.78rem}
+.smart-empty-state span{max-width:290px;margin-top:5px;font-size:.65rem;line-height:1.45}
+.smart-empty-state.success i{color:var(--success)}
+.birthday-celebration{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    overflow:hidden;
+    padding:22px 24px;
+    color:#fff;
+    border-radius:22px;
+    background:linear-gradient(135deg,#8b5c00,#d39b21 54%,#f0c35b);
+    box-shadow:0 16px 36px rgba(185,132,24,.22);
+}
+.birthday-celebration:after{position:absolute;right:-60px;top:-100px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.12);content:""}
+.birthday-celebration-icon{position:relative;z-index:1;display:inline-flex;width:58px;height:58px;flex:0 0 58px;align-items:center;justify-content:center;border-radius:17px;background:rgba(255,255,255,.17);font-size:1.35rem}
+.birthday-celebration-copy{position:relative;z-index:1;min-width:0;flex:1}
+.birthday-celebration-copy span{font-size:.64rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;opacity:.78}
+.birthday-celebration-copy h2{margin:5px 0 4px;font-size:1.22rem;font-weight:850}
+.birthday-celebration-copy p{margin:0;font-size:.72rem;opacity:.86}
+.birthday-celebration-action{position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;padding:10px 13px;color:#8b5c00;border-radius:11px;background:#fff;font-size:.7rem;font-weight:800;text-decoration:none}
+.weekly-pulse-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:18px}
+.weekly-stat{display:flex;min-width:0;flex-direction:column;align-items:center;padding:18px 10px;border:1px solid var(--border);border-radius:16px;background:var(--surface-soft);text-align:center}
+.weekly-stat i{color:var(--accent);font-size:1rem}
+.weekly-stat strong{margin-top:10px;color:var(--text-primary);font-size:1.35rem;line-height:1}
+.weekly-stat span{margin-top:6px;color:var(--text-secondary);font-size:.62rem;font-weight:700}
+.recent-pb-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.recent-pb-item:last-child{border-bottom:0}
+.recent-pb-medal{display:inline-flex;width:40px;height:40px;flex:0 0 40px;align-items:center;justify-content:center;color:#a97913;border-radius:12px;background:#fff2cc}
+html[data-theme="dark"] .recent-pb-medal{background:#352a0d}
+.recent-pb-copy{display:flex;min-width:0;flex:1;flex-direction:column}
+.recent-pb-copy strong{overflow:hidden;color:var(--text-primary);font-size:.73rem;text-overflow:ellipsis;white-space:nowrap}
+.recent-pb-copy span{margin-top:4px;color:var(--text-secondary);font-size:.62rem}
+.recent-pb-result{display:flex;flex-direction:column;align-items:flex-end}
+.recent-pb-result strong{color:var(--success);font-size:.8rem;font-weight:850}
+.recent-pb-result span{margin-top:4px;color:var(--text-secondary);font-size:.58rem}
+@media(max-width:1199px){.dashboard-intelligence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.next-event-card{grid-column:1/-1}}
+@media(max-width:767px){.dashboard-intelligence-grid{grid-template-columns:1fr}.next-event-card{grid-column:auto}.birthday-celebration{align-items:flex-start;flex-wrap:wrap;padding:20px}.birthday-celebration-action{width:100%;justify-content:center}.weekly-pulse-grid{grid-template-columns:1fr}.next-event-main{align-items:flex-start}.smart-card-header{padding:16px}.birthday-list,.alert-list,.recent-pb-list{padding-inline:14px}}
+@media(max-width:480px){.next-event-main{flex-direction:column}.next-event-countdown{width:68px;height:68px;flex-basis:68px}.birthday-celebration-icon{width:50px;height:50px;flex-basis:50px}.birthday-celebration-copy h2{font-size:1rem}}
