@@ -1360,27 +1360,43 @@ class GestorTiemposMaster:
     
         return competencias
 
+
     def obtener_tabla_asistencia(self, anio):
+        """
+        Construye la matriz de asistencia del año e incluye:
+
+        - nadadores y su categoría;
+        - competencias del año;
+        - indicador de competencia transcurrida;
+        - estado por nadador/competencia;
+        - porcentaje individual;
+        - resumen general para los KPI del template.
+        """
+
+        hoy = date.today()
+
+        # ---------------------------------------------------------
+        # Nadadores
+        # ---------------------------------------------------------
         cursor_nadadores = self._execute("""
             SELECT
                 id,
                 nombre,
-                apellido
+                apellido,
+                categoria_master
             FROM nadadores
             ORDER BY apellido ASC, nombre ASC
         """, commit=False)
-    
-        filas_nadadores = cursor_nadadores.fetchall()
-    
+
         nadadores = [
-            self._row_to_dict(
-                fila,
-                cursor_nadadores
-            )
-            for fila in filas_nadadores
+            self._row_to_dict(fila, cursor_nadadores)
+            for fila in cursor_nadadores.fetchall()
             if fila
         ]
-    
+
+        # ---------------------------------------------------------
+        # Competencias del año
+        # ---------------------------------------------------------
         cursor_competencias = self._execute("""
             SELECT
                 id,
@@ -1389,35 +1405,49 @@ class GestorTiemposMaster:
             FROM competencias
             WHERE EXTRACT(YEAR FROM fecha) = ?
             ORDER BY fecha ASC, id ASC
-        """, (
-            anio,
-        ), commit=False)
-    
-        filas_competencias = (
-            cursor_competencias.fetchall()
-        )
-    
+        """, (anio,), commit=False)
+
         competencias = [
-            self._row_to_dict(
-                fila,
-                cursor_competencias
-            )
-            for fila in filas_competencias
+            self._row_to_dict(fila, cursor_competencias)
+            for fila in cursor_competencias.fetchall()
             if fila
         ]
-    
+
+        for competencia in competencias:
+            fecha_competencia = competencia.get('fecha')
+
+            if isinstance(fecha_competencia, datetime):
+                fecha_competencia = fecha_competencia.date()
+
+            elif isinstance(fecha_competencia, str):
+                try:
+                    fecha_competencia = datetime.strptime(
+                        fecha_competencia[:10],
+                        '%Y-%m-%d'
+                    ).date()
+                except (TypeError, ValueError):
+                    fecha_competencia = None
+
+            competencia['transcurrida'] = bool(
+                fecha_competencia
+                and fecha_competencia <= hoy
+            )
+
         ids_competencias = [
             competencia['id']
             for competencia in competencias
         ]
-    
+
+        # ---------------------------------------------------------
+        # Estados registrados
+        # ---------------------------------------------------------
         asistencias = {}
-    
+
         if ids_competencias:
             placeholders = ", ".join(
                 ["?"] * len(ids_competencias)
             )
-    
+
             cursor_asistencias = self._execute(
                 f"""
                 SELECT
@@ -1425,33 +1455,112 @@ class GestorTiemposMaster:
                     competencia_id,
                     estado
                 FROM asistencia_competencias
-                WHERE competencia_id IN (
-                    {placeholders}
-                )
+                WHERE competencia_id IN ({placeholders})
                 """,
                 tuple(ids_competencias),
                 commit=False
             )
-    
+
             for fila in cursor_asistencias.fetchall():
                 registro = self._row_to_dict(
                     fila,
                     cursor_asistencias
                 )
-    
+
                 clave = (
                     registro['nadador_id'],
                     registro['competencia_id']
                 )
-    
+
                 asistencias[clave] = (
-                    registro['estado']
+                    registro.get('estado')
+                    or 'SIN_REGISTRO'
                 )
-    
+
+        # ---------------------------------------------------------
+        # Indicadores individuales
+        # ---------------------------------------------------------
+        competencias_transcurridas = [
+            competencia
+            for competencia in competencias
+            if competencia.get('transcurrida')
+        ]
+
+        porcentajes_validos = []
+        asistencia_completa = 0
+        asistencia_baja = 0
+
+        for nadador in nadadores:
+            presentes = 0
+            ausentes = 0
+            pendientes = 0
+            aplicables = 0
+
+            for competencia in competencias_transcurridas:
+                estado = asistencias.get(
+                    (
+                        nadador['id'],
+                        competencia['id']
+                    ),
+                    'SIN_REGISTRO'
+                )
+
+                if estado == 'NO_APLICA':
+                    continue
+
+                aplicables += 1
+
+                if estado == 'PRESENTE':
+                    presentes += 1
+                elif estado == 'AUSENTE':
+                    ausentes += 1
+                else:
+                    pendientes += 1
+
+            porcentaje = (
+                round((presentes / aplicables) * 100)
+                if aplicables > 0
+                else 0
+            )
+
+            nadador['asistencias_presentes'] = presentes
+            nadador['asistencias_ausentes'] = ausentes
+            nadador['asistencias_pendientes'] = pendientes
+            nadador['competencias_aplicables'] = aplicables
+            nadador['porcentaje_asistencia'] = porcentaje
+
+            if aplicables > 0:
+                porcentajes_validos.append(porcentaje)
+
+                if porcentaje == 100:
+                    asistencia_completa += 1
+
+                if porcentaje < 50:
+                    asistencia_baja += 1
+
+        asistencia_promedio = (
+            round(
+                sum(porcentajes_validos)
+                / len(porcentajes_validos)
+            )
+            if porcentajes_validos
+            else 0
+        )
+
+        resumen = {
+            'competencias_transcurridas': len(
+                competencias_transcurridas
+            ),
+            'asistencia_promedio': asistencia_promedio,
+            'asistencia_completa': asistencia_completa,
+            'asistencia_baja': asistencia_baja,
+        }
+
         return {
             'nadadores': nadadores,
             'competencias': competencias,
-            'asistencias': asistencias
+            'asistencias': asistencias,
+            'resumen': resumen,
         }
 
     def actualizar_asistencia(
