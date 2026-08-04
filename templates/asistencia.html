@@ -48,110 +48,46 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
     </section>
 
     <!-- Resumen -->
-    <section class="row g-3 mb-4">
-
-        <div class="col-sm-6 col-xl-3">
-
+    <section class="row g-3 mb-4 attendance-kpis">
+        <div class="col-6 col-xl-3">
             <article class="summary-card h-100">
-
-                <div class="summary-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-
+                <div class="summary-icon"><i class="fas fa-flag-checkered"></i></div>
                 <div>
-
-                    <div class="summary-number">
-                        {{ nadadores|length }}
-                    </div>
-
-                    <div class="summary-label">
-                        Nadadores registrados
-                    </div>
-
+                    <div class="summary-number">{{ resumen_asistencia.competencias_transcurridas }}</div>
+                    <div class="summary-label">Competencias transcurridas</div>
                 </div>
-
             </article>
-
         </div>
 
-        <div class="col-sm-6 col-xl-3">
-
+        <div class="col-6 col-xl-3">
             <article class="summary-card h-100">
-
-                <div class="summary-icon">
-                    <i class="fas fa-flag-checkered"></i>
-                </div>
-
+                <div class="summary-icon summary-icon-success"><i class="fas fa-chart-line"></i></div>
                 <div>
-
-                    <div class="summary-number">
-                        {{ competencias|length }}
-                    </div>
-
-                    <div class="summary-label">
-                        Competencias
-                    </div>
-
+                    <div class="summary-number">{{ resumen_asistencia.asistencia_promedio }}%</div>
+                    <div class="summary-label">Asistencia promedio</div>
                 </div>
-
             </article>
-
         </div>
 
-        <div class="col-sm-6 col-xl-3">
-
+        <div class="col-6 col-xl-3">
             <article class="summary-card h-100">
-
-                <div class="summary-icon summary-icon-success">
-                    <i class="fas fa-check"></i>
-                </div>
-
+                <div class="summary-icon summary-icon-success"><i class="fas fa-award"></i></div>
                 <div>
-
-                    <div
-                        class="summary-number"
-                        id="contadorPresentes"
-                    >
-                        0
-                    </div>
-
-                    <div class="summary-label">
-                        Participaciones marcadas
-                    </div>
-
+                    <div class="summary-number">{{ resumen_asistencia.asistencia_completa }}</div>
+                    <div class="summary-label">Con 100% de asistencia</div>
                 </div>
-
             </article>
-
         </div>
 
-        <div class="col-sm-6 col-xl-3">
-
+        <div class="col-6 col-xl-3">
             <article class="summary-card h-100">
-
-                <div class="summary-icon summary-icon-pending">
-                    <i class="far fa-circle"></i>
-                </div>
-
+                <div class="summary-icon summary-icon-warning"><i class="fas fa-triangle-exclamation"></i></div>
                 <div>
-
-                    <div
-                        class="summary-number"
-                        id="contadorPendientes"
-                    >
-                        0
-                    </div>
-
-                    <div class="summary-label">
-                        Registros pendientes
-                    </div>
-
+                    <div class="summary-number">{{ resumen_asistencia.asistencia_baja }}</div>
+                    <div class="summary-label">Bajo 50% de asistencia</div>
                 </div>
-
             </article>
-
         </div>
-
     </section>
 
     <!-- Barra de herramientas -->
@@ -175,40 +111,41 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
             </div>
 
-            <div class="toolbar-actions">
-
+            <div class="toolbar-actions attendance-filters">
                 <div class="nadador-search">
-
                     <i class="fas fa-search"></i>
-
-                    <input
-                        type="search"
-                        id="buscarNadador"
-                        class="form-control"
-                        placeholder="Buscar nadador..."
-                        autocomplete="off"
-                    >
-
-                    <button
-                        type="button"
-                        id="limpiarBusqueda"
-                        class="search-clear d-none"
-                        title="Limpiar búsqueda"
-                        aria-label="Limpiar búsqueda"
-                    >
+                    <input type="search" id="buscarNadador" class="form-control" placeholder="Buscar nadador..." autocomplete="off">
+                    <button type="button" id="limpiarBusqueda" class="search-clear d-none" title="Limpiar búsqueda" aria-label="Limpiar búsqueda">
                         <i class="fas fa-times"></i>
                     </button>
-
                 </div>
 
-                <a
-                    href="{{ url_for('seleccionar_anio_asistencias') }}"
-                    class="btn btn-change-year"
-                >
+                <select id="filtroAsistencia" class="form-select attendance-filter-select" aria-label="Filtrar por asistencia">
+                    <option value="todos">Todos los nadadores</option>
+                    <option value="asistieron">Con alguna asistencia</option>
+                    <option value="no-asistieron">Sin asistencias</option>
+                    <option value="completa">100% de asistencia</option>
+                    <option value="alta">80% o más</option>
+                    <option value="media">50% a 79%</option>
+                    <option value="baja">Menos de 50%</option>
+                    <option value="pendientes">Con registros pendientes</option>
+                </select>
+
+                <select id="ordenAsistencia" class="form-select attendance-filter-select" aria-label="Ordenar asistencia">
+                    <option value="nombre">Orden alfabético</option>
+                    <option value="mayor">Mayor asistencia</option>
+                    <option value="menor">Menor asistencia</option>
+                </select>
+
+                <button type="button" id="limpiarFiltros" class="btn btn-clear-filters">
+                    <i class="fas fa-filter-circle-xmark"></i>
+                    Limpiar
+                </button>
+
+                <a href="{{ url_for('seleccionar_anio_asistencias') }}" class="btn btn-change-year">
                     <i class="fas fa-calendar-alt me-1"></i>
                     Cambiar año
                 </a>
-
             </div>
 
         </div>
@@ -345,6 +282,13 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
                         {% endfor %}
 
+                        <th class="percentage-column">
+                            <div class="percentage-header">
+                                <i class="fas fa-percent"></i>
+                                Asistencia
+                            </div>
+                        </th>
+
                     </tr>
 
                 </thead>
@@ -353,7 +297,12 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
                     {% for nadador in nadadores %}
 
-                    <tr class="swimmer-row">
+                    <tr class="swimmer-row"
+                        data-nombre="{{ nadador.apellido }} {{ nadador.nombre }} {{ nadador.categoria_master or '' }}"
+                        data-porcentaje="{{ nadador.porcentaje_asistencia }}"
+                        data-presentes="{{ nadador.asistencias_presentes }}"
+                        data-ausentes="{{ nadador.asistencias_ausentes }}"
+                        data-pendientes="{{ nadador.asistencias_pendientes }}">
 
                         <td class="swimmer-column">
 
@@ -418,6 +367,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                                 data-nadador-id="{{ nadador.id }}"
                                 data-competencia-id="{{ competencia.id }}"
                                 data-estado="{{ estado }}"
+                                data-transcurrida="{{ 1 if competencia.transcurrida else 0 }}"
                                 title="
                                     {% if estado == 'PRESENTE' %}
                                         Participó
@@ -464,6 +414,25 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
                         {% endfor %}
 
+                        <td class="percentage-column percentage-cell">
+                            <div class="attendance-percentage-wrap">
+                                <div class="attendance-percentage-top">
+                                    <strong class="attendance-percentage-value">{{ nadador.porcentaje_asistencia }}%</strong>
+                                    <span class="attendance-percentage-detail">
+                                        {{ nadador.asistencias_presentes }}/{{ nadador.competencias_aplicables }}
+                                    </span>
+                                </div>
+                                <div class="attendance-progress" aria-hidden="true">
+                                    <span style="width: {{ nadador.porcentaje_asistencia }}%"></span>
+                                </div>
+                                {% if nadador.asistencias_pendientes > 0 %}
+                                <small class="attendance-pending-label">
+                                    {{ nadador.asistencias_pendientes }} pendiente{% if nadador.asistencias_pendientes != 1 %}s{% endif %}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </td>
+
                     </tr>
 
                     {% else %}
@@ -471,7 +440,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                     <tr>
 
                         <td
-                            colspan="{{ competencias|length + 1 }}"
+                            colspan="{{ competencias|length + 2 }}"
                         >
 
                             <div class="empty-state">
@@ -1439,6 +1408,160 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
         background: #007d7f;
     }
 
+    /* Corrección de columnas fijas y porcentaje */
+    .attendance-table-container {
+        position: relative;
+        isolation: isolate;
+    }
+
+    .swimmer-column {
+        min-width: 260px;
+        max-width: 260px;
+        width: 260px;
+        overflow: hidden;
+        box-shadow: 8px 0 14px -12px rgba(20, 54, 56, .75);
+    }
+
+    tbody .swimmer-column {
+        z-index: 6;
+        background: #f1f9f9 !important;
+    }
+
+    .swimmer-row:nth-child(even) .swimmer-column {
+        background: #e9f5f5 !important;
+    }
+
+    .swimmer-row:hover .swimmer-column {
+        background: #dff2f2 !important;
+    }
+
+    .swimmer-cell,
+    .swimmer-data {
+        min-width: 0;
+    }
+
+    .swimmer-data {
+        flex: 1;
+    }
+
+    .percentage-column {
+        position: sticky;
+        right: 0;
+        z-index: 6;
+        width: 146px;
+        min-width: 146px;
+        max-width: 146px;
+        border-left: 1px solid #d1e2e2 !important;
+        background: #ffffff !important;
+        box-shadow: -8px 0 14px -12px rgba(20, 54, 56, .75);
+    }
+
+    thead .percentage-column {
+        z-index: 9;
+        background: #007d7f !important;
+    }
+
+    .swimmer-row:nth-child(even) .percentage-column {
+        background: #f8fbfb !important;
+    }
+
+    .swimmer-row:hover .percentage-column {
+        background: #f1fbfb !important;
+    }
+
+    .percentage-header {
+        display: flex;
+        min-height: 72px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 5px;
+        font-size: .66rem;
+        font-weight: 800;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .attendance-percentage-wrap {
+        padding: 4px 8px;
+    }
+
+    .attendance-percentage-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 6px;
+    }
+
+    .attendance-percentage-value {
+        color: #007d7f;
+        font-size: .78rem;
+    }
+
+    .attendance-percentage-detail {
+        color: #849294;
+        font-size: .56rem;
+    }
+
+    .attendance-progress {
+        height: 6px;
+        margin-top: 5px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #dfeaea;
+    }
+
+    .attendance-progress span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #009294, #24c2a0);
+        transition: width .25s ease;
+    }
+
+    .attendance-pending-label {
+        display: block;
+        margin-top: 4px;
+        color: #a66f12;
+        font-size: .53rem;
+        white-space: nowrap;
+    }
+
+    .attendance-filters {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .attendance-filter-select {
+        width: 185px;
+        min-height: 42px;
+        border-color: #d7e7e7;
+        border-radius: 11px;
+        font-size: .72rem;
+    }
+
+    .btn-clear-filters {
+        min-height: 42px;
+        color: #607173;
+        border: 1px solid #d7e4e4;
+        border-radius: 10px;
+        background: #f5f9f9;
+        font-size: .72rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .btn-clear-filters:hover {
+        color: #fff;
+        border-color: #647477;
+        background: #647477;
+    }
+
+    .summary-icon-warning {
+        color: #b06f13;
+        background: #fff4df;
+    }
+
     /* Responsive */
     @media (max-width: 991px) {
         .table-scroll-hint {
@@ -1490,8 +1613,8 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
         }
 
         .swimmer-column {
-            min-width: 180px;
-            max-width: 180px;
+            min-width: 235px;
+            max-width: 235px;
         }
 
         .competition-column {
@@ -1524,8 +1647,8 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
         }
 
         .swimmer-column {
-            min-width: 160px;
-            max-width: 160px;
+            min-width: 220px;
+            max-width: 220px;
         }
 
         .swimmer-avatar {
@@ -1558,6 +1681,11 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
             document.getElementById(
                 "limpiarBusqueda"
             );
+
+        const filtroAsistencia = document.getElementById("filtroAsistencia");
+        const ordenAsistencia = document.getElementById("ordenAsistencia");
+        const limpiarFiltros = document.getElementById("limpiarFiltros");
+        const cuerpoTabla = document.querySelector("#tablaAsistencia tbody");
 
         const filas =
             document.querySelectorAll(
@@ -1815,6 +1943,8 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                         );
 
                         actualizarContadores();
+                        actualizarPorcentajeFila(boton.closest(".swimmer-row"));
+                        aplicarFiltros();
 
                         mostrarEstadoGuardado(
                             "correcto",
@@ -1855,59 +1985,113 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
             );
         });
 
-        function aplicarBusqueda() {
-            if (!buscador) {
-                return;
-            }
+        function actualizarPorcentajeFila(fila) {
+            const botonesFila = fila.querySelectorAll(".attendance-button[data-transcurrida='1']");
+            let presentes = 0;
+            let aplicables = 0;
+            let ausentes = 0;
+            let pendientes = 0;
 
-            const texto =
-                buscador.value
-                    .toLowerCase()
-                    .trim();
-
-            let visibles = 0;
-
-            filas.forEach(function (fila) {
-                const contenido =
-                    fila.textContent
-                        .toLowerCase()
-                        .trim();
-
-                const coincide =
-                    contenido.includes(texto);
-
-                fila.style.display =
-                    coincide ? "" : "none";
-
-                if (coincide) {
-                    visibles++;
-                }
+            botonesFila.forEach(function (boton) {
+                const estado = boton.dataset.estado;
+                if (estado === "NO_APLICA") return;
+                aplicables++;
+                if (estado === "PRESENTE") presentes++;
+                else if (estado === "AUSENTE") ausentes++;
+                else pendientes++;
             });
 
-            if (cantidadVisible) {
-                cantidadVisible.textContent =
-                    visibles;
-            }
+            const porcentaje = aplicables > 0
+                ? Math.round((presentes / aplicables) * 100)
+                : 0;
 
-            if (limpiarBusqueda) {
-                limpiarBusqueda.classList.toggle(
-                    "d-none",
-                    texto === ""
-                );
-            }
+            fila.dataset.porcentaje = porcentaje;
+            fila.dataset.presentes = presentes;
+            fila.dataset.ausentes = ausentes;
+            fila.dataset.pendientes = pendientes;
 
-            if (sinResultados) {
-                sinResultados.classList.toggle(
-                    "d-none",
-                    visibles > 0 || texto === ""
-                );
+            const valor = fila.querySelector(".attendance-percentage-value");
+            const detalle = fila.querySelector(".attendance-percentage-detail");
+            const barra = fila.querySelector(".attendance-progress span");
+            const pendiente = fila.querySelector(".attendance-pending-label");
+
+            if (valor) valor.textContent = porcentaje + "%";
+            if (detalle) detalle.textContent = presentes + "/" + aplicables;
+            if (barra) barra.style.width = porcentaje + "%";
+            if (pendiente) {
+                pendiente.textContent = pendientes + " pendiente" + (pendientes === 1 ? "" : "s");
+                pendiente.style.display = pendientes > 0 ? "block" : "none";
             }
+        }
+
+        function coincideFiltro(fila, filtro) {
+            const porcentaje = Number(fila.dataset.porcentaje || 0);
+            const presentes = Number(fila.dataset.presentes || 0);
+            const pendientes = Number(fila.dataset.pendientes || 0);
+
+            if (filtro === "asistieron") return presentes > 0;
+            if (filtro === "no-asistieron") return presentes === 0;
+            if (filtro === "completa") return porcentaje === 100;
+            if (filtro === "alta") return porcentaje >= 80;
+            if (filtro === "media") return porcentaje >= 50 && porcentaje < 80;
+            if (filtro === "baja") return porcentaje < 50;
+            if (filtro === "pendientes") return pendientes > 0;
+            return true;
+        }
+
+        function ordenarFilas() {
+            if (!cuerpoTabla || !ordenAsistencia) return;
+            const filasArray = Array.from(filas);
+            const orden = ordenAsistencia.value;
+
+            filasArray.sort(function (a, b) {
+                if (orden === "mayor") {
+                    return Number(b.dataset.porcentaje || 0) - Number(a.dataset.porcentaje || 0);
+                }
+                if (orden === "menor") {
+                    return Number(a.dataset.porcentaje || 0) - Number(b.dataset.porcentaje || 0);
+                }
+                return (a.dataset.nombre || "").localeCompare(
+                    b.dataset.nombre || "",
+                    "es",
+                    { sensitivity: "base" }
+                );
+            });
+
+            filasArray.forEach(function (fila) {
+                cuerpoTabla.appendChild(fila);
+            });
+        }
+
+        function aplicarFiltros() {
+            const texto = buscador
+                ? buscador.value.toLowerCase().trim()
+                : "";
+            const filtro = filtroAsistencia
+                ? filtroAsistencia.value
+                : "todos";
+            let visibles = 0;
+
+            ordenarFilas();
+
+            filas.forEach(function (fila) {
+                const nombre = (fila.dataset.nombre || "").toLowerCase();
+                const coincideTexto = nombre.includes(texto);
+                const coincideEstado = coincideFiltro(fila, filtro);
+                const visible = coincideTexto && coincideEstado;
+                fila.style.display = visible ? "" : "none";
+                if (visible) visibles++;
+            });
+
+            if (cantidadVisible) cantidadVisible.textContent = visibles;
+            if (limpiarBusqueda) limpiarBusqueda.classList.toggle("d-none", texto === "");
+            if (sinResultados) sinResultados.classList.toggle("d-none", visibles > 0);
         }
 
         if (buscador) {
             buscador.addEventListener(
                 "input",
-                aplicarBusqueda
+                aplicarFiltros
             );
         }
 
@@ -1917,11 +2101,30 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                 function () {
                     buscador.value = "";
                     buscador.focus();
-                    aplicarBusqueda();
+                    aplicarFiltros();
                 }
             );
         }
 
+        if (filtroAsistencia) {
+            filtroAsistencia.addEventListener("change", aplicarFiltros);
+        }
+
+        if (ordenAsistencia) {
+            ordenAsistencia.addEventListener("change", aplicarFiltros);
+        }
+
+        if (limpiarFiltros) {
+            limpiarFiltros.addEventListener("click", function () {
+                if (buscador) buscador.value = "";
+                if (filtroAsistencia) filtroAsistencia.value = "todos";
+                if (ordenAsistencia) ordenAsistencia.value = "nombre";
+                aplicarFiltros();
+            });
+        }
+
+        filas.forEach(actualizarPorcentajeFila);
+        aplicarFiltros();
         actualizarContadores();
     });
 </script>
