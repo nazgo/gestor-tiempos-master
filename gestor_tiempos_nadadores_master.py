@@ -7,7 +7,7 @@ Sistema de Gestión de Tiempos para Nadadores Master de Nivel Competitivo
 import os
 import csv
 import re
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 from typing import Optional, List, Dict, Any
 
 try:
@@ -1361,63 +1361,75 @@ class GestorTiemposMaster:
         return competencias
 
     def obtener_tabla_asistencia(self, anio):
+        """
+        Construye la matriz de asistencia del año y calcula indicadores
+        por nadador usando únicamente competencias cuya fecha ya transcurrió.
+
+        Para el porcentaje:
+        - PRESENTE cuenta como asistencia.
+        - AUSENTE y SIN_REGISTRO cuentan dentro de las competencias aplicables.
+        - NO_APLICA se excluye del denominador.
+        """
         cursor_nadadores = self._execute("""
             SELECT
                 id,
                 nombre,
-                apellido
+                apellido,
+                categoria_master
             FROM nadadores
             ORDER BY apellido ASC, nombre ASC
         """, commit=False)
-    
+
         filas_nadadores = cursor_nadadores.fetchall()
-    
         nadadores = [
-            self._row_to_dict(
-                fila,
-                cursor_nadadores
-            )
+            self._row_to_dict(fila, cursor_nadadores)
             for fila in filas_nadadores
             if fila
         ]
-    
+
         cursor_competencias = self._execute("""
             SELECT
                 id,
                 fecha,
-                nombre
+                nombre,
+                estado
             FROM competencias
             WHERE EXTRACT(YEAR FROM fecha) = ?
             ORDER BY fecha ASC, id ASC
-        """, (
-            anio,
-        ), commit=False)
-    
-        filas_competencias = (
-            cursor_competencias.fetchall()
-        )
-    
+        """, (anio,), commit=False)
+
+        filas_competencias = cursor_competencias.fetchall()
         competencias = [
-            self._row_to_dict(
-                fila,
-                cursor_competencias
-            )
+            self._row_to_dict(fila, cursor_competencias)
             for fila in filas_competencias
             if fila
         ]
-    
+
+        hoy = date.today()
+        for competencia in competencias:
+            fecha_competencia = competencia.get('fecha')
+            if isinstance(fecha_competencia, datetime):
+                fecha_competencia = fecha_competencia.date()
+            elif isinstance(fecha_competencia, str):
+                try:
+                    fecha_competencia = datetime.strptime(
+                        fecha_competencia[:10], '%Y-%m-%d'
+                    ).date()
+                except (TypeError, ValueError):
+                    fecha_competencia = None
+
+            competencia['transcurrida'] = bool(
+                fecha_competencia and fecha_competencia <= hoy
+            )
+
         ids_competencias = [
             competencia['id']
             for competencia in competencias
         ]
-    
+
         asistencias = {}
-    
         if ids_competencias:
-            placeholders = ", ".join(
-                ["?"] * len(ids_competencias)
-            )
-    
+            placeholders = ", ".join(["?"] * len(ids_competencias))
             cursor_asistencias = self._execute(
                 f"""
                 SELECT
@@ -1425,33 +1437,90 @@ class GestorTiemposMaster:
                     competencia_id,
                     estado
                 FROM asistencia_competencias
-                WHERE competencia_id IN (
-                    {placeholders}
-                )
+                WHERE competencia_id IN ({placeholders})
                 """,
                 tuple(ids_competencias),
                 commit=False
             )
-    
+
             for fila in cursor_asistencias.fetchall():
-                registro = self._row_to_dict(
-                    fila,
-                    cursor_asistencias
-                )
-    
+                registro = self._row_to_dict(fila, cursor_asistencias)
                 clave = (
                     registro['nadador_id'],
                     registro['competencia_id']
                 )
-    
-                asistencias[clave] = (
-                    registro['estado']
+                asistencias[clave] = registro['estado']
+
+        competencias_transcurridas = [
+            competencia
+            for competencia in competencias
+            if competencia.get('transcurrida')
+        ]
+
+        for nadador in nadadores:
+            presentes = 0
+            ausentes = 0
+            pendientes = 0
+            no_aplica = 0
+            aplicables = 0
+
+            for competencia in competencias_transcurridas:
+                estado = asistencias.get(
+                    (nadador['id'], competencia['id']),
+                    'SIN_REGISTRO'
                 )
-    
+
+                if estado == 'NO_APLICA':
+                    no_aplica += 1
+                    continue
+
+                aplicables += 1
+                if estado == 'PRESENTE':
+                    presentes += 1
+                elif estado == 'AUSENTE':
+                    ausentes += 1
+                else:
+                    pendientes += 1
+
+            porcentaje = round(
+                (presentes / aplicables) * 100
+            ) if aplicables else 0
+
+            nadador['asistencias_presentes'] = presentes
+            nadador['asistencias_ausentes'] = ausentes
+            nadador['asistencias_pendientes'] = pendientes
+            nadador['asistencias_no_aplica'] = no_aplica
+            nadador['competencias_aplicables'] = aplicables
+            nadador['porcentaje_asistencia'] = porcentaje
+
+        porcentajes = [
+            nadador['porcentaje_asistencia']
+            for nadador in nadadores
+            if nadador['competencias_aplicables'] > 0
+        ]
+
+        resumen = {
+            'competencias_transcurridas': len(competencias_transcurridas),
+            'asistencia_promedio': round(
+                sum(porcentajes) / len(porcentajes)
+            ) if porcentajes else 0,
+            'asistencia_completa': sum(
+                1 for nadador in nadadores
+                if nadador['competencias_aplicables'] > 0
+                and nadador['porcentaje_asistencia'] == 100
+            ),
+            'asistencia_baja': sum(
+                1 for nadador in nadadores
+                if nadador['competencias_aplicables'] > 0
+                and nadador['porcentaje_asistencia'] < 50
+            )
+        }
+
         return {
             'nadadores': nadadores,
             'competencias': competencias,
-            'asistencias': asistencias
+            'asistencias': asistencias,
+            'resumen': resumen
         }
 
     def actualizar_asistencia(
@@ -1905,9 +1974,8 @@ class GestorTiemposMaster:
         ))
 
     def obtener_dashboard_inicio(self):
-        """Datos resumidos y alertas inteligentes para la portada ejecutiva."""
-        hoy = date.today()
-        anio_actual = hoy.year
+        """Datos resumidos para la portada ejecutiva del sistema."""
+        anio_actual = datetime.now().year
 
         def una_fila(query, params=()):
             cursor = self._execute(query, params, commit=False)
@@ -1937,8 +2005,12 @@ class GestorTiemposMaster:
         resumen_competencias = una_fila("""
             SELECT
                 COUNT(*) AS total_competencias,
-                COUNT(*) FILTER (WHERE EXTRACT(YEAR FROM fecha) = ?) AS competencias_anio,
-                COUNT(*) FILTER (WHERE fecha >= CURRENT_DATE) AS proximas_competencias
+                COUNT(*) FILTER (
+                    WHERE EXTRACT(YEAR FROM fecha) = ?
+                ) AS competencias_anio,
+                COUNT(*) FILTER (
+                    WHERE fecha >= CURRENT_DATE
+                ) AS proximas_competencias
             FROM competencias
         """, (anio_actual,))
 
@@ -1952,7 +2024,9 @@ class GestorTiemposMaster:
         inactivos = max(total_nadadores - activos, 0)
 
         registros_temporada = varias_filas("""
-            SELECT EXTRACT(YEAR FROM fecha)::INTEGER AS anio, COUNT(*) AS total
+            SELECT
+                EXTRACT(YEAR FROM fecha)::INTEGER AS anio,
+                COUNT(*) AS total
             FROM tiempos
             WHERE fecha IS NOT NULL
             GROUP BY EXTRACT(YEAR FROM fecha)
@@ -1960,7 +2034,9 @@ class GestorTiemposMaster:
         """)
 
         registros_mes_raw = varias_filas("""
-            SELECT EXTRACT(MONTH FROM fecha)::INTEGER AS mes, COUNT(*) AS total
+            SELECT
+                EXTRACT(MONTH FROM fecha)::INTEGER AS mes,
+                COUNT(*) AS total
             FROM tiempos
             WHERE EXTRACT(YEAR FROM fecha) = ?
             GROUP BY EXTRACT(MONTH FROM fecha)
@@ -1968,10 +2044,15 @@ class GestorTiemposMaster:
         """, (anio_actual,))
 
         registros_por_mes = {int(f['mes']): int(f['total']) for f in registros_mes_raw}
-        meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+        meses = [
+            'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+            'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+        ]
 
         estilos = varias_filas("""
-            SELECT COALESCE(NULLIF(TRIM(estilo), ''), 'Sin estilo') AS estilo, COUNT(*) AS total
+            SELECT
+                COALESCE(NULLIF(TRIM(estilo), ''), 'Sin estilo') AS estilo,
+                COUNT(*) AS total
             FROM tiempos
             GROUP BY COALESCE(NULLIF(TRIM(estilo), ''), 'Sin estilo')
             ORDER BY total DESC
@@ -1979,14 +2060,27 @@ class GestorTiemposMaster:
         """)
 
         ultimos_tiempos = varias_filas("""
-            SELECT id, nombre_nadador, estilo, distancia, piscina, tiempo, fecha
+            SELECT
+                id,
+                nombre_nadador,
+                estilo,
+                distancia,
+                piscina,
+                tiempo,
+                fecha
             FROM tiempos
             ORDER BY fecha DESC, id DESC
             LIMIT 7
         """)
 
         proximas_competencias = varias_filas("""
-            SELECT id, nombre, fecha, lugar, tipo_piscina, estado
+            SELECT
+                id,
+                nombre,
+                fecha,
+                lugar,
+                tipo_piscina,
+                estado
             FROM competencias
             WHERE fecha >= CURRENT_DATE
             ORDER BY fecha ASC
@@ -1994,7 +2088,9 @@ class GestorTiemposMaster:
         """)
 
         top_nadadores = varias_filas("""
-            SELECT TRIM(nombre_nadador) AS nombre_nadador, COUNT(*)::INTEGER AS total_tiempos
+            SELECT
+                TRIM(nombre_nadador) AS nombre_nadador,
+                COUNT(*)::INTEGER AS total_tiempos
             FROM tiempos
             WHERE fecha IS NOT NULL
               AND EXTRACT(YEAR FROM fecha) = ?
@@ -2004,134 +2100,6 @@ class GestorTiemposMaster:
             ORDER BY total_tiempos DESC, nombre_nadador ASC
             LIMIT 8
         """, (anio_actual,))
-
-        # Cumpleaños: se calculan en Python para manejar correctamente el cambio de año.
-        nadadores_cumple = varias_filas("""
-            SELECT id, nombre, apellido, fecha_nacimiento
-            FROM nadadores
-            ORDER BY apellido, nombre
-        """)
-        proximos_cumpleanos = []
-        cumpleanos_hoy = []
-        for nadador in nadadores_cumple:
-            fecha_nacimiento = nadador.get('fecha_nacimiento')
-            if not fecha_nacimiento:
-                continue
-            if isinstance(fecha_nacimiento, str):
-                try:
-                    fecha_nacimiento = datetime.strptime(fecha_nacimiento[:10], '%Y-%m-%d').date()
-                except ValueError:
-                    continue
-            try:
-                proximo = date(hoy.year, fecha_nacimiento.month, fecha_nacimiento.day)
-            except ValueError:
-                proximo = date(hoy.year, 2, 28)
-            if proximo < hoy:
-                try:
-                    proximo = date(hoy.year + 1, fecha_nacimiento.month, fecha_nacimiento.day)
-                except ValueError:
-                    proximo = date(hoy.year + 1, 2, 28)
-            dias = (proximo - hoy).days
-            edad = proximo.year - fecha_nacimiento.year
-            item = {
-                'id': nadador.get('id'),
-                'nombre': f"{nadador.get('nombre', '')} {nadador.get('apellido', '')}".strip(),
-                'fecha': proximo,
-                'dias': dias,
-                'edad': edad,
-            }
-            if dias == 0:
-                cumpleanos_hoy.append(item)
-            if dias <= 30:
-                proximos_cumpleanos.append(item)
-        proximos_cumpleanos.sort(key=lambda item: (item['dias'], item['nombre']))
-        proximos_cumpleanos = proximos_cumpleanos[:6]
-
-        # Alertas operativas del club.
-        sin_fecha_nacimiento = una_fila("""
-            SELECT COUNT(*) AS total
-            FROM nadadores
-            WHERE fecha_nacimiento IS NULL
-        """).get('total', 0) or 0
-
-        sin_actividad_90 = una_fila("""
-            SELECT COUNT(*) AS total
-            FROM nadadores n
-            LEFT JOIN (
-                SELECT TRIM(nombre_nadador) AS nombre_nadador, MAX(fecha) AS ultima_fecha
-                FROM tiempos
-                GROUP BY TRIM(nombre_nadador)
-            ) t ON LOWER(TRIM(n.nombre || ' ' || n.apellido)) = LOWER(t.nombre_nadador)
-            WHERE t.ultima_fecha IS NULL OR t.ultima_fecha < CURRENT_DATE - INTERVAL '90 days'
-        """).get('total', 0) or 0
-
-        competencias_incompletas = una_fila("""
-            SELECT COUNT(*) AS total
-            FROM competencias
-            WHERE COALESCE(TRIM(nombre), '') = ''
-               OR COALESCE(TRIM(lugar), '') = ''
-               OR COALESCE(TRIM(tipo_piscina), '') = ''
-        """).get('total', 0) or 0
-
-        asistencias_pendientes = una_fila("""
-            SELECT COUNT(*) AS total
-            FROM competencias c
-            WHERE UPPER(COALESCE(c.estado, '')) = 'REALIZADO'
-              AND NOT EXISTS (
-                  SELECT 1
-                  FROM asistencia_competencias a
-                  WHERE a.competencia_id = c.id
-              )
-        """).get('total', 0) or 0
-
-        alertas = []
-        if sin_actividad_90:
-            alertas.append({'tipo': 'warning', 'icono': 'fa-user-clock', 'titulo': 'Nadadores sin actividad', 'detalle': f'{sin_actividad_90} sin tiempos en los últimos 90 días', 'valor': sin_actividad_90})
-        if asistencias_pendientes:
-            alertas.append({'tipo': 'danger', 'icono': 'fa-clipboard-question', 'titulo': 'Asistencias pendientes', 'detalle': f'{asistencias_pendientes} competencias realizadas sin asistencia', 'valor': asistencias_pendientes})
-        if competencias_incompletas:
-            alertas.append({'tipo': 'info', 'icono': 'fa-calendar-xmark', 'titulo': 'Competencias incompletas', 'detalle': f'{competencias_incompletas} con datos por completar', 'valor': competencias_incompletas})
-        if sin_fecha_nacimiento:
-            alertas.append({'tipo': 'info', 'icono': 'fa-cake-candles', 'titulo': 'Fechas de nacimiento', 'detalle': f'{sin_fecha_nacimiento} perfiles sin fecha registrada', 'valor': sin_fecha_nacimiento})
-
-        # Actividad de los últimos 7 días.
-        actividad_semana = una_fila("""
-            SELECT COUNT(*) AS tiempos, COUNT(DISTINCT nombre_nadador) AS nadadores
-            FROM tiempos
-            WHERE fecha >= CURRENT_DATE - INTERVAL '6 days'
-        """)
-
-        # PB recientes: una marca es PB si mejora todas las anteriores de la misma prueba.
-        pb_recientes = varias_filas("""
-            WITH marcas AS (
-                SELECT
-                    id, nombre_nadador, estilo, distancia, piscina, tiempo,
-                    tiempo_segundos, fecha,
-                    MIN(tiempo_segundos) OVER (
-                        PARTITION BY nombre_nadador, estilo, distancia, piscina
-                        ORDER BY fecha, id
-                        ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
-                    ) AS mejor_anterior
-                FROM tiempos
-            )
-            SELECT id, nombre_nadador, estilo, distancia, piscina, tiempo, fecha
-            FROM marcas
-            WHERE mejor_anterior IS NOT NULL
-              AND tiempo_segundos < mejor_anterior
-              AND fecha >= CURRENT_DATE - INTERVAL '30 days'
-            ORDER BY fecha DESC, id DESC
-            LIMIT 5
-        """)
-
-        proxima_destacada = proximas_competencias[0] if proximas_competencias else None
-        if proxima_destacada and proxima_destacada.get('fecha'):
-            fecha_comp = proxima_destacada['fecha']
-            if isinstance(fecha_comp, str):
-                try:
-                    fecha_comp = datetime.strptime(fecha_comp[:10], '%Y-%m-%d').date()
-                except ValueError:
-                    fecha_comp = None
-            proxima_destacada['dias_restantes'] = (fecha_comp - hoy).days if fecha_comp else None
 
         return {
             'anio_actual': anio_actual,
@@ -2144,26 +2112,30 @@ class GestorTiemposMaster:
                 'proximas_competencias': resumen_competencias.get('proximas_competencias', 0) or 0,
             },
             'graficos': {
-                'temporadas': {'labels': [str(f['anio']) for f in registros_temporada], 'values': [int(f['total']) for f in registros_temporada]},
-                'meses': {'labels': meses, 'values': [registros_por_mes.get(i, 0) for i in range(1, 13)]},
-                'estilos': {'labels': [f['estilo'] for f in estilos], 'values': [int(f['total']) for f in estilos]},
-                'actividad': {'labels': ['Activos', 'Inactivos'], 'values': [activos, inactivos]},
-                'top_nadadores': {'labels': [f['nombre_nadador'] for f in top_nadadores], 'values': [int(f.get('total_tiempos') or 0) for f in top_nadadores]},
+                'temporadas': {
+                    'labels': [str(f['anio']) for f in registros_temporada],
+                    'values': [int(f['total']) for f in registros_temporada],
+                },
+                'meses': {
+                    'labels': meses,
+                    'values': [registros_por_mes.get(i, 0) for i in range(1, 13)],
+                },
+                'estilos': {
+                    'labels': [f['estilo'] for f in estilos],
+                    'values': [int(f['total']) for f in estilos],
+                },
+                'actividad': {
+                    'labels': ['Activos', 'Inactivos'],
+                    'values': [activos, inactivos],
+                },
+                'top_nadadores': {
+                    'labels': [f['nombre_nadador'] for f in top_nadadores],
+                    'values': [int(f.get('total_tiempos') or 0) for f in top_nadadores],
+                },
             },
             'ultimos_tiempos': ultimos_tiempos,
             'proximas_competencias_lista': proximas_competencias,
-            'proxima_competencia_destacada': proxima_destacada,
-            'proximos_cumpleanos': proximos_cumpleanos,
-            'cumpleanos_hoy': cumpleanos_hoy,
-            'alertas': alertas,
-            'actividad_semana': {
-                'tiempos': int(actividad_semana.get('tiempos', 0) or 0),
-                'nadadores': int(actividad_semana.get('nadadores', 0) or 0),
-                'pb': len(pb_recientes),
-            },
-            'pb_recientes': pb_recientes,
         }
-
 
     def obtener_registros_por_temporada(self):
         cursor = self._execute("""
