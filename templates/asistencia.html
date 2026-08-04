@@ -2036,6 +2036,75 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
         }
     }
 
+
+    /* =========================================================
+       CORRECCIÓN: NADADOR Y ASISTENCIA SE DESPLAZAN CON LA TABLA
+       Mantienen el encabezado vertical como las copas, pero ya no
+       quedan pegados a los extremos durante el desplazamiento horizontal.
+       ========================================================= */
+
+    .attendance-table .swimmer-column,
+    .attendance-table .percentage-column {
+        position: static !important;
+        left: auto !important;
+        right: auto !important;
+        z-index: auto !important;
+        box-shadow: none !important;
+    }
+
+    .attendance-table thead .swimmer-column,
+    .attendance-table thead .percentage-column {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 7 !important;
+        color: #ffffff;
+        background: linear-gradient(
+            180deg,
+            #009b9d,
+            #008a8c
+        ) !important;
+    }
+
+    .attendance-table .swimmer-column {
+        width: 225px;
+        min-width: 225px;
+        max-width: 225px;
+    }
+
+    .attendance-table .percentage-column {
+        width: 118px;
+        min-width: 118px;
+        max-width: 118px;
+    }
+
+    .attendance-table thead .swimmer-column {
+        border-right: 1px solid rgba(255,255,255,.24);
+    }
+
+    .attendance-table thead .percentage-column {
+        border-left: 1px solid rgba(255,255,255,.24) !important;
+    }
+
+    /* Evita que el scrollbar vertical cubra el contenido de la última columna */
+    .attendance-table-container {
+        padding-right: 2px;
+        scrollbar-gutter: stable;
+    }
+
+    @media (max-width: 767px) {
+        .attendance-table .swimmer-column {
+            width: 205px;
+            min-width: 205px;
+            max-width: 205px;
+        }
+
+        .attendance-table .percentage-column {
+            width: 112px;
+            min-width: 112px;
+            max-width: 112px;
+        }
+    }
+
 </style>
 
 <script>
