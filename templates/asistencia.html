@@ -120,6 +120,16 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                     </button>
                 </div>
 
+                <select id="filtroCategoria" class="form-select attendance-filter-select" aria-label="Filtrar por categoría">
+                    <option value="">Todas las categorías</option>
+                    {% set categorias_disponibles = nadadores | map(attribute='categoria_master') | reject('equalto', none) | unique | sort %}
+                    {% for categoria in categorias_disponibles %}
+                        {% if categoria %}
+                        <option value="{{ categoria }}">{{ categoria }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+
                 <select id="filtroAsistencia" class="form-select attendance-filter-select" aria-label="Filtrar por asistencia">
                     <option value="todos">Todos los nadadores</option>
                     <option value="asistieron">Con alguna asistencia</option>
@@ -297,8 +307,9 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
                     {% for nadador in nadadores %}
 
-                    <tr class="swimmer-row"
+                    <tr class="swimmer-row {% if nadador.competencias_aplicables > 0 %}{% if nadador.porcentaje_asistencia == 100 %}attendance-perfect{% elif nadador.porcentaje_asistencia >= 70 %}attendance-good{% elif nadador.porcentaje_asistencia >= 40 %}attendance-medium{% else %}attendance-low{% endif %}{% endif %}"
                         data-nombre="{{ nadador.apellido }} {{ nadador.nombre }} {{ nadador.categoria_master or '' }}"
+                        data-categoria="{{ nadador.categoria_master or '' }}"
                         data-porcentaje="{{ nadador.porcentaje_asistencia }}"
                         data-presentes="{{ nadador.asistencias_presentes }}"
                         data-ausentes="{{ nadador.asistencias_ausentes }}"
@@ -1034,7 +1045,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
         padding: 5px 3px;
     }
 
-    <!--.competition-number {
+    /* .competition-number {
         display: inline-flex;
         width: 20px;
         height: 20px;
@@ -1046,7 +1057,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
         background: rgba(255, 255, 255, 0.9);
         font-size: 0.61rem;
         font-weight: 850;
-    } -->
+    } */
 
     .competition-name {
         display: -webkit-box;
@@ -1663,6 +1674,368 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
             width: 100%;
         }
     }
+
+    /* =========================================================
+       ASISTENCIA 2.0 — MATRIZ COMPACTA Y PROFESIONAL
+       ========================================================= */
+
+    .attendance-card {
+        border-radius: 22px;
+    }
+
+    .attendance-table-container {
+        position: relative;
+        isolation: isolate;
+        max-height: 74vh;
+        scrollbar-color: #8fb8b9 #edf5f5;
+        scrollbar-width: thin;
+    }
+
+    .attendance-table-container::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .attendance-table-container::-webkit-scrollbar-track {
+        background: #edf5f5;
+    }
+
+    .attendance-table-container::-webkit-scrollbar-thumb {
+        border: 2px solid #edf5f5;
+        border-radius: 999px;
+        background: #8fb8b9;
+    }
+
+    .attendance-table {
+        table-layout: fixed;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        height: 48px;
+    }
+
+    .attendance-table thead th {
+        height: 88px;
+        padding: 0;
+        vertical-align: middle;
+        background: linear-gradient(180deg, #009b9d, #008a8c);
+    }
+
+    /* Primera columna: mismo encabezado que las copas */
+    .swimmer-column {
+        width: 225px;
+        min-width: 225px;
+        max-width: 225px;
+        padding: 0 12px !important;
+        overflow: hidden;
+        background: #f4fafa;
+        box-shadow: 8px 0 18px -14px rgba(7, 59, 60, .65);
+    }
+
+    thead .swimmer-column {
+        z-index: 11;
+        padding: 0 16px !important;
+        color: #fff;
+        background: linear-gradient(180deg, #009b9d, #008a8c) !important;
+    }
+
+    .swimmer-header {
+        min-height: 88px;
+        justify-content: flex-start;
+        padding: 0;
+        font-size: .72rem;
+        letter-spacing: .07em;
+    }
+
+    .swimmer-header i {
+        display: inline-flex;
+        width: 26px;
+        height: 26px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: rgba(255,255,255,.15);
+    }
+
+    .swimmer-cell {
+        gap: 10px;
+    }
+
+    .swimmer-avatar {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        border-radius: 11px;
+        font-size: .61rem;
+        box-shadow: 0 5px 12px rgba(0,146,148,.15);
+    }
+
+    .swimmer-data strong {
+        font-size: .73rem;
+        line-height: 1.15;
+    }
+
+    .swimmer-data span {
+        margin-top: 3px;
+        font-size: .58rem;
+    }
+
+    /* Competencias compactas y uniformes */
+    .competition-column {
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+    }
+
+    .competition-header {
+        min-height: 88px;
+        padding: 9px 7px;
+    }
+
+    .competition-name {
+        width: 100%;
+        font-size: .64rem;
+        font-weight: 800;
+        line-height: 1.18;
+        -webkit-line-clamp: 3;
+    }
+
+    .competition-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 7px;
+        padding: 3px 6px;
+        border-radius: 999px;
+        color: rgba(255,255,255,.92);
+        background: rgba(255,255,255,.12);
+        font-size: .55rem;
+        font-weight: 700;
+    }
+
+    /* Columna de porcentaje compacta */
+    .percentage-column {
+        width: 118px;
+        min-width: 118px;
+        max-width: 118px;
+    }
+
+    thead .percentage-column {
+        z-index: 12;
+        padding: 0 10px !important;
+        background: linear-gradient(180deg, #009b9d, #008a8c) !important;
+    }
+
+    .percentage-header {
+        min-height: 88px;
+        gap: 7px;
+        font-size: .63rem;
+    }
+
+    .percentage-header i {
+        display: inline-flex;
+        width: 28px;
+        height: 28px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: rgba(255,255,255,.15);
+    }
+
+    .attendance-percentage-wrap {
+        padding: 4px 7px;
+    }
+
+    .attendance-percentage-value {
+        font-size: .76rem;
+    }
+
+    .attendance-percentage-detail {
+        font-size: .53rem;
+    }
+
+    .attendance-progress {
+        height: 5px;
+    }
+
+    /* Celdas tipo heatmap */
+    .attendance-cell {
+        width: 120px;
+        min-width: 120px;
+        padding: 0 !important;
+        text-align: center;
+    }
+
+    .attendance-button {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+    }
+
+    /* Indicador lateral según nivel de participación */
+    .swimmer-row .swimmer-column {
+        border-left: 4px solid transparent;
+    }
+
+    .swimmer-row.attendance-perfect .swimmer-column {
+        border-left-color: #20a46f;
+    }
+
+    .swimmer-row.attendance-good .swimmer-column {
+        border-left-color: #009b9d;
+    }
+
+    .swimmer-row.attendance-medium .swimmer-column {
+        border-left-color: #d99a26;
+    }
+
+    .swimmer-row.attendance-low .swimmer-column {
+        border-left-color: #d95757;
+    }
+
+    .swimmer-row:hover td {
+        background: #eef9f9 !important;
+    }
+
+    .swimmer-row:hover .swimmer-column {
+        background: #dff2f2 !important;
+    }
+
+    .swimmer-row:hover .percentage-column {
+        background: #eef9f9 !important;
+    }
+
+    /* Herramientas */
+    .attendance-filters {
+        display: grid;
+        grid-template-columns: minmax(220px, 1.35fr) repeat(3, minmax(155px, .8fr)) auto auto;
+        width: min(100%, 1040px);
+        align-items: center;
+        gap: 9px;
+    }
+
+    .attendance-filters .nadador-search,
+    .attendance-filter-select {
+        width: 100%;
+    }
+
+    /* Cabecera fija sin cortes */
+    .attendance-table thead th:first-child {
+        border-top-left-radius: 0;
+    }
+
+    .attendance-table thead th:last-child {
+        border-top-right-radius: 0;
+    }
+
+    /* Modo oscuro */
+    html[data-theme="dark"] .swimmer-column,
+    html[data-theme="dark"] tbody .swimmer-column {
+        color: var(--text-primary);
+        background: #162829 !important;
+    }
+
+    html[data-theme="dark"] .swimmer-row:nth-child(even) .swimmer-column {
+        background: #1b3031 !important;
+    }
+
+    html[data-theme="dark"] .percentage-column {
+        background: #17292a !important;
+    }
+
+    html[data-theme="dark"] .swimmer-row:nth-child(even) .percentage-column {
+        background: #1b3031 !important;
+    }
+
+    html[data-theme="dark"] .attendance-table td {
+        border-color: #2a3d3e;
+    }
+
+    html[data-theme="dark"] .swimmer-data strong {
+        color: #eef7f7;
+    }
+
+    /* Responsive */
+    @media (max-width: 1399px) {
+        .attendance-filters {
+            grid-template-columns: repeat(3, minmax(160px, 1fr));
+        }
+
+        .attendance-filters .nadador-search {
+            grid-column: span 2;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .attendance-filters {
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .swimmer-column {
+            width: 205px;
+            min-width: 205px;
+            max-width: 205px;
+        }
+
+        .competition-column,
+        .attendance-cell {
+            width: 108px;
+            min-width: 108px;
+            max-width: 108px;
+        }
+
+        .percentage-column {
+            width: 108px;
+            min-width: 108px;
+            max-width: 108px;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .attendance-table-container {
+            max-height: 66vh;
+        }
+
+        .swimmer-column {
+            width: 178px;
+            min-width: 178px;
+            max-width: 178px;
+            padding-inline: 9px !important;
+        }
+
+        .swimmer-avatar {
+            display: inline-flex;
+            width: 29px;
+            height: 29px;
+            min-width: 29px;
+        }
+
+        .swimmer-data strong {
+            font-size: .67rem;
+        }
+
+        .competition-column,
+        .attendance-cell {
+            width: 96px;
+            min-width: 96px;
+            max-width: 96px;
+        }
+
+        .percentage-column {
+            width: 98px;
+            min-width: 98px;
+            max-width: 98px;
+        }
+
+        .competition-name {
+            font-size: .58rem;
+        }
+    }
+
 </style>
 
 <script>
@@ -1682,6 +2055,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                 "limpiarBusqueda"
             );
 
+        const filtroCategoria = document.getElementById("filtroCategoria");
         const filtroAsistencia = document.getElementById("filtroAsistencia");
         const ordenAsistencia = document.getElementById("ordenAsistencia");
         const limpiarFiltros = document.getElementById("limpiarFiltros");
@@ -2006,6 +2380,13 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                 : 0;
 
             fila.dataset.porcentaje = porcentaje;
+            fila.classList.remove("attendance-perfect", "attendance-good", "attendance-medium", "attendance-low");
+            if (aplicables > 0) {
+                if (porcentaje === 100) fila.classList.add("attendance-perfect");
+                else if (porcentaje >= 70) fila.classList.add("attendance-good");
+                else if (porcentaje >= 40) fila.classList.add("attendance-medium");
+                else fila.classList.add("attendance-low");
+            }
             fila.dataset.presentes = presentes;
             fila.dataset.ausentes = ausentes;
             fila.dataset.pendientes = pendientes;
@@ -2067,6 +2448,9 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
             const texto = buscador
                 ? buscador.value.toLowerCase().trim()
                 : "";
+            const categoria = filtroCategoria
+                ? filtroCategoria.value.toLowerCase().trim()
+                : "";
             const filtro = filtroAsistencia
                 ? filtroAsistencia.value
                 : "todos";
@@ -2076,9 +2460,11 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
             filas.forEach(function (fila) {
                 const nombre = (fila.dataset.nombre || "").toLowerCase();
+                const categoriaFila = (fila.dataset.categoria || "").toLowerCase();
                 const coincideTexto = nombre.includes(texto);
+                const coincideCategoria = !categoria || categoriaFila === categoria;
                 const coincideEstado = coincideFiltro(fila, filtro);
-                const visible = coincideTexto && coincideEstado;
+                const visible = coincideTexto && coincideCategoria && coincideEstado;
                 fila.style.display = visible ? "" : "none";
                 if (visible) visibles++;
             });
@@ -2106,6 +2492,10 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
             );
         }
 
+        if (filtroCategoria) {
+            filtroCategoria.addEventListener("change", aplicarFiltros);
+        }
+
         if (filtroAsistencia) {
             filtroAsistencia.addEventListener("change", aplicarFiltros);
         }
@@ -2117,6 +2507,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
         if (limpiarFiltros) {
             limpiarFiltros.addEventListener("click", function () {
                 if (buscador) buscador.value = "";
+                if (filtroCategoria) filtroCategoria.value = "";
                 if (filtroAsistencia) filtroAsistencia.value = "todos";
                 if (ordenAsistencia) ordenAsistencia.value = "nombre";
                 aplicarFiltros();
