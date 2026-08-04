@@ -140,32 +140,100 @@ def logout():
 @app.route('/')
 @login_required
 def index():
+    """
+    Carga el Dashboard Inteligente.
+
+    La normalización con setdefault evita errores UndefinedError en Jinja
+    cuando una consulta opcional falla o una clave todavía no está presente.
+    """
+    dashboard_vacio = {
+        'anio_actual': datetime.now().year,
+        'metricas': {
+            'total_nadadores': 0,
+            'activos': 0,
+            'inactivos': 0,
+            'total_tiempos': 0,
+            'competencias_anio': 0,
+            'proximas_competencias': 0,
+        },
+        'graficos': {
+            'temporadas': {'labels': [], 'values': []},
+            'meses': {
+                'labels': [
+                    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+                ],
+                'values': [0] * 12,
+            },
+            'estilos': {'labels': [], 'values': []},
+            'actividad': {
+                'labels': ['Activos', 'Inactivos'],
+                'values': [0, 0],
+            },
+            'top_nadadores': {'labels': [], 'values': []},
+        },
+        'ultimos_tiempos': [],
+        'proximas_competencias_lista': [],
+        'proxima_competencia_destacada': None,
+        'proximos_cumpleanos': [],
+        'cumpleanos_hoy': [],
+        'alertas': [],
+        'actividad_semana': {
+            'tiempos': 0,
+            'nadadores': 0,
+            'pb': 0,
+        },
+        'pb_recientes': [],
+    }
+
     try:
         dashboard = gestor_tiempos.obtener_dashboard_inicio()
+
+        if not isinstance(dashboard, dict):
+            raise TypeError(
+                'obtener_dashboard_inicio() debe devolver un diccionario.'
+            )
+
     except Exception as e:
         print('Error cargando dashboard:', repr(e))
-        dashboard = {
-            'anio_actual': datetime.now().year,
-            'metricas': {
-                'total_nadadores': 0,
-                'activos': 0,
-                'inactivos': 0,
-                'total_tiempos': 0,
-                'competencias_anio': 0,
-                'proximas_competencias': 0,
-            },
-            'graficos': {
-                'temporadas': {'labels': [], 'values': []},
-                'meses': {'labels': [], 'values': []},
-                'estilos': {'labels': [], 'values': []},
-                'actividad': {'labels': ['Activos', 'Inactivos'], 'values': [0, 0]},
-                'top_nadadores': {'labels': [], 'values': []},
-            },
-            'ultimos_tiempos': [],
-            'proximas_competencias_lista': [],
-        }
+        dashboard = {}
 
-    return render_template('index.html', dashboard=dashboard)
+    # Completar todas las claves requeridas por index.html.
+    dashboard.setdefault(
+        'anio_actual',
+        dashboard_vacio['anio_actual']
+    )
+
+    metricas = dashboard.setdefault('metricas', {})
+    for clave, valor in dashboard_vacio['metricas'].items():
+        metricas.setdefault(clave, valor)
+
+    graficos = dashboard.setdefault('graficos', {})
+    for nombre, estructura in dashboard_vacio['graficos'].items():
+        grafico = graficos.setdefault(nombre, {})
+        grafico.setdefault('labels', estructura['labels'])
+        grafico.setdefault('values', estructura['values'])
+
+    dashboard.setdefault('ultimos_tiempos', [])
+    dashboard.setdefault('proximas_competencias_lista', [])
+    dashboard.setdefault('proxima_competencia_destacada', None)
+    dashboard.setdefault('proximos_cumpleanos', [])
+    dashboard.setdefault('cumpleanos_hoy', [])
+    dashboard.setdefault('alertas', [])
+    dashboard.setdefault('pb_recientes', [])
+
+    actividad_semana = dashboard.setdefault(
+        'actividad_semana',
+        {}
+    )
+    actividad_semana.setdefault('tiempos', 0)
+    actividad_semana.setdefault('nadadores', 0)
+    actividad_semana.setdefault('pb', 0)
+
+    return render_template(
+        'index.html',
+        dashboard=dashboard
+    )
 
 
 @app.route('/performance-center')
