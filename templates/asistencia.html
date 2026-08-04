@@ -2038,70 +2038,206 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
 
     /* =========================================================
-       CORRECCIÓN: NADADOR Y ASISTENCIA SE DESPLAZAN CON LA TABLA
-       Mantienen el encabezado vertical como las copas, pero ya no
-       quedan pegados a los extremos durante el desplazamiento horizontal.
+       CORRECCIÓN DEFINITIVA DE LA TABLA
+       - Encabezado fijo al hacer scroll vertical.
+       - Columna Nadador fija a la izquierda.
+       - Columna Asistencia fija a la derecha.
+       - Los encabezados de ambas columnas permanecen visibles.
        ========================================================= */
 
-    .attendance-table .swimmer-column,
-    .attendance-table .percentage-column {
-        position: static !important;
-        left: auto !important;
-        right: auto !important;
-        z-index: auto !important;
-        box-shadow: none !important;
-    }
-
-    .attendance-table thead .swimmer-column,
-    .attendance-table thead .percentage-column {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 7 !important;
-        color: #ffffff;
-        background: linear-gradient(
-            180deg,
-            #009b9d,
-            #008a8c
-        ) !important;
-    }
-
-    .attendance-table .swimmer-column {
-        width: 225px;
-        min-width: 225px;
-        max-width: 225px;
-    }
-
-    .attendance-table .percentage-column {
-        width: 118px;
-        min-width: 118px;
-        max-width: 118px;
-    }
-
-    .attendance-table thead .swimmer-column {
-        border-right: 1px solid rgba(255,255,255,.24);
-    }
-
-    .attendance-table thead .percentage-column {
-        border-left: 1px solid rgba(255,255,255,.24) !important;
-    }
-
-    /* Evita que el scrollbar vertical cubra el contenido de la última columna */
     .attendance-table-container {
-        padding-right: 2px;
+        position: relative;
+        overflow: auto;
+        max-height: 72vh;
+        isolation: isolate;
         scrollbar-gutter: stable;
     }
 
+    .attendance-table {
+        position: relative;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    /* Todos los encabezados permanecen fijos arriba */
+    .attendance-table thead th {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 20 !important;
+        height: 82px;
+        min-height: 82px;
+        vertical-align: middle;
+        color: #ffffff;
+        background: linear-gradient(
+            180deg,
+            #009b9d 0%,
+            #008b8d 100%
+        ) !important;
+    }
+
+    /* Columna del nadador fija a la izquierda */
+    .attendance-table tbody .swimmer-column {
+        position: sticky !important;
+        left: 0 !important;
+        z-index: 12 !important;
+        width: 225px;
+        min-width: 225px;
+        max-width: 225px;
+        overflow: hidden;
+        background: #f1f9f9 !important;
+        box-shadow: 8px 0 14px -12px rgba(20, 54, 56, .75);
+    }
+
+    .attendance-table tbody .swimmer-row:nth-child(even) .swimmer-column {
+        background: #e9f5f5 !important;
+    }
+
+    .attendance-table tbody .swimmer-row:hover .swimmer-column {
+        background: #dff2f2 !important;
+    }
+
+    /* Intersección superior izquierda: encabezado Nadador */
+    .attendance-table thead .swimmer-column {
+        position: sticky !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 40 !important;
+        width: 225px;
+        min-width: 225px;
+        max-width: 225px;
+        color: #ffffff !important;
+        background: linear-gradient(
+            180deg,
+            #008587 0%,
+            #007779 100%
+        ) !important;
+        box-shadow: 8px 0 14px -12px rgba(0, 0, 0, .45);
+    }
+
+    .attendance-table thead .swimmer-header {
+        display: flex !important;
+        min-height: 72px;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 5px 10px;
+        color: #ffffff !important;
+        font-size: .69rem;
+        font-weight: 850;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .attendance-table thead .swimmer-header i {
+        color: rgba(255,255,255,.92);
+    }
+
+    /* Columna de porcentaje fija a la derecha */
+    .attendance-table tbody .percentage-column {
+        position: sticky !important;
+        right: 0 !important;
+        z-index: 12 !important;
+        width: 118px;
+        min-width: 118px;
+        max-width: 118px;
+        border-left: 1px solid #d1e2e2 !important;
+        background: #ffffff !important;
+        box-shadow: -8px 0 14px -12px rgba(20, 54, 56, .75);
+    }
+
+    .attendance-table tbody .swimmer-row:nth-child(even) .percentage-column {
+        background: #f8fbfb !important;
+    }
+
+    .attendance-table tbody .swimmer-row:hover .percentage-column {
+        background: #f1fbfb !important;
+    }
+
+    /* Intersección superior derecha: encabezado Asistencia */
+    .attendance-table thead .percentage-column {
+        position: sticky !important;
+        top: 0 !important;
+        right: 0 !important;
+        z-index: 40 !important;
+        width: 118px;
+        min-width: 118px;
+        max-width: 118px;
+        color: #ffffff !important;
+        border-left: 1px solid rgba(255,255,255,.26) !important;
+        background: linear-gradient(
+            180deg,
+            #008587 0%,
+            #007779 100%
+        ) !important;
+        box-shadow: -8px 0 14px -12px rgba(0, 0, 0, .45);
+    }
+
+    .attendance-table thead .percentage-header {
+        display: flex !important;
+        min-height: 72px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 6px;
+        padding: 5px 7px;
+        color: #ffffff !important;
+        font-size: .64rem;
+        font-weight: 850;
+        letter-spacing: .05em;
+        text-align: center;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .attendance-table thead .percentage-header i {
+        color: rgba(255,255,255,.92);
+    }
+
+    /* Las columnas centrales quedan por debajo de las dos columnas fijas */
+    .attendance-table tbody .attendance-cell {
+        position: relative;
+        z-index: 1;
+    }
+
     @media (max-width: 767px) {
-        .attendance-table .swimmer-column {
+        .attendance-table tbody .swimmer-column,
+        .attendance-table thead .swimmer-column {
             width: 205px;
             min-width: 205px;
             max-width: 205px;
         }
 
-        .attendance-table .percentage-column {
-            width: 112px;
-            min-width: 112px;
-            max-width: 112px;
+        .attendance-table tbody .percentage-column,
+        .attendance-table thead .percentage-column {
+            width: 108px;
+            min-width: 108px;
+            max-width: 108px;
+        }
+
+        .attendance-table thead .swimmer-header {
+            padding-inline: 8px;
+            font-size: .65rem;
+        }
+
+        .attendance-table thead .percentage-header {
+            font-size: .6rem;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .attendance-table tbody .swimmer-column,
+        .attendance-table thead .swimmer-column {
+            width: 190px;
+            min-width: 190px;
+            max-width: 190px;
+        }
+
+        .attendance-table tbody .percentage-column,
+        .attendance-table thead .percentage-column {
+            width: 102px;
+            min-width: 102px;
+            max-width: 102px;
         }
     }
 
