@@ -1,143 +1,33 @@
 {% extends 'base.html' %}
-
+{% block title %}{{ titulo }} | ÑM Performance{% endblock %}
 {% block content %}
-
-<div class="container py-4">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">{{ titulo }}</h3>
+<div class="competition-form-page">
+  <section class="competition-form-card">
+    <header class="competition-form-header">
+      <div><span><i class="fas fa-calendar-plus"></i> Calendario deportivo</span><h1>{{ titulo }}</h1><p>Configura el torneo y cómo participa en el cálculo anual de asistencia.</p></div>
+      <i class="fas fa-trophy"></i>
+    </header>
+    <form method="POST" class="competition-form-body">
+      <div class="row g-3">
+        <div class="col-md-4"><label>Fecha</label><input type="date" class="form-control" name="fecha" required value="{% if competencia %}{% if competencia.fecha.strftime is defined %}{{ competencia.fecha.strftime('%Y-%m-%d') }}{% else %}{{ competencia.fecha }}{% endif %}{% endif %}"></div>
+        <div class="col-md-4"><label>Lugar</label><input type="text" class="form-control" name="lugar" required value="{{ competencia.lugar if competencia else '' }}"></div>
+        <div class="col-md-4"><label>Estado</label><select class="form-select" name="estado"><option value="NO REALIZADO" {% if not competencia or competencia.estado == 'NO REALIZADO' %}selected{% endif %}>NO REALIZADO</option><option value="REALIZADO" {% if competencia and competencia.estado == 'REALIZADO' %}selected{% endif %}>REALIZADO</option></select></div>
+        <div class="col-md-6"><label>Organiza</label><input type="text" class="form-control" name="organiza" value="{{ competencia.organiza if competencia else '' }}"></div>
+        <div class="col-md-6"><label>Tipo de piscina</label><input type="text" class="form-control" name="tipo_piscina" placeholder="25 metros (cubierta)" value="{{ competencia.tipo_piscina if competencia else '' }}"></div>
+        <div class="col-12"><label>Nombre del torneo</label><input type="text" class="form-control" name="nombre" required value="{{ competencia.nombre if competencia else '' }}"></div>
+        <div class="col-12">
+          <div class="attendance-policy">
+            <div class="policy-icon"><i class="fas fa-percent"></i></div>
+            <div class="policy-copy"><strong>Porcentaje oficial de asistencia</strong><span>Actívalo para competencias regulares. Desactívalo para eventos especiales, regionales o internacionales: seguirán visibles y quienes participen recibirán reconocimiento.</span></div>
+            <div class="form-check form-switch policy-switch"><input class="form-check-input" type="checkbox" id="considera_asistencia" name="considera_asistencia" value="1" {% if not competencia or competencia.considera_asistencia is not defined or competencia.considera_asistencia %}checked{% endif %}><label class="form-check-label" for="considera_asistencia">Considerar</label></div>
+          </div>
         </div>
-
-        <div class="card-body">
-            <form method="POST">
-
-                <div class="row g-3">
-
-                    <div class="col-md-4">
-                        <label for="fecha" class="form-label">
-                            Fecha
-                        </label>
-
-                        <input
-                            type="date"
-                            class="form-control"
-                            id="fecha"
-                            name="fecha"
-                            required
-                            value="{% if competencia %}{% if competencia.fecha.strftime is defined %}{{ competencia.fecha.strftime('%Y-%m-%d') }}{% else %}{{ competencia.fecha }}{% endif %}{% endif %}"
-                        >
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="lugar" class="form-label">
-                            Lugar
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="lugar"
-                            name="lugar"
-                            required
-                            value="{{ competencia.lugar if competencia else '' }}"
-                        >
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="estado" class="form-label">
-                            Estado
-                        </label>
-
-                        <select
-                            class="form-select"
-                            id="estado"
-                            name="estado"
-                        >
-                            <option
-                                value="NO REALIZADO"
-                                {% if not competencia or competencia.estado == 'NO REALIZADO' %}
-                                    selected
-                                {% endif %}
-                            >
-                                NO REALIZADO
-                            </option>
-
-                            <option
-                                value="REALIZADO"
-                                {% if competencia and competencia.estado == 'REALIZADO' %}
-                                    selected
-                                {% endif %}
-                            >
-                                REALIZADO
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="organiza" class="form-label">
-                            Organiza
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="organiza"
-                            name="organiza"
-                            value="{{ competencia.organiza if competencia else '' }}"
-                        >
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="tipo_piscina" class="form-label">
-                            Tipo de piscina
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="tipo_piscina"
-                            name="tipo_piscina"
-                            placeholder="Ejemplo: 25 metros (cubierta)"
-                            value="{{ competencia.tipo_piscina if competencia else '' }}"
-                        >
-                    </div>
-
-                    <div class="col-12">
-                        <label for="nombre" class="form-label">
-                            Nombre del torneo
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="nombre"
-                            name="nombre"
-                            required
-                            value="{{ competencia.nombre if competencia else '' }}"
-                        >
-                    </div>
-
-                </div>
-
-                <div class="mt-4 d-flex gap-2">
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        Guardar
-                    </button>
-
-                    <a
-                        href="{{ url_for('calendario_competencias', anio=anio) }}"
-                        class="btn btn-secondary"
-                    >
-                        Cancelar
-                    </a>
-                </div>
-
-            </form>
-        </div>
-    </div>
+      </div>
+      <div class="competition-form-actions"><button type="submit" class="btn-save"><i class="fas fa-check"></i> Guardar competencia</button><a href="{{ url_for('calendario_competencias', anio=anio) }}" class="btn-cancel">Cancelar</a></div>
+    </form>
+  </section>
 </div>
-
+<style>
+.competition-form-page{padding:1rem 0 2rem}.competition-form-card{overflow:hidden;max-width:1050px;margin:auto;border:1px solid var(--border);border-radius:24px;background:var(--surface);box-shadow:var(--shadow-md)}.competition-form-header{display:flex;align-items:center;justify-content:space-between;padding:28px 30px;color:#fff;background:linear-gradient(135deg,#123b50,#009b9d)}.competition-form-header span{font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.competition-form-header h1{margin:6px 0 3px;font-size:1.8rem;font-weight:850}.competition-form-header p{margin:0;color:rgba(255,255,255,.78);font-size:.8rem}.competition-form-header>i{font-size:2.4rem;opacity:.28}.competition-form-body{padding:28px}.competition-form-body label{margin-bottom:7px;color:var(--text-primary);font-size:.73rem;font-weight:800}.competition-form-body .form-control,.competition-form-body .form-select{min-height:46px;border-color:var(--border);border-radius:12px;background:var(--surface-soft);color:var(--text-primary)}.attendance-policy{display:flex;align-items:center;gap:15px;padding:18px;border:1px solid var(--border);border-radius:17px;background:var(--surface-soft)}.policy-icon{display:flex;width:46px;height:46px;flex:0 0 46px;align-items:center;justify-content:center;color:var(--accent);border-radius:14px;background:var(--accent-soft)}.policy-copy{display:flex;min-width:0;flex:1;flex-direction:column}.policy-copy strong{color:var(--text-primary);font-size:.84rem}.policy-copy span{margin-top:4px;color:var(--text-secondary);font-size:.7rem;line-height:1.5}.policy-switch{display:flex;align-items:center;gap:8px}.competition-form-actions{display:flex;gap:10px;margin-top:24px}.btn-save,.btn-cancel{display:inline-flex;min-height:44px;align-items:center;justify-content:center;gap:8px;padding:0 16px;border:0;border-radius:11px;font-size:.75rem;font-weight:800;text-decoration:none}.btn-save{color:#fff;background:#009b9d}.btn-cancel{color:var(--text-primary);background:var(--surface-soft)}@media(max-width:767px){.competition-form-header,.competition-form-body{padding:21px}.competition-form-header>i{display:none}.attendance-policy{align-items:flex-start;flex-wrap:wrap}.policy-switch{width:100%;padding-left:60px}}
+</style>
 {% endblock %}

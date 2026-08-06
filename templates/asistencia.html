@@ -54,7 +54,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                 <div class="summary-icon"><i class="fas fa-flag-checkered"></i></div>
                 <div>
                     <div class="summary-number">{{ resumen_asistencia.competencias_transcurridas }}</div>
-                    <div class="summary-label">Competencias transcurridas</div>
+                    <div class="summary-label">Competencias oficiales</div>
                 </div>
             </article>
         </div>
@@ -88,6 +88,13 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                 </div>
             </article>
         </div>
+    </section>
+
+    <section class="special-kpis mb-4">
+        <article><i class="fas fa-earth-americas"></i><div><strong>{{ resumen_asistencia.competencias_especiales }}</strong><span>Competencias especiales</span></div></article>
+        <article><i class="fas fa-trophy"></i><div><strong>{{ resumen_asistencia.participaciones_especiales }}</strong><span>Participaciones reconocidas</span></div></article>
+        <article><i class="fas fa-users"></i><div><strong>{{ resumen_asistencia.nadadores_con_especial }}</strong><span>Nadadores representantes</span></div></article>
+        <div class="special-kpis-note"><strong>Competencia especial</strong><span>No afecta el porcentaje oficial; la participación sí entrega reconocimiento.</span></div>
     </section>
 
     <!-- Barra de herramientas -->
@@ -257,7 +264,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
                         {% for competencia in competencias %}
 
-                        <th class="competition-column">
+                        <th class="competition-column {% if competencia.es_especial %}competition-special{% endif %}">
 
                             <div class="competition-header">
 
@@ -359,7 +366,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                                 )
                             %}
 
-                        <td class="attendance-cell">
+                        <td class="attendance-cell {% if competencia.es_especial %}attendance-special-cell{% endif %}">
 
                             <button
                                 type="button"
@@ -379,6 +386,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                                 data-competencia-id="{{ competencia.id }}"
                                 data-estado="{{ estado }}"
                                 data-transcurrida="{{ 1 if competencia.transcurrida else 0 }}"
+                                data-considera-asistencia="{{ 1 if competencia.considera_asistencia else 0 }}"
                                 title="
                                     {% if estado == 'PRESENTE' %}
                                         Participó
@@ -435,6 +443,11 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                                 </div>
                                 <div class="attendance-progress" aria-hidden="true">
                                     <span style="width: {{ nadador.porcentaje_asistencia }}%"></span>
+                                </div>
+                                <div class="special-recognition {% if nadador.participaciones_especiales == 0 %}is-empty{% endif %}" title="{% if nadador.reconocimientos_especiales %}{% for r in nadador.reconocimientos_especiales %}{{ r.nombre }}{% if not loop.last %} · {% endif %}{% endfor %}{% else %}Sin participaciones especiales{% endif %}">
+                                    <i class="fas fa-trophy"></i>
+                                    <span class="special-recognition-count">{{ nadador.participaciones_especiales }}</span>
+                                    <small>especial{% if nadador.participaciones_especiales != 1 %}es{% endif %}</small>
                                 </div>
                                 {% if nadador.asistencias_pendientes > 0 %}
                                 <small class="attendance-pending-label">
@@ -2241,6 +2254,12 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
         }
     }
 
+
+    /* Competencias especiales y modo oscuro reforzado */
+    .special-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(280px,1.35fr);gap:12px}.special-kpis article,.special-kpis-note{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow-sm)}.special-kpis article>i{display:flex;width:38px;height:38px;flex:0 0 38px;align-items:center;justify-content:center;color:#b78100;border-radius:12px;background:#fff4d6}.special-kpis article div{display:flex;flex-direction:column}.special-kpis article strong{color:var(--text-primary);font-size:1.05rem}.special-kpis article span,.special-kpis-note span{color:var(--text-secondary);font-size:.64rem}.special-kpis-note{align-items:flex-start;flex-direction:column;justify-content:center}.special-kpis-note strong{color:#b78100;font-size:.7rem;text-transform:uppercase;letter-spacing:.07em}.competition-special{background:linear-gradient(180deg,#8a6500,#a77b00)!important}.special-badge{display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;padding:3px 6px;color:#fff3bd;border:1px solid rgba(255,243,189,.3);border-radius:999px;background:rgba(40,25,0,.22);font-size:.52rem;font-weight:850;text-transform:uppercase}.attendance-special-cell{background:color-mix(in srgb,#f4b400 5%,var(--surface))!important}.special-recognition{display:flex;align-items:center;gap:4px;margin-top:7px;color:#a87400;font-size:.59rem;font-weight:800}.special-recognition.is-empty{opacity:.4}.special-recognition small{font-size:.52rem;font-weight:700}.special-recognition i{font-size:.58rem}
+    [data-theme="dark"] .asistencia-page{color:#dce8e9}[data-theme="dark"] .summary-card,[data-theme="dark"] .asistencia-toolbar,[data-theme="dark"] .legend-card,[data-theme="dark"] .attendance-card,[data-theme="dark"] .attendance-help,[data-theme="dark"] .special-kpis article,[data-theme="dark"] .special-kpis-note{border-color:#294144!important;background:#132326!important;color:#dce8e9!important}[data-theme="dark"] .summary-number,[data-theme="dark"] .toolbar-title,[data-theme="dark"] .legend-title,[data-theme="dark"] .swimmer-data strong{color:#f2f8f8!important}[data-theme="dark"] .summary-label,[data-theme="dark"] .toolbar-description,[data-theme="dark"] .legend-item,[data-theme="dark"] .legend-cycle,[data-theme="dark"] .swimmer-data span,[data-theme="dark"] .attendance-footer{color:#9fb3b5!important}[data-theme="dark"] .attendance-table tbody .swimmer-column{background:#14282a!important}[data-theme="dark"] .attendance-table tbody .swimmer-row:nth-child(even) .swimmer-column{background:#193033!important}[data-theme="dark"] .attendance-table tbody .swimmer-row:hover .swimmer-column{background:#204044!important}[data-theme="dark"] .attendance-table tbody .percentage-column{background:#132527!important}[data-theme="dark"] .attendance-table tbody .swimmer-row:nth-child(even) .percentage-column{background:#172d30!important}[data-theme="dark"] .attendance-table tbody td{border-color:#2c4649!important;background:#102124;color:#d7e4e5}[data-theme="dark"] .attendance-table tbody tr:nth-child(even) td{background:#13272a}[data-theme="dark"] .attendance-special-cell{background:#282713!important}[data-theme="dark"] .attendance-percentage-detail,[data-theme="dark"] .attendance-pending-label{color:#9db0b2!important}[data-theme="dark"] .nadador-search input,[data-theme="dark"] .attendance-filter-select{border-color:#294144!important;background:#102023!important;color:#e6efef!important}
+    @media(max-width:1199px){.special-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:767px){.special-kpis{grid-template-columns:1fr}}
+
 </style>
 
 <script>
@@ -2565,7 +2584,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
         });
 
         function actualizarPorcentajeFila(fila) {
-            const botonesFila = fila.querySelectorAll(".attendance-button[data-transcurrida='1']");
+            const botonesFila = fila.querySelectorAll(".attendance-button[data-transcurrida='1'][data-considera-asistencia='1']");
             let presentes = 0;
             let aplicables = 0;
             let ausentes = 0;
@@ -2604,6 +2623,15 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
             if (valor) valor.textContent = porcentaje + "%";
             if (detalle) detalle.textContent = presentes + "/" + aplicables;
             if (barra) barra.style.width = porcentaje + "%";
+
+            const especialesPresentes = fila.querySelectorAll(
+                ".attendance-button[data-transcurrida='1'][data-considera-asistencia='0'][data-estado='PRESENTE']"
+            ).length;
+            const reconocimiento = fila.querySelector(".special-recognition");
+            const reconocimientoCantidad = fila.querySelector(".special-recognition-count");
+            if (reconocimientoCantidad) reconocimientoCantidad.textContent = especialesPresentes;
+            if (reconocimiento) reconocimiento.classList.toggle("is-empty", especialesPresentes === 0);
+
             if (pendiente) {
                 pendiente.textContent = pendientes + " pendiente" + (pendientes === 1 ? "" : "s");
                 pendiente.style.display = pendientes > 0 ? "block" : "none";
