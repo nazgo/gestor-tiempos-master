@@ -1,22 +1,20 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Gestión de Usuarios | Gestor Ñuñoa Master
+Gestión de Usuarios | ÑM Performance
 {% endblock %}
 
 {% block content %}
 
 <div class="usuarios-page">
 
-    <!-- Encabezado -->
+    <!-- HERO -->
     <section class="usuarios-hero mb-4">
-
         <div class="usuarios-hero-content">
 
             <div>
-
                 <div class="usuarios-kicker">
-                    <i class="fas fa-users-cog"></i>
+                    <i class="fas fa-users-gear"></i>
                     Administración del sistema
                 </div>
 
@@ -25,131 +23,86 @@ Gestión de Usuarios | Gestor Ñuñoa Master
                 </h1>
 
                 <p class="usuarios-subtitle mb-0">
-                    Administra accesos, roles y credenciales del sistema.
+                    Administra accesos, roles y credenciales de ÑM Performance.
                 </p>
-
             </div>
 
             <div class="usuarios-hero-actions">
-
                 <div class="usuarios-total">
-
-                    <span class="usuarios-total-numero">
-                        {{ usuarios|length }}
-                    </span>
-
-                    <span class="usuarios-total-texto">
-                        usuarios registrados
-                    </span>
-
+                    <strong>{{ usuarios|length }}</strong>
+                    <span>usuarios registrados</span>
                 </div>
 
                 <button
                     type="button"
-                    class="btn btn-nuevo-usuario"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalCrear"
+                    class="usuarios-primary-button"
+                    data-user-dialog-open="crearUsuarioDialog"
                 >
-                    <i class="fas fa-user-plus me-1"></i>
-                    Nuevo Usuario
+                    <i class="fas fa-user-plus"></i>
+                    Nuevo usuario
                 </button>
-
             </div>
 
         </div>
-
     </section>
 
-    <!-- Información de roles -->
-    <section class="roles-info mb-4">
 
-        <div class="row g-3">
+    <!-- ROLES -->
+    <section class="roles-grid mb-4">
 
-            <div class="col-md-4">
-
-                <div class="rol-info-card">
-
-                    <div class="rol-info-icon rol-admin">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-
-                    <div>
-                        <strong>Administrador</strong>
-
-                        <p class="mb-0">
-                            Control completo del sistema y gestión de usuarios.
-                        </p>
-                    </div>
-
-                </div>
-
+        <article class="role-card">
+            <div class="role-icon role-admin">
+                <i class="fas fa-user-shield"></i>
             </div>
-
-            <div class="col-md-4">
-
-                <div class="rol-info-card">
-
-                    <div class="rol-info-icon rol-editor">
-                        <i class="fas fa-user-pen"></i>
-                    </div>
-
-                    <div>
-                        <strong>Editor</strong>
-
-                        <p class="mb-0">
-                            Puede registrar, editar e importar información.
-                        </p>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-4">
-
-                <div class="rol-info-card">
-
-                    <div class="rol-info-icon rol-viewer">
-                        <i class="fas fa-user"></i>
-                    </div>
-
-                    <div>
-                        <strong>Viewer</strong>
-
-                        <p class="mb-0">
-                            Acceso de consulta sin permisos de modificación.
-                        </p>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-    <!-- Tabla -->
-    <section class="card usuarios-card border-0 shadow-sm">
-
-        <div class="card-header usuarios-card-header">
-
             <div>
+                <strong>Administrador</strong>
+                <p>Control completo y gestión de usuarios.</p>
+            </div>
+        </article>
 
-                <h2 class="usuarios-card-title mb-1">
+        <article class="role-card">
+            <div class="role-icon role-editor">
+                <i class="fas fa-user-pen"></i>
+            </div>
+            <div>
+                <strong>Editor</strong>
+                <p>Puede registrar, editar e importar información.</p>
+            </div>
+        </article>
+
+        <article class="role-card">
+            <div class="role-icon role-viewer">
+                <i class="fas fa-eye"></i>
+            </div>
+            <div>
+                <strong>Viewer</strong>
+                <p>Acceso de consulta sin permisos de modificación.</p>
+            </div>
+        </article>
+
+    </section>
+
+
+    <!-- PANEL -->
+    <section class="usuarios-panel">
+
+        <header class="usuarios-panel-header">
+            <div>
+                <span class="panel-eyebrow">
+                    Control de accesos
+                </span>
+
+                <h2>
                     Usuarios registrados
                 </h2>
 
-                <p class="usuarios-card-subtitle mb-0">
+                <p>
                     Cambia roles, restablece contraseñas o elimina accesos.
                 </p>
-
             </div>
 
             <div class="usuarios-search">
-
                 <i class="fas fa-search"></i>
-
                 <input
                     type="search"
                     id="buscarUsuario"
@@ -157,688 +110,573 @@ Gestión de Usuarios | Gestor Ñuñoa Master
                     placeholder="Buscar usuario..."
                     autocomplete="off"
                 >
-
-            </div>
-
-        </div>
-
-        <div class="card-body p-0">
-
-            <div class="table-responsive">
-
-                <table
-                    class="table usuarios-table align-middle mb-0"
-                    id="tablaUsuarios"
+                <button
+                    type="button"
+                    id="limpiarBuscarUsuario"
+                    class="search-clear d-none"
+                    aria-label="Limpiar búsqueda"
                 >
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </header>
 
-                    <thead>
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Nombre completo</th>
-                            <th>Rol</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
+        <div class="table-responsive">
+            <table
+                class="table usuarios-table align-middle mb-0"
+                id="tablaUsuarios"
+            >
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre completo</th>
+                        <th>Rol</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
 
-                        {% for u in usuarios %}
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr class="usuario-row">
 
-                        <tr class="usuario-row">
-
-                            <td>
-
-                                <div class="usuario-identidad">
-
-                                    <div class="usuario-avatar">
-                                        {{ u.username[:1]|upper }}
-                                    </div>
-
-                                    <div>
-
-                                        <div class="usuario-username">
-                                            {{ u.username }}
-                                        </div>
-
-                                        {% if u.id == 1 %}
-                                        <span class="usuario-principal">
-                                            <i class="fas fa-star"></i>
-                                            Usuario principal
-                                        </span>
-                                        {% endif %}
-
-                                    </div>
-
+                        <td>
+                            <div class="usuario-identidad">
+                                <div class="usuario-avatar">
+                                    {{ u.username[:1]|upper }}
                                 </div>
 
-                            </td>
+                                <div class="usuario-identidad-copy">
+                                    <strong>{{ u.username }}</strong>
 
-                            <td>
+                                    {% if u.id == 1 %}
+                                    <span class="usuario-principal">
+                                        <i class="fas fa-star"></i>
+                                        Usuario principal
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
 
-                                <span class="usuario-nombre">
-                                    {{ u.nombre or 'Sin nombre registrado' }}
-                                </span>
+                        <td>
+                            <span class="usuario-nombre">
+                                {{ u.nombre or 'Sin nombre registrado' }}
+                            </span>
+                        </td>
 
-                            </td>
+                        <td>
+                            <form
+                                method="POST"
+                                action="{{ url_for('cambiar_rol', user_id=u.id) }}"
+                                class="rol-form"
+                            >
+                                <select
+                                    name="rol"
+                                    class="form-select form-select-sm rol-select rol-{{ u.rol }}"
+                                    data-role-original="{{ u.rol }}"
+                                    {% if u.id == 1 %}disabled{% endif %}
+                                >
+                                    <option value="admin" {% if u.rol == 'admin' %}selected{% endif %}>
+                                        Administrador
+                                    </option>
+                                    <option value="editor" {% if u.rol == 'editor' %}selected{% endif %}>
+                                        Editor
+                                    </option>
+                                    <option value="viewer" {% if u.rol == 'viewer' %}selected{% endif %}>
+                                        Viewer
+                                    </option>
+                                </select>
+                            </form>
+                        </td>
 
-                            <td>
+                        <td class="text-center">
+                            <div class="acciones-usuario">
 
+                                <button
+                                    type="button"
+                                    class="accion-btn accion-password"
+                                    title="Cambiar contraseña"
+                                    data-user-dialog-open="passwordDialog{{ u.id }}"
+                                >
+                                    <i class="fas fa-key"></i>
+                                </button>
+
+                                {% if u.id != 1 %}
                                 <form
                                     method="POST"
-                                    action="{{ url_for('cambiar_rol', user_id=u.id) }}"
-                                    class="rol-form"
+                                    action="{{ url_for('eliminar_usuario', user_id=u.id) }}"
+                                    class="d-inline eliminar-form"
+                                    data-username="{{ u.username }}"
                                 >
-
-                                    <select
-                                        name="rol"
-                                        class="form-select form-select-sm rol-select rol-{{ u.rol }}"
-                                        onchange="confirmarCambioRol(this)"
-                                        {% if u.id == 1 %}disabled{% endif %}
-                                    >
-                                        <option
-                                            value="admin"
-                                            {% if u.rol == 'admin' %}selected{% endif %}
-                                        >
-                                            Administrador
-                                        </option>
-
-                                        <option
-                                            value="editor"
-                                            {% if u.rol == 'editor' %}selected{% endif %}
-                                        >
-                                            Editor
-                                        </option>
-
-                                        <option
-                                            value="viewer"
-                                            {% if u.rol == 'viewer' %}selected{% endif %}
-                                        >
-                                            Viewer
-                                        </option>
-                                    </select>
-
-                                </form>
-
-                            </td>
-
-                            <td class="text-center">
-
-                                <div class="acciones-usuario">
-
                                     <button
-                                        type="button"
-                                        class="btn accion-btn accion-password"
-                                        title="Cambiar contraseña"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalPass{{ u.id }}"
+                                        type="submit"
+                                        class="accion-btn accion-eliminar"
+                                        title="Eliminar usuario"
                                     >
-                                        <i class="fas fa-key"></i>
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
+                                </form>
+                                {% else %}
+                                <span
+                                    class="accion-protegida"
+                                    title="El usuario principal no se puede eliminar"
+                                >
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                {% endif %}
 
-                                    {% if u.id != 1 %}
+                            </div>
+                        </td>
 
-                                    <form
-                                        method="POST"
-                                        action="{{ url_for('eliminar_usuario', user_id=u.id) }}"
-                                        class="d-inline"
-                                        onsubmit="return confirmarEliminacion('{{ u.username }}');"
-                                    >
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="usuarios-empty">
+                                <i class="fas fa-users-slash"></i>
+                                <h3>No hay usuarios registrados</h3>
+                                <p>Crea el primer usuario desde el botón superior.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-                                        <button
-                                            type="submit"
-                                            class="btn accion-btn accion-eliminar"
-                                            title="Eliminar usuario"
-                                        >
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-
-                                    </form>
-
-                                    {% else %}
-
-                                    <span
-                                        class="accion-protegida"
-                                        title="El usuario principal no se puede eliminar"
-                                    >
-                                        <i class="fas fa-lock"></i>
-                                    </span>
-
-                                    {% endif %}
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                        {% else %}
-
-                        <tr>
-
-                            <td
-                                colspan="4"
-                                class="text-center py-5"
-                            >
-
-                                <div class="sin-usuarios">
-
-                                    <i class="fas fa-users-slash"></i>
-
-                                    <h4>
-                                        No hay usuarios registrados
-                                    </h4>
-
-                                    <p class="mb-0">
-                                        Crea el primer usuario desde el botón superior.
-                                    </p>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <div
-                id="sinResultadosBusqueda"
-                class="sin-resultados-busqueda d-none"
-            >
-                <i class="fas fa-search"></i>
-                No se encontraron usuarios que coincidan con la búsqueda.
-            </div>
-
+        <div
+            id="sinResultadosBusqueda"
+            class="usuarios-search-empty d-none"
+        >
+            <i class="fas fa-search"></i>
+            No se encontraron usuarios.
         </div>
 
     </section>
 
-    <!-- Volver -->
-    <div class="text-center mt-4">
 
+    <div class="usuarios-page-actions mt-4">
         <a
             href="{{ url_for('index') }}"
-            class="btn btn-volver"
+            class="usuarios-back-button"
         >
-            <i class="fas fa-arrow-left me-1"></i>
+            <i class="fas fa-arrow-left"></i>
             Volver al Inicio
         </a>
-
     </div>
 
 </div>
 
-<!-- Modal crear usuario -->
+
+<!-- =========================================================
+     DIÁLOGO CREAR USUARIO
+     ========================================================= -->
 <div
-    class="modal fade"
-    id="modalCrear"
-    tabindex="-1"
-    aria-labelledby="modalCrearLabel"
+    class="user-dialog"
+    id="crearUsuarioDialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="crearUsuarioTitulo"
     aria-hidden="true"
 >
+    <button
+        type="button"
+        class="user-dialog-backdrop"
+        data-user-dialog-close
+        aria-label="Cerrar"
+    ></button>
 
-    <div class="modal-dialog modal-dialog-centered">
+    <div
+        class="user-dialog-panel"
+        role="document"
+        tabindex="-1"
+    >
+        <header class="user-dialog-header">
+            <div>
+                <span>Nuevo acceso</span>
+                <h2 id="crearUsuarioTitulo">Crear usuario</h2>
+            </div>
 
-        <div class="modal-content modal-usuario-content">
+            <button
+                type="button"
+                class="user-dialog-close"
+                data-user-dialog-close
+                aria-label="Cerrar"
+            >
+                <i class="fas fa-times"></i>
+            </button>
+        </header>
 
-            <div class="modal-header modal-usuario-header">
+        <form
+            method="POST"
+            action="{{ url_for('crear_usuario') }}"
+            class="user-dialog-form"
+        >
+            <div class="user-dialog-body">
 
-                <div>
-
-                    <div class="modal-kicker">
-                        Nuevo acceso
-                    </div>
-
-                    <h5
-                        class="modal-title"
-                        id="modalCrearLabel"
+                <div class="user-field">
+                    <label for="nuevoUsername">
+                        <i class="fas fa-user"></i>
+                        Usuario
+                    </label>
+                    <input
+                        type="text"
+                        id="nuevoUsername"
+                        name="username"
+                        class="form-control"
+                        placeholder="Ej.: cgomez"
+                        autocomplete="username"
+                        required
                     >
-                        Crear Usuario
-                    </h5>
-
                 </div>
 
-                <button
-                    type="button"
-                    class="btn-close btn-close-white"
-                    data-bs-dismiss="modal"
-                    aria-label="Cerrar"
-                ></button>
+                <div class="user-field">
+                    <label for="nuevoPassword">
+                        <i class="fas fa-lock"></i>
+                        Contraseña
+                    </label>
+
+                    <div class="user-password-wrap">
+                        <input
+                            type="password"
+                            id="nuevoPassword"
+                            name="password"
+                            class="form-control"
+                            placeholder="Mínimo 6 caracteres"
+                            autocomplete="new-password"
+                            minlength="6"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="user-password-toggle"
+                            data-password-toggle="nuevoPassword"
+                            aria-label="Mostrar contraseña"
+                        >
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <div class="password-strength">
+                        <span id="passwordStrengthBar"></span>
+                    </div>
+
+                    <small id="passwordStrengthText">
+                        Utiliza al menos 6 caracteres.
+                    </small>
+                </div>
+
+                <div class="user-field">
+                    <label for="nuevoNombre">
+                        <i class="fas fa-id-card"></i>
+                        Nombre completo
+                    </label>
+                    <input
+                        type="text"
+                        id="nuevoNombre"
+                        name="nombre"
+                        class="form-control"
+                        placeholder="Nombre y apellido"
+                    >
+                </div>
+
+                <div class="user-field">
+                    <label for="nuevoRol">
+                        <i class="fas fa-user-tag"></i>
+                        Rol
+                    </label>
+                    <select
+                        id="nuevoRol"
+                        name="rol"
+                        class="form-select"
+                        required
+                    >
+                        <option value="admin">Administrador</option>
+                        <option value="editor" selected>Editor</option>
+                        <option value="viewer">Viewer</option>
+                    </select>
+                </div>
 
             </div>
 
-            <form
-                method="POST"
-                action="{{ url_for('crear_usuario') }}"
-            >
+            <footer class="user-dialog-footer">
+                <button
+                    type="button"
+                    class="dialog-secondary-button"
+                    data-user-dialog-close
+                >
+                    Cancelar
+                </button>
 
-                <div class="modal-body p-4">
-
-                    <div class="mb-3">
-
-                        <label
-                            for="nuevoUsername"
-                            class="form-label modal-label"
-                        >
-                            <i class="fas fa-user me-1"></i>
-                            Usuario
-                        </label>
-
-                        <input
-                            type="text"
-                            id="nuevoUsername"
-                            name="username"
-                            class="form-control form-control-lg"
-                            placeholder="Ej.: cgomez"
-                            autocomplete="username"
-                            required
-                        >
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label
-                            for="nuevoPassword"
-                            class="form-label modal-label"
-                        >
-                            <i class="fas fa-lock me-1"></i>
-                            Contraseña
-                        </label>
-
-                        <div class="password-field">
-
-                            <input
-                                type="password"
-                                id="nuevoPassword"
-                                name="password"
-                                class="form-control form-control-lg"
-                                placeholder="Ingrese una contraseña"
-                                autocomplete="new-password"
-                                minlength="6"
-                                required
-                            >
-
-                            <button
-                                type="button"
-                                class="password-toggle"
-                                onclick="alternarPassword('nuevoPassword', this)"
-                                aria-label="Mostrar contraseña"
-                            >
-                                <i class="fas fa-eye"></i>
-                            </button>
-
-                        </div>
-
-                        <div class="form-text">
-                            Se recomienda utilizar al menos 6 caracteres.
-                        </div>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label
-                            for="nuevoNombre"
-                            class="form-label modal-label"
-                        >
-                            <i class="fas fa-id-card me-1"></i>
-                            Nombre completo
-                        </label>
-
-                        <input
-                            type="text"
-                            id="nuevoNombre"
-                            name="nombre"
-                            class="form-control form-control-lg"
-                            placeholder="Nombre y apellido"
-                        >
-
-                    </div>
-
-                    <div>
-
-                        <label
-                            for="nuevoRol"
-                            class="form-label modal-label"
-                        >
-                            <i class="fas fa-user-tag me-1"></i>
-                            Rol
-                        </label>
-
-                        <select
-                            id="nuevoRol"
-                            name="rol"
-                            class="form-select form-select-lg"
-                            required
-                        >
-                            <option value="admin">
-                                Administrador
-                            </option>
-
-                            <option
-                                value="editor"
-                                selected
-                            >
-                                Editor
-                            </option>
-
-                            <option value="viewer">
-                                Viewer
-                            </option>
-                        </select>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer modal-usuario-footer">
-
-                    <button
-                        type="button"
-                        class="btn btn-cancelar"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancelar
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="btn btn-crear"
-                    >
-                        <i class="fas fa-user-plus me-1"></i>
-                        Crear Usuario
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
+                <button
+                    type="submit"
+                    class="dialog-primary-button"
+                >
+                    <i class="fas fa-user-plus"></i>
+                    Crear usuario
+                </button>
+            </footer>
+        </form>
     </div>
-
 </div>
 
-<!-- Modales de contraseña -->
+
+<!-- =========================================================
+     DIÁLOGOS CAMBIAR CONTRASEÑA
+     ========================================================= -->
 {% for u in usuarios %}
 
 <div
-    class="modal fade"
-    id="modalPass{{ u.id }}"
-    tabindex="-1"
-    aria-labelledby="modalPassLabel{{ u.id }}"
+    class="user-dialog"
+    id="passwordDialog{{ u.id }}"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="passwordDialogTitulo{{ u.id }}"
     aria-hidden="true"
 >
+    <button
+        type="button"
+        class="user-dialog-backdrop"
+        data-user-dialog-close
+        aria-label="Cerrar"
+    ></button>
 
-    <div class="modal-dialog modal-dialog-centered">
+    <div
+        class="user-dialog-panel user-dialog-panel-small"
+        role="document"
+        tabindex="-1"
+    >
+        <header class="user-dialog-header password-header">
+            <div>
+                <span>Seguridad</span>
+                <h2 id="passwordDialogTitulo{{ u.id }}">
+                    Cambiar contraseña
+                </h2>
+            </div>
 
-        <div class="modal-content modal-usuario-content">
+            <button
+                type="button"
+                class="user-dialog-close"
+                data-user-dialog-close
+                aria-label="Cerrar"
+            >
+                <i class="fas fa-times"></i>
+            </button>
+        </header>
 
-            <div class="modal-header modal-password-header">
+        <form
+            method="POST"
+            action="{{ url_for('cambiar_password', user_id=u.id) }}"
+            class="user-dialog-form"
+        >
+            <div class="user-dialog-body">
 
-                <div>
-
-                    <div class="modal-kicker">
-                        Seguridad
+                <div class="password-user-summary">
+                    <div class="usuario-avatar">
+                        {{ u.username[:1]|upper }}
                     </div>
 
-                    <h5
-                        class="modal-title"
-                        id="modalPassLabel{{ u.id }}"
-                    >
-                        Cambiar Contraseña
-                    </h5>
-
+                    <div>
+                        <span>Nueva contraseña para</span>
+                        <strong>{{ u.username }}</strong>
+                    </div>
                 </div>
 
-                <button
-                    type="button"
-                    class="btn-close btn-close-white"
-                    data-bs-dismiss="modal"
-                    aria-label="Cerrar"
-                ></button>
+                <div class="user-field">
+                    <label for="password{{ u.id }}">
+                        Nueva contraseña
+                    </label>
+
+                    <div class="user-password-wrap">
+                        <input
+                            type="password"
+                            id="password{{ u.id }}"
+                            name="new_password"
+                            class="form-control"
+                            placeholder="Mínimo 6 caracteres"
+                            autocomplete="new-password"
+                            minlength="6"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="user-password-toggle"
+                            data-password-toggle="password{{ u.id }}"
+                            aria-label="Mostrar contraseña"
+                        >
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
 
             </div>
 
-            <form
-                method="POST"
-                action="{{ url_for('cambiar_password', user_id=u.id) }}"
-            >
+            <footer class="user-dialog-footer">
+                <button
+                    type="button"
+                    class="dialog-secondary-button"
+                    data-user-dialog-close
+                >
+                    Cancelar
+                </button>
 
-                <div class="modal-body p-4">
-
-                    <div class="password-user-card">
-
-                        <div class="usuario-avatar password-avatar">
-                            {{ u.username[:1]|upper }}
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Nueva contraseña para
-                            </span>
-
-                            <strong>
-                                {{ u.username }}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                    <div class="mt-4">
-
-                        <label
-                            for="password{{ u.id }}"
-                            class="form-label modal-label"
-                        >
-                            Nueva contraseña
-                        </label>
-
-                        <div class="password-field">
-
-                            <input
-                                type="password"
-                                id="password{{ u.id }}"
-                                name="new_password"
-                                class="form-control form-control-lg"
-                                placeholder="Ingrese la nueva contraseña"
-                                minlength="6"
-                                autocomplete="new-password"
-                                required
-                            >
-
-                            <button
-                                type="button"
-                                class="password-toggle"
-                                onclick="alternarPassword('password{{ u.id }}', this)"
-                                aria-label="Mostrar contraseña"
-                            >
-                                <i class="fas fa-eye"></i>
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer modal-usuario-footer">
-
-                    <button
-                        type="button"
-                        class="btn btn-cancelar"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancelar
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="btn btn-password"
-                    >
-                        <i class="fas fa-key me-1"></i>
-                        Cambiar Contraseña
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
+                <button
+                    type="submit"
+                    class="dialog-password-button"
+                >
+                    <i class="fas fa-key"></i>
+                    Cambiar contraseña
+                </button>
+            </footer>
+        </form>
     </div>
-
 </div>
 
 {% endfor %}
 
+
 <style>
     .usuarios-page {
         min-height: 100vh;
-        padding: 0.5rem 0 2rem;
+        padding: .5rem 0 2rem;
     }
 
-    /* Hero */
     .usuarios-hero {
         position: relative;
         overflow: hidden;
         border-radius: 24px;
         background:
-            linear-gradient(
-                135deg,
-                #00898b 0%,
-                #009b9d 55%,
-                #00adaf 100%
-            );
-        box-shadow:
-            0 16px 38px
-            rgba(0, 126, 128, 0.20);
+            radial-gradient(circle at 84% 10%, rgba(255,255,255,.15), transparent 30%),
+            linear-gradient(135deg, #08727b, #009b9d 56%, #18b5b6);
+        box-shadow: 0 16px 38px rgba(0,126,128,.2);
+    }
+
+    .usuarios-hero::before,
+    .usuarios-hero::after {
+        position: absolute;
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 50%;
+        content: "";
     }
 
     .usuarios-hero::before {
-        position: absolute;
-        top: -90px;
-        right: 115px;
-        width: 230px;
-        height: 230px;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        border-radius: 50%;
-        content: "";
+        top: -100px;
+        right: 150px;
+        width: 250px;
+        height: 250px;
     }
 
     .usuarios-hero::after {
-        position: absolute;
-        right: -80px;
-        bottom: -140px;
-        width: 320px;
-        height: 320px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.08);
-        content: "";
+        right: -90px;
+        bottom: -160px;
+        width: 340px;
+        height: 340px;
+        background: rgba(255,255,255,.06);
     }
 
     .usuarios-hero-content {
         position: relative;
-        z-index: 1;
+        z-index: 2;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 30px;
+        gap: 28px;
         padding: 34px 40px;
-        color: #ffffff;
+        color: #fff;
     }
 
     .usuarios-kicker {
         margin-bottom: 8px;
-        color: rgba(255, 255, 255, 0.82);
-        font-size: 0.76rem;
-        font-weight: 750;
-        letter-spacing: 0.11em;
+        color: rgba(255,255,255,.8);
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .11em;
         text-transform: uppercase;
     }
 
     .usuarios-title {
-        margin-bottom: 7px;
-        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        margin: 0;
+        font-size: clamp(2.1rem,4vw,3.2rem);
         font-weight: 850;
-        letter-spacing: -0.04em;
+        letter-spacing: -.045em;
     }
 
     .usuarios-subtitle {
-        max-width: 650px;
-        color: rgba(255, 255, 255, 0.86);
+        margin-top: 8px;
+        color: rgba(255,255,255,.84);
+        font-size: .85rem;
     }
 
     .usuarios-hero-actions {
         display: flex;
         min-width: 190px;
         flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
+        gap: 11px;
     }
 
     .usuarios-total {
         display: flex;
         flex-direction: column;
         padding: 13px 18px;
-        border: 1px solid rgba(255, 255, 255, 0.22);
+        border: 1px solid rgba(255,255,255,.22);
         border-radius: 14px;
-        background: rgba(255, 255, 255, 0.12);
+        background: rgba(255,255,255,.11);
         text-align: center;
-        backdrop-filter: blur(5px);
+        backdrop-filter: blur(6px);
     }
 
-    .usuarios-total-numero {
+    .usuarios-total strong {
         font-size: 1.8rem;
         font-weight: 850;
         line-height: 1;
     }
 
-    .usuarios-total-texto {
+    .usuarios-total span {
         margin-top: 5px;
-        color: rgba(255, 255, 255, 0.80);
-        font-size: 0.7rem;
+        color: rgba(255,255,255,.78);
+        font-size: .67rem;
     }
 
-    .btn-nuevo-usuario {
-        padding: 0.7rem 1rem;
-        color: #007d7f;
-        border: 1px solid #ffffff;
+    .usuarios-primary-button {
+        display: inline-flex;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: #087d7f;
+        border: 1px solid #fff;
         border-radius: 11px;
-        background: #ffffff;
+        background: #fff;
+        font-size: .75rem;
         font-weight: 800;
     }
 
-    .btn-nuevo-usuario:hover {
-        color: #ffffff;
-        border-color: rgba(255, 255, 255, 0.75);
-        background: rgba(255, 255, 255, 0.16);
+    .usuarios-primary-button:hover {
+        color: #fff;
+        background: rgba(255,255,255,.15);
     }
 
-    /* Roles */
-    .rol-info-card {
+    .roles-grid {
+        display: grid;
+        grid-template-columns: repeat(3,minmax(0,1fr));
+        gap: 14px;
+    }
+
+    .role-card {
         display: flex;
-        height: 100%;
         align-items: center;
         gap: 13px;
-        padding: 15px;
-        border: 1px solid #dceaea;
-        border-radius: 15px;
-        background: #ffffff;
-        box-shadow:
-            0 5px 15px
-            rgba(25, 68, 70, 0.06);
+        padding: 16px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
     }
 
-    .rol-info-icon {
+    .role-icon {
         display: inline-flex;
         width: 45px;
         height: 45px;
@@ -846,107 +684,127 @@ Gestión de Usuarios | Gestor Ñuñoa Master
         align-items: center;
         justify-content: center;
         border-radius: 13px;
-        font-size: 1.1rem;
     }
 
-    .rol-admin {
-        color: #8b6510;
-        background: #fff5d6;
+    .role-admin {
+        color: #9a6f0d;
+        background: #fff4d2;
     }
 
-    .rol-editor {
-        color: #007d7f;
-        background: #eaf9f9;
+    .role-editor {
+        color: var(--accent);
+        background: var(--accent-soft);
     }
 
-    .rol-viewer {
-        color: #5d6d70;
-        background: #eef2f2;
+    .role-viewer {
+        color: var(--text-secondary);
+        background: var(--surface-soft);
     }
 
-    .rol-info-card strong {
-        color: #2f3f40;
-        font-size: 0.86rem;
+    .role-card strong {
+        color: var(--text-primary);
+        font-size: .83rem;
     }
 
-    .rol-info-card p {
-        margin-top: 3px;
-        color: #788789;
-        font-size: 0.73rem;
+    .role-card p {
+        margin: 3px 0 0;
+        color: var(--text-secondary);
+        font-size: .68rem;
         line-height: 1.4;
     }
 
-    /* Tabla */
-    .usuarios-card {
+    .usuarios-panel {
         overflow: hidden;
-        border-radius: 19px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
     }
 
-    .usuarios-card-header {
+    .usuarios-panel-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 18px;
-        padding: 18px 20px;
-        border: 0;
-        background: #ffffff;
+        padding: 19px 21px;
+        border-bottom: 1px solid var(--border);
     }
 
-    .usuarios-card-title {
-        color: #2c3b3c;
-        font-size: 1.18rem;
+    .panel-eyebrow {
+        color: var(--accent);
+        font-size: .63rem;
+        font-weight: 800;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+    }
+
+    .usuarios-panel-header h2 {
+        margin: 4px 0 2px;
+        color: var(--text-primary);
+        font-size: 1.16rem;
         font-weight: 850;
     }
 
-    .usuarios-card-subtitle {
-        color: #788789;
-        font-size: 0.78rem;
+    .usuarios-panel-header p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: .72rem;
     }
 
     .usuarios-search {
         position: relative;
-        width: min(290px, 100%);
+        width: min(300px,100%);
     }
 
-    .usuarios-search i {
+    .usuarios-search > i {
         position: absolute;
         top: 50%;
         left: 13px;
         z-index: 2;
-        color: #819092;
+        color: var(--text-secondary);
         transform: translateY(-50%);
     }
 
     .usuarios-search input {
-        padding-left: 38px;
-        border-color: #d9e7e7;
+        min-height: 42px;
+        padding-left: 39px;
+        padding-right: 39px;
         border-radius: 11px;
+        font-size: .75rem;
+    }
+
+    .search-clear {
+        position: absolute;
+        top: 50%;
+        right: 7px;
+        display: inline-flex;
+        width: 30px;
+        height: 30px;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        transform: translateY(-50%);
     }
 
     .usuarios-table thead th {
         padding: 12px 18px;
-        color: #627173;
-        border-top: 1px solid #edf2f2;
-        border-bottom: 1px solid #dce7e7;
-        background: #f5f9f9;
-        font-size: 0.72rem;
+        color: var(--text-secondary);
+        border-color: var(--border);
+        background: var(--surface-soft);
+        font-size: .67rem;
         font-weight: 800;
-        letter-spacing: 0.05em;
+        letter-spacing: .06em;
         text-transform: uppercase;
         white-space: nowrap;
     }
 
     .usuarios-table tbody td {
         padding: 13px 18px;
-        border-color: #edf2f2;
-    }
-
-    .usuarios-table tbody tr {
-        transition: background 0.15s ease;
-    }
-
-    .usuarios-table tbody tr:hover {
-        background: #f8fdfd;
+        color: var(--text-primary);
+        border-color: var(--border);
     }
 
     .usuario-identidad {
@@ -962,22 +820,21 @@ Gestión de Usuarios | Gestor Ñuñoa Master
         min-width: 42px;
         align-items: center;
         justify-content: center;
-        color: #ffffff;
+        color: #fff;
         border-radius: 13px;
-        background:
-            linear-gradient(
-                135deg,
-                #009294,
-                #00b3b5
-            );
-        font-size: 1rem;
+        background: linear-gradient(135deg,#009294,#00b3b5);
+        font-size: .95rem;
         font-weight: 850;
     }
 
-    .usuario-username {
-        color: #2e3e3f;
-        font-size: 0.9rem;
-        font-weight: 800;
+    .usuario-identidad-copy {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .usuario-identidad-copy strong {
+        color: var(--text-primary);
+        font-size: .83rem;
     }
 
     .usuario-principal {
@@ -985,45 +842,29 @@ Gestión de Usuarios | Gestor Ñuñoa Master
         align-items: center;
         gap: 4px;
         margin-top: 3px;
-        color: #997012;
-        font-size: 0.65rem;
-        font-weight: 700;
+        color: var(--warning);
+        font-size: .61rem;
+        font-weight: 750;
     }
 
     .usuario-nombre {
-        color: #58686a;
-        font-size: 0.84rem;
+        color: var(--text-secondary);
+        font-size: .8rem;
     }
 
     .rol-form {
-        display: inline-block;
         min-width: 145px;
     }
 
     .rol-select {
         border-radius: 9px;
-        font-size: 0.78rem;
-        font-weight: 700;
+        font-size: .74rem;
+        font-weight: 750;
     }
 
     .rol-select:disabled {
         cursor: not-allowed;
-        opacity: 0.7;
-    }
-
-    .rol-admin {
-        border-color: #ead797;
-        background: #fff9e7;
-    }
-
-    .rol-editor {
-        border-color: #bce3e3;
-        background: #effafa;
-    }
-
-    .rol-viewer {
-        border-color: #d9e0e1;
-        background: #f4f6f6;
+        opacity: .67;
     }
 
     .acciones-usuario {
@@ -1036,216 +877,348 @@ Gestión de Usuarios | Gestor Ñuñoa Master
     .accion-btn,
     .accion-protegida {
         display: inline-flex;
-        width: 35px;
-        height: 35px;
+        width: 36px;
+        height: 36px;
         align-items: center;
         justify-content: center;
         border-radius: 10px;
     }
 
+    .accion-btn {
+        cursor: pointer;
+    }
+
     .accion-password {
-        color: #966d13;
-        border: 1px solid #edd99d;
-        background: #fff8e4;
+        color: #9a6f0d;
+        border: 1px solid #e8d18e;
+        background: #fff7dd;
     }
 
     .accion-password:hover {
-        color: #ffffff;
-        border-color: #bd8b1a;
-        background: #bd8b1a;
+        color: #fff;
+        border-color: #ad7e16;
+        background: #ad7e16;
     }
 
     .accion-eliminar {
-        color: #bd3e3e;
+        color: #bf4141;
         border: 1px solid #efcaca;
         background: #fff0f0;
     }
 
     .accion-eliminar:hover {
-        color: #ffffff;
+        color: #fff;
         border-color: #c84343;
         background: #c84343;
     }
 
     .accion-protegida {
-        color: #879496;
-        border: 1px solid #dfe6e6;
-        background: #f1f4f4;
+        color: var(--text-secondary);
+        border: 1px solid var(--border);
+        background: var(--surface-soft);
     }
 
-    .sin-usuarios {
-        color: #7c8a8c;
-    }
-
-    .sin-usuarios i {
-        margin-bottom: 12px;
-        color: #009294;
-        font-size: 2rem;
-    }
-
-    .sin-usuarios h4 {
-        color: #405052;
-        font-size: 1rem;
-        font-weight: 800;
-    }
-
-    .sin-resultados-busqueda {
-        padding: 25px;
-        color: #778688;
-        border-top: 1px solid #e4ecec;
+    .usuarios-empty,
+    .usuarios-search-empty {
+        padding: 38px 20px;
+        color: var(--text-secondary);
         text-align: center;
     }
 
-    /* Modales */
-    .modal-usuario-content {
-        overflow: hidden;
-        border: 0;
-        border-radius: 19px;
-        box-shadow:
-            0 20px 50px
-            rgba(24, 60, 62, 0.20);
+    .usuarios-empty > i {
+        color: var(--accent);
+        font-size: 2rem;
     }
 
-    .modal-usuario-header,
-    .modal-password-header {
-        padding: 19px 22px;
-        color: #ffffff;
-        border: 0;
-        background:
-            linear-gradient(
-                135deg,
-                #00898b,
-                #00a4a6
-            );
+    .usuarios-empty h3 {
+        margin: 10px 0 3px;
+        color: var(--text-primary);
+        font-size: 1rem;
     }
 
-    .modal-kicker {
-        color: rgba(255, 255, 255, 0.75);
-        font-size: 0.65rem;
+    .usuarios-empty p {
+        margin: 0;
+        font-size: .72rem;
+    }
+
+    .usuarios-page-actions {
+        display: flex;
+        justify-content: center;
+    }
+
+    .usuarios-back-button {
+        display: inline-flex;
+        min-height: 42px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 16px;
+        color: #fff;
+        border-radius: 11px;
+        background: #596a6d;
+        font-size: .73rem;
         font-weight: 750;
-        letter-spacing: 0.09em;
+        text-decoration: none;
+    }
+
+    /* DIÁLOGOS PROPIOS */
+    .user-dialog {
+        position: fixed;
+        inset: 0;
+        z-index: 5000;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity .2s ease, visibility .2s ease;
+    }
+
+    .user-dialog.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .user-dialog-backdrop {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: rgba(5,20,21,.66);
+        backdrop-filter: blur(5px);
+        cursor: default;
+    }
+
+    .user-dialog-panel {
+        position: relative;
+        z-index: 1;
+        width: min(540px,100%);
+        max-height: min(760px,calc(100vh - 40px));
+        overflow: auto;
+        border: 1px solid var(--border);
+        border-radius: 21px;
+        background: var(--surface);
+        box-shadow: 0 28px 75px rgba(0,0,0,.32);
+        transform: translateY(14px) scale(.98);
+        transition: transform .22s ease;
+    }
+
+    .user-dialog.is-open .user-dialog-panel {
+        transform: translateY(0) scale(1);
+    }
+
+    .user-dialog-panel-small {
+        width: min(470px,100%);
+    }
+
+    .user-dialog-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 22px;
+        color: #fff;
+        background: linear-gradient(135deg,#00898b,#00a4a6);
+    }
+
+    .user-dialog-header.password-header {
+        background: linear-gradient(135deg,#8d6512,#bd8b1a);
+    }
+
+    .user-dialog-header span {
+        color: rgba(255,255,255,.72);
+        font-size: .62rem;
+        font-weight: 800;
+        letter-spacing: .09em;
         text-transform: uppercase;
     }
 
-    .modal-title {
-        margin-top: 2px;
+    .user-dialog-header h2 {
+        margin: 3px 0 0;
+        color: #fff;
+        font-size: 1.22rem;
         font-weight: 850;
     }
 
-    .modal-label {
-        color: #405052;
-        font-size: 0.82rem;
-        font-weight: 750;
+    .user-dialog-close {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        border: 0;
+        border-radius: 11px;
+        background: rgba(255,255,255,.12);
     }
 
-    .password-field {
+    .user-dialog-close:hover {
+        background: rgba(255,255,255,.23);
+    }
+
+    .user-dialog-body {
+        display: grid;
+        gap: 17px;
+        padding: 22px;
+    }
+
+    .user-field label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 7px;
+        color: var(--text-primary);
+        font-size: .75rem;
+        font-weight: 800;
+    }
+
+    .user-field .form-control,
+    .user-field .form-select {
+        min-height: 47px;
+        border-radius: 12px;
+        font-size: .79rem;
+    }
+
+    .user-password-wrap {
         position: relative;
     }
 
-    .password-field input {
+    .user-password-wrap input {
         padding-right: 48px;
     }
 
-    .password-toggle {
+    .user-password-toggle {
         position: absolute;
         top: 50%;
-        right: 8px;
+        right: 7px;
+        display: inline-flex;
         width: 36px;
         height: 36px;
-        color: #718183;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
         border: 0;
         border-radius: 9px;
         background: transparent;
         transform: translateY(-50%);
     }
 
-    .password-toggle:hover {
-        color: #007d7f;
-        background: #eaf9f9;
+    .user-password-toggle:hover {
+        color: var(--accent);
+        background: var(--accent-soft);
     }
 
-    .modal-usuario-footer {
-        padding: 14px 22px;
-        border-top: 1px solid #e8eeee;
-        background: #f8fbfb;
+    .password-strength {
+        height: 5px;
+        margin-top: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--border);
     }
 
-    .btn-cancelar {
-        color: #667678;
-        border-color: #d5dede;
-        background: #ffffff;
-        font-weight: 700;
+    .password-strength span {
+        display: block;
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--danger);
+        transition: width .2s ease, background .2s ease;
     }
 
-    .btn-crear {
-        color: #ffffff;
-        border-color: #009294;
-        background: #009294;
-        font-weight: 750;
+    .user-field small {
+        display: block;
+        margin-top: 6px;
+        color: var(--text-secondary);
+        font-size: .65rem;
     }
 
-    .btn-crear:hover {
-        color: #ffffff;
-        border-color: #007d7f;
-        background: #007d7f;
-    }
-
-    .btn-password {
-        color: #ffffff;
-        border-color: #b9871b;
-        background: #b9871b;
-        font-weight: 750;
-    }
-
-    .btn-password:hover {
-        color: #ffffff;
-        border-color: #9f7313;
-        background: #9f7313;
-    }
-
-    .password-user-card {
+    .password-user-summary {
         display: flex;
         align-items: center;
         gap: 12px;
         padding: 14px;
-        border: 1px solid #dceaea;
+        border: 1px solid var(--border);
         border-radius: 14px;
-        background: #f5fbfb;
+        background: var(--surface-soft);
     }
 
-    .password-avatar {
-        width: 44px;
-        height: 44px;
-        min-width: 44px;
+    .password-user-summary div:last-child {
+        display: flex;
+        flex-direction: column;
     }
 
-    .password-user-card span {
-        display: block;
-        color: #7a898b;
-        font-size: 0.72rem;
+    .password-user-summary span {
+        color: var(--text-secondary);
+        font-size: .67rem;
     }
 
-    .password-user-card strong {
-        color: #2f4041;
-        font-size: 0.95rem;
+    .password-user-summary strong {
+        color: var(--text-primary);
+        font-size: .9rem;
     }
 
-    .btn-volver {
-        padding: 0.68rem 1.1rem;
-        color: #ffffff;
-        border-color: #647477;
-        border-radius: 11px;
-        background: #647477;
-        font-weight: 700;
+    .user-dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+        padding: 14px 22px;
+        border-top: 1px solid var(--border);
+        background: var(--surface-soft);
     }
 
-    .btn-volver:hover {
-        color: #ffffff;
-        border-color: #4e5d5f;
-        background: #4e5d5f;
+    .dialog-secondary-button,
+    .dialog-primary-button,
+    .dialog-password-button {
+        display: inline-flex;
+        min-height: 42px;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 0 15px;
+        border-radius: 10px;
+        font-size: .73rem;
+        font-weight: 800;
     }
 
-    @media (max-width: 768px) {
+    .dialog-secondary-button {
+        color: var(--text-secondary);
+        border: 1px solid var(--border);
+        background: var(--surface);
+    }
+
+    .dialog-primary-button {
+        color: #fff;
+        border: 1px solid var(--accent);
+        background: var(--accent);
+    }
+
+    .dialog-password-button {
+        color: #fff;
+        border: 1px solid #ad7e16;
+        background: #ad7e16;
+    }
+
+    body.user-dialog-open {
+        overflow: hidden;
+    }
+
+    html[data-theme="dark"] .role-admin,
+    html[data-theme="dark"] .accion-password {
+        color: #efc767;
+        border-color: #5b4924;
+        background: #332b18;
+    }
+
+    html[data-theme="dark"] .accion-eliminar {
+        color: #ff8585;
+        border-color: #5a3030;
+        background: #321f1f;
+    }
+
+    @media (max-width: 767px) {
         .usuarios-hero-content {
             align-items: flex-start;
             flex-direction: column;
@@ -1256,7 +1229,11 @@ Gestión de Usuarios | Gestor Ñuñoa Master
             width: 100%;
         }
 
-        .usuarios-card-header {
+        .roles-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .usuarios-panel-header {
             align-items: stretch;
             flex-direction: column;
         }
@@ -1265,127 +1242,301 @@ Gestión de Usuarios | Gestor Ñuñoa Master
             width: 100%;
         }
 
-        .usuarios-title {
-            font-size: 2rem;
+        .user-dialog {
+            padding: 10px;
+        }
+
+        .user-dialog-panel {
+            max-height: calc(100dvh - 20px);
         }
     }
 
     @media (max-width: 575px) {
-        .usuarios-hero {
-            border-radius: 18px;
-        }
-
-        .roles-info {
+        .roles-grid {
             display: none;
         }
 
-        .usuarios-table tbody td,
-        .usuarios-table thead th {
-            padding-right: 12px;
-            padding-left: 12px;
+        .usuarios-hero {
+            border-radius: 19px;
+        }
+
+        .usuarios-title {
+            font-size: 2rem;
+        }
+
+        .usuarios-table thead th,
+        .usuarios-table tbody td {
+            padding-inline: 12px;
+        }
+
+        .user-dialog-footer {
+            flex-direction: column-reverse;
+        }
+
+        .dialog-secondary-button,
+        .dialog-primary-button,
+        .dialog-password-button {
+            width: 100%;
         }
     }
 </style>
 
+
 <script>
-    function confirmarCambioRol(selectElement) {
-        const formulario = selectElement.form;
-        const nuevoRol =
-            selectElement.options[
-                selectElement.selectedIndex
-            ].text;
-
-        const confirmado = confirm(
-            "¿Deseas cambiar el rol de este usuario a " +
-            nuevoRol +
-            "?"
-        );
-
-        if (confirmado) {
-            formulario.submit();
-        } else {
-            window.location.reload();
-        }
-    }
-
-    function confirmarEliminacion(username) {
-        return confirm(
-            '¿Eliminar permanentemente al usuario "' +
-            username +
-            '"?\n\nEsta acción no se puede deshacer.'
-        );
-    }
-
-    function alternarPassword(inputId, button) {
-        const input = document.getElementById(inputId);
-        const icono = button.querySelector("i");
-
-        if (input.type === "password") {
-            input.type = "text";
-            icono.classList.remove("fa-eye");
-            icono.classList.add("fa-eye-slash");
-            button.setAttribute(
-                "aria-label",
-                "Ocultar contraseña"
-            );
-        } else {
-            input.type = "password";
-            icono.classList.remove("fa-eye-slash");
-            icono.classList.add("fa-eye");
-            button.setAttribute(
-                "aria-label",
-                "Mostrar contraseña"
-            );
-        }
-    }
-
     document.addEventListener("DOMContentLoaded", function () {
-        const buscador =
+
+        const body = document.body;
+        let activeDialog = null;
+        let previousFocus = null;
+
+        function openDialog(dialog) {
+            if (!dialog) return;
+
+            previousFocus = document.activeElement;
+            activeDialog = dialog;
+
+            dialog.classList.add("is-open");
+            dialog.setAttribute("aria-hidden", "false");
+            body.classList.add("user-dialog-open");
+
+            window.setTimeout(function () {
+                const firstInput = dialog.querySelector(
+                    "input:not([type='hidden']), select, button"
+                );
+
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }, 80);
+        }
+
+        function closeDialog(dialog) {
+            if (!dialog) return;
+
+            dialog.classList.remove("is-open");
+            dialog.setAttribute("aria-hidden", "true");
+            body.classList.remove("user-dialog-open");
+
+            activeDialog = null;
+
+            if (previousFocus) {
+                previousFocus.focus();
+            }
+        }
+
+        document.querySelectorAll("[data-user-dialog-open]")
+            .forEach(function (button) {
+                button.addEventListener("click", function () {
+                    const dialogId =
+                        button.dataset.userDialogOpen;
+
+                    openDialog(
+                        document.getElementById(dialogId)
+                    );
+                });
+            });
+
+        document.querySelectorAll("[data-user-dialog-close]")
+            .forEach(function (button) {
+                button.addEventListener("click", function () {
+                    closeDialog(
+                        button.closest(".user-dialog")
+                    );
+                });
+            });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" && activeDialog) {
+                closeDialog(activeDialog);
+            }
+        });
+
+        document.querySelectorAll("[data-password-toggle]")
+            .forEach(function (button) {
+                button.addEventListener("click", function () {
+                    const input =
+                        document.getElementById(
+                            button.dataset.passwordToggle
+                        );
+
+                    const icon =
+                        button.querySelector("i");
+
+                    if (!input) return;
+
+                    const mostrar =
+                        input.type === "password";
+
+                    input.type =
+                        mostrar ? "text" : "password";
+
+                    icon.classList.toggle(
+                        "fa-eye",
+                        !mostrar
+                    );
+
+                    icon.classList.toggle(
+                        "fa-eye-slash",
+                        mostrar
+                    );
+
+                    button.setAttribute(
+                        "aria-label",
+                        mostrar
+                            ? "Ocultar contraseña"
+                            : "Mostrar contraseña"
+                    );
+                });
+            });
+
+        const passwordInput =
+            document.getElementById("nuevoPassword");
+
+        const strengthBar =
+            document.getElementById("passwordStrengthBar");
+
+        const strengthText =
+            document.getElementById("passwordStrengthText");
+
+        if (passwordInput && strengthBar && strengthText) {
+            passwordInput.addEventListener("input", function () {
+                const value = passwordInput.value;
+                let score = 0;
+
+                if (value.length >= 6) score++;
+                if (value.length >= 10) score++;
+                if (/[A-Z]/.test(value) && /[a-z]/.test(value)) score++;
+                if (/\d/.test(value)) score++;
+                if (/[^A-Za-z0-9]/.test(value)) score++;
+
+                const widths = ["0%", "22%", "42%", "62%", "82%", "100%"];
+                const labels = [
+                    "Utiliza al menos 6 caracteres.",
+                    "Contraseña muy débil",
+                    "Contraseña débil",
+                    "Contraseña aceptable",
+                    "Contraseña fuerte",
+                    "Contraseña muy fuerte"
+                ];
+                const colors = [
+                    "var(--danger)",
+                    "var(--danger)",
+                    "#d98232",
+                    "var(--warning)",
+                    "#3eaa78",
+                    "var(--success)"
+                ];
+
+                strengthBar.style.width = widths[score];
+                strengthBar.style.background = colors[score];
+                strengthText.textContent = labels[score];
+            });
+        }
+
+        document.querySelectorAll(".rol-select")
+            .forEach(function (select) {
+                select.addEventListener("change", function () {
+                    const selectedText =
+                        select.options[
+                            select.selectedIndex
+                        ].text;
+
+                    const confirmed = window.confirm(
+                        "¿Deseas cambiar el rol de este usuario a " +
+                        selectedText +
+                        "?"
+                    );
+
+                    if (confirmed) {
+                        select.form.submit();
+                    } else {
+                        select.value =
+                            select.dataset.roleOriginal;
+                    }
+                });
+            });
+
+        document.querySelectorAll(".eliminar-form")
+            .forEach(function (form) {
+                form.addEventListener("submit", function (event) {
+                    const username =
+                        form.dataset.username;
+
+                    const confirmed = window.confirm(
+                        '¿Eliminar permanentemente al usuario "' +
+                        username +
+                        '"?\n\nEsta acción no se puede deshacer.'
+                    );
+
+                    if (!confirmed) {
+                        event.preventDefault();
+                    }
+                });
+            });
+
+        const search =
             document.getElementById("buscarUsuario");
 
-        const filas =
+        const clearSearch =
+            document.getElementById("limpiarBuscarUsuario");
+
+        const rows =
             document.querySelectorAll(
                 "#tablaUsuarios .usuario-row"
             );
 
-        const sinResultados =
+        const emptySearch =
             document.getElementById(
                 "sinResultadosBusqueda"
             );
 
-        if (!buscador) {
-            return;
-        }
+        function filterUsers() {
+            if (!search) return;
 
-        buscador.addEventListener("input", function () {
-            const termino =
-                buscador.value
+            const term =
+                search.value
                     .toLowerCase()
                     .trim();
 
-            let visibles = 0;
+            let visible = 0;
 
-            filas.forEach(function (fila) {
-                const contenido =
-                    fila.textContent
-                        .toLowerCase();
+            rows.forEach(function (row) {
+                const matches =
+                    row.textContent
+                        .toLowerCase()
+                        .includes(term);
 
-                const coincide =
-                    contenido.includes(termino);
+                row.classList.toggle("d-none", !matches);
 
-                fila.style.display =
-                    coincide ? "" : "none";
-
-                if (coincide) {
-                    visibles++;
-                }
+                if (matches) visible++;
             });
 
-            sinResultados.classList.toggle(
-                "d-none",
-                visibles > 0 || termino === ""
-            );
-        });
+            if (clearSearch) {
+                clearSearch.classList.toggle(
+                    "d-none",
+                    term === ""
+                );
+            }
+
+            if (emptySearch) {
+                emptySearch.classList.toggle(
+                    "d-none",
+                    visible > 0 || term === ""
+                );
+            }
+        }
+
+        if (search) {
+            search.addEventListener("input", filterUsers);
+        }
+
+        if (clearSearch) {
+            clearSearch.addEventListener("click", function () {
+                search.value = "";
+                filterUsers();
+                search.focus();
+            });
+        }
     });
 </script>
 
