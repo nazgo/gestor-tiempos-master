@@ -176,6 +176,14 @@ class GestorTiemposMaster:
             DEFAULT 'NO REALIZADO'
         """)
 
+        # Define si la competencia forma parte del porcentaje oficial anual.
+        # Las competencias especiales siguen registrando participación, pero
+        # no afectan el porcentaje de asistencia.
+        self._execute("""
+            ALTER TABLE competencias
+            ADD COLUMN IF NOT EXISTS considera_asistencia BOOLEAN DEFAULT TRUE
+        """)
+
         self._execute("""
             ALTER TABLE competencias
             ALTER COLUMN mes TYPE VARCHAR(20)
@@ -1362,200 +1370,138 @@ class GestorTiemposMaster:
 
 
     def obtener_tabla_asistencia(self, anio):
-        """
-        Construye la matriz de asistencia del año e incluye:
-
-        - nadadores y su categoría;
-        - competencias del año;
-        - indicador de competencia transcurrida;
-        - estado por nadador/competencia;
-        - porcentaje individual;
-        - resumen general para los KPI del template.
-        """
-
+        """Construye la matriz anual, porcentaje oficial y reconocimientos."""
         hoy = date.today()
 
-        # ---------------------------------------------------------
-        # Nadadores
-        # ---------------------------------------------------------
         cursor_nadadores = self._execute("""
-            SELECT
-                id,
-                nombre,
-                apellido,
-                categoria_master
+            SELECT id, nombre, apellido, categoria_master
             FROM nadadores
             ORDER BY apellido ASC, nombre ASC
         """, commit=False)
-
         nadadores = [
             self._row_to_dict(fila, cursor_nadadores)
-            for fila in cursor_nadadores.fetchall()
-            if fila
+            for fila in cursor_nadadores.fetchall() if fila
         ]
 
-        # ---------------------------------------------------------
-        # Competencias del año
-        # ---------------------------------------------------------
         cursor_competencias = self._execute("""
             SELECT
-                id,
-                fecha,
-                nombre
+                id, fecha, nombre, lugar,
+                COALESCE(considera_asistencia, TRUE) AS considera_asistencia
             FROM competencias
             WHERE EXTRACT(YEAR FROM fecha) = ?
             ORDER BY fecha ASC, id ASC
         """, (anio,), commit=False)
-
         competencias = [
             self._row_to_dict(fila, cursor_competencias)
-            for fila in cursor_competencias.fetchall()
-            if fila
+            for fila in cursor_competencias.fetchall() if fila
         ]
 
         for competencia in competencias:
             fecha_competencia = competencia.get('fecha')
-
             if isinstance(fecha_competencia, datetime):
                 fecha_competencia = fecha_competencia.date()
-
             elif isinstance(fecha_competencia, str):
                 try:
                     fecha_competencia = datetime.strptime(
-                        fecha_competencia[:10],
-                        '%Y-%m-%d'
+                        fecha_competencia[:10], '%Y-%m-%d'
                     ).date()
                 except (TypeError, ValueError):
                     fecha_competencia = None
-
             competencia['transcurrida'] = bool(
-                fecha_competencia
-                and fecha_competencia <= hoy
+                fecha_competencia and fecha_competencia <= hoy
             )
+            competencia['considera_asistencia'] = bool(
+                competencia.get('considera_asistencia', True)
+            )
+            competencia['es_especial'] = not competencia['considera_asistencia']
 
-        ids_competencias = [
-            competencia['id']
-            for competencia in competencias
-        ]
-
-        # ---------------------------------------------------------
-        # Estados registrados
-        # ---------------------------------------------------------
+        ids_competencias = [c['id'] for c in competencias]
         asistencias = {}
-
         if ids_competencias:
-            placeholders = ", ".join(
-                ["?"] * len(ids_competencias)
-            )
-
-            cursor_asistencias = self._execute(
-                f"""
-                SELECT
-                    nadador_id,
-                    competencia_id,
-                    estado
+            placeholders = ', '.join(['?'] * len(ids_competencias))
+            cursor_asistencias = self._execute(f"""
+                SELECT nadador_id, competencia_id, estado
                 FROM asistencia_competencias
                 WHERE competencia_id IN ({placeholders})
-                """,
-                tuple(ids_competencias),
-                commit=False
-            )
-
+            """, tuple(ids_competencias), commit=False)
             for fila in cursor_asistencias.fetchall():
-                registro = self._row_to_dict(
-                    fila,
-                    cursor_asistencias
+                registro = self._row_to_dict(fila, cursor_asistencias)
+                asistencias[(registro['nadador_id'], registro['competencia_id'])] = (
+                    registro.get('estado') or 'SIN_REGISTRO'
                 )
 
-                clave = (
-                    registro['nadador_id'],
-                    registro['competencia_id']
-                )
-
-                asistencias[clave] = (
-                    registro.get('estado')
-                    or 'SIN_REGISTRO'
-                )
-
-        # ---------------------------------------------------------
-        # Indicadores individuales
-        # ---------------------------------------------------------
-        competencias_transcurridas = [
-            competencia
-            for competencia in competencias
-            if competencia.get('transcurrida')
+        oficiales_transcurridas = [
+            c for c in competencias
+            if c['transcurrida'] and c['considera_asistencia']
+        ]
+        especiales_transcurridas = [
+            c for c in competencias
+            if c['transcurrida'] and not c['considera_asistencia']
         ]
 
         porcentajes_validos = []
         asistencia_completa = 0
         asistencia_baja = 0
+        participaciones_especiales_total = 0
+        nadadores_con_especial = 0
 
         for nadador in nadadores:
-            presentes = 0
-            ausentes = 0
-            pendientes = 0
-            aplicables = 0
+            presentes = ausentes = pendientes = aplicables = 0
+            reconocimientos = []
 
-            for competencia in competencias_transcurridas:
+            for competencia in oficiales_transcurridas:
                 estado = asistencias.get(
-                    (
-                        nadador['id'],
-                        competencia['id']
-                    ),
-                    'SIN_REGISTRO'
+                    (nadador['id'], competencia['id']), 'SIN_REGISTRO'
                 )
-
                 if estado == 'NO_APLICA':
                     continue
-
                 aplicables += 1
+                if estado == 'PRESENTE': presentes += 1
+                elif estado == 'AUSENTE': ausentes += 1
+                else: pendientes += 1
 
+            for competencia in especiales_transcurridas:
+                estado = asistencias.get(
+                    (nadador['id'], competencia['id']), 'SIN_REGISTRO'
+                )
                 if estado == 'PRESENTE':
-                    presentes += 1
-                elif estado == 'AUSENTE':
-                    ausentes += 1
-                else:
-                    pendientes += 1
+                    reconocimientos.append({
+                        'id': competencia['id'],
+                        'nombre': competencia.get('nombre') or 'Competencia especial',
+                        'lugar': competencia.get('lugar') or '',
+                        'fecha': competencia.get('fecha'),
+                    })
 
-            porcentaje = (
-                round((presentes / aplicables) * 100)
-                if aplicables > 0
-                else 0
-            )
+            porcentaje = round((presentes / aplicables) * 100) if aplicables else 0
+            nadador.update({
+                'asistencias_presentes': presentes,
+                'asistencias_ausentes': ausentes,
+                'asistencias_pendientes': pendientes,
+                'competencias_aplicables': aplicables,
+                'porcentaje_asistencia': porcentaje,
+                'reconocimientos_especiales': reconocimientos,
+                'participaciones_especiales': len(reconocimientos),
+            })
 
-            nadador['asistencias_presentes'] = presentes
-            nadador['asistencias_ausentes'] = ausentes
-            nadador['asistencias_pendientes'] = pendientes
-            nadador['competencias_aplicables'] = aplicables
-            nadador['porcentaje_asistencia'] = porcentaje
-
-            if aplicables > 0:
+            participaciones_especiales_total += len(reconocimientos)
+            if reconocimientos:
+                nadadores_con_especial += 1
+            if aplicables:
                 porcentajes_validos.append(porcentaje)
+                if porcentaje == 100: asistencia_completa += 1
+                if porcentaje < 50: asistencia_baja += 1
 
-                if porcentaje == 100:
-                    asistencia_completa += 1
-
-                if porcentaje < 50:
-                    asistencia_baja += 1
-
-        asistencia_promedio = (
-            round(
-                sum(porcentajes_validos)
-                / len(porcentajes_validos)
-            )
-            if porcentajes_validos
-            else 0
-        )
-
+        promedio = round(sum(porcentajes_validos) / len(porcentajes_validos)) if porcentajes_validos else 0
         resumen = {
-            'competencias_transcurridas': len(
-                competencias_transcurridas
-            ),
-            'asistencia_promedio': asistencia_promedio,
+            'competencias_transcurridas': len(oficiales_transcurridas),
+            'competencias_oficiales': len(oficiales_transcurridas),
+            'competencias_especiales': len(especiales_transcurridas),
+            'asistencia_promedio': promedio,
             'asistencia_completa': asistencia_completa,
             'asistencia_baja': asistencia_baja,
+            'participaciones_especiales': participaciones_especiales_total,
+            'nadadores_con_especial': nadadores_con_especial,
         }
-
         return {
             'nadadores': nadadores,
             'competencias': competencias,
@@ -1647,7 +1593,9 @@ class GestorTiemposMaster:
         organiza,
         nombre,
         tipo_piscina,
-        estado="NO REALIZADO"
+        estado="NO REALIZADO",
+        considera_asistencia=True,
+        mes=None
     ):
         mes = self._obtener_mes_competencia(fecha)
     
@@ -1659,9 +1607,10 @@ class GestorTiemposMaster:
                 organiza,
                 nombre,
                 tipo_piscina,
-                estado
+                estado,
+                considera_asistencia
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             fecha,
             mes,
@@ -1669,7 +1618,8 @@ class GestorTiemposMaster:
             organiza,
             nombre,
             tipo_piscina,
-            estado
+            estado,
+            bool(considera_asistencia)
         ))
     
     
@@ -1704,7 +1654,8 @@ class GestorTiemposMaster:
         nombre,
         tipo_piscina,
         estado,
-        mes=None
+        mes=None,
+        considera_asistencia=True
     ):
         """
         Edita una competencia existente.
@@ -1724,7 +1675,8 @@ class GestorTiemposMaster:
                 organiza = ?,
                 nombre = ?,
                 tipo_piscina = ?,
-                estado = ?
+                estado = ?,
+                considera_asistencia = ?
             WHERE id = ?
         """, (
             fecha,
@@ -1734,6 +1686,7 @@ class GestorTiemposMaster:
             nombre,
             tipo_piscina,
             estado,
+            bool(considera_asistencia),
             competencia_id
         ))
     
@@ -1768,7 +1721,8 @@ class GestorTiemposMaster:
                 organiza,
                 nombre,
                 tipo_piscina,
-                estado
+                estado,
+                COALESCE(considera_asistencia, TRUE) AS considera_asistencia
             FROM competencias
             WHERE EXTRACT(YEAR FROM fecha) = ?
             ORDER BY fecha ASC, id ASC
@@ -1990,7 +1944,8 @@ class GestorTiemposMaster:
         organiza,
         nombre,
         tipo_piscina,
-        estado="NO REALIZADO"
+        estado="NO REALIZADO",
+        considera_asistencia=True
     ):
         self._execute("""
             INSERT INTO competencias (
@@ -2000,9 +1955,10 @@ class GestorTiemposMaster:
                 organiza,
                 nombre,
                 tipo_piscina,
-                estado
+                estado,
+                considera_asistencia
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             fecha,
             mes,
@@ -2010,7 +1966,8 @@ class GestorTiemposMaster:
             organiza,
             nombre,
             tipo_piscina,
-            estado
+            estado,
+            bool(considera_asistencia)
         ))
 
     def obtener_dashboard_inicio(self):

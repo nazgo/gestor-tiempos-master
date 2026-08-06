@@ -914,6 +914,10 @@ def nueva_competencia():
             'NO REALIZADO'
         ).strip()
 
+        considera_asistencia = (
+            request.form.get('considera_asistencia') == '1'
+        )
+
         if not fecha or not lugar or not nombre:
             flash(
                 'Fecha, lugar y nombre del torneo son obligatorios.',
@@ -957,7 +961,8 @@ def nueva_competencia():
                 organiza=organiza,
                 nombre=nombre,
                 tipo_piscina=tipo_piscina,
-                estado=estado
+                estado=estado,
+                considera_asistencia=considera_asistencia
             )
 
             flash(
@@ -1069,6 +1074,10 @@ def editar_competencia(competencia_id):
                 'NO REALIZADO'
             ).strip()
 
+            considera_asistencia = (
+                request.form.get('considera_asistencia') == '1'
+            )
+
             if not fecha_str:
                 raise ValueError('La fecha es obligatoria.')
 
@@ -1108,7 +1117,8 @@ def editar_competencia(competencia_id):
                 nombre=nombre,
                 tipo_piscina=tipo_piscina,
                 estado=estado,
-                mes=mes
+                mes=mes,
+                considera_asistencia=considera_asistencia
             )
 
             flash(
