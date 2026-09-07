@@ -420,7 +420,7 @@ class GestorTiemposMaster:
             if not self._validar_tiempo(tiempo):
                 raise ValueError("Formato de tiempo inválido. Debe ser MM:SS.cc (ej: 01:23.45)")
             tiempo_str = tiempo
-            tiempo_segundos = self._convertir_a_segundos(tiempo)
+            tiempo_segundos = self.convertir_tiempo_a_segundos(tiempo)
 
         self._execute('''
             INSERT INTO tiempos
@@ -511,7 +511,7 @@ class GestorTiemposMaster:
         return self._row_to_dict(row, cursor)
 
     def actualizar_tiempo(self, tiempo_id, nombre, estilo, distancia, piscina, tiempo, fecha):
-        tiempo_segundos = self._convertir_a_segundos(tiempo)
+        tiempo_segundos = self._convertir_tiempo_a_segundos(tiempo)
         self._execute('''
             UPDATE tiempos 
             SET nombre_nadador = ?, estilo = ?, distancia = ?, piscina = ?, 
