@@ -145,6 +145,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                     <option value="alta">80% o más</option>
                     <option value="media">50% a 79%</option>
                     <option value="baja">Menos de 50%</option>
+                    <option value="muy-baja">25% o menos</option>
                     <option value="pendientes">Con registros pendientes</option>
                 </select>
 
@@ -2649,6 +2650,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
             if (filtro === "alta") return porcentaje >= 80;
             if (filtro === "media") return porcentaje >= 50 && porcentaje < 80;
             if (filtro === "baja") return porcentaje < 50;
+            if (filtro === "muy-baja") return porcentaje <= 25;
             if (filtro === "pendientes") return pendientes > 0;
             return true;
         }
