@@ -6,6 +6,17 @@
 <link href="{{ url_for('static', filename='css/athlete-profile.css') }}" rel="stylesheet">
 {% endblock %}
 
+
+<style>
+.athlete-inactive-alert { display:flex; gap:16px; align-items:flex-start; padding:19px 22px; margin:20px 0; border:1px solid #e7b96e; border-left:5px solid #d68a24; border-radius:14px; background:var(--surface, #fff); color:var(--text-primary, #1f2937); box-shadow:0 4px 18px rgba(0,0,0,.04); }
+.athlete-inactive-icon { display:flex; flex:0 0 42px; height:42px; justify-content:center; align-items:center; border-radius:12px; background:rgba(214,138,36,.13); color:#c18225; font-size:1.1rem; }
+.athlete-inactive-alert strong { display:block; font-size:1rem; font-weight:800; margin-bottom:5px; }
+.athlete-inactive-alert p { margin:0 0 8px; color:var(--text-secondary, #64748b); line-height:1.55; font-size:.85rem; }
+.athlete-inactive-date { display:block; margin-top:5px; color:var(--text-secondary, #64748b); font-size:.78rem; }
+.athlete-inactive-date i { margin-right:6px; }
+@media(max-width:575px) { .athlete-inactive-alert { padding:15px; gap:11px; } .athlete-inactive-icon { flex-basis:36px; height:36px; } }
+</style>
+
 {% block content %}
 {% set total_tiempos = ficha.resumen.total_tiempos or 0 %}
 {% set total_competencias = ficha.resumen.total_competencias or 0 %}
@@ -25,7 +36,7 @@
             <div class="athlete-identity">
                 <div class="athlete-avatar" aria-label="Iniciales de {{ nombre_completo }}">
                     {{ nadador.nombre[:1]|upper }}{{ nadador.apellido[:1]|upper }}
-                    <span class="athlete-status-dot" title="Nadador registrado"></span>
+                    {% if nadador.activo %}<span class="athlete-status-dot" title="Nadador activo"></span>{% endif %}
                 </div>
 
                 <div class="athlete-main-info">
@@ -40,9 +51,11 @@
             </div>
 
             <div class="athlete-cover-actions">
+                {% if nadador.activo %}
                 <a href="{{ url_for('agregar', nadador_id=nadador.id) }}" class="btn-profile btn-profile-light">
                     <i class="fas fa-plus"></i> Registrar tiempo
                 </a>
+                {% endif %}
                 <a href="{{ url_for('progreso_nadador1', nadador_id=nadador.id) }}" class="btn-profile btn-profile-ghost">
                     <i class="fas fa-chart-line"></i> Ver progreso
                 </a>
@@ -56,6 +69,22 @@
             <div><strong>{{ total_temporadas }}</strong><span>Temporadas</span></div>
         </div>
     </section>
+
+    {% if not nadador.activo %}
+    <aside class="athlete-inactive-alert" role="status" aria-label="Estado del nadador">
+        <div class="athlete-inactive-icon"><i class="fas fa-user-slash"></i></div>
+        <div>
+            <strong>Nadador inactivo</strong>
+            <p>Este nadador ya no pertenece al plantel activo de Ñuñoa Master. Sus tiempos, competencias y estadísticas históricas permanecen disponibles para consulta.</p>
+            {% if nadador.fecha_baja %}
+            <span class="athlete-inactive-date"><i class="fas fa-calendar-alt"></i> Fecha de baja: {{ nadador.fecha_baja.strftime('%d/%m/%Y') if nadador.fecha_baja.strftime is defined else nadador.fecha_baja }}</span>
+            {% endif %}
+            {% if nadador.motivo_baja %}
+            <span class="athlete-inactive-date"><i class="fas fa-info-circle"></i> Motivo: {{ nadador.motivo_baja }}</span>
+            {% endif %}
+        </div>
+    </aside>
+    {% endif %}
 
     <nav class="profile-tabs" aria-label="Secciones del perfil">
         <button class="profile-tab active" data-target="profile-overview"><i class="fas fa-grid-2"></i> Resumen</button>
