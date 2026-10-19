@@ -1374,7 +1374,7 @@ class GestorTiemposMaster:
         hoy = date.today()
 
         cursor_nadadores = self._execute("""
-            SELECT id, nombre, apellido, categoria_master
+            SELECT id, nombre, apellido, categoria_master, activo, fecha_baja
             FROM nadadores
             ORDER BY apellido ASC, nombre ASC
         """, commit=False)
@@ -1445,11 +1445,27 @@ class GestorTiemposMaster:
         participaciones_especiales_total = 0
         nadadores_con_especial = 0
 
+        cp = self._execute('SELECT nadador_id,fecha_inicio,fecha_fin FROM periodos_nadador',commit=False)
+        periodos = {}
+        for fila in cp.fetchall():
+            periodo = self._row_to_dict(fila,cp)
+            periodos.setdefault(periodo['nadador_id'],[]).append(periodo)
+        def as_date(v):
+            if isinstance(v,datetime): return v.date()
+            if isinstance(v,date): return v
+            return datetime.strptime(str(v)[:10],'%Y-%m-%d').date() if v else None
+        def pertenece(nid, fecha):
+            f=as_date(fecha)
+            return bool(f and any(
+                (not as_date(p['fecha_inicio']) or as_date(p['fecha_inicio']) <= f)
+                and (not as_date(p['fecha_fin']) or f <= as_date(p['fecha_fin']))
+                for p in periodos.get(nid,[])))
         for nadador in nadadores:
             presentes = ausentes = pendientes = aplicables = 0
             reconocimientos = []
 
             for competencia in oficiales_transcurridas:
+                if not pertenece(nadador['id'],competencia['fecha']): continue
                 estado = asistencias.get(
                     (nadador['id'], competencia['id']), 'SIN_REGISTRO'
                 )
@@ -1461,6 +1477,7 @@ class GestorTiemposMaster:
                 else: pendientes += 1
 
             for competencia in especiales_transcurridas:
+                if not pertenece(nadador['id'],competencia['fecha']): continue
                 estado = asistencias.get(
                     (nadador['id'], competencia['id']), 'SIN_REGISTRO'
                 )
@@ -1486,7 +1503,7 @@ class GestorTiemposMaster:
             participaciones_especiales_total += len(reconocimientos)
             if reconocimientos:
                 nadadores_con_especial += 1
-            if aplicables:
+            if aplicables and nadador.get('activo',True):
                 porcentajes_validos.append(porcentaje)
                 if porcentaje == 100: asistencia_completa += 1
                 if porcentaje < 50: asistencia_baja += 1
@@ -1503,7 +1520,7 @@ class GestorTiemposMaster:
             'nadadores_con_especial': nadadores_con_especial,
         }
         return {
-            'nadadores': nadadores,
+            'nadadores': [n for n in nadadores if n.get('activo',True)],
             'competencias': competencias,
             'asistencias': asistencias,
             'resumen': resumen,
@@ -1997,7 +2014,7 @@ class GestorTiemposMaster:
 
         resumen_nadadores = una_fila("""
             SELECT COUNT(*) AS total_nadadores
-            FROM nadadores
+            FROM nadadores WHERE activo = TRUE
         """)
 
         resumen_competencias = una_fila("""
@@ -2015,7 +2032,7 @@ class GestorTiemposMaster:
         """, (anio_actual,)).get('total', 0) or 0
 
         total_nadadores = resumen_nadadores.get('total_nadadores', 0) or 0
-        inactivos = max(total_nadadores - activos, 0)
+        inactivos = una_fila('SELECT COUNT(*) AS total FROM nadadores WHERE activo=FALSE').get('total',0) or 0
 
         registros_temporada = varias_filas("""
             SELECT EXTRACT(YEAR FROM fecha)::INTEGER AS anio, COUNT(*) AS total

@@ -79,6 +79,36 @@ class GestorNadadores:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''', commit=False)
+        self._migrar_estados()
+
+    def _migrar_estados(self):
+        for col, kind in [('activo','BOOLEAN DEFAULT TRUE'), ('fecha_baja','DATE'), ('motivo_baja','TEXT')]:
+            try:
+                self._execute(f'ALTER TABLE nadadores ADD COLUMN {col} {kind}')
+            except Exception as exc:
+                if not any(x in str(exc).lower() for x in ('already exists','duplicate column')):
+                    raise
+        postgres = 'postgresql' in str(os.environ.get('DATABASE_URL',''))
+        pk = 'SERIAL PRIMARY KEY' if postgres else 'INTEGER PRIMARY KEY AUTOINCREMENT'
+        self._execute(f'''CREATE TABLE IF NOT EXISTS periodos_nadador (
+            id {pk}, nadador_id INTEGER NOT NULL, fecha_inicio DATE,
+            fecha_fin DATE, motivo_baja TEXT)''')
+        self._execute('''INSERT INTO periodos_nadador (nadador_id)
+            SELECT n.id FROM nadadores n WHERE NOT EXISTS
+            (SELECT 1 FROM periodos_nadador p WHERE p.nadador_id=n.id)''')
+
+    def cambiar_estado(self, nadador_id, activo, fecha, motivo=''):
+        if fecha > date.today():
+            raise ValueError('La fecha no puede ser futura')
+        n = self.obtener_nadador(nadador_id)
+        if not n or bool(n['activo']) == bool(activo):
+            raise ValueError('Nadador inexistente o estado sin cambios')
+        if activo:
+            self._execute('INSERT INTO periodos_nadador (nadador_id,fecha_inicio) VALUES (?,?)', (nadador_id,fecha))
+            self._execute('UPDATE nadadores SET activo=TRUE,fecha_baja=NULL,motivo_baja=NULL WHERE id=?',(nadador_id,))
+        else:
+            self._execute('UPDATE periodos_nadador SET fecha_fin=?,motivo_baja=? WHERE nadador_id=? AND fecha_fin IS NULL',(fecha,motivo,nadador_id))
+            self._execute('UPDATE nadadores SET activo=FALSE,fecha_baja=?,motivo_baja=? WHERE id=?',(fecha,motivo,nadador_id))
 
     def calcular_categoria_master(self, fecha_nac):
         if not fecha_nac:
@@ -127,8 +157,8 @@ class GestorNadadores:
             VALUES (?, ?, ?, ?, ?, ?)
         ''', (nombre, apellido, fecha_nacimiento, rut, genero, categoria))
 
-    def listar_nadadores(self):
-        cursor = self._execute('SELECT * FROM nadadores ORDER BY apellido, nombre', commit=False)
+    def listar_nadadores(self, solo_activos=False):
+        cursor = self._execute('SELECT * FROM nadadores' + (' WHERE activo = TRUE' if solo_activos else '') + ' ORDER BY apellido, nombre', commit=False)
         rows = cursor.fetchall()
         result = []
         for row in rows:

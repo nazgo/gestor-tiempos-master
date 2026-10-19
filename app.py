@@ -283,6 +283,22 @@ def nadadores():
     return render_template('nadadores.html', nadadores=nadadores_list)
 
 
+@app.route('/nadador/<int:nadador_id>/estado', methods=['POST'])
+@login_required
+@editor_required
+def cambiar_estado_nadador(nadador_id):
+    try:
+        estado = request.form.get('estado')
+        if estado not in ('activar','desactivar'):
+            raise ValueError('Estado inválido')
+        fecha = datetime.strptime(request.form['fecha'], '%Y-%m-%d').date()
+        gestor_nadadores.cambiar_estado(nadador_id, estado == 'activar', fecha, request.form.get('motivo','').strip())
+        flash('Estado actualizado; historial conservado.', 'success')
+    except Exception as exc:
+        flash(f'Error al cambiar estado: {exc}', 'danger')
+    return redirect(url_for('nadadores'))
+
+
 @app.route('/nadadores/agregar', methods=['GET', 'POST'])
 @login_required
 @editor_required
@@ -337,7 +353,7 @@ def editar_nadador(nadador_id):
 @editor_required
 def eliminar_nadador(nadador_id):
     try:
-        gestor_nadadores.eliminar_nadador(nadador_id)
+        raise ValueError('Para preservar el historial, desactiva al nadador en lugar de eliminarlo.')
         flash('✅ Nadador eliminado correctamente', 'success')
     except Exception as e:
         flash(f'❌ Error: {str(e)}', 'danger')
