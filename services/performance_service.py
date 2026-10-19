@@ -49,7 +49,7 @@ class PerformanceService:
         return " ".join((value or "").lower().split())
 
     def _load_data(self):
-        nadadores = self.gestor_nadadores.listar_nadadores()
+        nadadores = self.gestor_nadadores.listar_nadadores(solo_activos=True)
         tiempos = self._fetch("""
             SELECT id, nombre_nadador, estilo, distancia, piscina, tiempo,
                    tiempo_segundos, fecha, competencia_id, genero, categoria

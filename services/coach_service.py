@@ -44,7 +44,7 @@ class CoachService:
         return [self._row_to_dict(row, cursor) for row in cursor.fetchall()]
 
     def athlete_options(self) -> List[Dict[str, Any]]:
-        athletes = self.gestor_nadadores.listar_nadadores()
+        athletes = self.gestor_nadadores.listar_nadadores(solo_activos=True)
         result = []
         for athlete in athletes:
             full_name = f"{athlete.get('nombre', '')} {athlete.get('apellido', '')}".strip()
