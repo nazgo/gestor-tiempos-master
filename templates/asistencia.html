@@ -6,7 +6,16 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
 {% block content %}
 
-<div class="asistencia-page">
+{# Permisos de edición: se respetan los roles existentes de la sesión. #}
+{% set usuario_actual = current_user if current_user is defined else none %}
+{% set rol_actual = (
+    (usuario_actual.rol if usuario_actual is not none and usuario_actual.rol is defined else none)
+    or (usuario_actual.role if usuario_actual is not none and usuario_actual.role is defined else none)
+    or session.get('rol') or session.get('role') or session.get('user_role') or ''
+) | string | lower | trim %}
+{% set puede_editar_asistencia = rol_actual in ['admin', 'administrador', 'entrenador', 'editor'] %}
+
+<div class="asistencia-page" data-puede-editar-asistencia="{{ '1' if puede_editar_asistencia else '0' }}">
 
     <!-- Encabezado -->
     <section class="asistencia-hero mb-4">
@@ -113,7 +122,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                 </h2>
 
                 <p class="toolbar-description mb-0">
-                    Haz clic en cada casilla para cambiar su estado.
+                    {% if puede_editar_asistencia %}Haz clic en cada casilla para cambiar su estado.{% else %}Consulta los registros de participación de la temporada.{% endif %}
                 </p>
 
             </div>
@@ -221,10 +230,12 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
         </div>
 
+        {% if puede_editar_asistencia %}
         <div class="legend-cycle">
             <i class="fas fa-rotate"></i>
             Cada clic avanza al siguiente estado
         </div>
+        {% endif %}
 
     </section>
 
@@ -369,8 +380,8 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
                         <td class="attendance-cell {% if competencia.es_especial %}attendance-special-cell{% endif %}">
 
-                            <button
-                                type="button"
+                            {% if puede_editar_asistencia %}<button{% else %}<span{% endif %}
+                                {% if puede_editar_asistencia %}type="button"{% endif %}
                                 class="
                                     attendance-button
                                     {% if estado == 'PRESENTE' %}
@@ -428,7 +439,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </span>
 
-                            </button>
+                            {% if puede_editar_asistencia %}</button>{% else %}</span>{% endif %}
 
                         </td>
 
