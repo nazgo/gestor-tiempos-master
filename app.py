@@ -71,6 +71,8 @@ def editor_required(f):
 # exclusivamente en el rol almacenado en la cookie de sesión.
 @app.before_request
 def autorizar_acceso_por_rol():
+    if request.endpoint in ('crear_usuario', 'cambiar_rol', 'cambiar_password', 'eliminar_usuario') and request.method == 'POST':
+        validar_csrf()
     if request.endpoint in ('static', 'login', 'logout', 'registro') or request.endpoint is None:
         return None
     uid = session.get('user_id')
@@ -182,19 +184,26 @@ def crear_usuario():
     password = request.form['password']
     rol = request.form['rol']
     nombre = request.form.get('nombre', '')
+    rut = request.form.get('rut', '').strip()
     try:
-        gestor_usuarios.crear_usuario(username, password, rol, nombre)
+        gestor_usuarios.crear_usuario(username, password, rol, nombre, rut)
         flash('Usuario creado correctamente', 'success')
-    except Exception as e:
+    except (ValueError, TypeError) as e:
         flash(f'Error al crear usuario: {e}', 'danger')
+    except Exception:
+        app.logger.exception('Error al crear usuario')
+        flash('No fue posible crear el usuario', 'danger')
     return redirect(url_for('admin_usuarios'))
 
 @app.route('/admin/cambiar_rol/<int:user_id>', methods=['POST'])
 @admin_required
 def cambiar_rol(user_id):
     nuevo_rol = request.form['rol']
-    gestor_usuarios.cambiar_rol(user_id, nuevo_rol)
-    flash('Rol actualizado', 'success')
+    try:
+        gestor_usuarios.cambiar_rol(user_id, nuevo_rol)
+        flash('Rol actualizado', 'success')
+    except ValueError as e:
+        flash(str(e), 'danger')
     return redirect(url_for('admin_usuarios'))
 
 @app.route('/admin/cambiar_password/<int:user_id>', methods=['POST'])
