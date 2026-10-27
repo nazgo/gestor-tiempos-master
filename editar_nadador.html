@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-light">
+                <h4>✏️ Editar Nadador</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Nombre</label>
+                            <input type="text" name="nombre" value="{{ nadador.nombre }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Apellido</label>
+                            <input type="text" name="apellido" value="{{ nadador.apellido }}" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Fecha de Nacimiento</label>
+                            <input type="date" name="fecha_nacimiento" value="{{ nadador.fecha_nacimiento }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>RUT</label>
+                            <input type="text" name="rut" value="{{ nadador.rut or '' }}" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Género</label>
+                        <select name="genero" class="form-select">
+                            <option value="Masculino" {{ 'selected' if nadador.genero == 'Masculino' }}>Masculino</option>
+                            <option value="Femenino" {{ 'selected' if nadador.genero == 'Femenino' }}>Femenino</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+                    <a href="/nadadores" class="btn btn-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

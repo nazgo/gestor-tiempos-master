@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>⚖️ Comparativa 25m vs 50m - {{ nadador.nombre }} {{ nadador.apellido }}</h2>
+
+<table class="table table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Estilo</th>
+            <th>Tiempo 25m</th>
+            <th>Fecha 25m</th>
+            <th>Tiempo 50m</th>
+            <th>Fecha 50m</th>
+            <th>Diferencia</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in comparacion %}
+        {% if c.distancia == 25 %}
+        <tr>
+            <td>{{ c.estilo }}</td>
+            <td><strong>{{ c.tiempo }}</strong></td>
+            <td>{{ c.fecha }}</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+        </tr>
+        {% elif c.distancia == 50 %}
+        <tr>
+            <td>{{ c.estilo }}</td>
+            <td>—</td>
+            <td>—</td>
+            <td><strong>{{ c.tiempo }}</strong></td>
+            <td>{{ c.fecha }}</td>
+            <td>—</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="/comparacion_25_50" class="btn btn-primary">Nueva Comparación</a>
+{% endblock %}

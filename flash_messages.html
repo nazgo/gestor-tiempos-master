@@ -1,0 +1,19 @@
+<div class="flash-stack" aria-live="polite">
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            {% set tone = category if category in ['success','danger','warning','info','primary','secondary'] else 'info' %}
+            <div class="alert alert-{{ tone }} app-alert alert-dismissible fade show" role="alert">
+                <span class="app-alert-icon">
+                    {% if tone == 'success' %}<i class="fas fa-circle-check"></i>
+                    {% elif tone == 'danger' %}<i class="fas fa-circle-exclamation"></i>
+                    {% elif tone == 'warning' %}<i class="fas fa-triangle-exclamation"></i>
+                    {% else %}<i class="fas fa-circle-info"></i>{% endif %}
+                </span>
+                <span class="app-alert-message">{{ message }}</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+</div>

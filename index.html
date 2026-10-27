@@ -1,0 +1,710 @@
+{% extends 'base.html' %}
+
+{% block title %}Resumen | Gestor Ñuñoa Master{% endblock %}
+
+{% block content %}
+<div class="dashboard-v3">
+    <section class="dashboard-hero">
+        <div class="dashboard-hero-copy">
+            <span class="dashboard-eyebrow">
+                <i class="fas fa-wave-square"></i>
+                Centro de rendimiento
+            </span>
+            <h1>Resumen del club</h1>
+            <p>
+                Actividad, rendimiento y próximos eventos de Ñuñoa Master
+                en una sola vista.
+            </p>
+            <div class="dashboard-hero-actions">
+                <a href="{{ url_for('todos_los_tiempos') }}" class="dashboard-primary-action">
+                    <i class="fas fa-chart-line"></i>
+                    Ver rendimiento
+                </a>
+                <a href="{{ url_for('seleccionar_anio_calendario') }}" class="dashboard-secondary-action">
+                    <i class="fas fa-calendar-days"></i>
+                    Calendario
+                </a>
+            </div>
+        </div>
+
+<div class="dashboard-club-logo">
+
+    <img
+        src="{{ url_for('static', filename='logo.png') }}"
+        alt="Club Ñuñoa Master"
+    >
+
+</div>
+    </section>
+
+    <section class="row g-3 mb-4 dashboard-metrics">
+        {% set metricas = [
+            ('Nadadores', dashboard.metricas.total_nadadores, 'fa-users', url_for('nadadores'), 'Plantel registrado'),
+            ('Activos', dashboard.metricas.activos, 'fa-user-check', url_for('estado_nadadores_anio', anio=dashboard.anio_actual), 'Con tiempos este año'),
+            ('Tiempos', dashboard.metricas.total_tiempos, 'fa-stopwatch', url_for('todos_los_tiempos'), 'Historial completo'),
+            ('Competencias', dashboard.metricas.competencias_anio, 'fa-flag-checkered', url_for('seleccionar_anio_calendario'), 'Eventos de la temporada')
+        ] %}
+
+        {% for titulo, valor, icono, enlace, detalle in metricas %}
+        <div class="col-6 col-xl-3">
+            <a href="{{ enlace }}" class="metric-card-link">
+                <article class="metric-card h-100">
+                    <div class="metric-card-top">
+                        <div class="metric-card-icon">
+                            <i class="fas {{ icono }}"></i>
+                        </div>
+                        <i class="fas fa-arrow-up-right-from-square metric-card-arrow"></i>
+                    </div>
+                    <div class="metric-card-value" data-count="{{ valor or 0 }}">
+                        {{ valor or 0 }}
+                    </div>
+                    <div class="metric-card-title">{{ titulo }}</div>
+                    <div class="metric-card-detail">{{ detalle }}</div>
+                </article>
+            </a>
+        </div>
+        {% endfor %}
+    </section>
+
+
+    {% if dashboard.cumpleanos_hoy %}
+    <section class="birthday-celebration mb-4">
+        <div class="birthday-confetti" aria-hidden="true"></div>
+        <div class="birthday-celebration-icon"><i class="fas fa-cake-candles"></i></div>
+        <div class="birthday-celebration-copy">
+            <span>Celebración del día</span>
+            <h2>
+                {% if dashboard.cumpleanos_hoy|length == 1 %}
+                    ¡Hoy es el cumpleaños de {{ dashboard.cumpleanos_hoy[0].nombre }}!
+                {% else %}
+                    ¡Hoy celebramos {{ dashboard.cumpleanos_hoy|length }} cumpleaños!
+                {% endif %}
+            </h2>
+            <p>
+                {% for persona in dashboard.cumpleanos_hoy %}
+                    {{ persona.nombre }} cumple {{ persona.edad }} años{% if not loop.last %} · {% endif %}
+                {% endfor %}
+            </p>
+        </div>
+        {% if dashboard.cumpleanos_hoy|length == 1 %}
+        <a href="{{ url_for('ficha_nadador', nadador_id=dashboard.cumpleanos_hoy[0].id) }}" class="birthday-celebration-action">
+            Ver perfil <i class="fas fa-arrow-right"></i>
+        </a>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    <section class="dashboard-intelligence-grid mb-4">
+        <article class="dashboard-smart-card birthdays-card">
+            <header class="smart-card-header">
+                <div>
+                    <span>Próximos 30 días</span>
+                    <h2><i class="fas fa-cake-candles"></i> Cumpleaños</h2>
+                </div>
+                <strong>{{ dashboard.proximos_cumpleanos|length }}</strong>
+            </header>
+
+            <div class="birthday-list">
+                {% for persona in dashboard.proximos_cumpleanos %}
+                <a href="{{ url_for('ficha_nadador', nadador_id=persona.id) }}" class="birthday-item">
+                    <div class="birthday-date">
+                        <strong>{{ persona.fecha.strftime('%d') if persona.fecha and persona.fecha.strftime is defined else '—' }}</strong>
+                        <span>{{ persona.fecha.strftime('%b')|upper if persona.fecha and persona.fecha.strftime is defined else 'FECHA' }}</span>
+                    </div>
+                    <div class="birthday-person">
+                        <strong>{{ persona.nombre }}</strong>
+                        <span>
+                            {% if persona.dias == 0 %}
+                                Cumple hoy · {{ persona.edad }} años
+                            {% elif persona.dias == 1 %}
+                                Mañana · cumple {{ persona.edad }} años
+                            {% else %}
+                                En {{ persona.dias }} días · cumple {{ persona.edad }} años
+                            {% endif %}
+                        </span>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% else %}
+                <div class="smart-empty-state">
+                    <i class="fas fa-calendar-check"></i>
+                    <strong>Sin cumpleaños próximos</strong>
+                    <span>No hay celebraciones durante los siguientes 30 días.</span>
+                </div>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="dashboard-smart-card alerts-card">
+            <header class="smart-card-header">
+                <div>
+                    <span>Gestión del club</span>
+                    <h2><i class="fas fa-triangle-exclamation"></i> Atención requerida</h2>
+                </div>
+                <strong>{{ dashboard.alertas|length }}</strong>
+            </header>
+
+            <div class="alert-list">
+                {% for alerta in dashboard.alertas %}
+                <div class="dashboard-alert-item alert-{{ alerta.tipo }}">
+                    <div class="dashboard-alert-icon"><i class="fas {{ alerta.icono }}"></i></div>
+                    <div class="dashboard-alert-copy">
+                        <strong>{{ alerta.titulo }}</strong>
+                        <span>{{ alerta.detalle }}</span>
+                    </div>
+                    <span class="dashboard-alert-value">{{ alerta.valor }}</span>
+                </div>
+                {% else %}
+                <div class="smart-empty-state success">
+                    <i class="fas fa-circle-check"></i>
+                    <strong>Todo al día</strong>
+                    <span>No hay alertas que requieran atención en este momento.</span>
+                </div>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="dashboard-smart-card next-event-card">
+            <header class="smart-card-header">
+                <div>
+                    <span>Agenda competitiva</span>
+                    <h2><i class="fas fa-flag-checkered"></i> Próxima competencia</h2>
+                </div>
+            </header>
+
+            {% set proxima = dashboard.proxima_competencia_destacada %}
+            {% if proxima %}
+            <div class="next-event-main">
+                <div class="next-event-countdown">
+                    <strong>{{ proxima.dias_restantes if proxima.dias_restantes is not none else '—' }}</strong>
+                    <span>días</span>
+                </div>
+                <div class="next-event-copy">
+                    <span class="next-event-date">
+                        {% if proxima.fecha and proxima.fecha.strftime is defined %}
+                            {{ proxima.fecha.strftime('%d/%m/%Y') }}
+                        {% else %}
+                            {{ proxima.fecha or 'Fecha pendiente' }}
+                        {% endif %}
+                    </span>
+                    <h3>{{ proxima.nombre }}</h3>
+                    <p><i class="fas fa-location-dot"></i> {{ proxima.lugar or 'Lugar por confirmar' }}</p>
+                    <span class="next-event-pool">{{ proxima.tipo_piscina or 'Piscina por confirmar' }}</span>
+                </div>
+            </div>
+            <a href="{{ url_for('seleccionar_anio_calendario') }}" class="smart-card-action">
+                Abrir calendario <i class="fas fa-arrow-right"></i>
+            </a>
+            {% else %}
+            <div class="smart-empty-state">
+                <i class="fas fa-calendar-plus"></i>
+                <strong>Sin competencia próxima</strong>
+                <span>La siguiente competencia aparecerá aquí cuando sea registrada.</span>
+            </div>
+            {% endif %}
+        </article>
+    </section>
+
+    <section class="row g-4 mb-4 dashboard-weekly-section">
+        <div class="col-xl-5">
+            <article class="dashboard-panel h-100 weekly-pulse-panel">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Pulso semanal</span>
+                        <h2>Actividad de los últimos 7 días</h2>
+                        <p>Resumen de movimiento reciente en la plataforma.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-heart-pulse"></i></div>
+                </header>
+                <div class="weekly-pulse-grid">
+                    <div class="weekly-stat"><i class="fas fa-stopwatch"></i><strong>{{ dashboard.actividad_semana.tiempos }}</strong><span>Tiempos</span></div>
+                    <div class="weekly-stat"><i class="fas fa-person-swimming"></i><strong>{{ dashboard.actividad_semana.nadadores }}</strong><span>Nadadores</span></div>
+                    <div class="weekly-stat"><i class="fas fa-medal"></i><strong>{{ dashboard.actividad_semana.pb }}</strong><span>Nuevos PB</span></div>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-xl-7">
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Últimos 30 días</span>
+                        <h2>Récords personales recientes</h2>
+                        <p>Marcas que superaron el mejor registro anterior del nadador.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-medal"></i></div>
+                </header>
+                <div class="recent-pb-list">
+                    {% for pb in dashboard.pb_recientes %}
+                    <div class="recent-pb-item">
+                        <div class="recent-pb-medal"><i class="fas fa-trophy"></i></div>
+                        <div class="recent-pb-copy">
+                            <strong>{{ pb.nombre_nadador }}</strong>
+                            <span>{{ pb.estilo }} · {{ pb.distancia }} m · {{ pb.piscina }}</span>
+                        </div>
+                        <div class="recent-pb-result">
+                            <strong>{{ pb.tiempo }}</strong>
+                            <span>{% if pb.fecha and pb.fecha.strftime is defined %}{{ pb.fecha.strftime('%d/%m/%Y') }}{% else %}{{ pb.fecha }}{% endif %}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="smart-empty-state compact">
+                        <i class="fas fa-stopwatch"></i>
+                        <strong>Sin PB recientes</strong>
+                        <span>Los nuevos récords personales de los últimos 30 días aparecerán aquí.</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-4 mb-4">
+        <div class="col-xl-8">
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Actividad anual</span>
+                        <h2>Tiempos registrados por mes</h2>
+                        <p>Volumen de marcas cargadas durante {{ dashboard.anio_actual }}.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-chart-line"></i></div>
+                </header>
+                <div class="dashboard-chart dashboard-chart-large">
+                    <canvas id="chartMeses"></canvas>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-xl-4">
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Estado del plantel</span>
+                        <h2>Activos e inactivos</h2>
+                        <p>Participación deportiva en la temporada actual.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-chart-pie"></i></div>
+                </header>
+                <div class="dashboard-chart dashboard-chart-donut">
+                    <canvas id="chartActividad"></canvas>
+                    <div class="donut-center">
+                        <strong>{{ dashboard.metricas.activos }}</strong>
+                        <span>activos</span>
+                    </div>
+                </div>
+                <div class="activity-legend">
+                    <span><i class="activity-dot active"></i> Activos <strong>{{ dashboard.metricas.activos }}</strong></span>
+                    <span><i class="activity-dot inactive"></i> Inactivos <strong>{{ dashboard.metricas.inactivos }}</strong></span>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-4 mb-4">
+        <div class="col-xl-5">
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Distribución deportiva</span>
+                        <h2>Registros por estilo</h2>
+                        <p>Pruebas más frecuentes del historial.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-water"></i></div>
+                </header>
+                <div class="dashboard-chart dashboard-chart-styles">
+                    <canvas id="chartEstilos"></canvas>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-xl-7">
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Participación {{ dashboard.anio_actual }}</span>
+                        <h2>Nadadores más activos</h2>
+                        <p>Ranking por cantidad de tiempos registrados.</p>
+                    </div>
+                    <div class="panel-icon"><i class="fas fa-ranking-star"></i></div>
+                </header>
+                <div class="dashboard-chart dashboard-chart-ranking">
+                    <canvas id="chartTop"></canvas>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-4 mb-4">
+        <div class="col-xl-7">
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Actividad reciente</span>
+                        <h2>Últimos tiempos registrados</h2>
+                    </div>
+                    <a href="{{ url_for('todos_los_tiempos') }}" class="panel-action">
+                        Ver historial <i class="fas fa-arrow-right"></i>
+                    </a>
+                </header>
+
+                <div class="table-responsive">
+                    <table class="table dashboard-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nadador</th>
+                                <th>Prueba</th>
+                                <th>Piscina</th>
+                                <th>Tiempo</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for t in dashboard.ultimos_tiempos %}
+                            <tr>
+                                <td><strong>{{ t.nombre_nadador }}</strong></td>
+                                <td>{{ t.estilo }} · {{ t.distancia }} m</td>
+                                <td><span class="data-chip">{{ t.piscina or '—' }}</span></td>
+                                <td><span class="time-chip">{{ t.tiempo }}</span></td>
+                                <td>
+                                    {% if t.fecha and t.fecha.strftime is defined %}
+                                        {{ t.fecha.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        {{ t.fecha or '—' }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    No hay tiempos registrados.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-xl-5">
+            <article class="dashboard-panel h-100">
+                <header class="dashboard-panel-header">
+                    <div>
+                        <span>Agenda competitiva</span>
+                        <h2>Próximas competencias</h2>
+                    </div>
+                    <a href="{{ url_for('seleccionar_anio_calendario') }}" class="panel-action">
+                        Calendario <i class="fas fa-arrow-right"></i>
+                    </a>
+                </header>
+
+                <div class="competition-list">
+                    {% for c in dashboard.proximas_competencias_lista %}
+                    <div class="competition-item">
+                        <div class="competition-date-box">
+                            {% if c.fecha and c.fecha.strftime is defined %}
+                                <strong>{{ c.fecha.strftime('%d') }}</strong>
+                                <span>{{ c.fecha.strftime('%b')|upper }}</span>
+                            {% else %}
+                                <strong>—</strong>
+                                <span>FECHA</span>
+                            {% endif %}
+                        </div>
+                        <div class="competition-copy">
+                            <strong>{{ c.nombre }}</strong>
+                            <span><i class="fas fa-location-dot"></i> {{ c.lugar or 'Lugar por confirmar' }}</span>
+                        </div>
+                        <span class="competition-pool">{{ c.tipo_piscina or '—' }}</span>
+                    </div>
+                    {% else %}
+                    <div class="dashboard-empty">
+                        <i class="fas fa-calendar-check"></i>
+                        <strong>Sin competencias próximas</strong>
+                        <span>La agenda futura aparecerá aquí.</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="dashboard-panel season-evolution-panel mb-2">
+        <header class="dashboard-panel-header season-evolution-header">
+            <div>
+                <span>Crecimiento histórico</span>
+                <h2>Evolución por temporada</h2>
+                <p>Comparación de los tiempos registrados entre temporadas.</p>
+            </div>
+            <div class="season-variation-card">
+                <span>Variación</span>
+                <strong id="variacionTemporadas">—</strong>
+            </div>
+        </header>
+
+        <div class="dashboard-chart dashboard-chart-evolution">
+            <canvas id="chartTemporadas"></canvas>
+        </div>
+
+        <footer class="season-evolution-footer">
+            <span>
+                <i class="fas fa-circle-info"></i>
+                Cada barra representa el total de tiempos registrados por año.
+            </span>
+            <strong id="resumenTemporadas">Comparación histórica</strong>
+        </footer>
+    </section>
+
+    <!-- STAFF DEPORTIVO, DIRECTIVA Y VALORES -->
+    {% set staff_deportivo = [
+        {'nombre': 'Esteban Canto', 'cargo': 'Coach principal', 'descripcion': 'Dirección técnica, planificación deportiva y coordinación general de entrenamientos.', 'foto': 'EstebanC.PNG', 'iniciales': 'EC', 'icono': 'fa-person-swimming'},
+        {'nombre': 'Pedro Olivares', 'cargo': 'Coach asistente', 'descripcion': 'Apoyo técnico, seguimiento de nadadores y asistencia durante las sesiones.', 'foto': 'PedroO.PNG', 'iniciales': 'PO', 'icono': 'fa-stopwatch'},
+        {'nombre': 'Natalia Rusowsky', 'cargo': 'Coach asistente', 'descripcion': 'Apoyo técnico, corrección de estilos y acompañamiento del plantel.', 'foto': 'NataliaR.PNG', 'iniciales': 'NR', 'icono': 'fa-water'},
+        {'nombre': 'Larry Lucena', 'cargo': 'Delegado deportivo', 'descripcion': 'Coordinación de competencias, inscripciones y comunicación con el equipo.', 'foto': 'LarryL.PNG','iniciales': 'LL', 'icono': 'fa-clipboard-check'},
+        {'nombre': 'Juan Nava', 'cargo': 'Delegado deportivo', 'descripcion': 'Apoyo logístico, seguimiento de eventos y organización competitiva.', 'foto': 'JuanN.PNG', 'iniciales': 'JN', 'icono': 'fa-calendar-check'}
+    ] %}
+
+    {% set directiva_club = [
+        {'nombre': 'Carolina Correa', 'cargo': 'Presidente', 'foto': 'CarolinaC.PNG', 'iniciales': 'CR'},
+        {'nombre': 'Marisel Cabeza', 'cargo': 'Secretario', 'foto': 'MariselC.PNG', 'iniciales': 'MC'},
+        {'nombre': 'Georgina Mangiameli', 'cargo': 'Tesorero', 'foto': 'GeorginaM.PNG', 'iniciales': 'GM'}
+    ] %}
+
+    <section class="club-people-section mt-4">
+        <header class="club-people-heading">
+            <div>
+                <span class="club-people-eyebrow"><i class="fas fa-people-group"></i> Las personas detrás del club</span>
+                <h2>Staff deportivo</h2>
+                <p>El equipo que acompaña, organiza y potencia el rendimiento de Ñuñoa Master.</p>
+            </div>
+            <span class="club-people-count">{{ staff_deportivo|length }} integrantes</span>
+        </header>
+
+        <div class="staff-grid">
+            {% for persona in staff_deportivo %}
+            <article class="staff-card">
+                <div class="staff-card-top">
+                    <div class="staff-avatar">
+                        <img
+                            src="{{ url_for('static', filename='img/staff/' ~ persona.foto) }}"
+                            alt="{{ persona.nombre }}"
+                            loading="lazy"
+                        >
+                    </div>
+                    <div class="staff-role-icon"><i class="fas {{ persona.icono }}"></i></div>
+                </div>
+                <div class="staff-card-copy">
+                    <span>{{ persona.cargo }}</span>
+                    <h3>{{ persona.nombre }}</h3>
+                    <p>{{ persona.descripcion }}</p>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="club-board-section mt-4">
+        <header class="club-people-heading compact">
+            <div>
+                <span class="club-people-eyebrow"><i class="fas fa-landmark"></i> Organización institucional</span>
+                <h2>Directiva</h2>
+                <p>Responsables de la conducción y administración del Club Ñuñoa Master.</p>
+            </div>
+        </header>
+
+        <div class="board-grid">
+            {% for persona in directiva_club %}
+            <article class="board-card">
+                <div class="board-avatar">
+    <img
+        src="{{ url_for('static', filename='img/staff/' ~ persona.foto) }}"
+        alt="{{ persona.nombre }}"
+        loading="lazy"
+    >
+</div>
+                <div>
+                    <span>{{ persona.cargo }}</span>
+                    <h3>{{ persona.nombre }}</h3>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="club-values-section mt-4">
+        <div class="club-value-card"><i class="fas fa-handshake"></i><div><strong>Compañerismo</strong><span>Crecemos y competimos como equipo.</span></div></div>
+        <div class="club-value-card"><i class="fas fa-medal"></i><div><strong>Superación</strong><span>Cada marca es una oportunidad para avanzar.</span></div></div>
+        <div class="club-value-card"><i class="fas fa-heart"></i><div><strong>Pasión</strong><span>La natación nos une dentro y fuera de la piscina.</span></div></div>
+    </section>
+
+    <section class="club-motto mt-4">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Ñuñoa Master">
+        <div>
+            <span>Club Ñuñoa Master</span>
+            <strong>Más que un equipo… una hermandad.</strong>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+
+<style>
+
+/* =========================================================
+   LOGO DEL CLUB EN EL HERO DEL DASHBOARD
+   Clase exclusiva para evitar conflictos con .hero-logo
+   ========================================================= */
+.dashboard-club-logo {
+    position: relative;
+    z-index: 3;
+    width: 164px;
+    height: 142px;
+    flex: 0 0 164px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    padding: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.20);
+    border-radius: 24px;
+    background: rgba(255,255,255,.09);
+    box-shadow: 0 14px 34px rgba(0,0,0,.10);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.dashboard-club-logo img {
+    display: block !important;
+    width: 112px !important;
+    max-width: 112px !important;
+    height: 94px !important;
+    max-height: 94px !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    transform: none !important;
+}
+
+@media (max-width: 991px) {
+    .dashboard-club-logo {
+        width: 132px;
+        height: 114px;
+        flex-basis: 132px;
+        padding: 14px;
+    }
+
+    .dashboard-club-logo img {
+        width: 92px !important;
+        max-width: 92px !important;
+        height: 76px !important;
+        max-height: 76px !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .dashboard-hero {
+        position: relative;
+    }
+
+    .dashboard-club-logo {
+        position: absolute;
+        top: 18px;
+        right: 16px;
+        width: 92px;
+        height: 80px;
+        padding: 10px;
+        opacity: .28;
+        pointer-events: none;
+    }
+
+    .dashboard-club-logo img {
+        width: 68px !important;
+        max-width: 68px !important;
+        height: 56px !important;
+        max-height: 56px !important;
+    }
+
+    .dashboard-hero-copy {
+        position: relative;
+        z-index: 4;
+        max-width: calc(100% - 20px);
+    }
+}
+
+.club-people-section,.club-board-section{padding:28px;border:1px solid var(--border);border-radius:24px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.club-people-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;margin-bottom:22px}
+.club-people-heading.compact{align-items:center}
+.club-people-eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--accent);font-size:.69rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.club-people-heading h2{margin:7px 0 4px;color:var(--text-primary);font-size:1.55rem;font-weight:800;letter-spacing:-.03em}
+.club-people-heading p{max-width:720px;margin:0;color:var(--text-secondary);font-size:.84rem}
+.club-people-count{flex:0 0 auto;padding:8px 12px;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));border-radius:999px;background:var(--accent-soft);font-size:.7rem;font-weight:800}
+.staff-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.staff-card{min-width:0;padding:20px;border:1px solid var(--border);border-radius:20px;background:radial-gradient(circle at 100% 0,color-mix(in srgb,var(--accent) 13%,transparent),transparent 42%),var(--surface-soft);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.staff-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 38%,var(--border));box-shadow:var(--shadow-md)}
+.staff-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.staff-avatar,.board-avatar{display:inline-flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,var(--accent-dark),#22c5c7);font-family:"Manrope","Inter",sans-serif;font-weight:800;box-shadow:0 10px 24px rgba(0,155,157,.18)}
+.staff-avatar{width:58px;height:58px;border-radius:18px;font-size:1rem}
+.staff-role-icon{display:inline-flex;width:40px;height:40px;align-items:center;justify-content:center;color:var(--accent);border-radius:13px;background:var(--accent-soft)}
+.staff-card-copy span,.board-card span{color:var(--accent);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.staff-card-copy h3,.board-card h3{margin:5px 0 0;color:var(--text-primary);font-size:1rem;font-weight:800}
+.staff-card-copy p{margin:9px 0 0;color:var(--text-secondary);font-size:.76rem;line-height:1.55}
+.board-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.board-card{display:flex;min-width:0;align-items:center;gap:13px;padding:16px;border:1px solid var(--border);border-radius:17px;background:var(--surface-soft);transition:transform .18s ease,border-color .18s ease}
+.board-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 35%,var(--border))}
+.board-avatar{width:44px;height:44px;flex:0 0 44px;border-radius:14px;font-size:.75rem}
+.board-card h3{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.club-values-section{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.club-value-card{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid var(--border);border-radius:18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.club-value-card>i{display:inline-flex;width:44px;height:44px;flex:0 0 44px;align-items:center;justify-content:center;color:var(--accent);border-radius:14px;background:var(--accent-soft);font-size:1rem}
+.club-value-card div{display:flex;min-width:0;flex-direction:column}
+.club-value-card strong{color:var(--text-primary);font-size:.83rem}
+.club-value-card span{margin-top:3px;color:var(--text-secondary);font-size:.69rem}
+.club-motto{display:flex;align-items:center;justify-content:center;gap:18px;padding:24px;overflow:hidden;color:#fff;border-radius:22px;background:radial-gradient(circle at 90% 10%,rgba(255,255,255,.13),transparent 32%),linear-gradient(135deg,#073b3c,#009b9d);box-shadow:var(--shadow-md)}
+.club-motto img{width:76px;height:58px;object-fit:contain;filter:drop-shadow(0 7px 14px rgba(0,0,0,.22))}
+.club-motto div{display:flex;flex-direction:column}
+.club-motto span{color:rgba(255,255,255,.72);font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.club-motto strong{margin-top:4px;font-family:"Manrope","Inter",sans-serif;font-size:1.05rem;font-weight:800}
+@media (max-width:1199px){.staff-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:991px){.staff-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:767px){.club-people-section,.club-board-section{padding:20px;border-radius:20px}.club-people-heading{align-items:flex-start;flex-direction:column;gap:12px}.club-people-heading h2{font-size:1.3rem}.staff-grid,.club-values-section{grid-template-columns:1fr}.club-motto{justify-content:flex-start;padding:20px}}
+@media (max-width:480px){.board-grid{grid-template-columns:1fr}.staff-card{padding:17px}.club-motto img{width:60px;height:48px}.club-motto strong{font-size:.92rem}}
+
+
+
+.staff-avatar,
+.board-avatar {
+    overflow: hidden;
+    padding: 0;
+}
+
+.staff-avatar img,
+.board-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.staff-avatar img {
+    border-radius: 18px;
+}
+
+.board-avatar img {
+    border-radius: 14px;
+}
+
+    
+
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    window.dashboardData = {{ dashboard.graficos|tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

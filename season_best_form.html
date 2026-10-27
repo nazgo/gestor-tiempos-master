@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>🏆 Mejores Tiempos del Nadador</h2>
+
+<form method="POST" class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label">Nombre del Nadador (opcional)</label>
+        <input type="text" name="nombre" class="form-control" placeholder="Ej: Juan Pérez">
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Estilo</label>
+        <select name="estilo" class="form-select">
+            <option value="">Todos</option>
+            {% for e in estilos %}
+            <option value="{{ e }}">{{ e }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Distancia</label>
+        <select name="distancia" class="form-select">
+            <option value="">Todas</option>
+            {% for d in distancias %}
+            <option value="{{ d }}">{{ d }}m</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Categoría Master</label>
+        <select name="categoria" class="form-select">
+            <option value="">Todas</option>
+            <option value="Master 18-24">Master 18-24</option>
+            <option value="Master 25-29">Master 25-29</option>
+            <option value="Master 30-34">Master 30-34</option>
+            <!-- Agrega más categorías según necesites -->
+        </select>
+    </div>
+    <div class="col-12">
+        <label class="form-label">Año</label>
+        <input type="number" name="year" class="form-control" value="{{ year|default(2026) }}">
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Buscar Mejores Tiempos</button>
+    </div>
+</form>
+
+ <div class="text-center mt-4">
+            <a href="/" class="btn btn-secondary">← Volver al Inicio</a>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,2758 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Asistencia {{ anio }} | Gestor Ñuñoa Master
+{% endblock %}
+
+{% block content %}
+
+<div class="asistencia-page">
+
+    <!-- Encabezado -->
+    <section class="asistencia-hero mb-4">
+
+        <div class="asistencia-hero-content">
+
+            <div>
+
+                <div class="asistencia-kicker">
+                    <i class="fas fa-clipboard-check"></i>
+                    Participación deportiva
+                </div>
+
+                <h1 class="asistencia-title">
+                    Asistencia a Competencias
+                </h1>
+
+                <p class="asistencia-subtitle mb-0">
+                    Registro de participación de los nadadores durante
+                    la temporada {{ anio }}.
+                </p>
+
+            </div>
+
+            <div class="asistencia-season">
+
+                <span class="season-label">
+                    Temporada
+                </span>
+
+                <span class="season-year">
+                    {{ anio }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Resumen -->
+    <section class="row g-3 mb-4 attendance-kpis">
+        <div class="col-6 col-xl-3">
+            <article class="summary-card h-100">
+                <div class="summary-icon"><i class="fas fa-flag-checkered"></i></div>
+                <div>
+                    <div class="summary-number">{{ resumen_asistencia.competencias_transcurridas }}</div>
+                    <div class="summary-label">Competencias oficiales</div>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <article class="summary-card h-100">
+                <div class="summary-icon summary-icon-success"><i class="fas fa-chart-line"></i></div>
+                <div>
+                    <div class="summary-number">{{ resumen_asistencia.asistencia_promedio }}%</div>
+                    <div class="summary-label">Asistencia promedio</div>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <article class="summary-card h-100">
+                <div class="summary-icon summary-icon-success"><i class="fas fa-award"></i></div>
+                <div>
+                    <div class="summary-number">{{ resumen_asistencia.asistencia_completa }}</div>
+                    <div class="summary-label">Con 100% de asistencia</div>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <article class="summary-card h-100">
+                <div class="summary-icon summary-icon-warning"><i class="fas fa-triangle-exclamation"></i></div>
+                <div>
+                    <div class="summary-number">{{ resumen_asistencia.asistencia_baja }}</div>
+                    <div class="summary-label">Bajo 50% de asistencia</div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="special-kpis mb-4">
+        <article><i class="fas fa-earth-americas"></i><div><strong>{{ resumen_asistencia.competencias_especiales }}</strong><span>Competencias especiales</span></div></article>
+        <article><i class="fas fa-trophy"></i><div><strong>{{ resumen_asistencia.participaciones_especiales }}</strong><span>Participaciones reconocidas</span></div></article>
+        <article><i class="fas fa-users"></i><div><strong>{{ resumen_asistencia.nadadores_con_especial }}</strong><span>Nadadores representantes</span></div></article>
+        <div class="special-kpis-note"><strong>Competencia especial</strong><span>No afecta el porcentaje oficial; la participación sí entrega reconocimiento.</span></div>
+    </section>
+
+    <!-- Barra de herramientas -->
+    <section class="asistencia-toolbar mb-4">
+
+        <div class="toolbar-content">
+
+            <div>
+
+                <div class="toolbar-kicker">
+                    Matriz de participación
+                </div>
+
+                <h2 class="toolbar-title">
+                    Nadadores y competencias
+                </h2>
+
+                <p class="toolbar-description mb-0">
+                    Haz clic en cada casilla para cambiar su estado.
+                </p>
+
+            </div>
+
+            <div class="toolbar-actions attendance-filters">
+                <div class="nadador-search">
+                    <i class="fas fa-search"></i>
+                    <input type="search" id="buscarNadador" class="form-control" placeholder="Buscar nadador..." autocomplete="off">
+                    <button type="button" id="limpiarBusqueda" class="search-clear d-none" title="Limpiar búsqueda" aria-label="Limpiar búsqueda">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <select id="filtroCategoria" class="form-select attendance-filter-select" aria-label="Filtrar por categoría">
+                    <option value="">Todas las categorías</option>
+                    {% set categorias_disponibles = nadadores | map(attribute='categoria_master') | reject('equalto', none) | unique | sort %}
+                    {% for categoria in categorias_disponibles %}
+                        {% if categoria %}
+                        <option value="{{ categoria }}">{{ categoria }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+
+                <select id="filtroAsistencia" class="form-select attendance-filter-select" aria-label="Filtrar por asistencia">
+                    <option value="todos">Todos los nadadores</option>
+                    <option value="asistieron">Con alguna asistencia</option>
+                    <option value="no-asistieron">Sin asistencias</option>
+                    <option value="completa">100% de asistencia</option>
+                    <option value="alta">80% o más</option>
+                    <option value="media">50% a 79%</option>
+                    <option value="baja">Menos de 50%</option>
+                    <option value="muy-baja">25% o menos</option>
+                    <option value="pendientes">Con registros pendientes</option>
+                </select>
+
+                <select id="ordenAsistencia" class="form-select attendance-filter-select" aria-label="Ordenar asistencia">
+                    <option value="nombre">Orden alfabético</option>
+                    <option value="mayor">Mayor asistencia</option>
+                    <option value="menor">Menor asistencia</option>
+                </select>
+
+                <button type="button" id="limpiarFiltros" class="btn btn-clear-filters">
+                    <i class="fas fa-filter-circle-xmark"></i>
+                    Limpiar
+                </button>
+
+                <a href="{{ url_for('seleccionar_anio_asistencias') }}" class="btn btn-change-year">
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    Cambiar año
+                </a>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Leyenda -->
+    <section class="legend-card mb-3">
+
+        <div class="legend-title">
+            Estados:
+        </div>
+
+        <div class="legend-items">
+
+            <span class="legend-item">
+
+                <span class="legend-symbol legend-present">
+                    <i class="fas fa-check"></i>
+                </span>
+
+                Participó
+
+            </span>
+
+            <span class="legend-item">
+
+                <span class="legend-symbol legend-absent">
+                    <i class="fas fa-times"></i>
+                </span>
+
+                No participó
+
+            </span>
+
+            <span class="legend-item">
+
+                <span class="legend-symbol legend-na">
+                    <i class="fas fa-minus"></i>
+                </span>
+
+                No aplicaba
+
+            </span>
+
+            <span class="legend-item">
+
+                <span class="legend-symbol legend-empty">
+                    <i class="far fa-circle"></i>
+                </span>
+
+                Sin registrar
+
+            </span>
+
+        </div>
+
+        <div class="legend-cycle">
+            <i class="fas fa-rotate"></i>
+            Cada clic avanza al siguiente estado
+        </div>
+
+    </section>
+
+    <!-- Tabla -->
+    <section class="attendance-card">
+
+        {% if competencias and nadadores %}
+
+        <div class="table-scroll-hint">
+
+            <i class="fas fa-arrows-left-right"></i>
+
+            Desplázate horizontalmente para consultar todas las competencias.
+
+        </div>
+
+        {% endif %}
+
+        <div class="attendance-table-container">
+
+            <table
+                class="table attendance-table align-middle mb-0"
+                id="tablaAsistencia"
+            >
+
+                <thead>
+
+                    <tr>
+
+                        <th class="swimmer-column">
+
+                            <div class="swimmer-header">
+                                <i class="fas fa-user"></i>
+                                Nadador
+                            </div>
+
+                        </th>
+
+                        {% for competencia in competencias %}
+
+                        <th class="competition-column {% if competencia.es_especial %}competition-special{% endif %}">
+
+                            <div class="competition-header">
+
+                            <!--<div class="competition-number">
+                                   {{ loop.index }}
+                                </div>-->
+
+                                <div class="competition-name">
+                                    {{ competencia.nombre }}
+                                </div>
+
+                                <div class="competition-date">
+
+                                    <i class="fas fa-calendar-day"></i>
+
+                                    {% if competencia.fecha
+                                          and competencia.fecha.strftime is defined %}
+
+                                        {{ competencia.fecha.strftime('%d/%m/%Y') }}
+
+                                    {% else %}
+
+                                        {{ competencia.fecha or 'Sin fecha' }}
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </th>
+
+                        {% endfor %}
+
+                        <th class="percentage-column">
+                            <div class="percentage-header">
+                                <i class="fas fa-percent"></i>
+                                Asistencia
+                            </div>
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for nadador in nadadores %}
+
+                    <tr class="swimmer-row {% if nadador.competencias_aplicables > 0 %}{% if nadador.porcentaje_asistencia == 100 %}attendance-perfect{% elif nadador.porcentaje_asistencia >= 70 %}attendance-good{% elif nadador.porcentaje_asistencia >= 40 %}attendance-medium{% else %}attendance-low{% endif %}{% endif %}"
+                        data-nombre="{{ nadador.apellido }} {{ nadador.nombre }} {{ nadador.categoria_master or '' }}"
+                        data-categoria="{{ nadador.categoria_master or '' }}"
+                        data-porcentaje="{{ nadador.porcentaje_asistencia }}"
+                        data-presentes="{{ nadador.asistencias_presentes }}"
+                        data-ausentes="{{ nadador.asistencias_ausentes }}"
+                        data-pendientes="{{ nadador.asistencias_pendientes }}">
+
+                        <td class="swimmer-column">
+
+                            <div class="swimmer-cell">
+
+                                <div class="swimmer-avatar">
+                                    {{ nadador.nombre[:1]|upper }}
+                                    {{ nadador.apellido[:1]|upper }}
+                                </div>
+
+                                <div class="swimmer-data">
+
+                                    <strong>
+                                        {{ nadador.apellido }}
+                                        {{ nadador.nombre }}
+                                    </strong>
+
+                                    {% if nadador.categoria_master %}
+
+                                    <span>
+                                        {{ nadador.categoria_master }}
+                                    </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                        {% for competencia in competencias %}
+
+                            {% set clave = (
+                                nadador.id,
+                                competencia.id
+                            ) %}
+
+                            {% set estado =
+                                asistencias.get(
+                                    clave,
+                                    'SIN_REGISTRO'
+                                )
+                            %}
+
+                        <td class="attendance-cell {% if competencia.es_especial %}attendance-special-cell{% endif %}">
+
+                            <button
+                                type="button"
+                                class="
+                                    attendance-button
+                                    {% if estado == 'PRESENTE' %}
+                                        attendance-present
+                                    {% elif estado == 'AUSENTE' %}
+                                        attendance-absent
+                                    {% elif estado == 'NO_APLICA' %}
+                                        attendance-na
+                                    {% else %}
+                                        attendance-empty
+                                    {% endif %}
+                                "
+                                data-nadador-id="{{ nadador.id }}"
+                                data-competencia-id="{{ competencia.id }}"
+                                data-estado="{{ estado }}"
+                                data-transcurrida="{{ 1 if competencia.transcurrida else 0 }}"
+                                data-considera-asistencia="{{ 1 if competencia.considera_asistencia else 0 }}"
+                                title="
+                                    {% if estado == 'PRESENTE' %}
+                                        Participó
+                                    {% elif estado == 'AUSENTE' %}
+                                        No participó
+                                    {% elif estado == 'NO_APLICA' %}
+                                        No aplicaba
+                                    {% else %}
+                                        Sin registrar
+                                    {% endif %}
+                                "
+                                aria-label="Cambiar estado de asistencia"
+                            >
+
+                                <span class="attendance-symbol">
+
+                                    {% if estado == 'PRESENTE' %}
+
+                                        <i class="fas fa-check"></i>
+
+                                    {% elif estado == 'AUSENTE' %}
+
+                                        <i class="fas fa-times"></i>
+
+                                    {% elif estado == 'NO_APLICA' %}
+
+                                        <i class="fas fa-minus"></i>
+
+                                    {% else %}
+
+                                        <i class="far fa-circle"></i>
+
+                                    {% endif %}
+
+                                </span>
+
+                                <span class="saving-spinner">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+
+                            </button>
+
+                        </td>
+
+                        {% endfor %}
+
+                        <td class="percentage-column percentage-cell">
+                            <div class="attendance-percentage-wrap">
+                                <div class="attendance-percentage-top">
+                                    <strong class="attendance-percentage-value">{{ nadador.porcentaje_asistencia }}%</strong>
+                                    <span class="attendance-percentage-detail">
+                                        {{ nadador.asistencias_presentes }}/{{ nadador.competencias_aplicables }}
+                                    </span>
+                                </div>
+                                <div class="attendance-progress" aria-hidden="true">
+                                    <span style="width: {{ nadador.porcentaje_asistencia }}%"></span>
+                                </div>
+                                <div class="special-recognition {% if nadador.participaciones_especiales == 0 %}is-empty{% endif %}" title="{% if nadador.reconocimientos_especiales %}{% for r in nadador.reconocimientos_especiales %}{{ r.nombre }}{% if not loop.last %} · {% endif %}{% endfor %}{% else %}Sin participaciones especiales{% endif %}">
+                                    <i class="fas fa-trophy"></i>
+                                    <span class="special-recognition-count">{{ nadador.participaciones_especiales }}</span>
+                                    <small>especial{% if nadador.participaciones_especiales != 1 %}es{% endif %}</small>
+                                </div>
+                                {% if nadador.asistencias_pendientes > 0 %}
+                                <small class="attendance-pending-label">
+                                    {{ nadador.asistencias_pendientes }} pendiente{% if nadador.asistencias_pendientes != 1 %}s{% endif %}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="{{ competencias|length + 2 }}"
+                        >
+
+                            <div class="empty-state">
+
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-users-slash"></i>
+                                </div>
+
+                                <h3>
+                                    No hay nadadores registrados
+                                </h3>
+
+                                <p>
+                                    Registra nadadores antes de administrar
+                                    su asistencia a competencias.
+                                </p>
+
+                                <a
+                                    href="{{ url_for('nadadores') }}"
+                                    class="btn btn-empty-action"
+                                >
+                                    <i class="fas fa-users me-1"></i>
+                                    Ir a Nadadores
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% if not competencias %}
+
+        <div class="empty-state">
+
+            <div class="empty-state-icon">
+                <i class="fas fa-calendar-xmark"></i>
+            </div>
+
+            <h3>
+                No hay competencias en {{ anio }}
+            </h3>
+
+            <p>
+                Agrega competencias al calendario para comenzar
+                a registrar la participación de los nadadores.
+            </p>
+
+            <a
+                href="{{ url_for('seleccionar_anio_calendario') }}"
+                class="btn btn-empty-action"
+            >
+                <i class="fas fa-calendar-alt me-1"></i>
+                Ir al Calendario
+            </a>
+
+        </div>
+
+        {% endif %}
+
+        <!-- Sin resultados del buscador -->
+        <div
+            id="sinResultadosBusqueda"
+            class="search-empty d-none"
+        >
+
+            <div class="search-empty-icon">
+                <i class="fas fa-search"></i>
+            </div>
+
+            <h3>
+                No se encontraron nadadores
+            </h3>
+
+            <p class="mb-0">
+                Prueba escribiendo otro nombre, apellido o categoría.
+            </p>
+
+        </div>
+
+        {% if nadadores and competencias %}
+
+        <div class="attendance-footer">
+
+            <span>
+
+                Mostrando
+
+                <strong id="cantidadVisible">
+                    {{ nadadores|length }}
+                </strong>
+
+                de
+
+                <strong>
+                    {{ nadadores|length }}
+                </strong>
+
+                nadadores
+
+            </span>
+
+            <span id="estadoGuardado">
+                <i class="fas fa-cloud"></i>
+                Los cambios se guardan automáticamente
+            </span>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+    <!-- Información -->
+    <section class="attendance-help mt-4">
+
+        <div class="attendance-help-icon">
+            <i class="fas fa-circle-info"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                Registro automático
+            </strong>
+
+            <p class="mb-0">
+                Los cambios se guardan inmediatamente. El ciclo de estados es:
+                sin registrar, participó, no participó, no aplicaba y nuevamente
+                sin registrar.
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- Navegación -->
+    <div class="page-actions mt-4">
+
+        <a
+            href="{{ url_for('seleccionar_anio_asistencias') }}"
+            class="btn btn-back"
+        >
+            <i class="fas fa-arrow-left me-1"></i>
+            Elegir otro año
+        </a>
+
+        <a
+            href="{{ url_for('index') }}"
+            class="btn btn-home"
+        >
+            <i class="fas fa-house me-1"></i>
+            Volver al Inicio
+        </a>
+
+    </div>
+
+</div>
+
+<style>
+    .asistencia-page {
+        min-height: 100vh;
+        padding: 0.5rem 0 2rem;
+    }
+
+    /* Encabezado */
+    .asistencia-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                135deg,
+                #00898b 0%,
+                #009b9d 55%,
+                #00adaf 100%
+            );
+        box-shadow:
+            0 16px 38px
+            rgba(0, 126, 128, 0.20);
+    }
+
+    .asistencia-hero::before {
+        position: absolute;
+        top: -100px;
+        right: 155px;
+        width: 250px;
+        height: 250px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        content: "";
+    }
+
+    .asistencia-hero::after {
+        position: absolute;
+        right: -90px;
+        bottom: -150px;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        content: "";
+    }
+
+    .asistencia-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 34px 40px;
+        color: #ffffff;
+    }
+
+    .asistencia-kicker {
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .asistencia-title {
+        margin-bottom: 7px;
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .asistencia-subtitle {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.6;
+    }
+
+    .asistencia-season {
+        display: flex;
+        min-width: 150px;
+        flex-direction: column;
+        align-items: center;
+        padding: 17px 20px;
+        border: 1px solid rgba(255, 255, 255, 0.23);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .season-label {
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 0.67rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+    }
+
+    .season-year {
+        margin-top: 4px;
+        font-size: 2rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    /* Resumen */
+    .summary-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 17px;
+        border: 1px solid #dceaea;
+        border-radius: 17px;
+        background: #ffffff;
+        box-shadow:
+            0 6px 17px
+            rgba(25, 68, 70, 0.06);
+    }
+
+    .summary-icon {
+        display: inline-flex;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        align-items: center;
+        justify-content: center;
+        color: #009294;
+        border-radius: 14px;
+        background: #eaf9f9;
+        font-size: 1.1rem;
+    }
+
+    .summary-icon-success {
+        color: #16875a;
+        background: #e9f8f1;
+    }
+
+    .summary-icon-pending {
+        color: #788789;
+        background: #eef3f3;
+    }
+
+    .summary-number {
+        color: #2e4041;
+        font-size: 1.55rem;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .summary-label {
+        margin-top: 5px;
+        color: #819092;
+        font-size: 0.69rem;
+    }
+
+    /* Herramientas */
+    .asistencia-toolbar,
+    .legend-card,
+    .attendance-card {
+        overflow: hidden;
+        border: 1px solid #dceaea;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 20px
+            rgba(25, 68, 70, 0.07);
+    }
+
+    .asistencia-toolbar {
+        padding: 18px 20px;
+    }
+
+    .toolbar-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+    }
+
+    .toolbar-kicker {
+        color: #009294;
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .toolbar-title {
+        margin: 3px 0;
+        color: #2d3f40;
+        font-size: 1.18rem;
+        font-weight: 850;
+    }
+
+    .toolbar-description {
+        color: #79898b;
+        font-size: 0.77rem;
+    }
+
+    .toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .nadador-search {
+        position: relative;
+        width: min(300px, 100%);
+    }
+
+    .nadador-search > i {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        z-index: 2;
+        color: #829193;
+        transform: translateY(-50%);
+    }
+
+    .nadador-search input {
+        min-height: 42px;
+        padding-right: 42px;
+        padding-left: 38px;
+        border-color: #d7e7e7;
+        border-radius: 11px;
+        font-size: 0.8rem;
+    }
+
+    .search-clear {
+        position: absolute;
+        top: 50%;
+        right: 7px;
+        z-index: 2;
+        width: 30px;
+        height: 30px;
+        color: #788789;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        transform: translateY(-50%);
+    }
+
+    .search-clear:hover {
+        color: #007d7f;
+        background: #eaf9f9;
+    }
+
+    .btn-change-year {
+        min-height: 42px;
+        padding: 0.58rem 0.8rem;
+        color: #007d7f;
+        border: 1px solid #bfe4e4;
+        border-radius: 10px;
+        background: #eaf9f9;
+        font-size: 0.75rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .btn-change-year:hover {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    /* Leyenda */
+    .legend-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 13px 16px;
+    }
+
+    .legend-title {
+        color: #435456;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    .legend-items {
+        display: flex;
+        flex: 1;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #617173;
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+
+    .legend-symbol {
+        display: inline-flex;
+        width: 24px;
+        height: 24px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 7px;
+        font-size: 0.7rem;
+    }
+
+    .legend-present {
+        color: #11754d;
+        background: #e7f7ef;
+    }
+
+    .legend-absent {
+        color: #b43838;
+        background: #fff0f0;
+    }
+
+    .legend-na {
+        color: #59686a;
+        background: #edf1f1;
+    }
+
+    .legend-empty {
+        color: #879496;
+        border: 1px solid #d6dfdf;
+        background: #ffffff;
+    }
+
+    .legend-cycle {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #879496;
+        font-size: 0.67rem;
+        white-space: nowrap;
+    }
+
+    .legend-cycle i {
+        color: #009294;
+    }
+
+    /* Tabla */
+    .table-scroll-hint {
+        display: none;
+        padding: 10px 14px;
+        color: #6f7f81;
+        border-bottom: 1px solid #e3eded;
+        background: #f7fbfb;
+        font-size: 0.7rem;
+        text-align: center;
+    }
+
+    .table-scroll-hint i {
+        margin-right: 4px;
+        color: #009294;
+    }
+
+    .attendance-table-container {
+        overflow: auto;
+        max-height: 72vh;
+    }
+
+    .attendance-table {
+        width: max-content;
+        min-width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.74rem;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        height: 38px;
+        padding: 4px 6px;
+        border-right: 1px solid #e1eaea;
+        border-bottom: 1px solid #e1eaea;
+        vertical-align: middle;
+    }
+
+    .attendance-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        color: #ffffff;
+        background: #008f91;
+        text-align: center;
+    }
+
+    .swimmer-column {
+        position: sticky;
+        left: 0;
+        z-index: 4;
+        min-width: 215px;
+        max-width: 215px;
+        background: #f1f9f9;
+    }
+
+    thead .swimmer-column {
+        z-index: 8;
+        background: #007d7f;
+    }
+
+    .swimmer-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding-left: 5px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .competition-column {
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+    }
+
+    .competition-header {
+        display: flex;
+        min-height: 72px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 3px;
+    }
+
+    /* .competition-number {
+        display: inline-flex;
+        width: 20px;
+        height: 20px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 4px;
+        color: #007d7f;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.9);
+        font-size: 0.61rem;
+        font-weight: 850;
+    } */
+
+    .competition-name {
+        display: -webkit-box;
+        overflow: hidden;
+        color: #ffffff;
+        font-size: 0.63rem;
+        font-weight: 750;
+        line-height: 1.18;
+        text-align: center;
+        white-space: normal;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+    }
+
+    .competition-date {
+        margin-top: 4px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.56rem;
+        white-space: nowrap;
+    }
+
+    .swimmer-row:nth-child(even) td {
+        background: #f8fbfb;
+    }
+
+    .swimmer-row:nth-child(even) .swimmer-column {
+        background: #e9f5f5;
+    }
+
+    .swimmer-row:hover td {
+        background: #f1fbfb;
+    }
+
+    .swimmer-row:hover .swimmer-column {
+        background: #dff2f2;
+    }
+
+    .swimmer-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .swimmer-avatar {
+        display: inline-flex;
+        width: 31px;
+        height: 31px;
+        min-width: 31px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 9px;
+        background:
+            linear-gradient(
+                135deg,
+                #009294,
+                #00b4b6
+            );
+        font-size: 0.58rem;
+        font-weight: 850;
+        letter-spacing: 0.03em;
+    }
+
+    .swimmer-data {
+        display: flex;
+        overflow: hidden;
+        flex-direction: column;
+    }
+
+    .swimmer-data strong {
+        overflow: hidden;
+        color: #354648;
+        font-size: 0.7rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .swimmer-data span {
+        margin-top: 1px;
+        color: #839193;
+        font-size: 0.57rem;
+    }
+
+    .attendance-cell {
+        width: 42px;
+        min-width: 42px;
+        padding: 2px !important;
+        text-align: center;
+    }
+
+    .attendance-button {
+        position: relative;
+        display: inline-flex;
+        width: 28px;
+        height: 28px;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.72rem;
+        transition:
+            transform 0.12s ease,
+            box-shadow 0.12s ease,
+            color 0.12s ease,
+            background 0.12s ease,
+            border-color 0.12s ease;
+    }
+
+    .attendance-button:hover {
+        transform: scale(1.09);
+        box-shadow:
+            0 3px 8px
+            rgba(32, 66, 68, 0.15);
+    }
+
+    .attendance-button:focus-visible {
+        outline: 2px solid rgba(0, 146, 148, 0.35);
+        outline-offset: 2px;
+    }
+
+    .attendance-button:disabled {
+        cursor: wait;
+    }
+
+    .attendance-present {
+        color: #11754d;
+        border-color: #bce4d0;
+        background: #e7f7ef;
+    }
+
+    .attendance-absent {
+        color: #b43838;
+        border-color: #efcaca;
+        background: #fff0f0;
+    }
+
+    .attendance-na {
+        color: #59686a;
+        border-color: #d9e1e1;
+        background: #edf1f1;
+    }
+
+    .attendance-empty {
+        color: #96a2a4;
+        border-color: transparent;
+        background: transparent;
+    }
+
+    .attendance-empty:hover {
+        border-color: #d3e4e4;
+        background: #f3f9f9;
+    }
+
+    .saving-spinner {
+        display: none;
+    }
+
+    .attendance-button.saving .attendance-symbol {
+        display: none;
+    }
+
+    .attendance-button.saving .saving-spinner {
+        display: inline-flex;
+    }
+
+    .attendance-button.saved {
+        animation: savedPulse 0.35s ease;
+    }
+
+    @keyframes savedPulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.18);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    /* Estados vacíos */
+    .empty-state,
+    .search-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 50px 20px;
+        color: #768688;
+        text-align: center;
+    }
+
+    .empty-state-icon,
+    .search-empty-icon {
+        display: inline-flex;
+        width: 68px;
+        height: 68px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        color: #009294;
+        border-radius: 50%;
+        background: #eaf9f9;
+        font-size: 1.6rem;
+    }
+
+    .empty-state h3,
+    .search-empty h3 {
+        margin-bottom: 6px;
+        color: #3f5153;
+        font-size: 1.05rem;
+        font-weight: 850;
+    }
+
+    .empty-state p,
+    .search-empty p {
+        max-width: 530px;
+        font-size: 0.79rem;
+    }
+
+    .btn-empty-action {
+        margin-top: 14px;
+        padding: 0.64rem 0.9rem;
+        color: #ffffff;
+        border-color: #009294;
+        border-radius: 10px;
+        background: #009294;
+        font-size: 0.77rem;
+        font-weight: 750;
+    }
+
+    .btn-empty-action:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    .attendance-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 11px 16px;
+        color: #7b8a8c;
+        border-top: 1px solid #e3eded;
+        background: #f8fbfb;
+        font-size: 0.68rem;
+    }
+
+    .attendance-footer strong {
+        color: #007d7f;
+    }
+
+    #estadoGuardado {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    #estadoGuardado i {
+        color: #009294;
+    }
+
+    #estadoGuardado.saving-state {
+        color: #9a7112;
+    }
+
+    #estadoGuardado.saving-state i {
+        color: #b9871b;
+    }
+
+    #estadoGuardado.error-state {
+        color: #bd3e3e;
+    }
+
+    #estadoGuardado.error-state i {
+        color: #bd3e3e;
+    }
+
+    /* Ayuda */
+    .attendance-help {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 17px 19px;
+        color: #667779;
+        border: 1px solid #bfe4e4;
+        border-radius: 15px;
+        background:
+            linear-gradient(
+                135deg,
+                #f9ffff,
+                #eaf9f9
+            );
+    }
+
+    .attendance-help-icon {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        border-radius: 11px;
+        background: #009294;
+    }
+
+    .attendance-help strong {
+        color: #3d4f51;
+        font-size: 0.83rem;
+    }
+
+    .attendance-help p {
+        margin-top: 3px;
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    /* Navegación */
+    .page-actions {
+        display: flex;
+        justify-content: center;
+        gap: 9px;
+    }
+
+    .btn-back,
+    .btn-home {
+        padding: 0.68rem 1.1rem;
+        border-radius: 11px;
+        font-weight: 700;
+    }
+
+    .btn-back {
+        color: #ffffff;
+        border-color: #647477;
+        background: #647477;
+    }
+
+    .btn-back:hover {
+        color: #ffffff;
+        border-color: #4e5d5f;
+        background: #4e5d5f;
+    }
+
+    .btn-home {
+        color: #ffffff;
+        border-color: #009294;
+        background: #009294;
+    }
+
+    .btn-home:hover {
+        color: #ffffff;
+        border-color: #007d7f;
+        background: #007d7f;
+    }
+
+    /* Corrección de columnas fijas y porcentaje */
+    .attendance-table-container {
+        position: relative;
+        isolation: isolate;
+    }
+
+    .swimmer-column {
+        min-width: 260px;
+        max-width: 260px;
+        width: 260px;
+        overflow: hidden;
+        box-shadow: 8px 0 14px -12px rgba(20, 54, 56, .75);
+    }
+
+    tbody .swimmer-column {
+        z-index: 6;
+        background: #f1f9f9 !important;
+    }
+
+    .swimmer-row:nth-child(even) .swimmer-column {
+        background: #e9f5f5 !important;
+    }
+
+    .swimmer-row:hover .swimmer-column {
+        background: #dff2f2 !important;
+    }
+
+    .swimmer-cell,
+    .swimmer-data {
+        min-width: 0;
+    }
+
+    .swimmer-data {
+        flex: 1;
+    }
+
+    .percentage-column {
+        position: sticky;
+        right: 0;
+        z-index: 6;
+        width: 146px;
+        min-width: 146px;
+        max-width: 146px;
+        border-left: 1px solid #d1e2e2 !important;
+        background: #ffffff !important;
+        box-shadow: -8px 0 14px -12px rgba(20, 54, 56, .75);
+    }
+
+    thead .percentage-column {
+        z-index: 9;
+        background: #007d7f !important;
+    }
+
+    .swimmer-row:nth-child(even) .percentage-column {
+        background: #f8fbfb !important;
+    }
+
+    .swimmer-row:hover .percentage-column {
+        background: #f1fbfb !important;
+    }
+
+    .percentage-header {
+        display: flex;
+        min-height: 72px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 5px;
+        font-size: .66rem;
+        font-weight: 800;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .attendance-percentage-wrap {
+        padding: 4px 8px;
+    }
+
+    .attendance-percentage-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 6px;
+    }
+
+    .attendance-percentage-value {
+        color: #007d7f;
+        font-size: .78rem;
+    }
+
+    .attendance-percentage-detail {
+        color: #849294;
+        font-size: .56rem;
+    }
+
+    .attendance-progress {
+        height: 6px;
+        margin-top: 5px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #dfeaea;
+    }
+
+    .attendance-progress span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #009294, #24c2a0);
+        transition: width .25s ease;
+    }
+
+    .attendance-pending-label {
+        display: block;
+        margin-top: 4px;
+        color: #a66f12;
+        font-size: .53rem;
+        white-space: nowrap;
+    }
+
+    .attendance-filters {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .attendance-filter-select {
+        width: 185px;
+        min-height: 42px;
+        border-color: #d7e7e7;
+        border-radius: 11px;
+        font-size: .72rem;
+    }
+
+    .btn-clear-filters {
+        min-height: 42px;
+        color: #607173;
+        border: 1px solid #d7e4e4;
+        border-radius: 10px;
+        background: #f5f9f9;
+        font-size: .72rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .btn-clear-filters:hover {
+        color: #fff;
+        border-color: #647477;
+        background: #647477;
+    }
+
+    .summary-icon-warning {
+        color: #b06f13;
+        background: #fff4df;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .table-scroll-hint {
+            display: block;
+        }
+
+        .legend-card {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .legend-cycle {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .asistencia-hero-content {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 27px 22px;
+        }
+
+        .asistencia-season {
+            width: 100%;
+        }
+
+        .asistencia-title {
+            font-size: 2rem;
+        }
+
+        .toolbar-content {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .toolbar-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .nadador-search {
+            width: 100%;
+        }
+
+        .btn-change-year {
+            width: 100%;
+        }
+
+        .swimmer-column {
+            min-width: 235px;
+            max-width: 235px;
+        }
+
+        .competition-column {
+            width: 108px;
+            min-width: 108px;
+            max-width: 108px;
+        }
+
+        .attendance-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .asistencia-hero {
+            border-radius: 18px;
+        }
+
+        .summary-card {
+            padding: 14px;
+        }
+
+        .legend-items {
+            gap: 9px;
+        }
+
+        .attendance-table-container {
+            max-height: 68vh;
+        }
+
+        .swimmer-column {
+            min-width: 220px;
+            max-width: 220px;
+        }
+
+        .swimmer-avatar {
+            display: none;
+        }
+
+        .page-actions {
+            flex-direction: column;
+        }
+
+        .page-actions .btn {
+            width: 100%;
+        }
+    }
+
+    /* =========================================================
+       ASISTENCIA 2.0 — MATRIZ COMPACTA Y PROFESIONAL
+       ========================================================= */
+
+    .attendance-card {
+        border-radius: 22px;
+    }
+
+    .attendance-table-container {
+        position: relative;
+        isolation: isolate;
+        max-height: 74vh;
+        scrollbar-color: #8fb8b9 #edf5f5;
+        scrollbar-width: thin;
+    }
+
+    .attendance-table-container::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .attendance-table-container::-webkit-scrollbar-track {
+        background: #edf5f5;
+    }
+
+    .attendance-table-container::-webkit-scrollbar-thumb {
+        border: 2px solid #edf5f5;
+        border-radius: 999px;
+        background: #8fb8b9;
+    }
+
+    .attendance-table {
+        table-layout: fixed;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        height: 48px;
+    }
+
+    .attendance-table thead th {
+        height: 88px;
+        padding: 0;
+        vertical-align: middle;
+        background: linear-gradient(180deg, #009b9d, #008a8c);
+    }
+
+    /* Primera columna: mismo encabezado que las copas */
+    .swimmer-column {
+        width: 225px;
+        min-width: 225px;
+        max-width: 225px;
+        padding: 0 12px !important;
+        overflow: hidden;
+        background: #f4fafa;
+        box-shadow: 8px 0 18px -14px rgba(7, 59, 60, .65);
+    }
+
+    thead .swimmer-column {
+        z-index: 11;
+        padding: 0 16px !important;
+        color: #fff;
+        background: linear-gradient(180deg, #009b9d, #008a8c) !important;
+    }
+
+    .swimmer-header {
+        min-height: 88px;
+        justify-content: flex-start;
+        padding: 0;
+        font-size: .72rem;
+        letter-spacing: .07em;
+    }
+
+    .swimmer-header i {
+        display: inline-flex;
+        width: 26px;
+        height: 26px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: rgba(255,255,255,.15);
+    }
+
+    .swimmer-cell {
+        gap: 10px;
+    }
+
+    .swimmer-avatar {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        border-radius: 11px;
+        font-size: .61rem;
+        box-shadow: 0 5px 12px rgba(0,146,148,.15);
+    }
+
+    .swimmer-data strong {
+        font-size: .73rem;
+        line-height: 1.15;
+    }
+
+    .swimmer-data span {
+        margin-top: 3px;
+        font-size: .58rem;
+    }
+
+    /* Competencias compactas y uniformes */
+    .competition-column {
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+    }
+
+    .competition-header {
+        min-height: 88px;
+        padding: 9px 7px;
+    }
+
+    .competition-name {
+        width: 100%;
+        font-size: .64rem;
+        font-weight: 800;
+        line-height: 1.18;
+        -webkit-line-clamp: 3;
+    }
+
+    .competition-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 7px;
+        padding: 3px 6px;
+        border-radius: 999px;
+        color: rgba(255,255,255,.92);
+        background: rgba(255,255,255,.12);
+        font-size: .55rem;
+        font-weight: 700;
+    }
+
+    /* Columna de porcentaje compacta */
+    .percentage-column {
+        width: 118px;
+        min-width: 118px;
+        max-width: 118px;
+    }
+
+    thead .percentage-column {
+        z-index: 12;
+        padding: 0 10px !important;
+        background: linear-gradient(180deg, #009b9d, #008a8c) !important;
+    }
+
+    .percentage-header {
+        min-height: 88px;
+        gap: 7px;
+        font-size: .63rem;
+    }
+
+    .percentage-header i {
+        display: inline-flex;
+        width: 28px;
+        height: 28px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: rgba(255,255,255,.15);
+    }
+
+    .attendance-percentage-wrap {
+        padding: 4px 7px;
+    }
+
+    .attendance-percentage-value {
+        font-size: .76rem;
+    }
+
+    .attendance-percentage-detail {
+        font-size: .53rem;
+    }
+
+    .attendance-progress {
+        height: 5px;
+    }
+
+    /* Celdas tipo heatmap */
+    .attendance-cell {
+        width: 120px;
+        min-width: 120px;
+        padding: 0 !important;
+        text-align: center;
+    }
+
+    .attendance-button {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+    }
+
+    /* Indicador lateral según nivel de participación */
+    .swimmer-row .swimmer-column {
+        border-left: 4px solid transparent;
+    }
+
+    .swimmer-row.attendance-perfect .swimmer-column {
+        border-left-color: #20a46f;
+    }
+
+    .swimmer-row.attendance-good .swimmer-column {
+        border-left-color: #009b9d;
+    }
+
+    .swimmer-row.attendance-medium .swimmer-column {
+        border-left-color: #d99a26;
+    }
+
+    .swimmer-row.attendance-low .swimmer-column {
+        border-left-color: #d95757;
+    }
+
+    .swimmer-row:hover td {
+        background: #eef9f9 !important;
+    }
+
+    .swimmer-row:hover .swimmer-column {
+        background: #dff2f2 !important;
+    }
+
+    .swimmer-row:hover .percentage-column {
+        background: #eef9f9 !important;
+    }
+
+    /* Herramientas */
+    .attendance-filters {
+        display: grid;
+        grid-template-columns: minmax(220px, 1.35fr) repeat(3, minmax(155px, .8fr)) auto auto;
+        width: min(100%, 1040px);
+        align-items: center;
+        gap: 9px;
+    }
+
+    .attendance-filters .nadador-search,
+    .attendance-filter-select {
+        width: 100%;
+    }
+
+    /* Cabecera fija sin cortes */
+    .attendance-table thead th:first-child {
+        border-top-left-radius: 0;
+    }
+
+    .attendance-table thead th:last-child {
+        border-top-right-radius: 0;
+    }
+
+    /* Modo oscuro */
+    html[data-theme="dark"] .swimmer-column,
+    html[data-theme="dark"] tbody .swimmer-column {
+        color: var(--text-primary);
+        background: #162829 !important;
+    }
+
+    html[data-theme="dark"] .swimmer-row:nth-child(even) .swimmer-column {
+        background: #1b3031 !important;
+    }
+
+    html[data-theme="dark"] .percentage-column {
+        background: #17292a !important;
+    }
+
+    html[data-theme="dark"] .swimmer-row:nth-child(even) .percentage-column {
+        background: #1b3031 !important;
+    }
+
+    html[data-theme="dark"] .attendance-table td {
+        border-color: #2a3d3e;
+    }
+
+    html[data-theme="dark"] .swimmer-data strong {
+        color: #eef7f7;
+    }
+
+    /* Responsive */
+    @media (max-width: 1399px) {
+        .attendance-filters {
+            grid-template-columns: repeat(3, minmax(160px, 1fr));
+        }
+
+        .attendance-filters .nadador-search {
+            grid-column: span 2;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .attendance-filters {
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .swimmer-column {
+            width: 205px;
+            min-width: 205px;
+            max-width: 205px;
+        }
+
+        .competition-column,
+        .attendance-cell {
+            width: 108px;
+            min-width: 108px;
+            max-width: 108px;
+        }
+
+        .percentage-column {
+            width: 108px;
+            min-width: 108px;
+            max-width: 108px;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .attendance-table-container {
+            max-height: 66vh;
+        }
+
+        .swimmer-column {
+            width: 178px;
+            min-width: 178px;
+            max-width: 178px;
+            padding-inline: 9px !important;
+        }
+
+        .swimmer-avatar {
+            display: inline-flex;
+            width: 29px;
+            height: 29px;
+            min-width: 29px;
+        }
+
+        .swimmer-data strong {
+            font-size: .67rem;
+        }
+
+        .competition-column,
+        .attendance-cell {
+            width: 96px;
+            min-width: 96px;
+            max-width: 96px;
+        }
+
+        .percentage-column {
+            width: 98px;
+            min-width: 98px;
+            max-width: 98px;
+        }
+
+        .competition-name {
+            font-size: .58rem;
+        }
+    }
+
+
+    /* =========================================================
+       CORRECCIÓN DEFINITIVA DE LA TABLA
+       - Encabezado fijo al hacer scroll vertical.
+       - Columna Nadador fija a la izquierda.
+       - Columna Asistencia fija a la derecha.
+       - Los encabezados de ambas columnas permanecen visibles.
+       ========================================================= */
+
+    .attendance-table-container {
+        position: relative;
+        overflow: auto;
+        max-height: 72vh;
+        isolation: isolate;
+        scrollbar-gutter: stable;
+    }
+
+    .attendance-table {
+        position: relative;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    /* Todos los encabezados permanecen fijos arriba */
+    .attendance-table thead th {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 20 !important;
+        height: 82px;
+        min-height: 82px;
+        vertical-align: middle;
+        color: #ffffff;
+        background: linear-gradient(
+            180deg,
+            #009b9d 0%,
+            #008b8d 100%
+        ) !important;
+    }
+
+    /* Columna del nadador fija a la izquierda */
+    .attendance-table tbody .swimmer-column {
+        position: sticky !important;
+        left: 0 !important;
+        z-index: 12 !important;
+        width: 225px;
+        min-width: 225px;
+        max-width: 225px;
+        overflow: hidden;
+        background: #f1f9f9 !important;
+        box-shadow: 8px 0 14px -12px rgba(20, 54, 56, .75);
+    }
+
+    .attendance-table tbody .swimmer-row:nth-child(even) .swimmer-column {
+        background: #e9f5f5 !important;
+    }
+
+    .attendance-table tbody .swimmer-row:hover .swimmer-column {
+        background: #dff2f2 !important;
+    }
+
+    /* Intersección superior izquierda: encabezado Nadador */
+    .attendance-table thead .swimmer-column {
+        position: sticky !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 40 !important;
+        width: 225px;
+        min-width: 225px;
+        max-width: 225px;
+        color: #ffffff !important;
+        background: linear-gradient(
+            180deg,
+            #008587 0%,
+            #007779 100%
+        ) !important;
+        box-shadow: 8px 0 14px -12px rgba(0, 0, 0, .45);
+    }
+
+    .attendance-table thead .swimmer-header {
+        display: flex !important;
+        min-height: 72px;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 5px 10px;
+        color: #ffffff !important;
+        font-size: .69rem;
+        font-weight: 850;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .attendance-table thead .swimmer-header i {
+        color: rgba(255,255,255,.92);
+    }
+
+    /* Columna de porcentaje fija a la derecha */
+    .attendance-table tbody .percentage-column {
+        position: sticky !important;
+        right: 0 !important;
+        z-index: 12 !important;
+        width: 118px;
+        min-width: 118px;
+        max-width: 118px;
+        border-left: 1px solid #d1e2e2 !important;
+        background: #ffffff !important;
+        box-shadow: -8px 0 14px -12px rgba(20, 54, 56, .75);
+    }
+
+    .attendance-table tbody .swimmer-row:nth-child(even) .percentage-column {
+        background: #f8fbfb !important;
+    }
+
+    .attendance-table tbody .swimmer-row:hover .percentage-column {
+        background: #f1fbfb !important;
+    }
+
+    /* Intersección superior derecha: encabezado Asistencia */
+    .attendance-table thead .percentage-column {
+        position: sticky !important;
+        top: 0 !important;
+        right: 0 !important;
+        z-index: 40 !important;
+        width: 118px;
+        min-width: 118px;
+        max-width: 118px;
+        color: #ffffff !important;
+        border-left: 1px solid rgba(255,255,255,.26) !important;
+        background: linear-gradient(
+            180deg,
+            #008587 0%,
+            #007779 100%
+        ) !important;
+        box-shadow: -8px 0 14px -12px rgba(0, 0, 0, .45);
+    }
+
+    .attendance-table thead .percentage-header {
+        display: flex !important;
+        min-height: 72px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 6px;
+        padding: 5px 7px;
+        color: #ffffff !important;
+        font-size: .64rem;
+        font-weight: 850;
+        letter-spacing: .05em;
+        text-align: center;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .attendance-table thead .percentage-header i {
+        color: rgba(255,255,255,.92);
+    }
+
+    /* Las columnas centrales quedan por debajo de las dos columnas fijas */
+    .attendance-table tbody .attendance-cell {
+        position: relative;
+        z-index: 1;
+    }
+
+    @media (max-width: 767px) {
+        .attendance-table tbody .swimmer-column,
+        .attendance-table thead .swimmer-column {
+            width: 205px;
+            min-width: 205px;
+            max-width: 205px;
+        }
+
+        .attendance-table tbody .percentage-column,
+        .attendance-table thead .percentage-column {
+            width: 108px;
+            min-width: 108px;
+            max-width: 108px;
+        }
+
+        .attendance-table thead .swimmer-header {
+            padding-inline: 8px;
+            font-size: .65rem;
+        }
+
+        .attendance-table thead .percentage-header {
+            font-size: .6rem;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .attendance-table tbody .swimmer-column,
+        .attendance-table thead .swimmer-column {
+            width: 190px;
+            min-width: 190px;
+            max-width: 190px;
+        }
+
+        .attendance-table tbody .percentage-column,
+        .attendance-table thead .percentage-column {
+            width: 102px;
+            min-width: 102px;
+            max-width: 102px;
+        }
+    }
+
+
+    /* Competencias especiales y modo oscuro reforzado */
+    .special-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(280px,1.35fr);gap:12px}.special-kpis article,.special-kpis-note{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow-sm)}.special-kpis article>i{display:flex;width:38px;height:38px;flex:0 0 38px;align-items:center;justify-content:center;color:#b78100;border-radius:12px;background:#fff4d6}.special-kpis article div{display:flex;flex-direction:column}.special-kpis article strong{color:var(--text-primary);font-size:1.05rem}.special-kpis article span,.special-kpis-note span{color:var(--text-secondary);font-size:.64rem}.special-kpis-note{align-items:flex-start;flex-direction:column;justify-content:center}.special-kpis-note strong{color:#b78100;font-size:.7rem;text-transform:uppercase;letter-spacing:.07em}.competition-special{background:linear-gradient(180deg,#8a6500,#a77b00)!important}.special-badge{display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;padding:3px 6px;color:#fff3bd;border:1px solid rgba(255,243,189,.3);border-radius:999px;background:rgba(40,25,0,.22);font-size:.52rem;font-weight:850;text-transform:uppercase}.attendance-special-cell{background:color-mix(in srgb,#f4b400 5%,var(--surface))!important}.special-recognition{display:flex;align-items:center;gap:4px;margin-top:7px;color:#a87400;font-size:.59rem;font-weight:800}.special-recognition.is-empty{opacity:.4}.special-recognition small{font-size:.52rem;font-weight:700}.special-recognition i{font-size:.58rem}
+    [data-theme="dark"] .asistencia-page{color:#dce8e9}[data-theme="dark"] .summary-card,[data-theme="dark"] .asistencia-toolbar,[data-theme="dark"] .legend-card,[data-theme="dark"] .attendance-card,[data-theme="dark"] .attendance-help,[data-theme="dark"] .special-kpis article,[data-theme="dark"] .special-kpis-note{border-color:#294144!important;background:#132326!important;color:#dce8e9!important}[data-theme="dark"] .summary-number,[data-theme="dark"] .toolbar-title,[data-theme="dark"] .legend-title,[data-theme="dark"] .swimmer-data strong{color:#f2f8f8!important}[data-theme="dark"] .summary-label,[data-theme="dark"] .toolbar-description,[data-theme="dark"] .legend-item,[data-theme="dark"] .legend-cycle,[data-theme="dark"] .swimmer-data span,[data-theme="dark"] .attendance-footer{color:#9fb3b5!important}[data-theme="dark"] .attendance-table tbody .swimmer-column{background:#14282a!important}[data-theme="dark"] .attendance-table tbody .swimmer-row:nth-child(even) .swimmer-column{background:#193033!important}[data-theme="dark"] .attendance-table tbody .swimmer-row:hover .swimmer-column{background:#204044!important}[data-theme="dark"] .attendance-table tbody .percentage-column{background:#132527!important}[data-theme="dark"] .attendance-table tbody .swimmer-row:nth-child(even) .percentage-column{background:#172d30!important}[data-theme="dark"] .attendance-table tbody td{border-color:#2c4649!important;background:#102124;color:#d7e4e5}[data-theme="dark"] .attendance-table tbody tr:nth-child(even) td{background:#13272a}[data-theme="dark"] .attendance-special-cell{background:#282713!important}[data-theme="dark"] .attendance-percentage-detail,[data-theme="dark"] .attendance-pending-label{color:#9db0b2!important}[data-theme="dark"] .nadador-search input,[data-theme="dark"] .attendance-filter-select{border-color:#294144!important;background:#102023!important;color:#e6efef!important}
+    @media(max-width:1199px){.special-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:767px){.special-kpis{grid-template-columns:1fr}}
+
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const botones =
+            document.querySelectorAll(
+                ".attendance-button"
+            );
+
+        const buscador =
+            document.getElementById(
+                "buscarNadador"
+            );
+
+        const limpiarBusqueda =
+            document.getElementById(
+                "limpiarBusqueda"
+            );
+
+        const filtroCategoria = document.getElementById("filtroCategoria");
+        const filtroAsistencia = document.getElementById("filtroAsistencia");
+        const ordenAsistencia = document.getElementById("ordenAsistencia");
+        const limpiarFiltros = document.getElementById("limpiarFiltros");
+        const cuerpoTabla = document.querySelector("#tablaAsistencia tbody");
+
+        const filas =
+            document.querySelectorAll(
+                "#tablaAsistencia .swimmer-row"
+            );
+
+        const sinResultados =
+            document.getElementById(
+                "sinResultadosBusqueda"
+            );
+
+        const cantidadVisible =
+            document.getElementById(
+                "cantidadVisible"
+            );
+
+        const contadorPresentes =
+            document.getElementById(
+                "contadorPresentes"
+            );
+
+        const contadorPendientes =
+            document.getElementById(
+                "contadorPendientes"
+            );
+
+        const estadoGuardado =
+            document.getElementById(
+                "estadoGuardado"
+            );
+
+        const cicloEstados = {
+            SIN_REGISTRO: "PRESENTE",
+            PRESENTE: "AUSENTE",
+            AUSENTE: "NO_APLICA",
+            NO_APLICA: "SIN_REGISTRO"
+        };
+
+        const configuracion = {
+            SIN_REGISTRO: {
+                icono:
+                    '<i class="far fa-circle"></i>',
+
+                clase:
+                    "attendance-empty",
+
+                titulo:
+                    "Sin registrar"
+            },
+
+            PRESENTE: {
+                icono:
+                    '<i class="fas fa-check"></i>',
+
+                clase:
+                    "attendance-present",
+
+                titulo:
+                    "Participó"
+            },
+
+            AUSENTE: {
+                icono:
+                    '<i class="fas fa-times"></i>',
+
+                clase:
+                    "attendance-absent",
+
+                titulo:
+                    "No participó"
+            },
+
+            NO_APLICA: {
+                icono:
+                    '<i class="fas fa-minus"></i>',
+
+                clase:
+                    "attendance-na",
+
+                titulo:
+                    "No aplicaba"
+            }
+        };
+
+        function actualizarContadores() {
+            let presentes = 0;
+            let pendientes = 0;
+
+            botones.forEach(function (boton) {
+                const estado =
+                    boton.dataset.estado;
+
+                if (estado === "PRESENTE") {
+                    presentes++;
+                }
+
+                if (estado === "SIN_REGISTRO") {
+                    pendientes++;
+                }
+            });
+
+            if (contadorPresentes) {
+                contadorPresentes.textContent =
+                    presentes;
+            }
+
+            if (contadorPendientes) {
+                contadorPendientes.textContent =
+                    pendientes;
+            }
+        }
+
+        function mostrarEstadoGuardado(
+            tipo,
+            mensaje
+        ) {
+            if (!estadoGuardado) {
+                return;
+            }
+
+            estadoGuardado.classList.remove(
+                "saving-state",
+                "error-state"
+            );
+
+            if (tipo === "guardando") {
+                estadoGuardado.classList.add(
+                    "saving-state"
+                );
+
+                estadoGuardado.innerHTML =
+                    '<i class="fas fa-spinner fa-spin"></i>' +
+                    mensaje;
+
+            } else if (tipo === "error") {
+                estadoGuardado.classList.add(
+                    "error-state"
+                );
+
+                estadoGuardado.innerHTML =
+                    '<i class="fas fa-triangle-exclamation"></i>' +
+                    mensaje;
+
+            } else {
+                estadoGuardado.innerHTML =
+                    '<i class="fas fa-cloud-check"></i>' +
+                    mensaje;
+            }
+        }
+
+        botones.forEach(function (boton) {
+            boton.addEventListener(
+                "click",
+                async function () {
+                    if (boton.disabled) {
+                        return;
+                    }
+
+                    const estadoActual =
+                        boton.dataset.estado;
+
+                    const nuevoEstado =
+                        cicloEstados[estadoActual];
+
+                    boton.disabled = true;
+
+                    boton.classList.add(
+                        "saving"
+                    );
+
+                    mostrarEstadoGuardado(
+                        "guardando",
+                        " Guardando cambio..."
+                    );
+
+                    try {
+                        const respuesta =
+                            await fetch(
+                                "{{ url_for('actualizar_asistencia_ajax') }}",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body: JSON.stringify({
+                                        nadador_id:
+                                            boton.dataset.nadadorId,
+
+                                        competencia_id:
+                                            boton.dataset.competenciaId,
+
+                                        estado:
+                                            nuevoEstado
+                                    })
+                                }
+                            );
+
+                        const resultado =
+                            await respuesta.json();
+
+                        if (
+                            !respuesta.ok ||
+                            !resultado.ok
+                        ) {
+                            throw new Error(
+                                resultado.mensaje ||
+                                "No fue posible guardar el estado"
+                            );
+                        }
+
+                        boton.dataset.estado =
+                            nuevoEstado;
+
+                        boton.classList.remove(
+                            "attendance-empty",
+                            "attendance-present",
+                            "attendance-absent",
+                            "attendance-na"
+                        );
+
+                        boton.classList.add(
+                            configuracion[
+                                nuevoEstado
+                            ].clase
+                        );
+
+                        boton.title =
+                            configuracion[
+                                nuevoEstado
+                            ].titulo;
+
+                        boton
+                            .querySelector(
+                                ".attendance-symbol"
+                            )
+                            .innerHTML =
+                            configuracion[
+                                nuevoEstado
+                            ].icono;
+
+                        boton.classList.add(
+                            "saved"
+                        );
+
+                        window.setTimeout(
+                            function () {
+                                boton.classList.remove(
+                                    "saved"
+                                );
+                            },
+                            400
+                        );
+
+                        actualizarContadores();
+                        actualizarPorcentajeFila(boton.closest(".swimmer-row"));
+                        aplicarFiltros();
+
+                        mostrarEstadoGuardado(
+                            "correcto",
+                            " Cambio guardado"
+                        );
+
+                        window.setTimeout(
+                            function () {
+                                mostrarEstadoGuardado(
+                                    "correcto",
+                                    " Los cambios se guardan automáticamente"
+                                );
+                            },
+                            1700
+                        );
+
+                    } catch (error) {
+                        console.error(error);
+
+                        mostrarEstadoGuardado(
+                            "error",
+                            " Error al guardar"
+                        );
+
+                        alert(
+                            "Error al guardar la asistencia: " +
+                            error.message
+                        );
+
+                    } finally {
+                        boton.disabled = false;
+
+                        boton.classList.remove(
+                            "saving"
+                        );
+                    }
+                }
+            );
+        });
+
+        function actualizarPorcentajeFila(fila) {
+            const botonesFila = fila.querySelectorAll(".attendance-button[data-transcurrida='1'][data-considera-asistencia='1']");
+            let presentes = 0;
+            let aplicables = 0;
+            let ausentes = 0;
+            let pendientes = 0;
+
+            botonesFila.forEach(function (boton) {
+                const estado = boton.dataset.estado;
+                if (estado === "NO_APLICA") return;
+                aplicables++;
+                if (estado === "PRESENTE") presentes++;
+                else if (estado === "AUSENTE") ausentes++;
+                else pendientes++;
+            });
+
+            const porcentaje = aplicables > 0
+                ? Math.round((presentes / aplicables) * 100)
+                : 0;
+
+            fila.dataset.porcentaje = porcentaje;
+            fila.classList.remove("attendance-perfect", "attendance-good", "attendance-medium", "attendance-low");
+            if (aplicables > 0) {
+                if (porcentaje === 100) fila.classList.add("attendance-perfect");
+                else if (porcentaje >= 70) fila.classList.add("attendance-good");
+                else if (porcentaje >= 40) fila.classList.add("attendance-medium");
+                else fila.classList.add("attendance-low");
+            }
+            fila.dataset.presentes = presentes;
+            fila.dataset.ausentes = ausentes;
+            fila.dataset.pendientes = pendientes;
+
+            const valor = fila.querySelector(".attendance-percentage-value");
+            const detalle = fila.querySelector(".attendance-percentage-detail");
+            const barra = fila.querySelector(".attendance-progress span");
+            const pendiente = fila.querySelector(".attendance-pending-label");
+
+            if (valor) valor.textContent = porcentaje + "%";
+            if (detalle) detalle.textContent = presentes + "/" + aplicables;
+            if (barra) barra.style.width = porcentaje + "%";
+
+            const especialesPresentes = fila.querySelectorAll(
+                ".attendance-button[data-transcurrida='1'][data-considera-asistencia='0'][data-estado='PRESENTE']"
+            ).length;
+            const reconocimiento = fila.querySelector(".special-recognition");
+            const reconocimientoCantidad = fila.querySelector(".special-recognition-count");
+            if (reconocimientoCantidad) reconocimientoCantidad.textContent = especialesPresentes;
+            if (reconocimiento) reconocimiento.classList.toggle("is-empty", especialesPresentes === 0);
+
+            if (pendiente) {
+                pendiente.textContent = pendientes + " pendiente" + (pendientes === 1 ? "" : "s");
+                pendiente.style.display = pendientes > 0 ? "block" : "none";
+            }
+        }
+
+        function coincideFiltro(fila, filtro) {
+            const porcentaje = Number(fila.dataset.porcentaje || 0);
+            const presentes = Number(fila.dataset.presentes || 0);
+            const pendientes = Number(fila.dataset.pendientes || 0);
+
+            if (filtro === "asistieron") return presentes > 0;
+            if (filtro === "no-asistieron") return presentes === 0;
+            if (filtro === "completa") return porcentaje === 100;
+            if (filtro === "alta") return porcentaje >= 80;
+            if (filtro === "media") return porcentaje >= 50 && porcentaje < 80;
+            if (filtro === "baja") return porcentaje < 50;
+            if (filtro === "muy-baja") return porcentaje <= 25;
+            if (filtro === "pendientes") return pendientes > 0;
+            return true;
+        }
+
+        function ordenarFilas() {
+            if (!cuerpoTabla || !ordenAsistencia) return;
+            const filasArray = Array.from(filas);
+            const orden = ordenAsistencia.value;
+
+            filasArray.sort(function (a, b) {
+                if (orden === "mayor") {
+                    return Number(b.dataset.porcentaje || 0) - Number(a.dataset.porcentaje || 0);
+                }
+                if (orden === "menor") {
+                    return Number(a.dataset.porcentaje || 0) - Number(b.dataset.porcentaje || 0);
+                }
+                return (a.dataset.nombre || "").localeCompare(
+                    b.dataset.nombre || "",
+                    "es",
+                    { sensitivity: "base" }
+                );
+            });
+
+            filasArray.forEach(function (fila) {
+                cuerpoTabla.appendChild(fila);
+            });
+        }
+
+        function aplicarFiltros() {
+            const texto = buscador
+                ? buscador.value.toLowerCase().trim()
+                : "";
+            const categoria = filtroCategoria
+                ? filtroCategoria.value.toLowerCase().trim()
+                : "";
+            const filtro = filtroAsistencia
+                ? filtroAsistencia.value
+                : "todos";
+            let visibles = 0;
+
+            ordenarFilas();
+
+            filas.forEach(function (fila) {
+                const nombre = (fila.dataset.nombre || "").toLowerCase();
+                const categoriaFila = (fila.dataset.categoria || "").toLowerCase();
+                const coincideTexto = nombre.includes(texto);
+                const coincideCategoria = !categoria || categoriaFila === categoria;
+                const coincideEstado = coincideFiltro(fila, filtro);
+                const visible = coincideTexto && coincideCategoria && coincideEstado;
+                fila.style.display = visible ? "" : "none";
+                if (visible) visibles++;
+            });
+
+            if (cantidadVisible) cantidadVisible.textContent = visibles;
+            if (limpiarBusqueda) limpiarBusqueda.classList.toggle("d-none", texto === "");
+            if (sinResultados) sinResultados.classList.toggle("d-none", visibles > 0);
+        }
+
+        if (buscador) {
+            buscador.addEventListener(
+                "input",
+                aplicarFiltros
+            );
+        }
+
+        if (limpiarBusqueda) {
+            limpiarBusqueda.addEventListener(
+                "click",
+                function () {
+                    buscador.value = "";
+                    buscador.focus();
+                    aplicarFiltros();
+                }
+            );
+        }
+
+        if (filtroCategoria) {
+            filtroCategoria.addEventListener("change", aplicarFiltros);
+        }
+
+        if (filtroAsistencia) {
+            filtroAsistencia.addEventListener("change", aplicarFiltros);
+        }
+
+        if (ordenAsistencia) {
+            ordenAsistencia.addEventListener("change", aplicarFiltros);
+        }
+
+        if (limpiarFiltros) {
+            limpiarFiltros.addEventListener("click", function () {
+                if (buscador) buscador.value = "";
+                if (filtroCategoria) filtroCategoria.value = "";
+                if (filtroAsistencia) filtroAsistencia.value = "todos";
+                if (ordenAsistencia) ordenAsistencia.value = "nombre";
+                aplicarFiltros();
+            });
+        }
+
+        filas.forEach(actualizarPorcentajeFila);
+        aplicarFiltros();
+        actualizarContadores();
+    });
+</script>
+
+{% endblock %}

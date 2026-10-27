@@ -1,0 +1,363 @@
+{% extends 'base.html' %}
+
+{% block title %}Season Best | Gestor Ñuñoa Master{% endblock %}
+
+{% block content %}
+<div class="season-best-page">
+    <div class="container-fluid px-lg-4 py-4">
+
+        <section class="season-hero mb-4">
+            <div>
+                <span class="season-kicker">
+                    <i class="fas fa-medal"></i>
+                    Rendimiento individual
+                </span>
+                <h1>Season Best</h1>
+                <p>Consulta las mejores marcas registradas por prueba, estilo y piscina.</p>
+            </div>
+            <div class="season-hero-icon"><i class="fas fa-trophy"></i></div>
+        </section>
+
+        <section class="season-selector mb-4">
+            <div>
+                <span class="section-kicker">Selección de atleta</span>
+                <h2>Mejores tiempos del nadador</h2>
+                <p>Selecciona un nadador para revisar sus mejores registros.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('season_best') }}" class="selector-form">
+                <div class="selector-field">
+                    <label for="nadador_id">Nadador</label>
+                    <select id="nadador_id" name="nadador_id" class="form-select" required>
+                        <option value="">Seleccione un nadador</option>
+                        {% for n in nadadores %}
+                        <option value="{{ n.id }}" {% if nadador and n.id == nadador.id %}selected{% endif %}>
+                            {{ n.apellido }}, {{ n.nombre }}
+                            {% if n.categoria_master %}— {{ n.categoria_master }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="season-primary-button">
+                    <i class="fas fa-search"></i>
+                    Consultar marcas
+                </button>
+            </form>
+        </section>
+
+        {% if mejores_tiempos %}
+        {% set total_marcas = mejores_tiempos|length %}
+        {% set total_25 = mejores_tiempos|selectattr('piscina', 'equalto', '25 metros')|list|length %}
+        {% set total_50 = mejores_tiempos|selectattr('piscina', 'equalto', '50 metros')|list|length %}
+        {% set estilos_unicos = mejores_tiempos|map(attribute='estilo')|unique|list %}
+
+        <section class="athlete-summary mb-4">
+            <div class="athlete-main">
+                <div class="athlete-avatar">
+                    {{ nadador.nombre[:1]|upper }}{{ nadador.apellido[:1]|upper }}
+                </div>
+                <div>
+                    <span class="section-kicker">Perfil de rendimiento</span>
+                    <h2>{{ nadador.nombre }} {{ nadador.apellido }}</h2>
+                    <div class="athlete-tags">
+                        {% if nadador.categoria_master %}
+                        <span><i class="fas fa-layer-group"></i>{{ nadador.categoria_master }}</span>
+                        {% endif %}
+                        {% if nadador.genero %}
+                        <span><i class="fas fa-user"></i>{{ nadador.genero }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="athlete-score">
+                <span>Marcas</span>
+                <strong>{{ total_marcas }}</strong>
+                <small>mejores tiempos</small>
+            </div>
+        </section>
+
+        <section class="row g-3 mb-4">
+            <div class="col-6 col-xl-3">
+                <article class="metric-card h-100">
+                    <div class="metric-icon"><i class="fas fa-stopwatch"></i></div>
+                    <div><strong>{{ total_marcas }}</strong><span>Mejores marcas</span></div>
+                </article>
+            </div>
+            <div class="col-6 col-xl-3">
+                <article class="metric-card h-100">
+                    <div class="metric-icon"><i class="fas fa-water"></i></div>
+                    <div><strong>{{ estilos_unicos|length }}</strong><span>Estilos</span></div>
+                </article>
+            </div>
+            <div class="col-6 col-xl-3">
+                <article class="metric-card h-100">
+                    <div class="metric-icon metric-25"><i class="fas fa-ruler-horizontal"></i></div>
+                    <div><strong>{{ total_25 }}</strong><span>Piscina 25 m</span></div>
+                </article>
+            </div>
+            <div class="col-6 col-xl-3">
+                <article class="metric-card h-100">
+                    <div class="metric-icon metric-50"><i class="fas fa-ruler-combined"></i></div>
+                    <div><strong>{{ total_50 }}</strong><span>Piscina 50 m</span></div>
+                </article>
+            </div>
+        </section>
+
+        <section class="season-toolbar mb-4">
+            <div>
+                <span class="section-kicker">Marcas personales</span>
+                <h2>Mejores tiempos por prueba</h2>
+                <p>Filtra por estilo, piscina o nombre de prueba.</p>
+            </div>
+
+            <div class="toolbar-actions">
+                <div class="season-search">
+                    <i class="fas fa-search"></i>
+                    <input id="buscarMarca" type="search" class="form-control" placeholder="Buscar prueba...">
+                </div>
+
+                <select id="filtroEstilo" class="form-select season-filter">
+                    <option value="">Todos los estilos</option>
+                    {% for estilo in estilos_unicos|sort %}
+                    <option value="{{ estilo|lower }}">{{ estilo }}</option>
+                    {% endfor %}
+                </select>
+
+                <select id="filtroPiscina" class="form-select season-filter">
+                    <option value="">Todas las piscinas</option>
+                    <option value="25 metros">Piscina 25 m</option>
+                    <option value="50 metros">Piscina 50 m</option>
+                </select>
+
+                <button id="limpiarFiltrosSeason" type="button" class="clear-button">
+                    <i class="fas fa-filter-circle-xmark"></i>
+                    Limpiar
+                </button>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-heading">
+                <div>
+                    <span class="section-kicker">Rendimiento destacado</span>
+                    <h2>Marcas personales</h2>
+                </div>
+                <div class="visible-counter"><strong id="marcasVisibles">{{ total_marcas }}</strong> de {{ total_marcas }}</div>
+            </div>
+
+            <div class="row g-3" id="seasonCards">
+                {% for tiempo in mejores_tiempos %}
+                <div class="col-md-6 col-xl-4 season-card-column"
+                     data-prueba="{{ tiempo.distancia }}m {{ tiempo.estilo }}"
+                     data-estilo="{{ tiempo.estilo|lower }}"
+                     data-piscina="{{ tiempo.piscina or '' }}">
+
+                    <article class="record-card h-100">
+                        <header>
+                            <div>
+                                <span>{{ tiempo.estilo }}</span>
+                                <h3>{{ tiempo.distancia }} metros</h3>
+                            </div>
+                            <div class="record-medal"><i class="fas fa-medal"></i></div>
+                        </header>
+
+                        <div class="record-body">
+                            <small>Mejor tiempo</small>
+                            <div class="record-time">{{ tiempo.tiempo }}</div>
+
+                            <div class="record-meta">
+                                <div>
+                                    <span>Piscina</span>
+                                    {% if tiempo.piscina == '25 metros' %}
+                                    <strong class="pool-chip pool-25">25 m</strong>
+                                    {% elif tiempo.piscina == '50 metros' %}
+                                    <strong class="pool-chip pool-50">50 m</strong>
+                                    {% else %}
+                                    <strong>{{ tiempo.piscina or '—' }}</strong>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <span>Fecha</span>
+                                    <strong>
+                                        {% if tiempo.fecha and tiempo.fecha.strftime is defined %}
+                                            {{ tiempo.fecha.strftime('%d/%m/%Y') }}
+                                        {% else %}
+                                            {{ tiempo.fecha or '—' }}
+                                        {% endif %}
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <footer><i class="fas fa-trophy"></i> Mejor marca registrada</footer>
+                    </article>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="sinResultadosSeason" class="empty-filter d-none">
+                <i class="fas fa-search"></i>
+                <h3>No encontramos marcas</h3>
+                <p>Prueba cambiando los filtros.</p>
+            </div>
+        </section>
+
+        <section class="detail-card mt-4">
+            <header>
+                <div><span>Vista técnica</span><h2>Resumen detallado</h2></div>
+                <i class="fas fa-list"></i>
+            </header>
+
+            <div class="table-responsive">
+                <table class="table season-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Prueba</th>
+                            <th>Estilo</th>
+                            <th>Piscina</th>
+                            <th>Mejor tiempo</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tiempo in mejores_tiempos %}
+                        <tr class="season-table-row"
+                            data-prueba="{{ tiempo.distancia }}m {{ tiempo.estilo }}"
+                            data-estilo="{{ tiempo.estilo|lower }}"
+                            data-piscina="{{ tiempo.piscina or '' }}">
+                            <td><strong>{{ tiempo.distancia }} m</strong></td>
+                            <td><span class="style-chip">{{ tiempo.estilo }}</span></td>
+                            <td>
+                                {% if tiempo.piscina == '25 metros' %}
+                                <span class="pool-chip pool-25">25 m</span>
+                                {% elif tiempo.piscina == '50 metros' %}
+                                <span class="pool-chip pool-50">50 m</span>
+                                {% else %}
+                                {{ tiempo.piscina or '—' }}
+                                {% endif %}
+                            </td>
+                            <td><span class="time-chip">{{ tiempo.tiempo }}</span></td>
+                            <td>
+                                {% if tiempo.fecha and tiempo.fecha.strftime is defined %}
+                                    {{ tiempo.fecha.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                    {{ tiempo.fecha or '—' }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        {% elif consulta_realizada %}
+        <section class="empty-state">
+            <div><i class="fas fa-stopwatch"></i></div>
+            <h2>No hay tiempos registrados</h2>
+            <p>El nadador seleccionado todavía no tiene marcas disponibles.</p>
+            <a href="{{ url_for('agregar') }}" class="season-primary-button">
+                <i class="fas fa-plus"></i> Registrar un tiempo
+            </a>
+        </section>
+        {% else %}
+        <section class="welcome-state">
+            <div><i class="fas fa-medal"></i></div>
+            <span class="section-kicker">Comienza la consulta</span>
+            <h2>Selecciona un nadador</h2>
+            <p>Aquí aparecerán sus mejores marcas por prueba y piscina.</p>
+        </section>
+        {% endif %}
+
+        <div class="page-actions mt-4">
+            <a href="{{ url_for('index') }}" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Volver al Inicio
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<style>
+:root{--sb-accent:#009b9d;--sb-dark:#17383c;--sb-text:#263a3c;--sb-muted:#78888a;--sb-border:#dbe9ea;--sb-soft:#f3f9f9}
+.season-best-page{min-height:100vh;background:linear-gradient(180deg,#f2f8f9 0,#fff 520px)}
+.season-hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;overflow:hidden;padding:38px 42px;color:#fff;border-radius:26px;background:radial-gradient(circle at 85% 15%,rgba(255,255,255,.14),transparent 30%),linear-gradient(135deg,#075265,#008f91 55%,#18b5b6);box-shadow:0 18px 45px rgba(0,120,122,.22)}
+.season-hero h1{margin:0;font-size:clamp(2.45rem,5vw,4rem);font-weight:850;line-height:1;letter-spacing:-.055em}
+.season-hero p{max-width:690px;margin:13px 0 0;color:rgba(255,255,255,.84);font-size:.95rem}
+.season-kicker,.section-kicker{display:inline-flex;align-items:center;gap:8px;color:var(--sb-accent);font-size:.69rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
+.season-kicker{margin-bottom:10px;color:rgba(255,255,255,.78)}
+.season-hero-icon{display:inline-flex;width:104px;height:104px;min-width:104px;align-items:center;justify-content:center;color:#fff2b8;border:1px solid rgba(255,255,255,.2);border-radius:30px;background:rgba(255,255,255,.1);font-size:2.65rem}
+.season-selector,.season-toolbar,.athlete-summary,.detail-card,.welcome-state,.empty-state{border:1px solid var(--sb-border);border-radius:22px;background:#fff;box-shadow:0 8px 25px rgba(20,67,70,.07)}
+.season-selector{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;padding:24px 26px}
+.season-selector h2,.season-toolbar h2,.section-heading h2,.detail-card h2,.welcome-state h2,.empty-state h2{margin:5px 0 3px;color:var(--sb-text);font-size:1.22rem;font-weight:850;letter-spacing:-.025em}
+.season-selector p,.season-toolbar p,.welcome-state p,.empty-state p{margin:0;color:var(--sb-muted);font-size:.77rem}
+.selector-form{display:flex;min-width:min(600px,100%);align-items:flex-end;gap:12px}.selector-field{flex:1}.selector-field label{display:block;margin-bottom:7px;color:#415355;font-size:.73rem;font-weight:800}.selector-field .form-select{min-height:48px;border-color:#d1e3e4;border-radius:13px;font-size:.82rem}
+.season-primary-button{display:inline-flex;min-height:48px;align-items:center;justify-content:center;gap:8px;padding:0 20px;color:#fff;border:0;border-radius:13px;background:linear-gradient(135deg,#00888a,#00a8aa);box-shadow:0 8px 20px rgba(0,143,145,.18);font-size:.8rem;font-weight:800;text-decoration:none;white-space:nowrap}
+.athlete-summary{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px 24px;background:radial-gradient(circle at 90% 10%,rgba(0,168,170,.09),transparent 30%),linear-gradient(135deg,#fff,#f3fbfb)}
+.athlete-main{display:flex;min-width:0;align-items:center;gap:17px}.athlete-avatar{display:inline-flex;width:72px;height:72px;min-width:72px;align-items:center;justify-content:center;color:#fff;border:3px solid #fff;border-radius:22px;background:linear-gradient(135deg,#007d7f,#19b6b8);box-shadow:0 10px 24px rgba(0,143,145,.22);font-size:1.27rem;font-weight:850}
+.athlete-main h2{margin:4px 0 0;color:#24393b;font-size:1.55rem;font-weight:850}.athlete-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}.athlete-tags span{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;color:#536669;border:1px solid #dbe7e8;border-radius:999px;background:#fff;font-size:.66rem;font-weight:750}
+.athlete-score{display:flex;min-width:145px;flex-direction:column;align-items:center;padding:14px 18px;border:1px solid #cfe4e5;border-radius:17px;background:rgba(255,255,255,.8)}.athlete-score span,.athlete-score small{color:#7a8b8d;font-size:.62rem}.athlete-score strong{margin:3px 0;color:#00898b;font-size:2rem;font-weight:900;line-height:1}
+.metric-card{display:flex;align-items:center;gap:13px;padding:16px;border:1px solid #dce9ea;border-radius:18px;background:#fff;box-shadow:0 6px 18px rgba(20,67,70,.06)}.metric-icon{display:inline-flex;width:44px;height:44px;min-width:44px;align-items:center;justify-content:center;color:#008f91;border-radius:14px;background:#e9f8f8}.metric-25{color:#2466c3;background:#edf4ff}.metric-50{color:#7c3eb1;background:#f4ecfb}.metric-card div:last-child{display:flex;flex-direction:column}.metric-card strong{color:var(--sb-text);font-size:1.35rem;font-weight:850;line-height:1}.metric-card span{margin-top:4px;color:var(--sb-muted);font-size:.66rem}
+.season-toolbar{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:20px 22px}.toolbar-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px}.season-search{position:relative;width:210px}.season-search i{position:absolute;top:50%;left:13px;color:#819194;transform:translateY(-50%)}.season-search input{min-height:42px;padding-left:38px;border-color:#d6e5e6;border-radius:11px;font-size:.76rem}.season-filter{width:170px;min-height:42px;border-color:#d6e5e6;border-radius:11px;font-size:.73rem}.clear-button{display:inline-flex;min-height:42px;align-items:center;gap:7px;padding:0 13px;color:#627477;border:1px solid #d6e5e6;border-radius:11px;background:#f5f9f9;font-size:.71rem;font-weight:750}
+.section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:14px}.visible-counter{color:#819093;font-size:.68rem}.visible-counter strong{color:#008f91}
+.record-card{overflow:hidden;border:1px solid #dfeaec;border-radius:20px;background:#fff;box-shadow:0 7px 20px rgba(28,72,74,.07);transition:.2s}.record-card:hover{transform:translateY(-5px);border-color:#a9d9da;box-shadow:0 15px 31px rgba(0,124,126,.14)}.record-card header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 18px;border-bottom:1px solid #e3ecee;background:linear-gradient(135deg,#f8fbfb,#eef8f8)}.record-card header span{color:#00898b;font-size:.66rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.record-card header h3{margin:4px 0 0;color:var(--sb-text);font-size:1.03rem;font-weight:850}.record-medal{display:inline-flex;width:42px;height:42px;align-items:center;justify-content:center;color:#b67c00;border-radius:14px;background:#fff3cf}.record-body{padding:19px}.record-body small{color:#879597;font-size:.63rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase}.record-time{margin:4px 0 17px;color:#14865a;font-size:1.85rem;font-weight:900}.record-meta{display:grid;grid-template-columns:1fr 1fr;gap:11px}.record-meta>div{display:flex;flex-direction:column;gap:5px;padding:10px;border-radius:12px;background:#f7fafa}.record-meta span{color:#899799;font-size:.6rem;font-weight:750;text-transform:uppercase}.record-meta strong{color:#405254;font-size:.73rem}.record-card footer{display:flex;align-items:center;gap:7px;padding:11px 18px;color:#728285;border-top:1px solid #e7edef;background:#fafcfc;font-size:.64rem}.record-card footer i{color:#d69a00}
+.pool-chip,.style-chip,.time-chip{display:inline-flex;width:fit-content;align-items:center;justify-content:center;padding:6px 9px;border-radius:9px;font-size:.66rem;font-weight:800}.pool-25{color:#fff;background:#2b70ca}.pool-50{color:#fff;background:#009b9d}.style-chip{color:#527073;background:#edf3f3}.time-chip{min-width:82px;color:#fff;background:#16875a;font-size:.73rem}
+.empty-filter{display:flex;flex-direction:column;align-items:center;margin-top:18px;padding:42px 20px;color:#7d8d8f;border:1px dashed #cadadb;border-radius:18px;background:#fff;text-align:center}.empty-filter>i{display:inline-flex;width:55px;height:55px;align-items:center;justify-content:center;margin-bottom:12px;color:#009294;border-radius:50%;background:#eaf9f9}
+.detail-card{overflow:hidden}.detail-card>header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;color:#fff;background:linear-gradient(135deg,#203b3e,#31595c)}.detail-card>header span{color:rgba(255,255,255,.66);font-size:.66rem;font-weight:800;text-transform:uppercase}.detail-card>header h2{margin:4px 0 0;color:#fff;font-size:1.04rem}.season-table thead th{padding:13px 16px;color:#718184;border-bottom:1px solid #dfe9ea;background:#f5f9f9;font-size:.65rem;font-weight:850;text-transform:uppercase}.season-table tbody td{padding:13px 16px;color:#536568;border-color:#e7eeee;font-size:.76rem}
+.welcome-state,.empty-state{display:flex;flex-direction:column;align-items:center;padding:54px 22px;text-align:center}.welcome-state>div,.empty-state>div{display:inline-flex;width:72px;height:72px;align-items:center;justify-content:center;margin-bottom:16px;color:#009294;border-radius:23px;background:#eaf9f9;font-size:1.6rem}.page-actions{display:flex;justify-content:center}.back-button{display:inline-flex;min-height:43px;align-items:center;gap:8px;padding:0 16px;color:#fff;border-radius:11px;background:#596a6d;font-size:.76rem;font-weight:750;text-decoration:none}
+[data-theme="dark"] .season-best-page{background:linear-gradient(180deg,#111b1d 0,#152123 520px)}[data-theme="dark"] .season-selector,[data-theme="dark"] .season-toolbar,[data-theme="dark"] .athlete-summary,[data-theme="dark"] .detail-card,[data-theme="dark"] .welcome-state,[data-theme="dark"] .empty-state,[data-theme="dark"] .metric-card,[data-theme="dark"] .record-card,[data-theme="dark"] .empty-filter{color:#d9e4e5;border-color:#2a4043;background:#182729}
+@media(max-width:1199px){.season-selector{align-items:stretch;flex-direction:column}.selector-form{min-width:100%}.season-toolbar{align-items:flex-start;flex-direction:column}.toolbar-actions{width:100%;flex-wrap:wrap;justify-content:flex-start}}
+@media(max-width:767px){.season-hero{padding:29px 23px;border-radius:21px}.season-hero-icon{display:none}.selector-form{align-items:stretch;flex-direction:column}.season-primary-button{width:100%}.athlete-summary{align-items:flex-start;flex-direction:column}.athlete-score{width:100%}.toolbar-actions{align-items:stretch;flex-direction:column}.season-search,.season-filter,.clear-button{width:100%}.section-heading{align-items:flex-start;flex-direction:column}.record-meta{grid-template-columns:1fr}}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+    const buscar=document.getElementById("buscarMarca");
+    const estilo=document.getElementById("filtroEstilo");
+    const piscina=document.getElementById("filtroPiscina");
+    const limpiar=document.getElementById("limpiarFiltrosSeason");
+    const tarjetas=document.querySelectorAll(".season-card-column");
+    const filas=document.querySelectorAll(".season-table-row");
+    const contador=document.getElementById("marcasVisibles");
+    const vacio=document.getElementById("sinResultadosSeason");
+
+    const normalizar=t=>(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+
+    function coincide(el){
+        const q=normalizar(buscar?buscar.value:"");
+        const e=normalizar(estilo?estilo.value:"");
+        const p=piscina?piscina.value:"";
+        return (!q||normalizar(el.dataset.prueba).includes(q))
+            &&(!e||normalizar(el.dataset.estilo)===e)
+            &&(!p||(el.dataset.piscina||"")===p);
+    }
+
+    function aplicar(){
+        let visibles=0;
+        tarjetas.forEach(el=>{
+            const ok=coincide(el);
+            el.classList.toggle("d-none",!ok);
+            if(ok)visibles++;
+        });
+        filas.forEach(el=>el.classList.toggle("d-none",!coincide(el)));
+        if(contador)contador.textContent=visibles;
+        if(vacio)vacio.classList.toggle("d-none",visibles>0);
+    }
+
+    [buscar,estilo,piscina].forEach(el=>{
+        if(el)el.addEventListener(el.tagName==="INPUT"?"input":"change",aplicar);
+    });
+
+    if(limpiar)limpiar.addEventListener("click",()=>{
+        if(buscar)buscar.value="";
+        if(estilo)estilo.value="";
+        if(piscina)piscina.value="";
+        aplicar();
+    });
+});
+</script>
+{% endblock %}

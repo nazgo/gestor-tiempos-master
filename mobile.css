@@ -1,0 +1,25 @@
+/* ÑM Performance Mobile Framework 5.0.1 */
+html, body { max-width: 100%; overflow-x: clip; }
+img, svg, canvas, video { max-width: 100%; }
+.app-shell, .app-main, .app-content, .page-enter { min-width: 0; }
+.responsive-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+.mobile-stack > * { min-width: 0; }
+.chart-container, .chart-wrap { position: relative; width: 100%; min-width: 0; }
+.responsive-table { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
+
+@media (max-width: 767px) {
+  :root { --mobile-gutter: 14px; }
+  .app-content { width: 100%; padding: 14px var(--mobile-gutter) 28px; overflow-x: clip; }
+  .page-enter, .page-enter > * { min-width: 0; max-width: 100%; }
+  .card-shell { border-radius: 19px; padding: 1rem; }
+  .mobile-stack { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; }
+  .section-heading { min-width: 0; }
+  .section-heading h1, .section-heading h2, .section-heading p { overflow-wrap: anywhere; }
+  input, select, textarea, button { max-width: 100%; }
+  select { text-overflow: ellipsis; }
+}
+
+@media (max-width: 430px) {
+  .app-content { padding-inline: max(12px, env(safe-area-inset-left)); }
+  .app-footer { padding-inline: 12px; text-align: center; flex-wrap: wrap; }
+}

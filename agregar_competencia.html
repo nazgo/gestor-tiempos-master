@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card shadow border-0">
+
+                <div class="card-header text-white text-center py-3"
+                     style="background: #00a8a8;">
+                    <h4 class="mb-0">
+                        <i class="fas fa-calendar-plus"></i>
+                        Agregar Competencia
+                    </h4>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <form method="POST">
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label
+                                    for="fecha"
+                                    class="form-label fw-semibold"
+                                >
+                                    Fecha
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="fecha"
+                                    name="fecha"
+                                    class="form-control"
+                                    value="{{ request.form.get('fecha', '') }}"
+                                    required
+                                >
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label
+                                    for="tipo_piscina"
+                                    class="form-label fw-semibold"
+                                >
+                                    Piscina
+                                </label>
+
+                                <select
+                                    id="tipo_piscina"
+                                    name="tipo_piscina"
+                                    class="form-select"
+                                    required
+                                >
+                                    <option value="">
+                                        -- Seleccione --
+                                    </option>
+
+                                    <option
+                                        value="25 metros"
+                                        {% if request.form.get('tipo_piscina') == '25 metros' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        25 metros
+                                    </option>
+
+                                    <option
+                                        value="50 metros"
+                                        {% if request.form.get('tipo_piscina') == '50 metros' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        50 metros
+                                    </option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="mb-3">
+                            <label
+                                for="nombre"
+                                class="form-label fw-semibold"
+                            >
+                                Nombre de la competencia
+                            </label>
+
+                            <input
+                                type="text"
+                                id="nombre"
+                                name="nombre"
+                                class="form-control"
+                                value="{{ request.form.get('nombre', '') }}"
+                                placeholder="Ej: Copa Master Ñuñoa"
+                                required
+                            >
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label
+                                    for="lugar"
+                                    class="form-label fw-semibold"
+                                >
+                                    Lugar
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="lugar"
+                                    name="lugar"
+                                    class="form-control"
+                                    value="{{ request.form.get('lugar', '') }}"
+                                    placeholder="Ej: Piscina Olímpica"
+                                    required
+                                >
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label
+                                    for="organiza"
+                                    class="form-label fw-semibold"
+                                >
+                                    Organiza
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="organiza"
+                                    name="organiza"
+                                    class="form-control"
+                                    value="{{ request.form.get('organiza', '') }}"
+                                    placeholder="Ej: Federación Master"
+                                    required
+                                >
+                            </div>
+
+                        </div>
+
+                        <div class="mb-4">
+                            <label
+                                for="estado"
+                                class="form-label fw-semibold"
+                            >
+                                Estado
+                            </label>
+
+                            <select
+                                id="estado"
+                                name="estado"
+                                class="form-select"
+                            >
+                                <option
+                                    value="NO REALIZADO"
+                                    {% if request.form.get('estado', 'NO REALIZADO') == 'NO REALIZADO' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    No realizado
+                                </option>
+
+                                <option
+                                    value="REALIZADO"
+                                    {% if request.form.get('estado') == 'REALIZADO' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Realizado
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <a
+                                href="{{ url_for('calendario_competencias') }}"
+                                class="btn btn-secondary"
+                            >
+                                Cancelar
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-success"
+                            >
+                                <i class="fas fa-save"></i>
+                                Guardar Competencia
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
