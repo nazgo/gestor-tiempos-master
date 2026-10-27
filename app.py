@@ -62,6 +62,8 @@ def editor_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if session.get('rol') not in ['admin', 'entrenador', 'editor']:
+            if request.endpoint == 'actualizar_asistencia_ajax':
+                return {'ok': False, 'mensaje': 'Tu cuenta tiene acceso de solo lectura a las asistencias.'}, 403
             flash('No tienes permisos para editar', 'danger')
             return redirect(request.referrer or url_for('index'))
         return f(*args, **kwargs)
@@ -114,6 +116,8 @@ def autorizar_acceso_por_rol():
         ):
             autorizado = False
         if not autorizado:
+            if request.endpoint == 'actualizar_asistencia_ajax':
+                return {'ok': False, 'mensaje': 'Tu cuenta tiene acceso de solo lectura a las asistencias.'}, 403
             flash('No tienes permisos para acceder a esta sección o realizar esta acción.', 'warning')
             # Evitar redirecciones externas y bucles al volver a la página anterior.
             from urllib.parse import urlsplit
@@ -1864,6 +1868,7 @@ def tabla_asistencias(anio):
         competencias=datos['competencias'],
         asistencias=datos['asistencias'],
         resumen_asistencia=datos['resumen'],
+        puede_editar_asistencias=session.get('rol') in ('admin', 'entrenador'),
         anio=anio
     )
 
