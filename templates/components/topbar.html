@@ -1,6 +1,8 @@
+{% set rol_actual = session.get('rol', 'nadador')|lower %}
+{% set rol_etiqueta = {'admin': 'Administrador', 'entrenador': 'Entrenador', 'delegado': 'Delegado', 'nadador': 'Nadador'}.get(rol_actual, 'Usuario') %}
 {% set endpoint_titles = {
     'index': ('Resumen', 'Vista general del club'),
-    'nadadores': ('Nadadores', 'Gestión del plantel deportivo'),
+    'nadadores': ('Nadadores', 'Mi perfil deportivo' if rol_actual == 'nadador' else 'Gestión del plantel deportivo'),
     'estadisticas_club': ('Estadísticas', 'Análisis institucional y rendimiento'),
     'season_best': ('Season Best', 'Mejores marcas personales'),
     'progreso_nadador': ('Progreso', 'Evolución individual de nadadores'),
@@ -38,11 +40,11 @@
                 <span class="topbar-user-avatar">{{ session.username[:1]|upper }}</span>
                 <span class="topbar-user-copy">
                     <strong>{{ session.username }}</strong>
-                    <small>{{ session.rol|default('usuario')|capitalize }}</small>
+                    <small>{{ rol_etiqueta }}</small>
                 </span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end app-dropdown-menu">
-                {% if session.rol == 'admin' %}
+                {% if rol_actual == 'admin' %}
                 <li><a class="dropdown-item" href="{{ url_for('admin_usuarios') }}"><i class="fas fa-user-shield"></i> Gestionar usuarios</a></li>
                 <li><hr class="dropdown-divider"></li>
                 {% endif %}

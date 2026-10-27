@@ -1,3 +1,5 @@
+{% set rol_actual = session.get('rol', 'nadador')|lower %}
+{% set rol_etiqueta = {'admin': 'Administrador', 'entrenador': 'Entrenador', 'delegado': 'Delegado', 'nadador': 'Nadador'}.get(rol_actual, 'Usuario') %}
 <aside class="app-sidebar" id="appSidebar" aria-label="Navegación principal">
 
     <div class="sidebar-brand">
@@ -52,6 +54,7 @@
                 <!--<small class="sidebar-new-badge">NEW</small>-->
             </a>
 
+            {% if rol_actual in ['admin', 'entrenador'] %}
             <a
                 href="{{ url_for('coach_tools') }}"
                 class="sidebar-link {% if request.endpoint == 'coach_tools' %}active{% endif %}"
@@ -60,6 +63,7 @@
                 <span>Coach Tools</span>
                 <!--<small class="sidebar-new-badge">NEW</small>-->
             </a>
+            {% endif %}
 
             <a
                 href="{{ url_for('estadisticas_club') }}"
@@ -145,6 +149,7 @@
 
 
         <!-- ADMINISTRACIÓN -->
+        {% if rol_actual == 'admin' %}
         <div class="sidebar-section">
 
             <span class="sidebar-section-label">Administración</span>
@@ -168,6 +173,7 @@
             {% endif %}
 
         </div>
+        {% endif %}
 
     </nav>
 
@@ -181,7 +187,7 @@
 
         <div class="profile-copy">
             <strong>{{ session.username }}</strong>
-            <small>{{ session.rol|default('usuario')|capitalize }}</small>
+            <small>{{ rol_etiqueta }}</small>
         </div>
 
         <a
