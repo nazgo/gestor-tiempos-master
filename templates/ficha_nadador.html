@@ -51,7 +51,7 @@
             </div>
 
             <div class="athlete-cover-actions">
-                {% if nadador.activo %}
+                {% if nadador.activo and session.get('rol') in ('admin', 'entrenador') %}
                 <a href="{{ url_for('agregar', nadador_id=nadador.id) }}" class="btn-profile btn-profile-light">
                     <i class="fas fa-plus"></i> Registrar tiempo
                 </a>

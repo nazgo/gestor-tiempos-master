@@ -8,10 +8,12 @@
       <h1 class="product-title">Plantel de nadadores</h1>
       <p class="product-subtitle">Directorio central de atletas, perfiles deportivos, tiempos y evolución individual del Club Ñuñoa Master.</p>
     </div>
+    {% if session.get('rol') in ('admin', 'entrenador') %}
     <div class="product-hero-actions">
       <a href="{{ url_for('importar_nadadores') }}" class="btn btn-product-glass"><i class="fas fa-file-import me-1"></i> Importar CSV</a>
       <a href="{{ url_for('agregar_nadador') }}" class="btn btn-product-light"><i class="fas fa-user-plus me-1"></i> Nuevo nadador</a>
     </div>
+    {% endif %}
   </section>
 
   <section class="swimmer-toolbar">
@@ -50,14 +52,17 @@
             <ul class="dropdown-menu dropdown-menu-end app-dropdown-menu">
               <li><a class="dropdown-item" href="{{ url_for('ficha_nadador', nadador_id=n.id) }}"><i class="fas fa-id-card"></i> Ver ficha</a></li>
               <li><a class="dropdown-item" href="{{ url_for('progreso_nadador1', nadador_id=n.id) }}"><i class="fas fa-chart-line"></i> Ver progreso</a></li>
+              {% if session.get('rol') in ('admin', 'entrenador') %}
               <li><a class="dropdown-item" href="{{ url_for('agregar', nadador_id=n.id) }}"><i class="fas fa-plus"></i> Agregar tiempo</a></li>
               <li><a class="dropdown-item" href="{{ url_for('editar_nadador', nadador_id=n.id) }}"><i class="fas fa-pen"></i> Editar</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><button type="button" class="dropdown-item" onclick="document.getElementById('estado-{{ n.id }}').hidden=false">{{ 'Desactivar' if n.activo else 'Reactivar' }}</button></li>
+              {% endif %}
               
             </ul>
           </div>
         </div>
+        {% if session.get('rol') in ('admin', 'entrenador') %}
         <div id="estado-{{ n.id }}" hidden style="padding:12px;border:1px solid var(--border)">
           <form method="POST" action="{{ url_for('cambiar_estado_nadador',nadador_id=n.id) }}" onsubmit="return confirm('¿Confirmar cambio de estado?')">
             <input type="hidden" name="estado" value="{{ 'desactivar' if n.activo else 'activar' }}">
@@ -68,6 +73,7 @@
             <button type="button" class="btn btn-sm btn-secondary" onclick="this.parentElement.parentElement.hidden=true">Cancelar</button>
           </form>
         </div>
+        {% endif %}
         <div class="swimmer-card-body">
           <a class="swimmer-card-name" href="{{ url_for('ficha_nadador', nadador_id=n.id) }}">{{ n.nombre }} {{ n.apellido }}</a>
           <div class="swimmer-card-rut"><strong>{{ "ACTIVO" if n.activo else "INACTIVO" }}</strong> · {{ n.rut or 'RUT sin registrar' }}</div>
@@ -87,7 +93,7 @@
         </div>
       </article>
       {% else %}
-      <div class="product-empty" style="grid-column:1/-1"><div class="product-empty-icon"><i class="fas fa-users-slash"></i></div><h3>No hay nadadores registrados</h3><p>Agrega un atleta o importa el plantel desde un archivo CSV.</p><a class="btn btn-primary mt-3" href="{{ url_for('agregar_nadador') }}">Nuevo nadador</a></div>
+      <div class="product-empty" style="grid-column:1/-1"><div class="product-empty-icon"><i class="fas fa-users-slash"></i></div><h3>No hay nadadores registrados</h3><p>{% if session.get('rol') == 'nadador' %}No se encontró tu ficha deportiva vinculada.{% else %}No hay atletas disponibles para mostrar.{% endif %}</p>{% if session.get('rol') in ('admin', 'entrenador') %}<a class="btn btn-primary mt-3" href="{{ url_for('agregar_nadador') }}">Nuevo nadador</a>{% endif %}</div>
       {% endfor %}
     </div>
     <div id="sinResultados" class="product-empty swimmer-no-results"><div class="product-empty-icon"><i class="fas fa-magnifying-glass"></i></div><h3>No encontramos atletas</h3><p>Prueba con otro nombre, RUT, género o categoría.</p></div>
