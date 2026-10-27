@@ -130,7 +130,8 @@ def autorizar_acceso_por_rol():
             return redirect(url_for('mi_panel'), code=303)
     elif rol == 'delegado':
         permitidos = {'index', 'calendario_competencias', 'seleccionar_anio_calendario',
-                      'nadadores', 'ficha_nadador', 'asistencias', 'asistencias_anio'}
+                      'nadadores', 'ficha_nadador', 'asistencias', 'asistencias_anio',
+                      'seleccionar_anio_asistencias', 'tabla_asistencias'}
         if request.endpoint not in permitidos or request.method != 'GET':
             abort(403)
     elif rol == 'entrenador':
