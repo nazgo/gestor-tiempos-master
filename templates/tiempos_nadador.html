@@ -6,6 +6,8 @@ Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
 
 {% block content %}
 
+{% set puede_gestionar_tiempos = session.get('rol', '')|lower in ['admin', 'entrenador'] %}
+
 <div class="tiempos-page">
 
     <!-- Encabezado -->
@@ -25,7 +27,7 @@ Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
                 </h1>
 
                 <p class="tiempos-subtitle mb-0">
-                    Consulta, agrega, edita y administra las marcas registradas.
+                    {% if puede_gestionar_tiempos %}Consulta, agrega, edita y administra las marcas registradas.{% else %}Consulta las marcas y resultados registrados.{% endif %}
                 </p>
 
             </div>
@@ -101,6 +103,7 @@ Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
 
                 </div>
 
+{% if puede_gestionar_tiempos %}
                 <a
                     href="{{ url_for(
                         'agregar',
@@ -111,6 +114,7 @@ Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
                     <i class="fas fa-plus me-1"></i>
                     Agregar Tiempo
                 </a>
+{% endif %}
 
             </div>
 
@@ -187,7 +191,7 @@ Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
                         <th>Piscina</th>
                         <th>Tiempo</th>
                         <th>Fecha</th>
-                        <th class="text-center">Acciones</th>
+                        {% if puede_gestionar_tiempos %}<th class="text-center">Acciones</th>{% endif %}
                     </tr>
                 </thead>
 
@@ -296,6 +300,7 @@ Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
 
                         </td>
 
+                        {% if puede_gestionar_tiempos %}
                         <!-- Acciones -->
                         <td class="text-center">
 
@@ -396,6 +401,7 @@ Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
                             </div>
 
                         </td>
+                        {% endif %}
 
                     </tr>
 
@@ -403,7 +409,7 @@ Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
 
                     <tr>
 
-                        <td colspan="5">
+                        <td colspan="{{ 5 if puede_gestionar_tiempos else 4 }}">
 
                             <div class="empty-state">
 
@@ -420,6 +426,7 @@ Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
                                     todavía no tiene marcas disponibles.
                                 </p>
 
+{% if puede_gestionar_tiempos %}
                                 <a
                                     href="{{ url_for(
                                         'agregar',
@@ -430,6 +437,7 @@ Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
                                     <i class="fas fa-plus me-1"></i>
                                     Agregar primer tiempo
                                 </a>
+{% endif %}
 
                             </div>
 
@@ -493,7 +501,7 @@ Tiempos de {{ nadador.nombre }} {{ nadador.apellido }} | Ñuñoa Master
     </section>
 
     <!-- Aviso -->
-    {% if tiempos %}
+    {% if tiempos and puede_gestionar_tiempos %}
 
     <section class="tiempos-help mt-4">
 
