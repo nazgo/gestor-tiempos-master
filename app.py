@@ -251,7 +251,7 @@ def login():
             session['username'] = usuario['username']
             session['rol'] = usuario['rol']
             flash(f'Bienvenido, {usuario["username"]}', 'success')
-            return redirect(url_for('mi_panel' if usuario['rol'] == 'nadador' else 'index'))
+            return redirect(url_for('index'))
         else:
             flash('Usuario o contraseña incorrectos', 'danger')
     
@@ -407,7 +407,20 @@ def coach_tools():
 @app.route('/nadadores')
 @login_required
 def nadadores():
-    nadadores_list = gestor_nadadores.listar_nadadores()
+    # El rol Nadador solo recibe su propia tarjeta deportiva.
+    # Se verifica el rol desde la sesión actualizada por before_request.
+    if session.get('rol') == 'nadador':
+        nadador_id = session.get('nadador_id')
+        if not nadador_id:
+            flash('Tu cuenta no tiene una ficha deportiva vinculada.', 'warning')
+            return redirect(url_for('mi_panel'))
+        nadador = gestor_nadadores.obtener_nadador(nadador_id)
+        if not nadador:
+            flash('No se encontró la ficha deportiva vinculada a tu cuenta.', 'warning')
+            return redirect(url_for('mi_panel'))
+        nadadores_list = [nadador]
+    else:
+        nadadores_list = gestor_nadadores.listar_nadadores()
     return render_template('nadadores.html', nadadores=nadadores_list)
 
 
