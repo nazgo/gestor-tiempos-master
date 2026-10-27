@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Solicitudes de acceso | ÑM Performance{% endblock %}
+{% block content %}
+<section class="container-fluid py-4">
+<h1>Solicitudes de acceso</h1>
+<p>Verifica personalmente la identidad y la ficha del solicitante antes de aprobar. Para vincular una ficha, introduce su ID. El RUT debe coincidir.</p>
+{% if not solicitudes %}<p>No hay solicitudes pendientes.</p>{% endif %}
+{% for solicitud in solicitudes %}
+<div class="card mb-3"><div class="card-body">
+<h3 class="h5">{{ solicitud.nombre }}</h3>
+<p>{{ solicitud.email }} · RUT: {{ solicitud.rut }}</p>
+<form method="post" action="{{ url_for('resolver_solicitud', user_id=solicitud.id) }}">
+<input type="hidden" name="_csrf_token" value="{{ token_formulario() }}">
+<div class="row g-2">
+<div class="col-md-4"><label class="form-label">Rol</label><select class="form-select" name="rol"><option value="nadador">Nadador</option><option value="entrenador">Entrenador</option><option value="delegado">Delegado</option><option value="admin">Administrador</option></select></div>
+<div class="col-md-4"><label class="form-label">ID ficha deportiva (obligatorio para Nadador)</label><input class="form-control" name="nadador_id" type="number" min="1"></div>
+<div class="col-md-4 d-flex align-items-end gap-2"><button class="btn btn-success" type="submit" name="accion" value="aprobar" onclick="return confirm('¿Verificaste la identidad y el rol?')">Aprobar</button><button class="btn btn-outline-danger" type="submit" name="accion" value="rechazar" onclick="return confirm('¿Rechazar esta solicitud?')">Rechazar</button></div>
+</div></form></div></div>
+{% endfor %}
+</section>
+{% endblock %}

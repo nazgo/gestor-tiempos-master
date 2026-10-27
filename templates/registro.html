@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Solicitar acceso | ÑM Performance{% endblock %}
+{% block content %}
+<section class="container py-5" style="max-width:600px">
+  <h1>Solicitar acceso</h1>
+  <p>Completa tus datos. Un administrador verificará tu identidad antes de habilitar la cuenta y asignar tu rol.</p>
+  <form method="post" action="{{ url_for('registro') }}">
+    <input type="hidden" name="_csrf_token" value="{{ token_formulario() }}">
+    <div class="mb-3"><label class="form-label">Nombre completo</label><input class="form-control" name="nombre" maxlength="150" required></div>
+    <div class="mb-3"><label class="form-label">RUT</label><input class="form-control" name="rut" placeholder="12.345.678-9" required></div>
+    <div class="mb-3"><label class="form-label">Correo electrónico</label><input class="form-control" type="email" name="email" maxlength="254" required></div>
+    <div class="mb-3"><label class="form-label">Contraseña (mínimo 12 caracteres)</label><input class="form-control" type="password" name="password" minlength="12" maxlength="256" autocomplete="new-password" required></div>
+    <button class="btn btn-primary" type="submit">Enviar solicitud</button>
+    <a class="btn btn-link" href="{{ url_for('login') }}">Volver al acceso</a>
+  </form>
+</section>
+{% endblock %}
