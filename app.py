@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file, Response, abort
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file, Response
 from functools import wraps
 from datetime import datetime
 import os
@@ -6,21 +6,17 @@ import io
 import csv
 from dotenv import load_dotenv
 import zipfile
-import secrets
-import hmac
 
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY') or (secrets.token_hex(32) if not os.environ.get('DATABASE_URL') else None)
-if not app.secret_key:
-    raise RuntimeError('SECRET_KEY debe estar configurada en Render')
+app.secret_key = os.environ.get('SECRET_KEY', 'clave_super_secreta_master_nadadores_2026')
 
 # ==================== DEBUG DE VARIABLES ====================
 print("=== DEBUG ENVIRONMENT VARIABLES ===")
 print("DATABASE_URL existe?", bool(os.environ.get('DATABASE_URL')))
 db_url = os.environ.get('DATABASE_URL')
-print("DATABASE_URL configurada:", bool(db_url))
+print("Valor de DATABASE_URL:", db_url[:80] + "..." if db_url else "NO ENCONTRADA")
 if db_url:
     print("Empieza con 'postgresql'?", db_url.startswith('postgresql'))
 print("==================================")
@@ -61,112 +57,11 @@ def admin_required(f):
 def editor_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if session.get('rol') not in ['admin', 'entrenador', 'editor']:
+        if session.get('rol') not in ['admin', 'editor']:
             flash('No tienes permisos para editar', 'danger')
             return redirect(request.referrer or url_for('index'))
         return f(*args, **kwargs)
     return decorated_function
-
-# Control centralizado: el rol se consulta de la BD en cada petición, no se confía
-# exclusivamente en el rol almacenado en la cookie de sesión.
-@app.before_request
-def autorizar_acceso_por_rol():
-    if request.endpoint in ('static', 'login', 'logout', 'registro') or request.endpoint is None:
-        return None
-    uid = session.get('user_id')
-    if not uid:
-        return redirect(url_for('login'))
-    usuario = gestor_usuarios.obtener_usuario_por_id(uid)
-    if not usuario or usuario.get('estado') != 'activo':
-        session.clear()
-        return redirect(url_for('login'))
-    rol = usuario.get('rol')
-    if rol == 'editor':
-        rol = 'entrenador'
-    elif rol == 'viewer':
-        rol = 'delegado'
-    if rol not in ('admin', 'entrenador', 'delegado', 'nadador'):
-        abort(403)
-    session['rol'] = rol
-    session['nadador_id'] = usuario.get('nadador_id')
-    if rol == 'admin':
-        return None
-    # Políticas restrictivas hasta auditar los endpoints de estadísticas/exportación.
-    if rol == 'nadador':
-        permitidos = {'mi_panel', 'ficha_nadador'}
-        if request.endpoint not in permitidos or request.method != 'GET':
-            abort(403)
-        if request.endpoint == 'ficha_nadador' and (
-            not usuario.get('nadador_id') or
-            request.view_args.get('nadador_id') != usuario['nadador_id']
-        ):
-            abort(403)
-    elif rol == 'delegado':
-        permitidos = {'index', 'calendario_competencias', 'seleccionar_anio_calendario',
-                      'nadadores', 'ficha_nadador', 'asistencias', 'asistencias_anio'}
-        if request.endpoint not in permitidos or request.method != 'GET':
-            abort(403)
-    elif rol == 'entrenador':
-        # Acceso a operaciones deportivas; nunca a administración de cuentas.
-        if request.path.startswith('/admin/'):
-            abort(403)
-    return None
-
-@app.route('/mi-panel')
-@login_required
-def mi_panel():
-    nadador_id = session.get('nadador_id')
-    nadador = gestor_nadadores.obtener_nadador(nadador_id) if nadador_id else None
-    return render_template('mi_panel.html', nadador=nadador)
-
-# Protección CSRF para las rutas nuevas (sin modificar formularios antiguos en esta etapa).
-def token_formulario():
-    if '_csrf_token' not in session:
-        session['_csrf_token'] = secrets.token_urlsafe(32)
-    return session['_csrf_token']
-
-app.jinja_env.globals['token_formulario'] = token_formulario
-
-def validar_csrf():
-    if not hmac.compare_digest(str(session.get('_csrf_token', '')), str(request.form.get('_csrf_token', ''))) or not session.get('_csrf_token'):
-        abort(400, description='Token de formulario inválido')
-
-@app.route('/registro', methods=['GET', 'POST'])
-def registro():
-    if request.method == 'POST':
-        validar_csrf()
-        try:
-            gestor_usuarios.solicitar_registro(request.form.get('nombre', ''), request.form.get('rut', ''), request.form.get('email', ''), request.form.get('password', ''))
-            flash('Solicitud recibida. Un administrador debe verificar tu identidad y aprobar el acceso.', 'success')
-            return redirect(url_for('login'))
-        except ValueError as e:
-            flash(str(e), 'danger')
-        except Exception:
-            app.logger.exception('Error al registrar solicitud')
-            flash('No se pudo registrar la solicitud. Revisa los datos o contacta al administrador.', 'danger')
-    return render_template('registro.html')
-
-@app.route('/admin/solicitudes')
-@login_required
-@admin_required
-def solicitudes_acceso():
-    return render_template('solicitudes_acceso.html', solicitudes=gestor_usuarios.listar_pendientes())
-
-@app.route('/admin/solicitudes/<int:user_id>/resolver', methods=['POST'])
-@login_required
-@admin_required
-def resolver_solicitud(user_id):
-    validar_csrf()
-    try:
-        nadador_id = request.form.get('nadador_id', '').strip()
-        gestor_usuarios.resolver_solicitud(user_id, request.form.get('accion'), request.form.get('rol'), int(nadador_id) if nadador_id else None, session['user_id'])
-        flash('Solicitud procesada correctamente', 'success')
-    except (ValueError, TypeError) as e:
-        flash(str(e), 'danger')
-    except Exception:
-        app.logger.exception('Error procesando solicitud')
-        flash('No se pudo procesar la solicitud', 'danger')
-    return redirect(url_for('solicitudes_acceso'))
 
 # ==================== ADMINISTRACIÓN ====================
 @app.route('/admin/usuarios')
@@ -228,7 +123,7 @@ def login():
             session['username'] = usuario['username']
             session['rol'] = usuario['rol']
             flash(f'Bienvenido, {usuario["username"]}', 'success')
-            return redirect(url_for('mi_panel' if usuario['rol'] == 'nadador' else 'index'))
+            return redirect(url_for('index'))
         else:
             flash('Usuario o contraseña incorrectos', 'danger')
     
