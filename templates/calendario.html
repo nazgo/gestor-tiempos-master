@@ -6,6 +6,8 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
 
 {% block content %}
 
+{% set puede_gestionar_competencias = session.get('rol') in ['admin', 'entrenador'] %}
+
 <div class="calendario-page">
 
     <!-- Encabezado principal -->
@@ -69,7 +71,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
         <div>
 
             <div class="toolbar-kicker">
-                Gestión de competencias
+                {% if puede_gestionar_competencias %}Gestión de competencias{% else %}Consulta de competencias{% endif %}
             </div>
 
             <h2 class="toolbar-title">
@@ -97,6 +99,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
 
             </div>
 
+            {% if puede_gestionar_competencias %}
             <a
                 href="{{ url_for(
                     'nueva_competencia',
@@ -107,6 +110,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
                 <i class="fas fa-plus me-1"></i>
                 Nueva competencia
             </a>
+            {% endif %}
 
         </div>
 
@@ -129,7 +133,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
                         <th>Organiza</th>
                         <th>Nombre del torneo</th>
                         <th>Tipo de piscina</th>
-                        <th class="text-center">Acciones</th>
+                        {% if puede_gestionar_competencias %}<th class="text-center">Acciones</th>{% endif %}
                     </tr>
 
                 </thead>
@@ -183,6 +187,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
                         <!-- Estado -->
                         <td>
 
+                            {% if puede_gestionar_competencias %}
                             <form
                                 method="POST"
                                 action="{{ url_for('actualizar_estado') }}"
@@ -233,6 +238,11 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
                                 {% endif %}
 
                             </form>
+                            {% else %}
+                            <span class="estado-badge {{ 'estado-realizado' if competencia.estado == 'REALIZADO' else 'estado-no-realizado' }}">
+                                {% if competencia.estado == 'REALIZADO' %}<i class="fas fa-circle-check"></i> Realizado{% else %}<i class="fas fa-clock"></i> No realizado{% endif %}
+                            </span>
+                            {% endif %}
 
                         </td>
 
@@ -326,6 +336,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
 
                         </td>
 
+                        {% if puede_gestionar_competencias %}
                         <!-- Acciones -->
                         <td class="text-center">
 
@@ -368,6 +379,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
                             </div>
 
                         </td>
+                        {% endif %}
 
                     </tr>
 
@@ -375,7 +387,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
 
                     <tr>
 
-                        <td colspan="8">
+                        <td colspan="{{ 8 if puede_gestionar_competencias else 7 }}">
 
                             <div class="empty-state">
 
@@ -392,6 +404,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
                                     competencias en el calendario.
                                 </p>
 
+                                {% if puede_gestionar_competencias %}
                                 <a
                                     href="{{ url_for(
                                         'nueva_competencia',
@@ -402,6 +415,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
                                     <i class="fas fa-plus me-1"></i>
                                     Crear primera competencia
                                 </a>
+                                {% endif %}
 
                             </div>
 
@@ -430,7 +444,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
             </span>
 
             <span>
-                Haz clic en el estado para cambiarlo.
+                {% if puede_gestionar_competencias %}Haz clic en el estado para cambiarlo.{% else %}Calendario disponible en modo de consulta.{% endif %}
             </span>
 
         </div>
@@ -449,7 +463,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
         <div>
 
             <strong>
-                Gestión del circuito
+                {% if puede_gestionar_competencias %}Gestión del circuito{% else %}Información del circuito{% endif %}
             </strong>
 
             <p class="mb-0">
@@ -709,7 +723,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
     }
 
     .calendario-table {
-        min-width: 1180px;
+        min-width: {{ "1180px" if puede_gestionar_competencias else "1040px" }};
     }
 
     .calendario-table thead th {
@@ -794,6 +808,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
         background: #e7f7ef;
     }
 
+    {% if puede_gestionar_competencias %}
     .estado-realizado:hover {
         color: #ffffff;
         border-color: #16875a;
@@ -812,6 +827,7 @@ Calendario {{ anio }} | Gestor Ñuñoa Master
         background: #b9871b;
     }
 
+    {% endif %}
     .torneo-cell {
         display: flex;
         min-width: 240px;
