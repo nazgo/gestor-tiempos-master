@@ -71,8 +71,6 @@ def editor_required(f):
 # exclusivamente en el rol almacenado en la cookie de sesión.
 @app.before_request
 def autorizar_acceso_por_rol():
-    if request.endpoint in ('crear_usuario', 'cambiar_rol', 'cambiar_password', 'eliminar_usuario') and request.method == 'POST':
-        validar_csrf()
     if request.endpoint in ('static', 'login', 'logout', 'registro') or request.endpoint is None:
         return None
     uid = session.get('user_id')
@@ -93,16 +91,39 @@ def autorizar_acceso_por_rol():
     session['nadador_id'] = usuario.get('nadador_id')
     if rol == 'admin':
         return None
-    # Políticas restrictivas hasta auditar los endpoints de estadísticas/exportación.
+    # Nadador: consultas deportivas habilitadas; operaciones de escritura bloqueadas.
+    # Las consultas por POST solo se admiten en vistas de filtros, nunca en rutas de edición.
     if rol == 'nadador':
-        permitidos = {'mi_panel', 'ficha_nadador'}
-        if request.endpoint not in permitidos or request.method != 'GET':
-            abort(403)
+        consultas_get = {
+            'index', 'mi_panel', 'ficha_nadador', 'nadadores',
+            'estadisticas_club', 'todos_los_tiempos', 'progreso_nadador',
+            'progreso_nadador1', 'tiempos_nadador', 'comparacion_25_50',
+            'season_best', 'mejores_tiempos', 'seleccionar_anio_calendario',
+            'calendario_competencias', 'seleccionar_anio_asistencias',
+            'tabla_asistencias', 'estado_nadadores_anio',
+            'performance_center', 'coach_tools',
+        }
+        consultas_post = {'progreso_nadador', 'comparacion_25_50', 'season_best'}
+        autorizado = (
+            (request.method == 'GET' and request.endpoint in consultas_get)
+            or (request.method == 'POST' and request.endpoint in consultas_post)
+        )
         if request.endpoint == 'ficha_nadador' and (
             not usuario.get('nadador_id') or
             request.view_args.get('nadador_id') != usuario['nadador_id']
         ):
-            abort(403)
+            autorizado = False
+        if not autorizado:
+            flash('No tienes permisos para acceder a esta sección o realizar esta acción.', 'warning')
+            # Evitar redirecciones externas y bucles al volver a la página anterior.
+            from urllib.parse import urlsplit
+            anterior = request.referrer
+            if anterior:
+                destino = urlsplit(anterior)
+                if (destino.netloc == request.host and destino.path != request.path
+                        and destino.scheme in ('http', 'https')):
+                    return redirect(anterior, code=303)
+            return redirect(url_for('mi_panel'), code=303)
     elif rol == 'delegado':
         permitidos = {'index', 'calendario_competencias', 'seleccionar_anio_calendario',
                       'nadadores', 'ficha_nadador', 'asistencias', 'asistencias_anio'}
@@ -184,26 +205,19 @@ def crear_usuario():
     password = request.form['password']
     rol = request.form['rol']
     nombre = request.form.get('nombre', '')
-    rut = request.form.get('rut', '').strip()
     try:
-        gestor_usuarios.crear_usuario(username, password, rol, nombre, rut)
+        gestor_usuarios.crear_usuario(username, password, rol, nombre)
         flash('Usuario creado correctamente', 'success')
-    except (ValueError, TypeError) as e:
+    except Exception as e:
         flash(f'Error al crear usuario: {e}', 'danger')
-    except Exception:
-        app.logger.exception('Error al crear usuario')
-        flash('No fue posible crear el usuario', 'danger')
     return redirect(url_for('admin_usuarios'))
 
 @app.route('/admin/cambiar_rol/<int:user_id>', methods=['POST'])
 @admin_required
 def cambiar_rol(user_id):
     nuevo_rol = request.form['rol']
-    try:
-        gestor_usuarios.cambiar_rol(user_id, nuevo_rol)
-        flash('Rol actualizado', 'success')
-    except ValueError as e:
-        flash(str(e), 'danger')
+    gestor_usuarios.cambiar_rol(user_id, nuevo_rol)
+    flash('Rol actualizado', 'success')
     return redirect(url_for('admin_usuarios'))
 
 @app.route('/admin/cambiar_password/<int:user_id>', methods=['POST'])
