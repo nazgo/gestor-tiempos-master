@@ -35,7 +35,8 @@ def notificar_nueva_solicitud(nombre, email, ruta_admin):
     peticion = Request(
         'https://api.resend.com/emails',
         data=json.dumps(payload).encode('utf-8'),
-        headers={'Authorization': 'Bearer ' + api_key, 'Content-Type': 'application/json'},
+        headers={'Authorization': 'Bearer ' + api_key, 'Content-Type': 'application/json',
+    'User-Agent': 'NM-Performance/1.0'},
         method='POST',
     )
     try:
