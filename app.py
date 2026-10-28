@@ -32,6 +32,7 @@ from gestor_nadadores import GestorNadadores
 from gestor_usuarios import GestorUsuarios
 from services.performance_service import PerformanceService
 from services.coach_service import CoachService
+from services.notification_service import notificar_nueva_solicitud
 
 # Instancias
 gestor_tiempos = GestorTiemposMaster()
@@ -165,6 +166,15 @@ def registro():
         validar_csrf()
         try:
             gestor_usuarios.solicitar_registro(request.form.get('nombre', ''), request.form.get('rut', ''), request.form.get('email', ''), request.form.get('password', ''))
+            # El registro debe permanecer guardado incluso si Resend no responde.
+            try:
+                notificar_nueva_solicitud(
+                    request.form.get('nombre', ''),
+                    request.form.get('email', ''),
+                    url_for('solicitudes_acceso')
+                )
+            except Exception:
+                app.logger.exception('Error al notificar nueva solicitud de acceso')
             flash('Solicitud recibida. Un administrador debe verificar tu identidad y aprobar el acceso.', 'success')
             return redirect(url_for('login'))
         except ValueError as e:
@@ -173,6 +183,16 @@ def registro():
             app.logger.exception('Error al registrar solicitud')
             flash('No se pudo registrar la solicitud. Revisa los datos o contacta al administrador.', 'danger')
     return render_template('registro.html')
+
+@app.route('/api/admin/solicitudes-pendientes')
+@login_required
+@admin_required
+def api_solicitudes_pendientes():
+    pendientes = gestor_usuarios.listar_pendientes()
+    return {
+        'cantidad': len(pendientes)
+    }, 200, {'Cache-Control': 'no-store'}
+
 
 @app.route('/admin/solicitudes')
 @login_required
