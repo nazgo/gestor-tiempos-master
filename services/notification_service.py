@@ -44,7 +44,12 @@ def notificar_nueva_solicitud(nombre, email, ruta_admin):
                 return True
             logger.error('Resend devolvió HTTP %s', respuesta.status)
     except HTTPError as error:
-        logger.error('Resend rechazó el correo: HTTP %s', error.code)
+        detalle = error.read().decode('utf-8', errors='replace')
+        logger.error(
+            'Resend rechazó el correo: HTTP %s - %s',
+            error.code,
+            detalle
+        )
     except (URLError, TimeoutError, OSError):
         logger.exception('Error de conexión con Resend')
     return False
