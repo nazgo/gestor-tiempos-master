@@ -1,0 +1,43 @@
+name: Cumpleanos NM Performance (Testing)
+
+on:
+  schedule:
+    # Cubre 09:00 y 10:00 America/Santiago en UTC-3 y UTC-4.
+    # El script descarta las ejecuciones fuera de esas horas locales.
+    - cron: '0 12,13,14 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nm-birthdays-testing
+  cancel-in-progress: false
+
+jobs:
+  birthday-notifications:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout testing
+        uses: actions/checkout@v4
+        with:
+          ref: testing
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install minimal dependencies
+        run: python -m pip install 'psycopg[binary]'
+
+      - name: Send birthday notifications from testing
+        env:
+          DATABASE_URL: ${{ secrets.BIRTHDAY_DATABASE_URL }}
+          RESEND_API_KEY: ${{ secrets.BIRTHDAY_RESEND_API_KEY }}
+          MAIL_FROM: ${{ vars.BIRTHDAY_MAIL_FROM }}
+          ADMIN_NOTIFICATION_EMAIL: ${{ vars.BIRTHDAY_ADMIN_EMAIL }}
+          BIRTHDAY_NOTIFICATION_EMAIL: ${{ vars.BIRTHDAY_NOTIFICATION_EMAIL }}
+        run: python scripts/birthday_notifications.py
