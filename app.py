@@ -2673,11 +2673,22 @@ def ficha_nadador(nadador_id):
         nombre_completo
     )
 
+    # Reutilizar el mismo cálculo oficial del módulo Asistencias.
+    anio_asistencia = datetime.now().year
+    tabla_anual = gestor_tiempos.obtener_tabla_asistencia(anio_asistencia)
+    asistencia_nadador = next(
+        (registro for registro in tabla_anual['nadadores']
+         if int(registro['id']) == int(nadador_id)),
+        None
+    )
+
     return render_template(
         'ficha_nadador.html',
         nadador=nadador,
         nombre_completo=nombre_completo,
-        ficha=ficha
+        ficha=ficha,
+        anio_asistencia=anio_asistencia,
+        asistencia_nadador=asistencia_nadador
     )
 
 
