@@ -18,12 +18,17 @@
 /* Panel anual de asistencia, independiente y situado encima de los indicadores */
 .profile-attendance-panel { margin-bottom: 20px; }
 .profile-attendance-body { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:12px 0 10px; }
-.profile-attendance-percent { font-size:2.25rem; line-height:1.1; font-weight:800; color:#0d9488; }
-.profile-attendance-count { color:var(--text-secondary,#64748b); font-weight:600; text-align:right; }
+.profile-attendance-percent { display:block; font-size:clamp(2.9rem,5vw,4.1rem); line-height:1.05; font-weight:900; letter-spacing:-.045em; color:#0d9488; }
+.profile-attendance-count { display:block; margin-top:6px; color:var(--text-secondary,#64748b); font-size:1rem; font-weight:700; }
+.profile-attendance-main { display:flex; align-items:center; justify-content:space-between; gap:22px; margin:10px 0 18px; }
+.profile-attendance-ring { --progress:0; width:106px; height:106px; flex:0 0 106px; border-radius:50%; background:conic-gradient(#0da79e calc(var(--progress) * 1%), #e1eef0 0); display:grid; place-items:center; }
+.profile-attendance-ring-inner { width:84px; height:84px; border-radius:50%; background:var(--surface,#fff); display:flex; align-items:center; justify-content:center; gap:1px; }
+.profile-attendance-ring-number { color:var(--text-primary,#172338); font-size:1.75rem; font-weight:850; letter-spacing:-.05em; }
+.profile-attendance-ring-total { color:var(--text-secondary,#64748b); font-size:.8rem; align-self:center; margin-top:7px; }
 .profile-attendance-track { height:10px; border-radius:99px; overflow:hidden; background:rgba(13,148,136,.15); }
 .profile-attendance-fill { height:100%; background:#0d9488; border-radius:99px; }
 .profile-attendance-special { margin:12px 0 0; font-size:.83rem; color:var(--text-secondary,#64748b); }
-@media(max-width:575px) { .profile-attendance-percent { font-size:1.9rem; } }
+@media(max-width:575px) { .profile-attendance-percent { font-size:2.9rem; } .profile-attendance-ring { width:90px; height:90px; flex-basis:90px; } .profile-attendance-ring-inner { width:72px; height:72px; } .profile-attendance-ring-number { font-size:1.5rem; } }
 </style>
 
 {% block content %}
@@ -110,9 +115,16 @@
                 <div><span class="panel-kicker">Participación anual</span><h2><i class="fas fa-calendar-check" aria-hidden="true"></i> Asistencia a competencias · {{ anio_asistencia }}</h2></div>
                 <span class="panel-icon"><i class="fas fa-chart-simple" aria-hidden="true"></i></span>
             </header>
-            <div class="profile-attendance-body">
-                <strong class="profile-attendance-percent">{{ asistencia_nadador.porcentaje_asistencia }}%</strong>
-                <span class="profile-attendance-count">{{ asistencia_nadador.asistencias_presentes }} / {{ asistencia_nadador.competencias_aplicables }} competencias</span>
+            <div class="profile-attendance-main">
+                <div class="profile-attendance-summary">
+                    <strong class="profile-attendance-percent">{{ asistencia_nadador.porcentaje_asistencia }}%</strong>
+                    <span class="profile-attendance-count">{{ asistencia_nadador.asistencias_presentes }} / {{ asistencia_nadador.competencias_aplicables }} competencias</span>
+                </div>
+                <div class="profile-attendance-ring" style="--progress:{{ asistencia_nadador.porcentaje_asistencia }}" role="img" aria-label="Asistencia: {{ asistencia_nadador.porcentaje_asistencia }} por ciento">
+                    <div class="profile-attendance-ring-inner">
+                        <span class="profile-attendance-ring-number">{{ asistencia_nadador.porcentaje_asistencia }}</span><span class="profile-attendance-ring-total">/100</span>
+                    </div>
+                </div>
             </div>
             <div class="profile-attendance-track" role="progressbar" aria-label="Porcentaje de asistencia" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ asistencia_nadador.porcentaje_asistencia }}">
                 <div class="profile-attendance-fill" style="width:{{ asistencia_nadador.porcentaje_asistencia }}%"></div>
