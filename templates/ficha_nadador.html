@@ -114,6 +114,31 @@
             </article>
         </div>
 
+        {% if asistencia_nadador %}
+        <article class="profile-panel" style="margin-bottom: 22px;" aria-label="Asistencia a competencias del año actual">
+            <header class="profile-panel-header">
+                <div>
+                    <span class="panel-kicker">Participación anual</span>
+                    <h2><i class="fas fa-calendar-check" aria-hidden="true"></i> Asistencia a competencias · {{ anio_asistencia }}</h2>
+                </div>
+                <span class="panel-icon"><i class="fas fa-chart-simple" aria-hidden="true"></i></span>
+            </header>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
+                <strong style="font-size:2.3rem;line-height:1.1;color:#0d9488;">{{ asistencia_nadador.porcentaje_asistencia }}%</strong>
+                <span style="font-weight:600;">{{ asistencia_nadador.asistencias_presentes }} / {{ asistencia_nadador.competencias_aplicables }} competencias</span>
+            </div>
+            <div role="progressbar" aria-label="Porcentaje de asistencia" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ asistencia_nadador.porcentaje_asistencia }}" style="height:10px;border-radius:999px;background:rgba(13,148,136,.14);overflow:hidden;">
+                <div style="width:{{ asistencia_nadador.porcentaje_asistencia }}%;height:100%;background:#0d9488;border-radius:999px;"></div>
+            </div>
+            {% if asistencia_nadador.participaciones_especiales %}
+            <p style="margin:12px 0 0;font-size:.88rem;"><i class="fas fa-trophy" style="color:#d59b22;" aria-hidden="true"></i> {{ asistencia_nadador.participaciones_especiales }} {{ 'competencia especial' if asistencia_nadador.participaciones_especiales == 1 else 'competencias especiales' }}</p>
+            {% endif %}
+            {% if not asistencia_nadador.competencias_aplicables %}
+            <p style="margin:10px 0 0;font-size:.82rem;opacity:.75;">Sin competencias aplicables registradas en este año.</p>
+            {% endif %}
+        </article>
+        {% endif %}
+
         <div class="profile-dashboard-grid">
             <article class="profile-panel profile-panel-wide">
                 <header class="profile-panel-header">
