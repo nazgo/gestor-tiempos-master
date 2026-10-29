@@ -1,8 +1,8 @@
-"""ÑM Performance: avisos de cumpleaños. Ejecutar mediante Render Cron Job cada hora."""
+"""ÑM Performance: avisos de cumpleaños; programar a las 09:00 y 10:00 de Chile."""
 import json
 import logging
 import os
-from datetime import datetime, date
+from datetime import datetime
 from html import escape
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -41,8 +41,8 @@ def main():
         if not os.environ.get(key, '').strip():
             raise RuntimeError('Variable de entorno requerida: ' + key)
     now = datetime.now(TZ)
-    if now.hour != 9 and os.environ.get('BIRTHDAY_FORCE_RUN') != '1':
-        log.info('Hora Chile: %s. Se omite ejecución; programado a las 09:00.', now.isoformat())
+    if now.hour not in (9, 10) and os.environ.get('BIRTHDAY_FORCE_RUN') != '1':
+        log.info('Hora Chile: %s. Se omite ejecución; programado a las 09:00 y 10:00.', now.isoformat())
         return
     today = now.date()
     with psycopg.connect(os.environ['DATABASE_URL']) as conn:
@@ -87,7 +87,6 @@ def main():
                     if addr.strip():
                         mensajes.append(('encargado', addr.strip(), 'Cumpleaños de hoy | ÑM Performance', plantilla('Cumpleaños del club 🎂', texto)))
                 for tipo, destinatario, asunto, html in mensajes:
-                    # La llave única y el bloqueo transaccional impiden duplicados en ejecuciones concurrentes.
                     cur.execute('SELECT pg_advisory_xact_lock(hashtext(%s))', (f'birthday:{nadador_id}:{today}:{tipo}:{destinatario.lower()}',))
                     cur.execute('SELECT 1 FROM birthday_notification_log WHERE nadador_id=%s AND fecha=%s AND tipo=%s AND destinatario=%s',
                                 (nadador_id, today, tipo, destinatario.lower()))
