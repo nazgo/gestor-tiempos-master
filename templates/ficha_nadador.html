@@ -15,6 +15,15 @@
 .athlete-inactive-date { display:block; margin-top:5px; color:var(--text-secondary, #64748b); font-size:.78rem; }
 .athlete-inactive-date i { margin-right:6px; }
 @media(max-width:575px) { .athlete-inactive-alert { padding:15px; gap:11px; } .athlete-inactive-icon { flex-basis:36px; height:36px; } }
+/* Panel anual de asistencia, independiente y situado encima de los indicadores */
+.profile-attendance-panel { margin-bottom: 20px; }
+.profile-attendance-body { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:12px 0 10px; }
+.profile-attendance-percent { font-size:2.25rem; line-height:1.1; font-weight:800; color:#0d9488; }
+.profile-attendance-count { color:var(--text-secondary,#64748b); font-weight:600; text-align:right; }
+.profile-attendance-track { height:10px; border-radius:99px; overflow:hidden; background:rgba(13,148,136,.15); }
+.profile-attendance-fill { height:100%; background:#0d9488; border-radius:99px; }
+.profile-attendance-special { margin:12px 0 0; font-size:.83rem; color:var(--text-secondary,#64748b); }
+@media(max-width:575px) { .profile-attendance-percent { font-size:1.9rem; } }
 </style>
 
 {% block content %}
@@ -95,6 +104,25 @@
     </nav>
 
     <section id="profile-overview" class="profile-section profile-section-active">
+        {% if asistencia_nadador %}
+        <article class="profile-panel profile-attendance-panel" aria-label="Asistencia a competencias {{ anio_asistencia }}">
+            <header class="profile-panel-header">
+                <div><span class="panel-kicker">Participación anual</span><h2><i class="fas fa-calendar-check" aria-hidden="true"></i> Asistencia a competencias · {{ anio_asistencia }}</h2></div>
+                <span class="panel-icon"><i class="fas fa-chart-simple" aria-hidden="true"></i></span>
+            </header>
+            <div class="profile-attendance-body">
+                <strong class="profile-attendance-percent">{{ asistencia_nadador.porcentaje_asistencia }}%</strong>
+                <span class="profile-attendance-count">{{ asistencia_nadador.asistencias_presentes }} / {{ asistencia_nadador.competencias_aplicables }} competencias</span>
+            </div>
+            <div class="profile-attendance-track" role="progressbar" aria-label="Porcentaje de asistencia" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ asistencia_nadador.porcentaje_asistencia }}">
+                <div class="profile-attendance-fill" style="width:{{ asistencia_nadador.porcentaje_asistencia }}%"></div>
+            </div>
+            {% if asistencia_nadador.participaciones_especiales %}
+            <p class="profile-attendance-special"><i class="fas fa-trophy" aria-hidden="true"></i> {{ asistencia_nadador.participaciones_especiales }} competencia{{ 's' if asistencia_nadador.participaciones_especiales != 1 else '' }} especial{{ 'es' if asistencia_nadador.participaciones_especiales != 1 else '' }}</p>
+            {% endif %}
+        </article>
+        {% endif %}
+
         <div class="profile-kpi-grid">
             <article class="profile-kpi">
                 <span class="kpi-icon kpi-icon-primary"><i class="fas fa-stopwatch"></i></span>
@@ -113,31 +141,6 @@
                 <div><small>Trayectoria</small><strong>{{ total_temporadas }}</strong><span>temporadas con actividad</span></div>
             </article>
         </div>
-
-        {% if asistencia_nadador %}
-        <article class="profile-panel" style="margin-bottom: 22px;" aria-label="Asistencia a competencias del año actual">
-            <header class="profile-panel-header">
-                <div>
-                    <span class="panel-kicker">Participación anual</span>
-                    <h2><i class="fas fa-calendar-check" aria-hidden="true"></i> Asistencia a competencias · {{ anio_asistencia }}</h2>
-                </div>
-                <span class="panel-icon"><i class="fas fa-chart-simple" aria-hidden="true"></i></span>
-            </header>
-            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
-                <strong style="font-size:2.3rem;line-height:1.1;color:#0d9488;">{{ asistencia_nadador.porcentaje_asistencia }}%</strong>
-                <span style="font-weight:600;">{{ asistencia_nadador.asistencias_presentes }} / {{ asistencia_nadador.competencias_aplicables }} competencias</span>
-            </div>
-            <div role="progressbar" aria-label="Porcentaje de asistencia" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ asistencia_nadador.porcentaje_asistencia }}" style="height:10px;border-radius:999px;background:rgba(13,148,136,.14);overflow:hidden;">
-                <div style="width:{{ asistencia_nadador.porcentaje_asistencia }}%;height:100%;background:#0d9488;border-radius:999px;"></div>
-            </div>
-            {% if asistencia_nadador.participaciones_especiales %}
-            <p style="margin:12px 0 0;font-size:.88rem;"><i class="fas fa-trophy" style="color:#d59b22;" aria-hidden="true"></i> {{ asistencia_nadador.participaciones_especiales }} {{ 'competencia especial' if asistencia_nadador.participaciones_especiales == 1 else 'competencias especiales' }}</p>
-            {% endif %}
-            {% if not asistencia_nadador.competencias_aplicables %}
-            <p style="margin:10px 0 0;font-size:.82rem;opacity:.75;">Sin competencias aplicables registradas en este año.</p>
-            {% endif %}
-        </article>
-        {% endif %}
 
         <div class="profile-dashboard-grid">
             <article class="profile-panel profile-panel-wide">
