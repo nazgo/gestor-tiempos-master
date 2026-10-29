@@ -32,7 +32,7 @@ from gestor_nadadores import GestorNadadores
 from gestor_usuarios import GestorUsuarios
 from services.performance_service import PerformanceService
 from services.coach_service import CoachService
-from services.notification_service import notificar_nueva_solicitud
+from services.notification_service import notificar_nueva_solicitud, notificar_resolucion_solicitud
 
 # Instancias
 gestor_tiempos = GestorTiemposMaster()
@@ -207,7 +207,18 @@ def resolver_solicitud(user_id):
     validar_csrf()
     try:
         nadador_id = request.form.get('nadador_id', '').strip()
-        gestor_usuarios.resolver_solicitud(user_id, request.form.get('accion'), request.form.get('rol'), int(nadador_id) if nadador_id else None, session['user_id'])
+        # Guardar el destinatario antes de resolver la solicitud.
+        solicitante = gestor_usuarios.obtener_usuario_por_id(user_id)
+        accion = request.form.get('accion')
+        gestor_usuarios.resolver_solicitud(user_id, accion, request.form.get('rol'), int(nadador_id) if nadador_id else None, session['user_id'])
+        # El correo es secundario: una falla de Resend no revierte la aprobación/rechazo.
+        if solicitante and solicitante.get('email'):
+            try:
+                enviado = notificar_resolucion_solicitud(solicitante.get('nombre'), solicitante['email'], accion)
+                if not enviado:
+                    app.logger.warning('Solicitud %s resuelta, pero no se pudo enviar el correo de resultado', user_id)
+            except Exception:
+                app.logger.exception('Solicitud resuelta; falló el aviso al solicitante')
         flash('Solicitud procesada correctamente', 'success')
     except (ValueError, TypeError) as e:
         flash(str(e), 'danger')
