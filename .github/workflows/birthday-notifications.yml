@@ -40,5 +40,4 @@ jobs:
           MAIL_FROM: ${{ vars.BIRTHDAY_MAIL_FROM }}
           ADMIN_NOTIFICATION_EMAIL: ${{ vars.BIRTHDAY_ADMIN_EMAIL }}
           BIRTHDAY_NOTIFICATION_EMAIL: ${{ vars.BIRTHDAY_NOTIFICATION_EMAIL }}
-          BIRTHDAY_FORCE_RUN: '1'
         run: python scripts/birthday_notifications.py
