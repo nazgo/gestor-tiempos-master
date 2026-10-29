@@ -1,6 +1,8 @@
+{% set rol_actual = session.get('rol', 'nadador')|lower %}
+{% set rol_etiqueta = {'admin': 'Administrador', 'entrenador': 'Entrenador', 'delegado': 'Delegado', 'nadador': 'Nadador'}.get(rol_actual, 'Usuario') %}
 {% set endpoint_titles = {
     'index': ('Resumen', 'Vista general del club'),
-    'nadadores': ('Nadadores', 'Gestión del plantel deportivo'),
+    'nadadores': ('Nadadores', 'Mi perfil deportivo' if rol_actual == 'nadador' else 'Gestión del plantel deportivo'),
     'estadisticas_club': ('Estadísticas', 'Análisis institucional y rendimiento'),
     'season_best': ('Season Best', 'Mejores marcas personales'),
     'progreso_nadador': ('Progreso', 'Evolución individual de nadadores'),
@@ -28,6 +30,47 @@
     </div>
 
     <div class="topbar-actions">
+        {% if rol_actual == 'admin' %}
+        <div class="dropdown">
+            <button type="button" class="topbar-icon-button position-relative"
+                    id="adminNotificationsBell" data-bs-toggle="dropdown" aria-expanded="false"
+                    title="Solicitudes de acceso" aria-label="Solicitudes de acceso">
+                <i class="fas fa-bell"></i>
+                <span id="adminNotificationsCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                      style="display:none;font-size:.65rem">0</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-3" style="min-width:270px;max-width:90vw">
+                <strong>Solicitudes de acceso</strong>
+                <p id="adminNotificationsMessage" class="small text-muted my-2">Consultando solicitudes...</p>
+                <a class="dropdown-item px-0" href="{{ url_for('solicitudes_acceso') }}">Revisar solicitudes pendientes</a>
+            </div>
+        </div>
+        <script>
+        (() => {
+            const endpoint = {{ url_for('api_solicitudes_pendientes')|tojson }};
+            async function refreshAdminNotifications() {
+                try {
+                    const response = await fetch(endpoint, {credentials: 'same-origin', cache: 'no-store'});
+                    if (!response.ok) return;
+                    const data = await response.json();
+                    const count = Number(data.cantidad) || 0;
+                    const badge = document.getElementById('adminNotificationsCount');
+                    const message = document.getElementById('adminNotificationsMessage');
+                    if (!badge || !message) return;
+                    badge.textContent = count > 99 ? '99+' : String(count);
+                    badge.style.display = count ? '' : 'none';
+                    message.textContent = count ? (count === 1 ? '1 solicitud pendiente de aprobación.' : count + ' solicitudes pendientes de aprobación.') : 'No hay solicitudes pendientes.';
+                } catch (error) {
+                    const message = document.getElementById('adminNotificationsMessage');
+                    if (message) message.textContent = 'No fue posible consultar las solicitudes.';
+                }
+            }
+            refreshAdminNotifications();
+            setInterval(refreshAdminNotifications, 60000);
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshAdminNotifications(); });
+        })();
+        </script>
+        {% endif %}
         <button type="button" class="topbar-icon-button" id="themeToggle" title="Cambiar tema" aria-label="Cambiar tema">
             <i class="fas fa-moon theme-icon-dark"></i>
             <i class="fas fa-sun theme-icon-light"></i>
@@ -38,11 +81,11 @@
                 <span class="topbar-user-avatar">{{ session.username[:1]|upper }}</span>
                 <span class="topbar-user-copy">
                     <strong>{{ session.username }}</strong>
-                    <small>{{ session.rol|default('usuario')|capitalize }}</small>
+                    <small>{{ rol_etiqueta }}</small>
                 </span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end app-dropdown-menu">
-                {% if session.rol == 'admin' %}
+                {% if rol_actual == 'admin' %}
                 <li><a class="dropdown-item" href="{{ url_for('admin_usuarios') }}"><i class="fas fa-user-shield"></i> Gestionar usuarios</a></li>
                 <li><hr class="dropdown-divider"></li>
                 {% endif %}

@@ -8,6 +8,7 @@ Gestión de Usuarios | ÑM Performance
 
 <div class="usuarios-page">
 
+    <p class="mb-3"><a class="btn btn-outline-primary" href="{{ url_for('solicitudes_acceso') }}">Revisar solicitudes de acceso</a></p>
     <!-- HERO -->
     <section class="usuarios-hero mb-4">
         <div class="usuarios-hero-content">
@@ -65,7 +66,7 @@ Gestión de Usuarios | ÑM Performance
                 <i class="fas fa-user-pen"></i>
             </div>
             <div>
-                <strong>Editor</strong>
+                <strong>Entrenador</strong>
                 <p>Puede registrar, editar e importar información.</p>
             </div>
         </article>
@@ -75,8 +76,8 @@ Gestión de Usuarios | ÑM Performance
                 <i class="fas fa-eye"></i>
             </div>
             <div>
-                <strong>Viewer</strong>
-                <p>Acceso de consulta sin permisos de modificación.</p>
+                <strong>Delegado</strong>
+                <p>Consulta de información deportiva autorizada.</p>
             </div>
         </article>
 
@@ -171,6 +172,7 @@ Gestión de Usuarios | ÑM Performance
                                 action="{{ url_for('cambiar_rol', user_id=u.id) }}"
                                 class="rol-form"
                             >
+            <input type="hidden" name="_csrf_token" value="{{ token_formulario() }}">
                                 <select
                                     name="rol"
                                     class="form-select form-select-sm rol-select rol-{{ u.rol }}"
@@ -180,12 +182,9 @@ Gestión de Usuarios | ÑM Performance
                                     <option value="admin" {% if u.rol == 'admin' %}selected{% endif %}>
                                         Administrador
                                     </option>
-                                    <option value="editor" {% if u.rol == 'editor' %}selected{% endif %}>
-                                        Editor
-                                    </option>
-                                    <option value="viewer" {% if u.rol == 'viewer' %}selected{% endif %}>
-                                        Viewer
-                                    </option>
+                                    <option value="entrenador" {% if u.rol == 'entrenador' %}selected{% endif %}>Entrenador</option>
+                                    <option value="delegado" {% if u.rol == 'delegado' %}selected{% endif %}>Delegado</option>
+                                    <option value="nadador" {% if u.rol == 'nadador' %}selected{% endif %}>Nadador</option>
                                 </select>
                             </form>
                         </td>
@@ -209,6 +208,7 @@ Gestión de Usuarios | ÑM Performance
                                     class="d-inline eliminar-form"
                                     data-username="{{ u.username }}"
                                 >
+            <input type="hidden" name="_csrf_token" value="{{ token_formulario() }}">
                                     <button
                                         type="submit"
                                         class="accion-btn accion-eliminar"
@@ -313,6 +313,7 @@ Gestión de Usuarios | ÑM Performance
             action="{{ url_for('crear_usuario') }}"
             class="user-dialog-form"
         >
+            <input type="hidden" name="_csrf_token" value="{{ token_formulario() }}">
             <div class="user-dialog-body">
 
                 <div class="user-field">
@@ -343,9 +344,9 @@ Gestión de Usuarios | ÑM Performance
                             id="nuevoPassword"
                             name="password"
                             class="form-control"
-                            placeholder="Mínimo 6 caracteres"
+                            placeholder="Mínimo 12 caracteres"
                             autocomplete="new-password"
-                            minlength="6"
+                            minlength="12"
                             required
                         >
 
@@ -364,7 +365,7 @@ Gestión de Usuarios | ÑM Performance
                     </div>
 
                     <small id="passwordStrengthText">
-                        Utiliza al menos 6 caracteres.
+                        Utiliza al menos 12 caracteres.
                     </small>
                 </div>
 
@@ -394,11 +395,17 @@ Gestión de Usuarios | ÑM Performance
                         required
                     >
                         <option value="admin">Administrador</option>
-                        <option value="editor" selected>Editor</option>
-                        <option value="viewer">Viewer</option>
+                        <option value="entrenador">Entrenador</option>
+                        <option value="delegado">Delegado</option>
+                        <option value="nadador" selected>Nadador</option>
                     </select>
                 </div>
 
+                <div class="user-field">
+                    <label for="nuevoRut">RUT del nadador (obligatorio para rol Nadador)</label>
+                    <input type="text" id="nuevoRut" name="rut" class="form-control" placeholder="12.345.678-5">
+                    <small>Debe coincidir con el RUT de una ficha deportiva existente.</small>
+                </div>
             </div>
 
             <footer class="user-dialog-footer">
@@ -471,6 +478,7 @@ Gestión de Usuarios | ÑM Performance
             action="{{ url_for('cambiar_password', user_id=u.id) }}"
             class="user-dialog-form"
         >
+            <input type="hidden" name="_csrf_token" value="{{ token_formulario() }}">
             <div class="user-dialog-body">
 
                 <div class="password-user-summary">
@@ -495,9 +503,9 @@ Gestión de Usuarios | ÑM Performance
                             id="password{{ u.id }}"
                             name="new_password"
                             class="form-control"
-                            placeholder="Mínimo 6 caracteres"
+                            placeholder="Mínimo 12 caracteres"
                             autocomplete="new-password"
-                            minlength="6"
+                            minlength="12"
                             required
                         >
 
@@ -1411,7 +1419,7 @@ Gestión de Usuarios | ÑM Performance
 
                 const widths = ["0%", "22%", "42%", "62%", "82%", "100%"];
                 const labels = [
-                    "Utiliza al menos 6 caracteres.",
+                    "Utiliza al menos 12 caracteres.",
                     "Contraseña muy débil",
                     "Contraseña débil",
                     "Contraseña aceptable",

@@ -6,7 +6,10 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
 {% block content %}
 
-<div class="asistencia-page">
+{# Permiso calculado en el servidor a partir del rol validado en la BD. #}
+{% set puede_editar_asistencia = puede_editar_asistencias | default(false) %}
+
+<div class="asistencia-page" data-puede-editar-asistencia="{{ '1' if puede_editar_asistencia else '0' }}">
 
     <!-- Encabezado -->
     <section class="asistencia-hero mb-4">
@@ -113,7 +116,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                 </h2>
 
                 <p class="toolbar-description mb-0">
-                    Haz clic en cada casilla para cambiar su estado.
+                    {% if puede_editar_asistencia %}Haz clic en cada casilla para cambiar su estado.{% else %}Consulta los registros de participación de la temporada.{% endif %}
                 </p>
 
             </div>
@@ -221,10 +224,12 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
         </div>
 
+        {% if puede_editar_asistencia %}
         <div class="legend-cycle">
             <i class="fas fa-rotate"></i>
             Cada clic avanza al siguiente estado
         </div>
+        {% endif %}
 
     </section>
 
@@ -369,8 +374,8 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
                         <td class="attendance-cell {% if competencia.es_especial %}attendance-special-cell{% endif %}">
 
-                            <button
-                                type="button"
+                            {% if puede_editar_asistencia %}<button{% else %}<span{% endif %}
+                                {% if puede_editar_asistencia %}type="button"{% endif %}
                                 class="
                                     attendance-button
                                     {% if estado == 'PRESENTE' %}
@@ -399,7 +404,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                                         Sin registrar
                                     {% endif %}
                                 "
-                                aria-label="Cambiar estado de asistencia"
+                                aria-label="{{ 'Cambiar estado de asistencia' if puede_editar_asistencia else 'Estado de asistencia (solo lectura)' }}"
                             >
 
                                 <span class="attendance-symbol">
@@ -428,7 +433,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </span>
 
-                            </button>
+                            {% if puede_editar_asistencia %}</button>{% else %}</span>{% endif %}
 
                         </td>
 
@@ -577,8 +582,13 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
             </span>
 
             <span id="estadoGuardado">
+                {% if puede_editar_asistencia %}
                 <i class="fas fa-cloud"></i>
                 Los cambios se guardan automáticamente
+                {% else %}
+                <i class="fas fa-eye"></i>
+                Vista de solo lectura
+                {% endif %}
             </span>
 
         </div>
@@ -601,9 +611,14 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
             </strong>
 
             <p class="mb-0">
+                {% if puede_editar_asistencia %}
                 Los cambios se guardan inmediatamente. El ciclo de estados es:
                 sin registrar, participó, no participó, no aplicaba y nuevamente
                 sin registrar.
+                {% else %}
+                Puedes consultar los registros, buscar nadadores y aplicar filtros.
+                Tu perfil no permite modificar las asistencias.
+                {% endif %}
             </p>
 
         </div>
@@ -1182,6 +1197,13 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
             border-color 0.12s ease;
     }
 
+    .asistencia-page[data-puede-editar-asistencia="0"] .attendance-button {
+        cursor: default;
+    }
+    .asistencia-page[data-puede-editar-asistencia="0"] .attendance-button:hover {
+        transform: none;
+        box-shadow: none;
+    }
     .attendance-button:hover {
         transform: scale(1.09);
         box-shadow:
@@ -1222,6 +1244,10 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
         background: transparent;
     }
 
+    .asistencia-page[data-puede-editar-asistencia="0"] .attendance-empty:hover {
+        border-color: transparent;
+        background: transparent;
+    }
     .attendance-empty:hover {
         border-color: #d3e4e4;
         background: #f3f9f9;
@@ -2265,10 +2291,8 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const botones =
-            document.querySelectorAll(
-                ".attendance-button"
-            );
+        const puedeEditarAsistencia = document.querySelector(".asistencia-page")?.dataset.puedeEditarAsistencia === "1";
+        const botones = document.querySelectorAll(".attendance-button");
 
         const buscador =
             document.getElementById(
@@ -2435,7 +2459,7 @@ Asistencia {{ anio }} | Gestor Ñuñoa Master
             }
         }
 
-        botones.forEach(function (boton) {
+        if (puedeEditarAsistencia) botones.forEach(function (boton) {
             boton.addEventListener(
                 "click",
                 async function () {

@@ -829,62 +829,63 @@ class GestorTiemposMaster:
         piscina="50 metros",
         anio=2026
     ):
+        """Top 4 por categoría, género, estilo y distancia, sin repetir nadadores.
+
+        Para cada nadador se considera únicamente su mejor marca en la prueba
+        y temporada seleccionadas. No modifica los registros históricos.
+        """
         cursor = self._execute("""
-            WITH ranking AS (
+            WITH marcas AS (
                 SELECT
-                    COALESCE(
-                        t.categoria,
-                        n.categoria_master,
-                        'Sin categoría'
-                    ) AS categoria_master,
-    
-                    COALESCE(
-                        t.genero,
-                        n.genero,
-                        'Sin género'
-                    ) AS genero,
-    
+                    COALESCE(t.categoria, n.categoria_master, 'Sin categoría') AS categoria_master,
+                    COALESCE(t.genero, n.genero, 'Sin género') AS genero,
                     t.estilo,
                     t.distancia,
                     t.tiempo,
                     t.tiempo_segundos,
                     t.fecha,
                     t.nombre_nadador,
-    
+                    t.id,
                     ROW_NUMBER() OVER (
                         PARTITION BY
-                            COALESCE(
-                                t.categoria,
-                                n.categoria_master,
-                                'Sin categoría'
-                            ),
-                            COALESCE(
-                                t.genero,
-                                n.genero,
-                                'Sin género'
-                            ),
-                            t.estilo,
-                            t.distancia
-                        ORDER BY
-                            t.tiempo_segundos ASC,
-                            t.fecha ASC
-                    ) AS posicion
-    
+                            COALESCE(t.categoria, n.categoria_master, 'Sin categoría'),
+                            COALESCE(t.genero, n.genero, 'Sin género'),
+                            LOWER(TRIM(t.estilo)),
+                            t.distancia,
+                            LOWER(TRIM(t.nombre_nadador))
+                        ORDER BY t.tiempo_segundos ASC, t.fecha ASC, t.id ASC
+                    ) AS puesto_nadador
                 FROM tiempos t
-    
                 LEFT JOIN nadadores n
                     ON LOWER(TRIM(t.nombre_nadador)) =
                        LOWER(TRIM(n.nombre || ' ' || n.apellido))
-    
                 WHERE LOWER(TRIM(t.piscina)) = LOWER(TRIM(?))
                   AND EXTRACT(YEAR FROM t.fecha) = ?
                   AND t.distancia IN (50, 100)
-                  AND NOT (
-                      LOWER(TRIM(t.estilo)) = 'combinado'
-                      AND t.distancia = 100
-                  )
+                  AND NOT (LOWER(TRIM(t.estilo)) = 'combinado' AND t.distancia = 100)
+                  AND t.nombre_nadador IS NOT NULL
+                  AND TRIM(t.nombre_nadador) <> ''
+                  AND t.tiempo_segundos IS NOT NULL
+                  AND t.tiempo_segundos < 9999.99
+                  AND UPPER(TRIM(t.tiempo)) NOT IN ('DQ', 'DSQ', 'DNS', 'DNF', 'NP', '-')
+            ),
+            ranking AS (
+                SELECT
+                    categoria_master,
+                    genero,
+                    estilo,
+                    distancia,
+                    tiempo,
+                    tiempo_segundos,
+                    fecha,
+                    nombre_nadador,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY categoria_master, genero, LOWER(TRIM(estilo)), distancia
+                        ORDER BY tiempo_segundos ASC, fecha ASC, nombre_nadador ASC
+                    ) AS posicion
+                FROM marcas
+                WHERE puesto_nadador = 1
             )
-    
             SELECT
                 categoria_master,
                 genero,
@@ -894,27 +895,14 @@ class GestorTiemposMaster:
                 fecha,
                 nombre_nadador,
                 posicion
-    
             FROM ranking
-    
             WHERE posicion <= 4
-    
-            ORDER BY
-                categoria_master,
-                genero,
-                distancia,
-                estilo,
-                posicion
-        """, (
-            piscina,
-            anio
-        ), commit=False)
-    
-        filas = cursor.fetchall()
-    
+            ORDER BY categoria_master, genero, distancia, estilo, posicion
+        """, (piscina, anio), commit=False)
+
         return [
             self._row_to_dict(fila, cursor)
-            for fila in filas
+            for fila in cursor.fetchall()
             if fila
         ]
 

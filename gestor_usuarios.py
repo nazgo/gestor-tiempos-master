@@ -14,6 +14,7 @@ class GestorUsuarios:
         self.conn = None
         self.connect()
         self.crear_tabla()
+        self.migrar_registro()
 
     def connect(self):
         db_url = os.environ.get('DATABASE_URL')
@@ -29,6 +30,8 @@ class GestorUsuarios:
             except Exception as e:
                 print("❌ Error PostgreSQL usuarios:", e)
         
+        if db_url and 'postgresql' in db_url:
+            raise RuntimeError('No se pudo conectar a PostgreSQL: se cancela el inicio para evitar SQLite accidental')
         print("🔗 Usando SQLite local para usuarios...")
         import sqlite3
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
@@ -68,15 +71,108 @@ class GestorUsuarios:
             )
         ''', commit=False)
 
-        if not self.obtener_usuario("admin"):
-            self.crear_usuario("admin", "admin123", "admin", "Administrador")
+        # Nunca crear credenciales administrativas predeterminadas.
 
-    def crear_usuario(self, username, password, rol="viewer", nombre=""):
+    def migrar_registro(self):
+        postgres = 'postgresql' in str(os.environ.get('DATABASE_URL', ''))
+        columns = [('rut', 'TEXT'), ('email', 'TEXT'), ('estado', "TEXT DEFAULT 'activo'"), ('nadador_id', 'INTEGER'), ('fecha_aprobacion', 'TIMESTAMP'), ('aprobado_por', 'INTEGER')]
+        for name, kind in columns:
+            if postgres:
+                self._execute(f'ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS {name} {kind}')
+            else:
+                try:
+                    self._execute(f'ALTER TABLE usuarios ADD COLUMN {name} {kind}')
+                except Exception as e:
+                    if 'duplicate column' not in str(e).lower():
+                        raise
+        self._execute("UPDATE usuarios SET estado='activo' WHERE estado IS NULL")
+        self._execute("UPDATE usuarios SET rol='entrenador' WHERE rol='editor'")
+        self._execute("UPDATE usuarios SET rol='delegado' WHERE rol='viewer'")
+        self._execute('CREATE UNIQUE INDEX IF NOT EXISTS ux_usuarios_email ON usuarios (LOWER(email))')
+        self._execute('CREATE UNIQUE INDEX IF NOT EXISTS ux_usuarios_rut ON usuarios (rut)')
+        self._execute('CREATE UNIQUE INDEX IF NOT EXISTS ux_usuarios_nadador ON usuarios (nadador_id)')
+
+    def solicitar_registro(self, nombre, rut, email, password):
+        import re
+        rut = rut.upper().replace('.', '').replace('-', '').replace(' ', '')
+        if not re.fullmatch(r'[0-9]{7,8}[0-9K]', rut):
+            raise ValueError('RUT inválido')
+        body, dv = rut[:-1], rut[-1]
+        total = sum(int(n) * (2 + i % 6) for i, n in enumerate(reversed(body)))
+        expected = '0' if total % 11 == 0 else 'K' if 11 - total % 11 == 10 else str(11 - total % 11)
+        if dv != expected:
+            raise ValueError('Dígito verificador del RUT incorrecto')
+        email = email.strip().lower()
+        nombre = ' '.join(nombre.split())
+        if len(nombre) < 4 or len(nombre) > 150 or len(email) > 254 or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', email):
+            raise ValueError('Nombre o correo inválidos')
+        if len(password) < 12 or len(password) > 256:
+            raise ValueError('La contraseña debe tener entre 12 y 256 caracteres')
+        if self._execute('SELECT id FROM usuarios WHERE rut=? OR LOWER(email)=?', (rut, email), False).fetchone():
+            raise ValueError('Ya existe una solicitud o cuenta asociada a esos datos')
+        username = email
+        self._execute('''INSERT INTO usuarios (username, password_hash, rol, nombre, rut, email, estado)
+                         VALUES (?, ?, 'pendiente', ?, ?, ?, 'pendiente')''',
+                      (username, generate_password_hash(password), nombre, rut, email))
+
+    def listar_pendientes(self):
+        cursor = self._execute("SELECT id, nombre, rut, email, created_at FROM usuarios WHERE estado='pendiente' ORDER BY created_at", commit=False)
+        return [dict(zip([c[0] for c in cursor.description], row)) for row in cursor.fetchall()]
+
+    def resolver_solicitud(self, user_id, accion, rol, nadador_id, admin_id):
+        if accion not in ('aprobar', 'rechazar'):
+            raise ValueError('Acción no válida')
+        if rol not in ('admin', 'entrenador', 'delegado', 'nadador'):
+            raise ValueError('Rol no válido')
+        row = self._execute("SELECT rut FROM usuarios WHERE id=? AND estado='pendiente'", (user_id,), False).fetchone()
+        if not row:
+            raise ValueError('La solicitud ya fue resuelta o no existe')
+        if accion == 'rechazar':
+            self._execute("UPDATE usuarios SET estado='rechazado' WHERE id=? AND estado='pendiente'", (user_id,))
+            return
+        if rol == 'nadador' and not nadador_id:
+            raise ValueError('El rol Nadador requiere una ficha vinculada')
+        if nadador_id:
+            n = self._execute('SELECT rut FROM nadadores WHERE id=?', (nadador_id,), False).fetchone()
+            if not n:
+                raise ValueError('Ficha inexistente')
+            # El RUT debe coincidir; si no coincide, corregir los datos antes de aprobar.
+            normalize = lambda x: str(x or '').upper().replace('.', '').replace('-', '').replace(' ', '')
+            if normalize(n[0]) != normalize(row[0]):
+                raise ValueError('El RUT de la ficha no coincide con el del solicitante')
+        self._execute('''UPDATE usuarios SET rol=?, estado='activo', nadador_id=?,
+                         aprobado_por=?, fecha_aprobacion=CURRENT_TIMESTAMP
+                         WHERE id=? AND estado='pendiente' ''', (rol, nadador_id, admin_id, user_id))
+
+    ROLES_VALIDOS = ('admin', 'entrenador', 'delegado', 'nadador')
+
+    @staticmethod
+    def _rut_normalizado(valor):
+        return str(valor or '').upper().replace('.', '').replace('-', '').replace(' ', '')
+
+    def _buscar_nadador_por_rut(self, rut):
+        rut = self._rut_normalizado(rut)
+        if not rut:
+            raise ValueError('Para el rol Nadador debes indicar el RUT de su ficha deportiva')
+        cursor = self._execute('SELECT id, rut FROM nadadores', commit=False)
+        encontrados = [row[0] for row in cursor.fetchall() if self._rut_normalizado(row[1]) == rut]
+        if len(encontrados) != 1:
+            raise ValueError('No se encontró una ficha deportiva única con ese RUT')
+        return encontrados[0]
+
+    def crear_usuario(self, username, password, rol='nadador', nombre='', rut=''):
+        if rol not in self.ROLES_VALIDOS:
+            raise ValueError('Rol no válido')
+        username = str(username or '').strip()
+        if not username or len(username) > 150:
+            raise ValueError('Usuario inválido')
+        if len(password or '') < 12:
+            raise ValueError('La contraseña debe tener al menos 12 caracteres')
+        nadador_id = self._buscar_nadador_por_rut(rut) if rol == 'nadador' else None
         password_hash = generate_password_hash(password)
-        self._execute('''
-            INSERT INTO usuarios (username, password_hash, rol, nombre)
-            VALUES (?, ?, ?, ?)
-        ''', (username, password_hash, rol, nombre))
+        self._execute("""INSERT INTO usuarios (username, password_hash, rol, nombre, rut, nadador_id, estado)
+                         VALUES (?, ?, ?, ?, ?, ?, 'activo')""",
+                      (username, password_hash, rol, nombre, self._rut_normalizado(rut) or None, nadador_id))
 
     def obtener_usuario(self, username):
             cursor = self._execute('SELECT * FROM usuarios WHERE username = ?', (username,), commit=False)
@@ -91,9 +187,16 @@ class GestorUsuarios:
             else:  # fallback
                 return dict(zip([desc[0] for desc in cursor.description], row))
 
+    def obtener_usuario_por_id(self, user_id):
+        cursor = self._execute('SELECT * FROM usuarios WHERE id = ?', (user_id,), commit=False)
+        row = cursor.fetchone()
+        if not row:
+            return None
+        return dict(zip([c[0] for c in cursor.description], row))
+
     def verificar_login(self, username, password):
         usuario = self.obtener_usuario(username)
-        if usuario and check_password_hash(usuario['password_hash'], password):
+        if usuario and usuario.get('estado', 'activo') == 'activo' and check_password_hash(usuario['password_hash'], password):
             return dict(usuario)
         return None
 
@@ -112,7 +215,19 @@ class GestorUsuarios:
             return result
 
     def cambiar_rol(self, user_id, nuevo_rol):
-        self._execute('UPDATE usuarios SET rol = ? WHERE id = ?', (nuevo_rol, user_id))
+        if nuevo_rol not in self.ROLES_VALIDOS:
+            raise ValueError('Rol no válido')
+        cursor = self._execute('SELECT rol, rut, nadador_id FROM usuarios WHERE id=?', (user_id,), False)
+        usuario = cursor.fetchone()
+        if not usuario:
+            raise ValueError('Usuario inexistente')
+        if user_id == 1 and nuevo_rol != 'admin':
+            raise ValueError('No se puede quitar el rol del administrador principal')
+        if nuevo_rol == 'nadador':
+            nadador_id = usuario[2] or self._buscar_nadador_por_rut(usuario[1])
+            self._execute('UPDATE usuarios SET rol=?, nadador_id=? WHERE id=?', (nuevo_rol, nadador_id, user_id))
+        else:
+            self._execute('UPDATE usuarios SET rol=? WHERE id=?', (nuevo_rol, user_id))
 
     def cambiar_password(self, user_id, new_password):
         password_hash = generate_password_hash(new_password)
