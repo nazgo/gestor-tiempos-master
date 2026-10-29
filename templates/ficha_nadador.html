@@ -4,9 +4,6 @@
 
 {% block extra_css %}
 <link href="{{ url_for('static', filename='css/athlete-profile.css') }}" rel="stylesheet">
-{% endblock %}
-
-
 <style>
 .athlete-inactive-alert { display:flex; gap:16px; align-items:flex-start; padding:19px 22px; margin:20px 0; border:1px solid #e7b96e; border-left:5px solid #d68a24; border-radius:14px; background:var(--surface, #fff); color:var(--text-primary, #1f2937); box-shadow:0 4px 18px rgba(0,0,0,.04); }
 .athlete-inactive-icon { display:flex; flex:0 0 42px; height:42px; justify-content:center; align-items:center; border-radius:12px; background:rgba(214,138,36,.13); color:#c18225; font-size:1.1rem; }
@@ -30,6 +27,9 @@
 .profile-attendance-special { margin:12px 0 0; font-size:.83rem; color:var(--text-secondary,#64748b); }
 @media(max-width:575px) { .profile-attendance-percent { font-size:2.9rem; } .profile-attendance-ring { width:90px; height:90px; flex-basis:90px; } .profile-attendance-ring-inner { width:72px; height:72px; } .profile-attendance-ring-number { font-size:1.5rem; } }
 </style>
+{% endblock %}
+
+
 
 {% block content %}
 {% set total_tiempos = ficha.resumen.total_tiempos or 0 %}
