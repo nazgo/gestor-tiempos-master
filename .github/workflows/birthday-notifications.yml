@@ -2,12 +2,10 @@ name: Cumpleanos NM Performance (Produccion)
 
 on:
   schedule:
-    # Cubre 09:00 y 10:00 America/Santiago en UTC-3 y UTC-4.
-    # El script descarta las ejecuciones fuera de esas horas locales.
-    # Ejecución de prueba: 30 de octubre, 10:30 Chile (13:30 UTC)
-    - cron: '30 13 30 10 *'
-    # Programación diaria habitual
-    - cron: '17 12,13,14 * * *'
+    # Ejecuciones diarias en UTC.
+    # Cubre las 09:00 y 10:00 de Chile en horario de verano e invierno.
+    # El script verifica la hora local de America/Santiago.
+    - cron: '17,47 12-14 * * *'
   workflow_dispatch:
 
 permissions:
