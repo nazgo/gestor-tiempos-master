@@ -4,7 +4,7 @@ on:
   schedule:
     # Cubre 09:00 y 10:00 America/Santiago en UTC-3 y UTC-4.
     # El script descarta las ejecuciones fuera de esas horas locales.
-    - cron: '0 12,13,14 * * *'
+    - cron: '17 12,13,14 * * *'
   workflow_dispatch:
 
 permissions:
